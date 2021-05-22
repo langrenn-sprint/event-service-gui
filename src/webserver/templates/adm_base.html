@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{% block titleheader %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="../static/styles.css">
+    <meta http-equiv="refresh" content="{% block refresh %}{% endblock %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <div class="w3-container">
+      <h2 id=headeradmin>Administrasjon - {% block titlemain %}{% endblock %}</h2>
+
+      <!-- Top Navigation Menu -->
+      <ul>
+        <li class=dropdown id=topborder>
+          <a href=javascript:void(0) class=dropbtn>...</a>
+          <div class=dropdown-content>
+            <a href="/">Hovedside</a>
+            <a href="/admin/start">Start (admin)</a>
+            <a href="/admin/foto">Foto (admin)</a>
+          </div>
+        </li>
+        {% block menu %}{% endblock %}
+      </ul>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <div class="w3-container">
+      <h2 id=headeradmin>{{ lopsinfo[1] }}, {{ lopsinfo[2] }}</h2>
+      <table>
+        <tr>
+          <td align=right>
+            <a href="https://github.com/langrenn-sprint">langrenn-sprint (GitHub)</a> - utviklet av Lyn ski og Kjelsås langrenn
+          </td>
+        </tr>
+        <tr id=spacer></tr>
+      </table>
+    </div>
+  </body>
+</html>

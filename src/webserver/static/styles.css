@@ -1,0 +1,249 @@
+/*********************************
+* stiler for sprint nettsider    *
+*
+* Lyn farger: Rød vanlig:  #A30013
+*             Rød mørk (hover) #75000e
+              Grå mørk #3D3D3D
+              Grå lys #f1f2f7
+              Blå #1f3d8e
+*
+* Kjelsås farger:
+              Kongeblå (PMS 280) - #00247d
+              Orange PMS 1365 - #ffb549
+              Lys blå PMS 278 - #94b5e0
+              Grå mørk #3D3D3D
+              Grå lys #f1f2f7
+              Font: Verdana
+*********************************/
+
+
+body {
+    background-color: #f1f2f7;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    margin: auto;
+}
+
+* {
+  box-sizing: border-box;
+  margin: auto;
+}
+
+.row::after {
+  clear: both;
+  display: table;
+}
+
+ul {
+  	list-style-type: none;
+    margin: 0;
+    padding: 0;
+		background-color: #94b5e0;
+}
+
+#topborder {
+  	border-right: 1px solid white;
+	 	right: 0;
+}
+
+a {
+  color: black;
+}
+
+a:hover {
+  background-color: #f1f2f7;
+}
+
+
+
+li, .dropbtn {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 2px 2px;
+  text-decoration: none;
+}
+
+li:hover, .dropdown:hover, .dropbtn:hover {
+  background-color: #00247d;
+}
+
+.dropbtnactive {
+  background-color: grey;
+}
+
+.active {
+  background-color: grey;
+}
+
+li.dropdown {
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: #3D3D3D;
+  padding: 2px 2px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+h1 {
+  text-align: center;
+}
+
+h2 {
+  text-align: center;
+}
+
+.img_desi {
+  width: auto;
+  height: 100px;
+}
+
+.img_kvart {
+  width: 24%;
+  height: auto;
+}
+
+.img_tredje {
+  width: 32.5%;
+  height: auto;
+}
+
+table {
+  width: 100%;
+	border-spacing: 0;
+}
+
+tr:nth-child(even){background-color: #f2f2f2;}
+
+#headerblue {
+    color: white;
+    background-color: #00247d;
+}
+
+#headerblack {
+    color: black;
+    background-color: #ffb549;
+}
+
+#headeradmin {
+    color: black;
+    background-color: yellow;
+}
+
+
+#fremhev {
+    background-color: yellow;
+}
+
+#spacer {
+  height: 5px;
+}
+
+#bredde {
+  vertical-align: top;
+}
+
+#subheader {
+    background-color: lightgrey;
+}
+
+function naviger(id) {
+  var elmnt = document.getElementById(id);
+  elmnt.scrollIntoView();
+}
+
+/**** Responsivt design ****/
+.w3-container {
+  padding:0.01em 12px
+}
+
+.w3-third,.w3-quart,.w3-row-padding,.w3-half {
+  padding:0.01em 6px
+}
+.w3-container:after,.w3-container:before,.w3-row-padding:after,.w3-row-padding:before {
+  content:"";
+  display:table;
+  clear:both;
+}
+
+.w3-half {
+  float:left;width:100%;
+  width:50%;
+}
+
+.w3-third {
+  float:left;width:100%;
+  width:33.33333%;
+}
+
+.w3-quart {
+  float:left;width:100%;
+  width:25%;
+}
+
+/* Use a media query to add a breakpoint */
+@media screen and (max-width: 1200px) {
+  .w3-third {
+    width: 100%; /* The width is 100%, when the viewport is x px or smaller */
+  }
+}
+
+@media screen and (max-width: 1600px) {
+  .w3-quart {
+    width: 50%; /* The width is 100%, when the viewport is x px or smaller */
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .w3-quart, .w3-half {
+    width: 100%; /* The width is 100%, when the viewport is x px or smaller */
+  }
+}
+
+/* START: Tooltip - to show image - start */
+.tooltip {
+  position:relative;
+}
+
+.tooltip span {
+  display:none;
+}
+
+.tooltip span img {
+  float:left;
+}
+
+.tooltip:hover span {
+  display:block;
+  position:absolute;
+  top:105%;
+  left:105%;
+  z-index:1000;
+  width:auto;
+}
+
+#tooltipimage{
+  width:900px;
+  height:600px;
+}
+
+/* END: Tooltip - to show image - END */
