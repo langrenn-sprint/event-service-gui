@@ -33,10 +33,6 @@ DB_NAME=sprint_db
 ```
 Denne fila _skal_ ligge i .dockerignore og .gitignore
 ### Kjøre webserver lokalt
-Start en mongodb instans, feks i docker:
-```
-% docker run --rm --name my-mongo -it -p 27017:27017 mongo:latest
-```
 Start lokal webserver mha aiohttp-devtools(adev):
 ```
 % source .env

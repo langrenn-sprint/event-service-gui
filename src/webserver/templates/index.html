@@ -1,57 +1,62 @@
 {% extends "adm_base.html" %}
 {% block titleheader %}
-  {{ lopsinfo[0] }}
+  {{ lopsinfo }}
 {% endblock %}
-{% block refresh %}300{% endblock %}
+{% block refresh %}{% endblock %}
 {% block titlemain %}
-  {{ lopsinfo[0] }}
+  {{ lopsinfo }}
 {% endblock %}
 {% block content %}
-  <div class="w3-container">
-    <br>Velkommen til {{ lopsinfo[0] }}! Her kan du holde deg oppdatert før, under og etter løpet.
-    <table cellpadding=5px>
-      <tr id=spacer></tr>
-      <tr>
-        <td width=120>
-          <a href="/kjoreplan">Kjøreplan</a>
-        </td>
-        <td>
-          Oversikt over alle heat og informasjon om kvalifisering til finaler.
-        </td>
-      </tr>
-      <tr id=headerblack>
-        <td>
-          <a href="deltakere">Deltakere</a>
-        </td>
-        <td>
-          Alle påmeldte løpere (pr. klasse eller pr. klubb).
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <a href="start">Startlister</a>
-        </td>
-        <td>
-          For alle heat.
-        </td>
-      </tr>
-      <tr id=headerblack>
-        <td>
-          <a href="live">Live scroll</a>
-        </td>
-        <td>
-          Live oppdatering av startlister og resultater. Pr. klubb eller pr. løper.
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <a href="resultat">Resultater</a>
-        </td>
-        <td>
-          Sluttresultater pr klasse.
-        </td>
-      </tr>
-      <tr id=spacer></tr>
-    </table>
+  <div class="w3-row-padding">
+    <div class="w3-half">
+      <form>
+        <table cellpadding=4>
+          <tr id=spacer></tr>
+          <tr>
+            <td colspan=5 id=headerblue>
+              <b>Velg arrangement</b>
+            </td>
+          </tr>
+          <tr id=headeradmin>
+            <td>Navn</td>
+            <td>Dato</td>
+            <td>Klubb</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><a href="">Skagen sprint</a></td>
+            <td>12.01.2021</td>
+            <td>Lyn Ski</td>
+            <td>354 påmeldinger</td>
+          </tr>
+          <tr id=spacer></tr>
+        </table>
+      </form>
+    </div>
+    <div class="w3-half">
+      <form>
+        <table cellpadding=4>
+          <tr id=spacer></tr>
+          <tr>
+            <td colspan=5 id=headerblue>
+              <b>Opprett nytt arrangement</b>
+            </td>
+          </tr>
+          <tr>
+            <td width=150>Navn</td>
+            <td><input type=text name="Verdi1" value="Verdi1"></td>
+            <td>Navn på arrangement</td>
+          </tr>
+          <tr>
+              <td></td>
+              <td colspan=4>
+                <input type="submit" name=Update value=Opprett>
+              </td>
+          </tr>
+          <tr id=spacer></tr>
+        </table>
+      </form>
+    </div>
   </div>
+
 {% endblock %}

@@ -9,6 +9,7 @@ import motor.motor_asyncio
 
 from .views import (
     Innstillinger,
+    Main,
     Ping,
 )
 
@@ -42,6 +43,7 @@ async def create_app() -> web.Application:
     app["db"] = db
     app.add_routes(
         [
+            web.view("/", Main),
             web.view("/innstillinger", Innstillinger),
             web.view("/ping", Ping),
             web.static("/static", static_path),

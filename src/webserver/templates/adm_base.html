@@ -16,9 +16,16 @@
           <a href=javascript:void(0) class=dropbtn>...</a>
           <div class=dropdown-content>
             <a href="/">Hovedside</a>
-            <a href="/admin/start">Start (admin)</a>
-            <a href="/admin/foto">Foto (admin)</a>
           </div>
+        </li>
+        <li id=topborder>
+          <a href=/admin/info class=dropbtn>Info</a>
+        </li>
+        <li id=topborder>
+          <a href=/admin/deltaker class=dropbtn>Deltakere</a>
+        </li>
+        <li id=topborder>
+          <a href=/admin/lopsklasse class=dropbtn>Løpsklasser</a>
         </li>
         {% block menu %}{% endblock %}
       </ul>
@@ -27,15 +34,9 @@
     {% block content %}{% endblock %}
 
     <div class="w3-container">
-      <h2 id=headeradmin>{{ lopsinfo[1] }}, {{ lopsinfo[2] }}</h2>
-      <table>
-        <tr>
-          <td align=right>
-            <a href="https://github.com/langrenn-sprint">langrenn-sprint (GitHub)</a> - utviklet av Lyn ski og Kjelsås langrenn
-          </td>
-        </tr>
-        <tr id=spacer></tr>
-      </table>
+      <div id=footeradmin>
+        <a href="https://github.com/langrenn-sprint">langrenn-sprint (GitHub)</a> - utviklet av Lyn ski og Kjelsås langrenn
+      </div>
     </div>
   </body>
 </html>
