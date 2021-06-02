@@ -44,13 +44,14 @@ pytest-mock = "^3.3.1"
 pytest-aiohttp = "^0.3.0"
 aiohttp-devtools = "^0.13.1"
 pytest-asyncio = "^0.14.0"
+aioresponses = "^0.7.2"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 
 [tool.coverage.run]
 branch = false
-source = ["webserver"]
+source = ["event_service_gui"]
 omit = ["*gunicorn_config.py"]
 
 [tool.coverage.report]

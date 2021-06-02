@@ -26,17 +26,14 @@ Her finner du en enkel webserver som generer html basert på csv-filer i test-da
 Du kan sette opp ei .env fil med miljøvariable. Eksempel:
 ```
 HOST_PORT=8080
-DB_HOST=localhost
-DB_USER=<brukernavn>     # sett inn korrekt brukernavn her
-DB_PASSWORD=<passord>    # sett inn korrekt passord her
-DB_NAME=sprint_db
 ```
+
 Denne fila _skal_ ligge i .dockerignore og .gitignore
 ### Kjøre webserver lokalt
 Start lokal webserver mha aiohttp-devtools(adev):
 ```
 % source .env
-% cd src && poetry run adev runserver -p 8080 webserver
+% cd src && poetry run adev runserver -p 8080 event_service_gui
 ```
 ### Teste manuelt
 Enten åpne din nettleser på http://localhost:8080/
@@ -45,7 +42,7 @@ Eller via curl:
 ```
 % curl -i http://localhost:8080/
 ```
-Når du endrer koden i webserver.py, vil webserveren laste applikasjonen på nytt autoamtisk ved lagring.
+Når du endrer koden i event_service_gui, vil webserveren laste applikasjonen på nytt autoamtisk ved lagring.
 
 # Referanser
 aiohttp: https://docs.aiohttp.org/

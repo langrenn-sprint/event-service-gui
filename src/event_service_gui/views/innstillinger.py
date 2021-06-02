@@ -3,7 +3,7 @@ import logging
 
 from aiohttp import web
 import aiohttp_jinja2
-from webserver.services import InnstillingerService
+from event_service_gui.services import InnstillingerService
 
 
 class Innstillinger(web.View):

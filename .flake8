@@ -5,5 +5,5 @@ max-complexity = 15
 ignore = ANN101,B009,E203,E501,W503
 max-line-length = 88
 per-file-ignores = __init__.py: F401,tests/*:S101
-application-import-names = sprint_webserver, tests
+application-import-names = event_service_gui, tests
 import-order-style = google

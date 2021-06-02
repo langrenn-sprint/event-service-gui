@@ -8,7 +8,7 @@ from aiohttp.test_utils import TestClient as _TestClient
 import pytest
 import requests
 from requests.exceptions import ConnectionError
-from webserver import create_app
+from event_service_gui import create_app
 
 HOST_PORT = int(env.get("HOST_PORT", "8080"))
 

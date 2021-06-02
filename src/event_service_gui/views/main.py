@@ -16,6 +16,6 @@ class Main(web.View):
             "index.html",
             self.request,
             {
-                "lopsinfo": "startside",
+                "lopsinfo": "Langrenn startside",
             },
         )

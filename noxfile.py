@@ -13,7 +13,7 @@ nox.options.sessions = (
     "lint",
     "mypy",
     "pytype",
-    # "integration_tests",
+    "integration_tests",
     "contract_tests",
 )
 
@@ -29,6 +29,7 @@ def integration_tests(session: Session) -> None:
         "pytest-cov",
         "pytest-mock",
         "pytest-aiohttp",
+        "aioresponses",
     )
     session.run(
         "pytest",
