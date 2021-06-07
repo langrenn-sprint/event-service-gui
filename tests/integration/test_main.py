@@ -32,16 +32,6 @@ def mocks(mock_aioresponse: Any) -> Any:
     )
 
 
-@pytest.mark.integration
-async def test_get_main_page(client: _TestClient) -> None:
-    """Should return OK."""
-    resp = await client.get("/")
-    assert resp.status == 200
-    assert resp.headers[hdrs.CONTENT_TYPE] == "text/html"
-    body = await resp.text()
-    assert len(body) > 0
-
-
 # --- Bad cases ---
 @pytest.mark.integration
 async def test_get_main_page_accept_header_not_supported(

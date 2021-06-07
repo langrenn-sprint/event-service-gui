@@ -15,4 +15,4 @@ ADD src /usr/src/app/src
 
 EXPOSE 8080
 
-CMD gunicorn  --chdir src "event-service-gui:create_app"  --config=src/event_service_gui/gunicorn_config.py --worker-class aiohttp.GunicornWebWorker
+CMD gunicorn  --chdir src "event_service_gui:create_app"  --config=src/event_service_gui/gunicorn_config.py --worker-class aiohttp.GunicornWebWorker

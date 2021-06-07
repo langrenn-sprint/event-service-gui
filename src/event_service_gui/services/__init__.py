@@ -1,2 +1,2 @@
 """Package for all services."""
-from .innstillinger_service import InnstillingerService
+from .events_adapter import EventsAdapter

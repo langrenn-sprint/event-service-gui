@@ -9,17 +9,21 @@ services:
     - HOST_PORT=8080
     - EVENT_SERVICE_HOST=event-service
     - EVENT_SERVICE_PORT=8082
-    - EVENT_SERVICE_USER=${EVENT_SERVICE_USER}
-    - EVENT_SERVICE_PASSWORD=${EVENT_SERVICE_PASSWORD}
     depends_on:
       - "event-service"
   event-service:
-      image: gcr.io/langrenn-sprint/event-service:latest
-      ports:
-        - "8080:8082"
-      depends_on:
-        - "mongodb"
+    image: gcr.io/langrenn-sprint/event-service:latest
+    ports:
+      - "8082:8080"
+    environment:
+      - DB_HOST=mongodb
+      - DB_PORT=27017
+      - DB_USER=user
+      - DB_PASSWORD=secret
+    depends_on:
+      - "mongodb"
+
   mongodb:
-      image: mongo:latest
-      ports:
-        - "27017:27017"
+    image: mongo:latest
+    ports:
+      - 27017:27017

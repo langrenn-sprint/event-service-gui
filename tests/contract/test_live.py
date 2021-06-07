@@ -8,7 +8,7 @@ import requests
 @pytest.mark.contract
 def test_live(http_service: Any) -> None:
     """Should return status 200 and html."""
-    url = f"{http_service}/live"
+    url = f"{http_service}/"
     response = requests.get(url)
 
     assert response.status_code == 200

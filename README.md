@@ -27,6 +27,9 @@ Du kan sette opp ei .env fil med miljøvariable. Eksempel:
 ```
 HOST_PORT=8080
 ```
+### Starte services i docker
+docker-compose up --build
+
 
 Denne fila _skal_ ligge i .dockerignore og .gitignore
 ### Kjøre webserver lokalt

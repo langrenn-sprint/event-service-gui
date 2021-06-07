@@ -1,0 +1,49 @@
+name: Test, build and deploy webserver
+on:
+  push
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+jobs:
+  build-and-deploy:
+    name: Build, test and deploy to Google Cloud Registry
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Configure docker to use the gcloud command-line tool as a credential helper
+        run: |-
+          gcloud auth configure-docker gcr.io
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+          architecture: x64
+
+      - name: Install dependencies
+        run: |-
+          pip install poetry==1.1.6
+          pip install nox==2020.12.31
+          pip install nox-poetry==0.8.5
+
+      - name: Build image and test with nox
+        run: |-
+          nox
+
+      - name: Tag and publish docker image to Google Cloud
+        run: |-
+          docker tag gcr.io/$PROJECT_ID/event-service-gui:test gcr.io/$PROJECT_ID/event-service-gui:$GITHUB_SHA
+          docker tag gcr.io/$PROJECT_ID/event-service-gui:test gcr.io/$PROJECT_ID/event-service-gui:latest
+          docker rmi gcr.io/$PROJECT_ID/event-service-gui:test
+          docker -- push gcr.io/$PROJECT_ID/event-service-gui -a

@@ -2,12 +2,11 @@
 import logging
 import os
 
-from aiohttp import ClientSession, web
+from aiohttp import web
 import aiohttp_jinja2
 import jinja2
 
 from .views import (
-    Innstillinger,
     Main,
     Ping,
 )
@@ -34,12 +33,11 @@ async def create_app() -> web.Application:
 
     # Set up backend session
 
-    app["session"] = ClientSession()
+    # app["session"] = ClientSession()
 
     app.add_routes(
         [
             web.view("/", Main),
-            web.view("/innstillinger", Innstillinger),
             web.view("/ping", Ping),
             web.static("/static", static_path),
         ]
