@@ -15,8 +15,8 @@ Her finner du en enkel webserver som generer html basert på csv-filer i test-da
 ```
 % git clone https://github.com/langrenn-sprint/event-service-gui.git
 % cd evnt-service-gui
-% pyenv install 3.9.0
-% pyenv local 3.9.0
+% pyenv install 3.9.1
+% pyenv local 3.9.1
 % pipx install poetry
 % pipx install nox
 % pipx inject nox nox-poetry
@@ -27,9 +27,16 @@ Du kan sette opp ei .env fil med miljøvariable. Eksempel:
 ```
 HOST_PORT=8080
 ```
+
+### Config gcloud
+gcloud -v
+gcloud auth login
+gcloud config set project langrenn-sprint
+gcloud auth configure-docker
+
 ### Starte services i docker
 docker-compose up --build
-
+docker-compose up --build event-service mongodb
 
 Denne fila _skal_ ligge i .dockerignore og .gitignore
 ### Kjøre webserver lokalt

@@ -16,7 +16,7 @@ class EventsAdapter:
         events = []
         async with ClientSession() as session:
             async with session.get(EVENT_SERVICE_URL + "events") as resp:
-                logging.debug(resp.status)
+                logging.debug(f"get_all_events - got response {resp.status}")
                 if resp.status == "200":
                     events = await resp.json()
         return events

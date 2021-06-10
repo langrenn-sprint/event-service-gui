@@ -1,17 +1,20 @@
-"""Contract test cases for live."""
+"""Contract test cases for ready."""
 from typing import Any
 
+from aiohttp import ClientSession
 import pytest
-import requests
 
 
 @pytest.mark.contract
-def test_live(http_service: Any) -> None:
-    """Should return status 200 and html."""
-    url = f"{http_service}/"
-    response = requests.get(url)
+@pytest.mark.asyncio
+async def test_ready(http_service: Any) -> None:
+    """Should return OK."""
+    url = f"{http_service}/ping"
 
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "text/html; charset=utf-8"
+    session = ClientSession()
+    async with session.get(url) as response:
+        text = await response.text()
+    await session.close()
 
-    assert len(response.text) > 0
+    assert response.status == 200
+    assert len(text) > 0
