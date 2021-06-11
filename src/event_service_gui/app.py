@@ -7,8 +7,13 @@ import aiohttp_jinja2
 import jinja2
 
 from .views import (
+    Contestants,
+    Events,
+    Login,
     Main,
     Ping,
+    Raceclasses,
+    Schedules,
 )
 
 LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
@@ -37,8 +42,13 @@ async def create_app() -> web.Application:
 
     app.add_routes(
         [
+            web.view("/contestants", Contestants),
+            web.view("/events", Events),
             web.view("/", Main),
+            web.view("/login", Login),
             web.view("/ping", Ping),
+            web.view("/raceclasses", Raceclasses),
+            web.view("/schedules", Schedules),
             web.static("/static", static_path),
         ]
     )
