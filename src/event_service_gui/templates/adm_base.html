@@ -8,9 +8,10 @@
   </head>
   <body>
     <div class="w3-container">
-      <h2 id=headeradmin>Administrasjon - {% block titlemain %}{% endblock %}</h2>
+      <h2 id=headeradmin>Administrasjon {{ event }} - {% block titlemain %}{% endblock %}</h2>
 
-      <!-- Top Navigation Menu -->
+
+      <!-- Top Navigation Menu: Show if event is selected -->
       <ul>
         <li class=dropdown id=topborder>
           <a href=javascript:void(0) class=dropbtn>...</a>
@@ -18,19 +19,20 @@
             <a href="/">Hovedside</a>
           </div>
         </li>
+        {% if event != "" %}
         <li id=topborder>
-          <a href=/events class=dropbtn>Info</a>
+          <a href=/events?event={{ event }} class=dropbtn>Info</a>
         </li>
         <li id=topborder>
-          <a href=/contestants class=dropbtn>Deltakere</a>
+          <a href=/contestants?event={{ event }} class=dropbtn>Deltakere</a>
         </li>
         <li id=topborder>
-          <a href=/raceclasses class=dropbtn>Løpsklasser</a>
+          <a href=/raceclasses?event={{ event }} class=dropbtn>Løpsklasser</a>
         </li>
         <li id=topborder>
-          <a href=/schedules class=dropbtn>Kjøreplan</a>
+          <a href=/schedules?event={{ event }} class=dropbtn>Kjøreplan</a>
         </li>
-        {% block menu %}{% endblock %}
+        {% endif %}
       </ul>
     </div>
 

@@ -12,6 +12,12 @@ class Contestants(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
+        try:
+            event = self.request.rel_url.query["event"]
+            logging.debug(f"Event: {event}")
+        except Exception:
+            event = ""
+
         # TODO - get list of contestants
         contestants = await ContestantsAdapter().get_all_contestants()
         logging.debug(f"Contestants: {contestants}")
@@ -21,5 +27,6 @@ class Contestants(web.View):
             {
                 "lopsinfo": "Deltakere",
                 "contestants": contestants,
+                "event": event,
             },
         )

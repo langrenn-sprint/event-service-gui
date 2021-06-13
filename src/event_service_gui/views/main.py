@@ -20,6 +20,6 @@ class Main(web.View):
             self.request,
             {
                 "lopsinfo": "Langrenn startside",
-                "events": events,
+                "event": "",
             },
         )

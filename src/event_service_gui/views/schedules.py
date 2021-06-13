@@ -12,6 +12,12 @@ class Schedules(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
+        try:
+            event = self.request.rel_url.query["event"]
+            logging.debug(f"Event: {event}")
+        except Exception:
+            event = ""
+
         # TODO - get list of schedules
         schedules = await SchedulesAdapter().get_all_schedules()
         logging.debug(f"Schedules: {schedules}")
@@ -21,5 +27,6 @@ class Schedules(web.View):
             {
                 "lopsinfo": "Kjøreplan",
                 "schedules": schedules,
+                "event": event,
             },
         )

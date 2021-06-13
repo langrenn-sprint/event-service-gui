@@ -12,6 +12,12 @@ class Raceclasses(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
+        try:
+            event = self.request.rel_url.query["event"]
+            logging.debug(f"Event: {event}")
+        except Exception:
+            event = ""
+
         # TODO - get list of raceclasses
         raceclasses = await RaceclassesAdapter().get_all_raceclasses()
         logging.debug(f"Raceclasses: {raceclasses}")
@@ -21,5 +27,6 @@ class Raceclasses(web.View):
             {
                 "lopsinfo": "Løpsklasser",
                 "raceclasses": raceclasses,
+                "event": event,
             },
         )
