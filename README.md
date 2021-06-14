@@ -22,6 +22,10 @@ Her finner du en enkel webserver som generer html basert på csv-filer i test-da
 % pipx inject nox nox-poetry
 % poetry install
 ```
+
+## oppdatere
+% poetry update / poetry add <module>
+
 ## Miljøvariable
 Du kan sette opp ei .env fil med miljøvariable. Eksempel:
 ```
@@ -35,6 +39,7 @@ gcloud config set project langrenn-sprint
 gcloud auth configure-docker
 
 ### Starte services i docker
+docker-compose pull #oppdatere images
 docker-compose up --build
 docker-compose up --build event-service mongodb
 

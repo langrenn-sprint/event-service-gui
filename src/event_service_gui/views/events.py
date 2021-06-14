@@ -4,6 +4,8 @@ import logging
 from aiohttp import web
 import aiohttp_jinja2
 
+from event_service_gui.services import EventsAdapter
+
 
 class Events(web.View):
     """Class representing the main view."""
@@ -23,4 +25,28 @@ class Events(web.View):
                 "lopsinfo": "Arrangement",
                 "event": event,
             },
+        )
+
+    async def post(self) -> web.Response:
+        """Post route function that creates a collection of klasses."""
+        # check for new events
+        informasjon = ""
+        try:
+            form = await self.request.post()
+            logging.debug(f"Form {form}")
+
+            # Create new event
+            if "create" in form.keys():
+                name = form["Name"]
+                id = await EventsAdapter().create_event(name)
+                if id == "201":
+                    informasjon = f"Opprettet nytt arrangement - {name}"
+
+        except Exception:
+            logging.error("Error handling post - events")
+
+        return await aiohttp_jinja2.render_template_async(
+            "events.html",
+            self.request,
+            {"lopsinfo": "Arrangement", "informasjon": informasjon},
         )

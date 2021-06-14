@@ -735,6 +735,20 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "pyjwt"
+version = "2.1.0"
+description = "JSON Web Token implementation in Python"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+crypto = ["cryptography (>=3.3.1,<4.0.0)"]
+dev = ["sphinx", "sphinx-rtd-theme", "zope.interface", "cryptography (>=3.3.1,<4.0.0)", "pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)", "mypy", "pre-commit"]
+docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
+tests = ["pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)"]
+
+[[package]]
 name = "pymongo"
 version = "3.11.4"
 description = "Python driver for MongoDB <http://www.mongodb.org>"
@@ -1085,7 +1099,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7  "
-content-hash = "27ffab4e22060630f56463abcc4455196474ff1b8e5abfb90627d0442c9d6056"
+content-hash = "69bb1b68fe2e33c91762b59e160f70e7880ca26221464b2532ee893d10133c79"
 
 [metadata.files]
 aiohttp = [
@@ -1541,6 +1555,10 @@ pyflakes = [
 pygments = [
     {file = "Pygments-2.9.0-py3-none-any.whl", hash = "sha256:d66e804411278594d764fc69ec36ec13d9ae9147193a1740cd34d272ca383b8e"},
     {file = "Pygments-2.9.0.tar.gz", hash = "sha256:a18f47b506a429f6f4b9df81bb02beab9ca21d0a5fee38ed15aef65f0545519f"},
+]
+pyjwt = [
+    {file = "PyJWT-2.1.0-py3-none-any.whl", hash = "sha256:934d73fbba91b0483d3857d1aff50e96b2a892384ee2c17417ed3203f173fca1"},
+    {file = "PyJWT-2.1.0.tar.gz", hash = "sha256:fba44e7898bbca160a2b2b501f492824fc8382485d3a6f11ba5d0c1937ce6130"},
 ]
 pymongo = [
     {file = "pymongo-3.11.4-cp27-cp27m-macosx_10_14_intel.whl", hash = "sha256:b7efc7e7049ef366777cfd35437c18a4166bb50a5606a1c840ee3b9624b54fc9"},

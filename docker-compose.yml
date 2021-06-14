@@ -6,9 +6,12 @@ services:
     ports:
       - "8080:8080"
     environment:
-    - HOST_PORT=8080
-    - EVENT_SERVICE_HOST=event-service
-    - EVENT_SERVICE_PORT=8082
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - HOST_PORT=8080
+      - EVENT_SERVICE_HOST=event-service
+      - EVENT_SERVICE_PORT=8082
     depends_on:
       - "event-service"
   event-service:
@@ -16,6 +19,9 @@ services:
     ports:
       - "8082:8080"
     environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - DB_HOST=mongodb
       - DB_PORT=27017
       - DB_USER=user

@@ -11,10 +11,23 @@ class Login(web.View):
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
         logging.debug(f"Login: {self}")
+
         return await aiohttp_jinja2.render_template_async(
             "login.html",
             self.request,
             {
-                "lopsinfo": "Langrenn startside",
+                "lopsinfo": "Login",
+            },
+        )
+
+    async def post(self) -> web.Response:
+        """Get route function that return the index page."""
+        logging.debug(f"Login: {self}")
+
+        return await aiohttp_jinja2.render_template_async(
+            "login.html",
+            self.request,
+            {
+                "lopsinfo": "Login resultat",
             },
         )

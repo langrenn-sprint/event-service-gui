@@ -9,7 +9,7 @@
 {% block content %}
   <div class="w3-row-padding">
     <div class="w3-half">
-      <form>
+      <form action=/events method=post>
         <table cellpadding=4>
           <tr id=spacer></tr>
           <tr>
@@ -19,13 +19,13 @@
           </tr>
           <tr>
             <td width=150>Navn</td>
-            <td><input type=text name="Verdi1" value="Verdi1"></td>
+            <td><input type=text name="Name" value=""></td>
             <td>Navn på arrangement</td>
           </tr>
           <tr>
               <td></td>
               <td colspan=4>
-                <input type="submit" name=Update value=Opprett>
+                <input type="submit" name=Create value=Opprett>
               </td>
           </tr>
           <tr id=spacer></tr>
