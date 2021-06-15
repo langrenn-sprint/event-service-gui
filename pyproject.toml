@@ -22,6 +22,8 @@ aiohttp-jinja2 = "^1.4.2"
 motor = "^2.3.0"
 aioresponses = "^0.7.2"
 PyJWT = "^2.1.0"
+multidict = "^5.1.0"
+jwt = "^1.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.1"

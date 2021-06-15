@@ -29,6 +29,7 @@ def integration_tests(session: Session) -> None:
         "pytest-mock",
         "pytest-aiohttp",
         "aioresponses",
+        "requests",
     )
     session.run(
         "pytest",
@@ -49,6 +50,7 @@ def contract_tests(session: Session) -> None:
         "pytest-docker",
         "pytest_mock",
         "pytest-asyncio",
+        "requests",
     )
     session.run(
         "pytest",
