@@ -33,10 +33,10 @@ class Events(web.View):
         informasjon = ""
         try:
             form = await self.request.post()
-            logging.debug(f"Form {form}")
+            logging.info(f"Form {form}")
 
             # Create new event
-            if "create" in form.keys():
+            if "Create" in form.keys():
                 name = form["Name"]
                 id = await EventsAdapter().create_event(name)
                 if id == "201":
@@ -48,5 +48,9 @@ class Events(web.View):
         return await aiohttp_jinja2.render_template_async(
             "events.html",
             self.request,
-            {"lopsinfo": "Arrangement", "informasjon": informasjon},
+            {
+                "lopsinfo": "Arrangement",
+                "event": name,
+                "informasjon": informasjon,
+            },
         )

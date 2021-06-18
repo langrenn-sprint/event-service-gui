@@ -15,12 +15,11 @@ EVENT_SERVICE_URL = "http://localhost:8082"
 # TODO - fikse
 def token() -> str:
     """Create a valid token."""
-    secret = os.getenv("JWT_SECRET")
+    # secret = "secret"
     algorithm = "HS256"
+    # payload = {"identity": "admin"}
+    secret = os.getenv("JWT_SECRET")
     payload = {"identity": os.getenv("ADMIN_USERNAME")}
-    #    secret = "secret"
-    #    algorithm = "HS256"
-    #    payload = {"identity": "admin"}
     return jwt.encode(payload, secret, algorithm)  # type: ignore
 
 
@@ -47,12 +46,14 @@ class EventsAdapter:
     async def create_event(self, name: str) -> str:
         """Create new event function."""
         request_body = {"name": name}
+        logging.info(f"create_event - {name}")
         headers = MultiDict(
             {
                 hdrs.CONTENT_TYPE: "application/json",
                 hdrs.AUTHORIZATION: f"Bearer {token()}",
-            },
+            }
         )
+        logging.info("create_event - header ok")
 
         async with ClientSession() as session:
             async with session.post(

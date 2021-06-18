@@ -4,6 +4,8 @@ import logging
 from aiohttp import web
 import aiohttp_jinja2
 
+from event_service_gui.services import LoginAdapter
+
 
 class Login(web.View):
     """Class representing the main view."""
@@ -23,6 +25,16 @@ class Login(web.View):
     async def post(self) -> web.Response:
         """Get route function that return the index page."""
         logging.debug(f"Login: {self}")
+
+        try:
+            form = await self.request.post()
+
+            # Perform login
+            result = await LoginAdapter().login(form["username"], form["password"])
+            logging.info(f"Login result {result}")
+
+        except Exception:
+            logging.error("Error handling post - login")
 
         return await aiohttp_jinja2.render_template_async(
             "login.html",
