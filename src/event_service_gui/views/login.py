@@ -30,6 +30,7 @@ class Login(web.View):
     async def post(self) -> web.Response:
         """Get route function that return the index page."""
         informasjon = ""
+        result = 0
         logging.debug(f"Login: {self}")
 
         try:
@@ -41,18 +42,28 @@ class Login(web.View):
 
             # Perform login
             result = await LoginAdapter().login(form["username"], form["password"])
-            if result == 401:
+            if result != 200:
                 informasjon = "Innlogging feilet"
 
         except Exception:
             logging.error("Error handling post - login")
 
-        return await aiohttp_jinja2.render_template_async(
-            "login.html",
-            self.request,
-            {
-                "lopsinfo": "Login resultat",
-                "event": event,
-                "informasjon": informasjon,
-            },
-        )
+        if result != 200:
+            return await aiohttp_jinja2.render_template_async(
+                "login.html",
+                self.request,
+                {
+                    "lopsinfo": "Login resultat",
+                    "event": event,
+                    "informasjon": informasjon,
+                },
+            )
+        else:
+            return await aiohttp_jinja2.render_template_async(
+                "events.html",
+                self.request,
+                {
+                    "lopsinfo": "Arrangement",
+                    "event": event,
+                },
+            )

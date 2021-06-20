@@ -35,5 +35,6 @@ class LoginAdapter:
                     body = await resp.json()
                     logging.info(f"Request body - {body}")
                     token = body["token"]
+                    # TODO - store token to session variable
                     logging.info(f"got token - {token}")
         return result
