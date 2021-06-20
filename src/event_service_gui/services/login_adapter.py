@@ -12,10 +12,10 @@ EVENT_SERVICE_URL = "http://localhost:8082"
 class LoginAdapter:
     """Class representing login."""
 
-    async def login(self, username: str, password: str) -> str:
+    async def login(self, username: str, password: str) -> int:
         """Get all innstillinger function."""
         # Perform login
-        result = ""
+        result = 0
         request_body = {
             "username": username,
             "password": password,

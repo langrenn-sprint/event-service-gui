@@ -14,7 +14,6 @@ class Events(web.View):
         """Get route function that return the events page."""
         try:
             event = self.request.rel_url.query["event"]
-            logging.debug(f"Event: {event}")
         except Exception:
             event = ""
 

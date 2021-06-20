@@ -7,11 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
+    <div class="w3-container" id=headeradmin>
+      <h2>Administrasjon {{ event }} - {% block titlemain %}{% endblock %}</h2>
+    </div>
     <div class="w3-container">
-      <h2 id=headeradmin>Administrasjon {{ event }} - {% block titlemain %}{% endblock %}</h2>
-
-
-      <!-- Top Navigation Menu: Show if event is selected -->
       <ul>
         <li class=dropdown id=topborder>
           <a href=javascript:void(0) class=dropbtn>...</a>
@@ -20,6 +19,7 @@
           </div>
         </li>
         {% if event != "" %}
+        <!-- Top Navigation Menu: Show if event is selected -->
         <li id=topborder>
           <a href=/events?event={{ event }} class=dropbtn>Info</a>
         </li>
@@ -33,11 +33,14 @@
           <a href=/schedules?event={{ event }} class=dropbtn>Kjøreplan</a>
         </li>
         {% endif %}
+        <li id=topborder style="float:right">
+          <a href=/login class=dropbtn>Logg inn</a>
+        </li>
       </ul>
     </div>
-    <div>{{ informasjon }}</div>
+    <div id=spacer></div>
+    <div class="w3-container" id=info>{{ informasjon }}</div>
     {% block content %}{% endblock %}
-
     <div class="w3-container">
       <div id=footeradmin>
         <a href="https://github.com/langrenn-sprint">langrenn-sprint (GitHub)</a> - utviklet av Lyn ski og Kjelsås langrenn

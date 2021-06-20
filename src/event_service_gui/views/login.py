@@ -13,25 +13,36 @@ class Login(web.View):
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
         logging.debug(f"Login: {self}")
+        try:
+            event = self.request.rel_url.query["event"]
+        except Exception:
+            event = ""
 
         return await aiohttp_jinja2.render_template_async(
             "login.html",
             self.request,
             {
                 "lopsinfo": "Login",
+                "event": event,
             },
         )
 
     async def post(self) -> web.Response:
         """Get route function that return the index page."""
+        informasjon = ""
         logging.debug(f"Login: {self}")
 
         try:
             form = await self.request.post()
+            try:
+                event = self.request.rel_url.query["event"]
+            except Exception:
+                event = ""
 
             # Perform login
             result = await LoginAdapter().login(form["username"], form["password"])
-            logging.info(f"Login result {result}")
+            if result == 401:
+                informasjon = "Innlogging feilet"
 
         except Exception:
             logging.error("Error handling post - login")
@@ -41,5 +52,7 @@ class Login(web.View):
             self.request,
             {
                 "lopsinfo": "Login resultat",
+                "event": event,
+                "informasjon": informasjon,
             },
         )

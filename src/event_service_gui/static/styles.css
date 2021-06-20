@@ -152,6 +152,10 @@ tr:nth-child(even){background-color: #f2f2f2;}
     padding: 2px 2px 2px 2px;
 }
 
+#info {
+    color: orange;
+    font-weight: bold;
+}
 
 #fremhev {
     background-color: yellow;
@@ -176,11 +180,11 @@ function naviger(id) {
 
 /**** Responsivt design ****/
 .w3-container {
-  padding:0.01em 12px
+  padding:0.01em 0px
 }
 
 .w3-third,.w3-quart,.w3-row-padding,.w3-half {
-  padding:0.01em 6px
+  padding:0.01em 0px
 }
 .w3-container:after,.w3-container:before,.w3-row-padding:after,.w3-row-padding:before {
   content:"";
