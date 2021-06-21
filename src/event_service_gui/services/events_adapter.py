@@ -13,12 +13,20 @@ EVENT_SERVICE_URL = "http://localhost:8082"
 class EventsAdapter:
     """Class representing events."""
 
-    async def get_all_events(self) -> List:
+    async def get_all_events(self, token: str) -> List:
         """Get all events function."""
         events = []
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
 
         async with ClientSession() as session:
-            async with session.get(f"{EVENT_SERVICE_URL}/events") as resp:
+            async with session.get(
+                f"{EVENT_SERVICE_URL}/events", headers=headers
+            ) as resp:
                 logging.info(f"get_all_events - got response {resp.status}")
                 if resp.status == "200":
                     events = await resp.json()
