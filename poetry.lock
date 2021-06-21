@@ -46,6 +46,24 @@ jinja2 = ">=2.10.1"
 typing-extensions = ">=3.7.4"
 
 [[package]]
+name = "aiohttp-session"
+version = "2.9.0"
+description = "sessions for aiohttp.web"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+aiohttp = ">=3.0.1"
+
+[package.extras]
+aiomcache = ["aiomcache (>=0.5.2)"]
+aioredis = ["aioredis (>=1.0.0)"]
+pycrypto = ["cryptography"]
+pynacl = ["pynacl"]
+secure = ["cryptography"]
+
+[[package]]
 name = "aioresponses"
 version = "0.7.2"
 description = "Mock out requests made by ClientSession from aiohttp package"
@@ -1110,7 +1128,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7  "
-content-hash = "104c0b10c09b44c3b3fa896e7e2388cc58dcc048afead040eb3015e2362a4614"
+content-hash = "094f69cab02bccbcb85eb0957e67167c15d21c5586f87641711582adad50ad25"
 
 [metadata.files]
 aiohttp = [
@@ -1159,6 +1177,10 @@ aiohttp-devtools = [
 aiohttp-jinja2 = [
     {file = "aiohttp-jinja2-1.4.2.tar.gz", hash = "sha256:9c22a0e48e3b277fc145c67dd8c3b8f609dab36bce9eb337f70dfe716663c9a0"},
     {file = "aiohttp_jinja2-1.4.2-py3-none-any.whl", hash = "sha256:860da7582efa866744bad5883947557d0f82e457d69903ea65d666b66f8a69ca"},
+]
+aiohttp-session = [
+    {file = "aiohttp-session-2.9.0.tar.gz", hash = "sha256:959413468b84e30e7ca09719617cfb0000066a2e0f6c20062d043433e82aeb74"},
+    {file = "aiohttp_session-2.9.0-py3-none-any.whl", hash = "sha256:74853d1177541cccfefb436409f9ea5d67a62f84e13946a3e115a765d9a0349c"},
 ]
 aioresponses = [
     {file = "aioresponses-0.7.2-py2.py3-none-any.whl", hash = "sha256:2f8ff624543066eb465b0238de68d29231e8488f41dc4b5a9dae190982cdae50"},

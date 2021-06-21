@@ -3,8 +3,10 @@ import logging
 
 from aiohttp import web
 import aiohttp_jinja2
+from aiohttp_session import get_session
 
 from event_service_gui.services import ContestantsAdapter
+from event_service_gui.services import LoginAdapter
 
 
 class Contestants(web.View):
@@ -18,6 +20,14 @@ class Contestants(web.View):
         except Exception:
             event = ""
 
+        # check login
+        username = ""
+        session = await get_session(self.request)
+        loggedin = LoginAdapter().isloggedin(session)
+        if not loggedin:
+            return web.HTTPSeeOther(location=f"/login?event={event}")
+        username = session["username"]
+
         # TODO - get list of contestants
         contestants = await ContestantsAdapter().get_all_contestants()
         logging.debug(f"Contestants: {contestants}")
@@ -28,5 +38,6 @@ class Contestants(web.View):
                 "lopsinfo": "Deltakere",
                 "contestants": contestants,
                 "event": event,
+                "username": username,
             },
         )

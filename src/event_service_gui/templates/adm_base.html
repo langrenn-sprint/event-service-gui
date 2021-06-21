@@ -33,8 +33,16 @@
           <a href=/schedules?event={{ event }} class=dropbtn>Kjøreplan</a>
         </li>
         {% endif %}
-        <li id=topborder style="float:right">
-          <a href=/login class=dropbtn>Logg inn</a>
+          {% if username == "" %}
+            <li id=topborder style="float:right">
+              <a href=/login class=dropbtn>Logg inn</a>
+          {% else %}
+            <li class=dropdown id=topborder style="float:right">
+              <a href=javascript:void(0) class=dropbtn>{{ username }}</a>
+              <div class=dropdown-content>
+                <a href="/logout">Logg ut</a>
+              </div>
+          {% endif %}
         </li>
       </ul>
     </div>

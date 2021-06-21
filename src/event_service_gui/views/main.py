@@ -11,15 +11,15 @@ class Main(web.View):
     """Class representing the main view."""
 
     async def get(self) -> web.Response:
-        """Get route function that return the index page."""
-        # TODO - get list of events
+        """Get function that return the index page."""
         events = await EventsAdapter().get_all_events()
-        logging.debug(f"Events: {events}")
+        logging.info(f"Events: {events}")
         return await aiohttp_jinja2.render_template_async(
             "index.html",
             self.request,
             {
                 "lopsinfo": "Langrenn startside",
                 "event": "",
+                "events": events,
             },
         )

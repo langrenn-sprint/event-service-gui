@@ -3,6 +3,7 @@ import logging
 
 from aiohttp import web
 import aiohttp_jinja2
+from aiohttp_session import new_session
 
 from event_service_gui.services import LoginAdapter
 
@@ -12,7 +13,6 @@ class Login(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
-        logging.debug(f"Login: {self}")
         try:
             event = self.request.rel_url.query["event"]
         except Exception:
@@ -41,7 +41,10 @@ class Login(web.View):
                 event = ""
 
             # Perform login
-            result = await LoginAdapter().login(form["username"], form["password"])
+            session = await new_session(self.request)
+            result = await LoginAdapter().login(
+                form["username"], form["password"], session
+            )
             if result != 200:
                 informasjon = "Innlogging feilet"
 
@@ -59,11 +62,4 @@ class Login(web.View):
                 },
             )
         else:
-            return await aiohttp_jinja2.render_template_async(
-                "events.html",
-                self.request,
-                {
-                    "lopsinfo": "Arrangement",
-                    "event": event,
-                },
-            )
+            return web.HTTPSeeOther(location=f"/events?event={event}")
