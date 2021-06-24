@@ -1,9 +1,11 @@
 """Module for events adapter."""
 import logging
+import os
 from typing import List
 
 from aiohttp import ClientSession
 from aiohttp import hdrs
+from aiohttp import web
 from multidict import MultiDict
 
 # TODO - hente fra configuration
@@ -36,6 +38,7 @@ class EventsAdapter:
     async def create_event(self, token: str, name: str) -> str:
         """Create new event function."""
         request_body = {"name": name}
+        id = ""
         headers = MultiDict(
             {
                 hdrs.CONTENT_TYPE: "application/json",
@@ -47,6 +50,12 @@ class EventsAdapter:
             async with session.post(
                 f"{EVENT_SERVICE_URL}/events", headers=headers, json=request_body
             ) as resp:
-                logging.debug(f"create_event - got response {resp}")
-        logging.info(f"create_event - {resp.status} {name}")
-        return resp.status
+                if resp.status == 201:
+                    logging.debug(f"result - got response {resp}")
+                    location = resp.headers[hdrs.LOCATION]
+                    id = location.split(os.path.sep)[-1]
+                else:
+                    logging.error(f"create_event failed - {resp.status} {name}")
+                    raise web.HTTPBadRequest(reason="Create event failed.")
+
+        return id

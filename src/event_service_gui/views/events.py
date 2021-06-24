@@ -58,8 +58,7 @@ class Events(web.View):
             if "Create" in form.keys():
                 name = form["Name"]
                 id = await EventsAdapter().create_event(token, name)
-                if id == "201":
-                    informasjon = f"Opprettet nytt arrangement - {name}"
+                informasjon = f"Opprettet nytt arrangement - {name},  id {id}"
 
         except Exception:
             logging.error("Error handling post - events")
