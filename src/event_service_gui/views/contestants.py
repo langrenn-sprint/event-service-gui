@@ -5,8 +5,7 @@ from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
-from event_service_gui.services import ContestantsAdapter
-from event_service_gui.services import LoginAdapter
+from event_service_gui.services import ContestantsAdapter, EventsAdapter, LoginAdapter
 
 
 class Contestants(web.View):
@@ -15,18 +14,21 @@ class Contestants(web.View):
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
         try:
-            event = self.request.rel_url.query["event"]
-            logging.debug(f"Event: {event}")
-        except Exception:
-            event = ""
+            eventid = self.request.rel_url.query["eventid"]
 
-        # check login
-        username = ""
-        session = await get_session(self.request)
-        loggedin = LoginAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location=f"/login?event={event}")
-        username = session["username"]
+            # check login
+            username = ""
+            session = await get_session(self.request)
+            loggedin = LoginAdapter().isloggedin(session)
+            if not loggedin:
+                return web.HTTPSeeOther(location=f"/login?eventid={eventid}")
+            username = session["username"]
+            token = session["token"]
+
+            event = await EventsAdapter().get_event(token, eventid)
+
+        except Exception:
+            return web.HTTPSeeOther(location="/")
 
         # TODO - get list of contestants
         contestants = await ContestantsAdapter().get_all_contestants()
@@ -38,6 +40,7 @@ class Contestants(web.View):
                 "lopsinfo": "Deltakere",
                 "contestants": contestants,
                 "event": event,
+                "eventid": eventid,
                 "username": username,
             },
         )

@@ -14,6 +14,11 @@ class Main(web.View):
 
     async def get(self) -> web.Response:
         """Get function that return the index page."""
+        try:
+            informasjon = self.request.rel_url.query["informasjon"]
+        except Exception:
+            informasjon = ""
+
         # check login
         username = ""
         session = await get_session(self.request)
@@ -24,14 +29,16 @@ class Main(web.View):
         token = session["token"]
 
         events = await EventsAdapter().get_all_events(token)
-        logging.info(f"Events: {events}")
+        logging.debug(f"Events: {events}")
         return await aiohttp_jinja2.render_template_async(
             "index.html",
             self.request,
             {
                 "lopsinfo": "Langrenn startside",
-                "event": "",
+                "event": [],
+                "eventid": "",
                 "events": events,
+                "informasjon": informasjon,
                 "username": username,
             },
         )

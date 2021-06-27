@@ -36,9 +36,10 @@ class Login(web.View):
         try:
             form = await self.request.post()
             try:
-                event = self.request.rel_url.query["event"]
+                eventid = self.request.rel_url.query["eventid"]
+                logging.debug(f"Event: {eventid}")
             except Exception:
-                event = ""
+                eventid = ""
 
             # Perform login
             session = await new_session(self.request)
@@ -57,9 +58,11 @@ class Login(web.View):
                 self.request,
                 {
                     "lopsinfo": "Login resultat",
-                    "event": event,
+                    "eventid": eventid,
                     "informasjon": informasjon,
                 },
             )
+        elif eventid != "":
+            return web.HTTPSeeOther(location=f"/events?event={eventid}")
         else:
-            return web.HTTPSeeOther(location=f"/events?event={event}")
+            return web.HTTPSeeOther(location="/")

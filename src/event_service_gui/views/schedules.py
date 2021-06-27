@@ -15,17 +15,16 @@ class Schedules(web.View):
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
         try:
-            event = self.request.rel_url.query["event"]
-            logging.debug(f"Event: {event}")
+            eventid = self.request.rel_url.query["eventid"]
         except Exception:
-            event = ""
+            eventid = ""
 
         # check login
         username = ""
         session = await get_session(self.request)
         loggedin = LoginAdapter().isloggedin(session)
         if not loggedin:
-            return web.HTTPSeeOther(location=f"/login?event={event}")
+            return web.HTTPSeeOther(location=f"/login?event={eventid}")
         username = session["username"]
 
         # TODO - get list of schedules
@@ -37,7 +36,7 @@ class Schedules(web.View):
             {
                 "lopsinfo": "Kjøreplan",
                 "schedules": schedules,
-                "event": event,
+                "eventid": eventid,
                 "username": username,
             },
         )

@@ -30,14 +30,39 @@ class EventsAdapter:
                 f"{EVENT_SERVICE_URL}/events", headers=headers
             ) as resp:
                 logging.info(f"get_all_events - got response {resp.status}")
-                if resp.status == "200":
+                if resp.status == 200:
                     events = await resp.json()
-                logging.info(f"events - got response {events}")
+                    logging.debug(f"events - got response {events}")
+                elif resp.status == 401:
+                    return web.HTTPSeeOther(location="/login")
+                else:
+                    logging.error(f"Error {resp.status} getting events: {resp} ")
         return events
 
-    async def create_event(self, token: str, name: str) -> str:
+    async def get_event(self, token: str, id: str) -> List:
+        """Get event function."""
+        event = []
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+
+        async with ClientSession() as session:
+            async with session.get(
+                f"{EVENT_SERVICE_URL}/events/{id}", headers=headers
+            ) as resp:
+                logging.info(f"get_event {id} - got response {resp.status}")
+                if resp.status == 200:
+                    event = await resp.json()
+                    logging.debug(f"event - got response {event}")
+                else:
+                    logging.error(f"Error {resp.status} getting events: {resp} ")
+        return event
+
+    async def create_event(self, token: str, request_body: dict) -> str:
         """Create new event function."""
-        request_body = {"name": name}
         id = ""
         headers = MultiDict(
             {
@@ -55,7 +80,31 @@ class EventsAdapter:
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
                 else:
-                    logging.error(f"create_event failed - {resp.status} {name}")
+                    logging.error(f"create_event failed - {resp.status}")
                     raise web.HTTPBadRequest(reason="Create event failed.")
 
         return id
+
+    async def update_event(self, token: str, id: str, request_body: dict) -> str:
+        """Create new event function."""
+        id = ""
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+
+        async with ClientSession() as session:
+            async with session.post(
+                f"{EVENT_SERVICE_URL}/events{id}", headers=headers, json=request_body
+            ) as resp:
+                if resp.status == 201:
+                    logging.debug(f"result - got response {resp}")
+                    location = resp.headers[hdrs.LOCATION]
+                    id = location.split(os.path.sep)[-1]
+                else:
+                    logging.error(f"create_event failed - {resp.status}")
+                    raise web.HTTPBadRequest(reason="Create event failed.")
+
+        return resp.status

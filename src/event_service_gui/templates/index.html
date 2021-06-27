@@ -9,30 +9,29 @@
 {% block content %}
   <div class="w3-row-padding">
     <div class="w3-half">
-      <form>
-        <table cellpadding=4>
-          <tr id=spacer></tr>
-          <tr>
-            <td colspan=5 id=headerblue>
-              <b>Velg arrangement</b>
-            </td>
-          </tr>
-          <tr>
-            <td>Navn</td>
-            <td>Dato</td>
-            <td>Klubb</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td><a href="/events?event=Skagen sprint">Skagen sprint</a></td>
-            <td>12.01.2021</td>
-            <td>Lyn Ski</td>
-            <td>354 påmeldinger</td>
-          </tr>
-          <tr id=spacer></tr>
-        </table>
-      </form>
+      <table cellpadding=4>
+        <tr id=spacer></tr>
+        <tr>
+          <td colspan=4 id=headerblue>
+            <b>Velg arrangement</b>
+          </td>
+        </tr>
+        <tr>
+          <td>Navn</td>
+          <td>Dato</td>
+          <td>Klubb</td>
+          <td></td>
+        </tr>
+        {% for oneevent in events %}
+        <tr>
+          <td><a href="/events?eventid={{ oneevent.id }}">{{ oneevent.name }}</a></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        {% endfor %}
+        <tr id=spacer></tr>
+      </table>
     </div>
   </div>
-
 {% endblock %}

@@ -8,7 +8,7 @@
   </head>
   <body>
     <div class="w3-container" id=headeradmin>
-      <h2>Administrasjon {{ event }} - {% block titlemain %}{% endblock %}</h2>
+      <h2>Administrasjon {{ event.name }} - {% block titlemain %}{% endblock %}</h2>
     </div>
     <div class="w3-container">
       <ul>
@@ -18,19 +18,19 @@
             <a href="/">Hovedside</a>
           </div>
         </li>
-        {% if event != "" %}
+        {% if eventid != "" %}
         <!-- Top Navigation Menu: Show if event is selected -->
         <li id=topborder>
-          <a href=/events?event={{ event }} class=dropbtn>Info</a>
+          <a href=/events?eventid={{ eventid }} class=dropbtn>Info</a>
         </li>
         <li id=topborder>
-          <a href=/contestants?event={{ event }} class=dropbtn>Deltakere</a>
+          <a href=/contestants?eventid={{ eventid }} class=dropbtn>Deltakere</a>
         </li>
         <li id=topborder>
-          <a href=/raceclasses?event={{ event }} class=dropbtn>Løpsklasser</a>
+          <a href=/raceclasses?eventid={{ eventid }} class=dropbtn>Løpsklasser</a>
         </li>
         <li id=topborder>
-          <a href=/schedules?event={{ event }} class=dropbtn>Kjøreplan</a>
+          <a href=/schedules?eventid={{ eventid }} class=dropbtn>Kjøreplan</a>
         </li>
         {% endif %}
           {% if username == "" %}

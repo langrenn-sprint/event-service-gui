@@ -15,17 +15,25 @@ class Events(web.View):
     async def get(self) -> web.Response:
         """Get route function that return the events page."""
         try:
-            event = self.request.rel_url.query["event"]
+            eventid = self.request.rel_url.query["eventid"]
         except Exception:
-            event = ""
+            eventid = ""
+        try:
+            informasjon = self.request.rel_url.query["informasjon"]
+        except Exception:
+            informasjon = ""
 
         # check login
         username = ""
         session = await get_session(self.request)
         loggedin = LoginAdapter().isloggedin(session)
         if not loggedin:
-            return web.HTTPSeeOther(location=f"/login?event={event}")
+            return web.HTTPSeeOther(location=f"/login?event={eventid}")
         username = session["username"]
+        token = session["token"]
+
+        logging.debug(f"get_event {eventid}")
+        event = await EventsAdapter().get_event(token, eventid)
 
         return await aiohttp_jinja2.render_template_async(
             "events.html",
@@ -33,6 +41,8 @@ class Events(web.View):
             {
                 "lopsinfo": "Arrangement",
                 "event": event,
+                "eventid": eventid,
+                "informasjon": informasjon,
                 "username": username,
             },
         )
@@ -41,35 +51,38 @@ class Events(web.View):
         """Post route function that creates a collection of klasses."""
         # check for new events
         # check login
-        username = ""
         session = await get_session(self.request)
         loggedin = LoginAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
-        username = session["username"]
         token = session["token"]
 
         informasjon = ""
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
+            request_body = {
+                "name": form["name"],
+                "date": form["date"],
+                "organiser": form["organiser"],
+            }
 
             # Create new event
-            if "Create" in form.keys():
-                name = form["Name"]
-                id = await EventsAdapter().create_event(token, name)
-                informasjon = f"Opprettet nytt arrangement - {name},  id {id}"
-
+            if "create" in form.keys():
+                id = await EventsAdapter().create_event(token, request_body)
+                informasjon = f"Opprettet nytt arrangement,  id {id}"
+            elif "update" in form.keys():
+                id = form["id"]
+                res = await EventsAdapter().update_event(token, id, request_body)
+                if res == 201:
+                    informasjon = "Arrangementinformasjon er oppdatert."
+                else:
+                    informasjon = f"En feil oppstod {res}."
         except Exception:
-            logging.error("Error handling post - events")
+            logging.error(f"Error handling post - {form}")
+            informasjon = "Det har oppstått en feil."
+            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
-        return await aiohttp_jinja2.render_template_async(
-            "events.html",
-            self.request,
-            {
-                "lopsinfo": "Arrangement",
-                "event": name,
-                "informasjon": informasjon,
-                "username": username,
-            },
+        return web.HTTPSeeOther(
+            location=f"/events?eventid={id}&informasjon={informasjon}"
         )
