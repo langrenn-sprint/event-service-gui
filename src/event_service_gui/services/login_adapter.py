@@ -37,6 +37,7 @@ class LoginAdapter:
                     # store token to session variable
                     cookiestorage["token"] = token
                     cookiestorage["username"] = username
+                    cookiestorage["password"] = password
                     cookiestorage["loggedin"] = True
         return result
 

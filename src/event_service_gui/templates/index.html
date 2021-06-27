@@ -25,8 +25,8 @@
         {% for oneevent in events %}
         <tr>
           <td><a href="/events?eventid={{ oneevent.id }}">{{ oneevent.name }}</a></td>
-          <td></td>
-          <td></td>
+          <td>{{ oneevent.date }}</td>
+          <td>{{ oneevent.organiser }}</td>
           <td></td>
         </tr>
         {% endfor %}

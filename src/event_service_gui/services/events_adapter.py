@@ -34,7 +34,8 @@ class EventsAdapter:
                     events = await resp.json()
                     logging.debug(f"events - got response {events}")
                 elif resp.status == 401:
-                    return web.HTTPSeeOther(location="/login")
+                    logging.info("TO-DO Performing new login")
+                    # Perform login
                 else:
                     logging.error(f"Error {resp.status} getting events: {resp} ")
         return events
@@ -86,7 +87,7 @@ class EventsAdapter:
         return id
 
     async def update_event(self, token: str, id: str, request_body: dict) -> str:
-        """Create new event function."""
+        """Update event function."""
         id = ""
         headers = MultiDict(
             {
@@ -104,7 +105,7 @@ class EventsAdapter:
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
                 else:
-                    logging.error(f"create_event failed - {resp.status}")
-                    raise web.HTTPBadRequest(reason="Create event failed.")
-
+                    logging.error(f"update_event failed - {resp.status}")
+                    raise web.HTTPBadRequest(reason="Update event failed.")
+            logging.info(f"Updated event: {id} - res {resp.status}")
         return resp.status
