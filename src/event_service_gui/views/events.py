@@ -79,7 +79,7 @@ class Events(web.View):
                 else:
                     informasjon = f"En feil oppstod {res}."
         except Exception:
-            logging.error(f"Error handling post - {form}")
+            logging.error("Error handling post - events")
             informasjon = "Det har oppstått en feil."
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
