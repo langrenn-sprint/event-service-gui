@@ -9,6 +9,51 @@
 {% block content %}
   <div class="w3-row-padding">
     <div class="w3-half">
+      {% if create_new %}
+      <form action=/events method=post>
+        <table cellpadding=4>
+          <tr id=spacer></tr>
+          <tr>
+            <td colspan=3 id=headerblue>
+              <b>Opprett nytt arrangement</b>
+            </td>
+          </tr>
+          <tr>
+            <td width=150>Navn</td>
+            <td><input type=text name="name" value=""></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Dato</td>
+            <td><input type=date name=date value=""></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Arrangør</td>
+            <td><input type=text name=organiser value=""></td>
+            <td>Klubb(er) ansvarlige for arramgement</td>
+          </tr>
+          <tr>
+            <td>Nettsted</td>
+            <td><input type=text name=webpage value=""></td>
+            <td>URL til hjemmeside / mer informasjon om arrangmeentet</td>
+          </tr>
+          <tr>
+            <td>Informasjon</td>
+            <td><input type=text name=information value=""></td>
+            <td>Kort tekst med nøkkelinformasjon</td>
+          </tr>
+          <tr>
+              <td></td>
+              <td>
+                <input type="submit" name=create value="  Opprett  ">
+              </td>
+              <td></td>
+          </tr>
+          <tr id=spacer></tr>
+        </table>
+      </form>
+      {% else %}
       <form action=/events method=post>
         <table cellpadding=4>
           <tr id=spacer></tr>
@@ -31,46 +76,34 @@
             <td><input type=text name=organiser value="{{ event.organiser }}"></td>
           </tr>
           <tr>
+            <td>Nettsted</td>
+            <td><input type=text name=webpage value="{{ event.webpage }}"></td>
+          </tr>
+          <tr>
+            <td>Informasjon</td>
+            <td><input type=text name=information value="{{ event.information }}"></td>
+          </tr>
+          <tr>
               <td></td>
               <td>
-                <input type="submit" name=update value=Oppdater>
+                <input type="submit" name=update value="  Oppdater  ">
               </td>
           </tr>
           <tr id=spacer></tr>
         </table>
       </form>
-    </div>
-    <div class="w3-half">
-      <form action=/events method=post>
-        <table cellpadding=4>
-          <tr id=spacer></tr>
-          <tr>
-            <td colspan=2 id=headerblue>
-              <b>Opprett nytt arrangement</b>
+      <table cellpadding=4>
+        <tr>
+            <td></td>
+            <td>
+              <form action=/events method=post>
+                <input type="hidden" name="id" value="{{ event.id }}">
+                <input type="submit" name=delete value=Slett>
+              </form>
             </td>
-          </tr>
-          <tr>
-            <td width=150>Navn</td>
-            <td><input type=text name="name" value=""></td>
-          </tr>
-          <tr>
-            <td>Dato</td>
-            <td><input type=date name=date value=""></td>
-          </tr>
-          <tr>
-            <td>Arrangør</td>
-            <td><input type=text name=organiser value=""></td>
-          </tr>
-          <tr>
-              <td></td>
-              <td>
-                <input type="submit" name=create value=Opprett>
-              </td>
-          </tr>
-          <tr id=spacer></tr>
-        </table>
-      </form>
+        </tr>
+      </table>
+      {% endif %}
     </div>
   </div>
-{{ event }}
 {% endblock %}

@@ -86,6 +86,26 @@ class EventsAdapter:
 
         return id
 
+    async def delete_event(self, token: str, id: str) -> str:
+        """Delete event function."""
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        url = f"{EVENT_SERVICE_URL}/events/{id}"
+        async with ClientSession() as session:
+            async with session.delete(url, headers=headers) as response:
+                pass
+            logging.info(f"Delete event: {id} - res {response.status}")
+            if response.status == 204:
+                logging.debug(f"result - got response {response}")
+            else:
+                logging.error(f"delete_event failed - {response.status}, {response}")
+                raise web.HTTPBadRequest(reason="Delete event failed.")
+        return response.status
+
     async def update_event(self, token: str, id: str, request_body: dict) -> str:
         """Update event function."""
         id = ""
@@ -98,7 +118,7 @@ class EventsAdapter:
 
         async with ClientSession() as session:
             async with session.post(
-                f"{EVENT_SERVICE_URL}/events{id}", headers=headers, json=request_body
+                f"{EVENT_SERVICE_URL}/events/{id}", headers=headers, json=request_body
             ) as resp:
                 if resp.status == 201:
                     logging.debug(f"result - got response {resp}")

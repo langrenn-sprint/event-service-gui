@@ -22,6 +22,13 @@ class Events(web.View):
             informasjon = self.request.rel_url.query["informasjon"]
         except Exception:
             informasjon = ""
+        try:
+            create_new = False
+            new = self.request.rel_url.query["new"]
+            if new != "":
+                create_new = True
+        except Exception:
+            create_new = False
 
         # check login
         username = ""
@@ -32,8 +39,10 @@ class Events(web.View):
         username = session["username"]
         token = session["token"]
 
-        logging.debug(f"get_event {eventid}")
-        event = await EventsAdapter().get_event(token, eventid)
+        event = []
+        if not create_new:
+            logging.debug(f"get_event {eventid}")
+            event = await EventsAdapter().get_event(token, eventid)
 
         return await aiohttp_jinja2.render_template_async(
             "events.html",
@@ -44,6 +53,7 @@ class Events(web.View):
                 "eventid": eventid,
                 "informasjon": informasjon,
                 "username": username,
+                "create_new": create_new,
             },
         )
 
@@ -61,21 +71,39 @@ class Events(web.View):
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
-            request_body = {
-                "name": form["name"],
-                "date": form["date"],
-                "organiser": form["organiser"],
-            }
 
             # Create new event
             if "create" in form.keys():
+                request_body = {
+                    "name": form["name"],
+                    "date": form["date"],
+                    "organiser": form["organiser"],
+                    "webpage": form["webpage"],
+                    "information": form["information"],
+                }
                 id = await EventsAdapter().create_event(token, request_body)
                 informasjon = f"Opprettet nytt arrangement,  id {id}"
             elif "update" in form.keys():
+                request_body = {
+                    "id": form["id"],
+                    "name": form["name"],
+                    "date": form["date"],
+                    "organiser": form["organiser"],
+                    "webpage": form["webpage"],
+                    "information": form["information"],
+                }
                 id = form["id"]
                 res = await EventsAdapter().update_event(token, id, request_body)
                 if res == 201:
                     informasjon = "Arrangementinformasjon er oppdatert."
+                else:
+                    informasjon = f"En feil oppstod {res}."
+            elif "delete" in form.keys():
+                id = form["id"]
+                logging.info(f"Enter delete {id}")
+                res = await EventsAdapter().delete_event(token, id)
+                if res == 204:
+                    informasjon = "Arrangement er slettet."
                 else:
                     informasjon = f"En feil oppstod {res}."
         except Exception:
