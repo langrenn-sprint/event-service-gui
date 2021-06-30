@@ -8,6 +8,27 @@
 {% endblock %}
 {% block content %}
   <div class="w3-row-padding">
+    <div class="w3-half">
+      <form action=/contestants method=post>
+        <table cellpadding=4>
+          <tr id=spacer></tr>
+          <tr>
+            <td colspan=2 id=headerblue>
+              <b>Deltakerliste fra fil</b>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input type="file" name="file" value="">
+            </td>
+            <td>
+              <input type="hidden" name=eventid value="{{ eventid }}">
+              <input type="submit" name=create value="  Last opp  ">
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
   </div>
 
 {% endblock %}

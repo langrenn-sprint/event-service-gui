@@ -85,7 +85,6 @@ class Events(web.View):
                 informasjon = f"Opprettet nytt arrangement,  id {id}"
             elif "update" in form.keys():
                 request_body = {
-                    "id": form["id"],
                     "name": form["name"],
                     "date": form["date"],
                     "organiser": form["organiser"],
