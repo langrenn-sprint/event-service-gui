@@ -1,12 +1,14 @@
 """Module for login adapter."""
 import logging
+import os
 
 from aiohttp import ClientSession, hdrs
 from aiohttp_session import Session
 from multidict import MultiDict
 
-# TODO - hente fra configuration
-EVENT_SERVICE_URL = "http://localhost:8082"
+USER_SERVICE_HOST = os.getenv("USER_SERVICE_HOST", "localhost")
+USER_SERVICE_PORT = os.getenv("USER_SERVICE_PORT", "8084")
+USER_SERVICE_URL = f"http://{USER_SERVICE_HOST}:{USER_SERVICE_PORT}"
 
 
 class LoginAdapter:
@@ -26,7 +28,7 @@ class LoginAdapter:
         )
         async with ClientSession() as session:
             async with session.post(
-                f"{EVENT_SERVICE_URL}/login", headers=headers, json=request_body
+                f"{USER_SERVICE_URL}/login", headers=headers, json=request_body
             ) as resp:
                 result = resp.status
                 logging.info(f"do login - got response {result}")

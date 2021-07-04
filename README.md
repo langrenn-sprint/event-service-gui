@@ -41,7 +41,7 @@ gcloud auth configure-docker
 ### Starte services i docker
 docker-compose pull #oppdatere images
 docker-compose up --build
-docker-compose up --build event-service mongodb
+docker-compose up --build event-service  user-service mongodb
 
 Denne fila _skal_ ligge i .dockerignore og .gitignore
 ### Kjøre webserver lokalt
@@ -61,3 +61,15 @@ Når du endrer koden i event_service_gui, vil webserveren laste applikasjonen p�
 
 # Referanser
 aiohttp: https://docs.aiohttp.org/
+
+# tmp
+reader = MultipartReader.from_response(self.request)
+metadata = None
+filedata = None
+while True:
+    part = await reader.next()
+    if part is None:
+        break
+    if part.headers[aiohttp.hdrs.CONTENT_TYPE] == "application/json":
+        metadata = await part.json()
+        continue

@@ -59,7 +59,6 @@ class Events(web.View):
 
     async def post(self) -> web.Response:
         """Post route function that creates a collection of klasses."""
-        # check for new events
         # check login
         session = await get_session(self.request)
         loggedin = LoginAdapter().isloggedin(session)
@@ -83,20 +82,6 @@ class Events(web.View):
                 }
                 id = await EventsAdapter().create_event(token, request_body)
                 informasjon = f"Opprettet nytt arrangement,  id {id}"
-            elif "update" in form.keys():
-                request_body = {
-                    "name": form["name"],
-                    "date": form["date"],
-                    "organiser": form["organiser"],
-                    "webpage": form["webpage"],
-                    "information": form["information"],
-                }
-                id = form["id"]
-                res = await EventsAdapter().update_event(token, id, request_body)
-                if res == 201:
-                    informasjon = "Arrangementinformasjon er oppdatert."
-                else:
-                    informasjon = f"En feil oppstod {res}."
             elif "delete" in form.keys():
                 id = form["id"]
                 logging.info(f"Enter delete {id}")
@@ -105,6 +90,43 @@ class Events(web.View):
                     informasjon = "Arrangement er slettet."
                 else:
                     informasjon = f"En feil oppstod {res}."
+        except Exception:
+            logging.error("Error handling post - events")
+            informasjon = "Det har oppstått en feil."
+            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+
+        return web.HTTPSeeOther(
+            location=f"/events?eventid={id}&informasjon={informasjon}"
+        )
+
+    async def put(self) -> web.Response:
+        """Put route function."""
+        # check login
+        session = await get_session(self.request)
+        loggedin = LoginAdapter().isloggedin(session)
+        if not loggedin:
+            return web.HTTPSeeOther(location="/login")
+        token = session["token"]
+
+        informasjon = ""
+        try:
+            form = await self.request.post()
+            logging.debug(f"Form {form}")
+
+            # Update event
+            request_body = {
+                "name": form["name"],
+                "date": form["date"],
+                "organiser": form["organiser"],
+                "webpage": form["webpage"],
+                "information": form["information"],
+            }
+            id = form["id"]
+            res = await EventsAdapter().update_event(token, id, request_body)
+            if res == 204:
+                informasjon = "Arrangementinformasjon er oppdatert."
+            else:
+                informasjon = f"En feil oppstod {res}."
         except Exception:
             logging.error("Error handling post - events")
             informasjon = "Det har oppstått en feil."

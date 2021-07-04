@@ -9,7 +9,7 @@
 {% block content %}
   <div class="w3-row-padding">
     <div class="w3-half">
-      <form action=/contestants method=post>
+      <form action=/contestants method=post enctype="multipart/form-data" >
         <table cellpadding=4>
           <tr id=spacer></tr>
           <tr>
@@ -19,7 +19,7 @@
           </tr>
           <tr>
             <td>
-              <input type="file" name="file" value="">
+              <input type="file" name="file" onchange="savefile(this)">
             </td>
             <td>
               <input type="hidden" name=eventid value="{{ eventid }}">

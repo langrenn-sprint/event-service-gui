@@ -63,14 +63,24 @@ class Contestants(web.View):
         informasjon = ""
         try:
             form = await self.request.post()
-            logging.info(f"Form {form}")
+            logging.debug(f"Form {form}")
+            id = form["eventid"]
 
-            informasjon = "Deltakere ble registrert."
+            # Create new deltakere
+            # todo: test when backend service is available
+            if "create" in form.keys():
+                file = form["file"]
+                logging.info(f"File {file}")
+                logging.info(f"File_stream {file.file}")
+                res = await ContestantsAdapter().create_contestants(token, id, file)
+                if res == 201:
+                    informasjon = "Deltakere ble registrert."
+                else:
+                    informasjon = f"Det har oppstått en feil {res}"
 
         except Exception:
             logging.error("Error handling post - deltakere")
             informasjon = "Det har oppstått en feil."
-            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
         return web.HTTPSeeOther(
             location=f"/contestants?eventid={id}&informasjon={informasjon}"

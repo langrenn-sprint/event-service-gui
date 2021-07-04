@@ -108,7 +108,6 @@ class EventsAdapter:
 
     async def update_event(self, token: str, id: str, request_body: dict) -> str:
         """Update event function."""
-        id = ""
         headers = MultiDict(
             {
                 hdrs.CONTENT_TYPE: "application/json",
@@ -117,10 +116,10 @@ class EventsAdapter:
         )
 
         async with ClientSession() as session:
-            async with session.post(
+            async with session.put(
                 f"{EVENT_SERVICE_URL}/events/{id}", headers=headers, json=request_body
             ) as resp:
-                if resp.status == 201:
+                if resp.status == 204:
                     logging.debug(f"result - got response {resp}")
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]

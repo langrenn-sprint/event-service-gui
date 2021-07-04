@@ -178,6 +178,21 @@ function naviger(id) {
   elmnt.scrollIntoView();
 }
 
+async function SaveFile(inp)
+{
+    let formData = new FormData();
+    let file = inp.files[0];
+
+    formData.append("file", file);
+
+    const ctrl = new AbortController()    // timeout
+    setTimeout(() => ctrl.abort(), 5000);
+
+    let r = await fetch('/contestants',
+      {method: "POST", body: formData, signal: ctrl.signal});
+
+}
+
 /**** Responsivt design ****/
 .w3-container {
   padding:0.01em 0px

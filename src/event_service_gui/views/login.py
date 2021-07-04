@@ -58,6 +58,7 @@ class Login(web.View):
                 self.request,
                 {
                     "lopsinfo": "Login resultat",
+                    "event": [],
                     "eventid": eventid,
                     "informasjon": informasjon,
                 },
