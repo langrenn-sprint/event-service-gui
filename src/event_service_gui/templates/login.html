@@ -9,28 +9,57 @@
 {% block content %}
   <div class="w3-row-padding">
     <div class="w3-half">
-      <form action="/login?eventid={{ eventid }}" method="post">
-        <table cellpadding=4>
-          <tr id=spacer></tr>
-          <tr>
-            <td colspan=2 id=headerblue>
-              <b>Innlogging</b>
+      {% if create_new %}
+        <form action="/login?eventid={{ eventid }}" method="post">
+          <table cellpadding=4>
+            <tr id=spacer></tr>
+            <tr>
+              <td colspan=2 id=headerblue>
+                <b>Ny bruker</b>
+              </td>
+            </tr>
+            <tr>
+              <td>Rolle</td>
+              <td><input type=text name="newrole" value=""></td>
+            </tr>
+            <tr>
+              <td width=150>Brukernavn</td>
+              <td><input type=text name="newusername" value=""></td>
+            </tr>
+            <tr>
+              <td>Passord</td>
+              <td><input type=password name="newpassword" value=""></td>
+            </tr>
+            <td colspan=2>
+              <input type="submit" name=create value="  Opprett  ">
             </td>
-          </tr>
-          <tr>
-            <td width=150>Brukernavn</td>
-            <td><input type=text name="username" value=""></td>
-          </tr>
-          <tr>
-            <td width=150>Passord</td>
-            <td><input type=password name="password" value=""></td>
-          </tr>
-          <td colspan=2>
-            <input type="submit" name=Login value="Logg inn">
-          </td>
-          <tr id=spacer></tr>
-        </table>
-      </form>
+            <tr id=spacer></tr>
+          </table>
+        </form>
+      {% else %}
+        <form action="/login?eventid={{ eventid }}" method="post">
+          <table cellpadding=4>
+            <tr id=spacer></tr>
+            <tr>
+              <td colspan=2 id=headerblue>
+                <b>Innlogging</b>
+              </td>
+            </tr>
+            <tr>
+              <td width=150>Brukernavn</td>
+              <td><input type=text name="username" value=""></td>
+            </tr>
+            <tr>
+              <td width=150>Passord</td>
+              <td><input type=password name="password" value=""></td>
+            </tr>
+            <td colspan=2>
+              <input type="submit" name=Login value="Logg inn">
+            </td>
+            <tr id=spacer></tr>
+          </table>
+        </form>
+      {% endif %}
     </div>
   </div>
 
