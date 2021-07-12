@@ -6,3 +6,4 @@ from .login import Login
 from .main import Main
 from .raceclasses import Raceclasses
 from .schedules import Schedules
+from .users import Users

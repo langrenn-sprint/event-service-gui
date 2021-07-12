@@ -19,6 +19,7 @@ from .views import (
     Ping,
     Raceclasses,
     Schedules,
+    Users,
 )
 
 LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
@@ -66,6 +67,7 @@ async def create_app() -> web.Application:
             web.view("/ping", Ping),
             web.view("/raceclasses", Raceclasses),
             web.view("/schedules", Schedules),
+            web.view("/users", Users),
             web.static("/static", static_path),
         ]
     )

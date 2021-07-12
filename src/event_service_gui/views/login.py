@@ -68,7 +68,7 @@ class Login(web.View):
             if "create" in form.keys():
                 session = await get_session(self.request)
                 token = session["token"]
-                result = await LoginAdapter().create_user(
+                id = await LoginAdapter().create_user(
                     token,
                     form["newrole"],
                     form["newusername"],
