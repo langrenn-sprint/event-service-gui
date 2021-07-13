@@ -6,7 +6,7 @@ import aiohttp_jinja2
 from aiohttp_session import get_session
 from aiohttp_session import new_session
 
-from event_service_gui.services import LoginAdapter
+from event_service_gui.services import UserAdapter
 
 
 class Login(web.View):
@@ -29,7 +29,7 @@ class Login(web.View):
             new = self.request.rel_url.query["new"]
             if new != "":
                 session = await get_session(self.request)
-                loggedin = LoginAdapter().isloggedin(session)
+                loggedin = UserAdapter().isloggedin(session)
                 if loggedin:
                     create_new = True
                     username = session["username"]
@@ -68,7 +68,7 @@ class Login(web.View):
             if "create" in form.keys():
                 session = await get_session(self.request)
                 token = session["token"]
-                id = await LoginAdapter().create_user(
+                id = await UserAdapter().create_user(
                     token,
                     form["newrole"],
                     form["newusername"],
@@ -83,14 +83,15 @@ class Login(web.View):
             else:
                 # Perform login
                 session = await new_session(self.request)
-                result = await LoginAdapter().login(
+                result = await UserAdapter().login(
                     form["username"], form["password"], session
                 )
                 if result != 200:
-                    informasjon = "Innlogging feilet"
+                    informasjon = f"Innlogging feilet - {result}"
 
-        except Exception:
-            logging.error("Error handling post - login")
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            informasjon = f"Det har oppstått en feil - {e.args}."
             result = 400
 
         if result != 200:
@@ -105,6 +106,8 @@ class Login(web.View):
                 },
             )
         elif eventid != "":
-            return web.HTTPSeeOther(location=f"/events?event={eventid}")
+            return web.HTTPSeeOther(
+                location=f"/events?event={eventid}&informasjon={informasjon}"
+            )
         else:
-            return web.HTTPSeeOther(location="/")
+            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

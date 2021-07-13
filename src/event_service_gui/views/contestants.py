@@ -5,7 +5,7 @@ from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
-from event_service_gui.services import ContestantsAdapter, EventsAdapter, LoginAdapter
+from event_service_gui.services import ContestantsAdapter, EventsAdapter, UserAdapter
 
 
 class Contestants(web.View):
@@ -19,7 +19,7 @@ class Contestants(web.View):
             # check login
             username = ""
             session = await get_session(self.request)
-            loggedin = LoginAdapter().isloggedin(session)
+            loggedin = UserAdapter().isloggedin(session)
             if not loggedin:
                 return web.HTTPSeeOther(location=f"/login?eventid={id}")
             username = session["username"]
@@ -35,7 +35,7 @@ class Contestants(web.View):
         except Exception:
             return web.HTTPSeeOther(location="/")
 
-        # TODO - get list of contestants
+        # todo - get list of contestants
         contestants = await ContestantsAdapter().get_all_contestants()
         logging.debug(f"Contestants: {contestants}")
         return await aiohttp_jinja2.render_template_async(
@@ -55,7 +55,7 @@ class Contestants(web.View):
         """Post route function that creates deltakerliste."""
         # check login
         session = await get_session(self.request)
-        loggedin = LoginAdapter().isloggedin(session)
+        loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
         token = session["token"]
@@ -83,8 +83,8 @@ class Contestants(web.View):
                     informasjon = f"Det har oppstått en feil, kode: {res}."
 
         except Exception as e:
-            logging.error(f"Error handling post - deltakere {e}")
-            informasjon = "Det har oppstått en feil."
+            logging.error(f"Error: {e}")
+            informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
             location=f"/contestants?eventid={id}&informasjon={informasjon}"

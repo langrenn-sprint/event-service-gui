@@ -5,8 +5,8 @@ from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
-from event_service_gui.services import LoginAdapter
 from event_service_gui.services import RaceclassesAdapter
+from event_service_gui.services import UserAdapter
 
 
 class Raceclasses(web.View):
@@ -22,7 +22,7 @@ class Raceclasses(web.View):
         # check login
         username = ""
         session = await get_session(self.request)
-        loggedin = LoginAdapter().isloggedin(session)
+        loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location=f"/login?event={eventid}")
         username = session["username"]

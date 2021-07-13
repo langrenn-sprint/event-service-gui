@@ -5,7 +5,7 @@ from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
-from event_service_gui.services import LoginAdapter
+from event_service_gui.services import UserAdapter
 
 
 class Users(web.View):
@@ -15,7 +15,7 @@ class Users(web.View):
         """Get route function that return the index page."""
         # check login
         session = await get_session(self.request)
-        loggedin = LoginAdapter().isloggedin(session)
+        loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
         token = session["token"]
@@ -37,7 +37,7 @@ class Users(web.View):
             create_new = False
 
         if not create_new:
-            users = await LoginAdapter().get_all_users(token)
+            users = await UserAdapter().get_all_users(token)
             logging.info(f"Users: {users}")
 
         return await aiohttp_jinja2.render_template_async(
@@ -61,7 +61,7 @@ class Users(web.View):
 
         # check login
         session = await get_session(self.request)
-        loggedin = LoginAdapter().isloggedin(session)
+        loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
         token = session["token"]
@@ -71,7 +71,7 @@ class Users(web.View):
 
             # Create new event
             if "create" in form.keys():
-                id = await LoginAdapter().create_user(
+                id = await UserAdapter().create_user(
                     token,
                     form["newrole"],
                     form["newusername"],
@@ -82,7 +82,7 @@ class Users(web.View):
             elif "delete" in form.keys():
                 id = form["id"]
                 logging.info(f"Enter delete {id}")
-                res = await LoginAdapter().delete_user(token, id)
+                res = await UserAdapter().delete_user(token, id)
                 if res == 204:
                     informasjon = "Bruker er slettet."
                 else:
@@ -90,8 +90,8 @@ class Users(web.View):
             else:
                 informasjon = "Ingen endringer utført"
 
-        except Exception:
-            informasjon = "En feil har oppstått"
-            logging.error("Error handling post - users")
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(location=f"/users?informasjon={informasjon}")

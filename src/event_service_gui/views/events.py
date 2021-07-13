@@ -6,7 +6,7 @@ import aiohttp_jinja2
 from aiohttp_session import get_session
 
 from event_service_gui.services import EventsAdapter
-from event_service_gui.services import LoginAdapter
+from event_service_gui.services import UserAdapter
 
 
 class Events(web.View):
@@ -33,7 +33,7 @@ class Events(web.View):
         # check login
         username = ""
         session = await get_session(self.request)
-        loggedin = LoginAdapter().isloggedin(session)
+        loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location=f"/login?event={eventid}")
         username = session["username"]
@@ -61,7 +61,7 @@ class Events(web.View):
         """Post route function that creates a collection of klasses."""
         # check login
         session = await get_session(self.request)
-        loggedin = LoginAdapter().isloggedin(session)
+        loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
         token = session["token"]
@@ -89,11 +89,11 @@ class Events(web.View):
                 if res == 204:
                     informasjon = "Arrangement er slettet."
                 else:
-                    informasjon = f"En feil oppstod {res}."
-        except Exception:
-            logging.error("Error handling post - events")
-            informasjon = "Det har oppstått en feil."
-            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+                    logging.error(f"Error: {res}")
+                    informasjon = f"Det har oppstått en feil - {res}."
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
             location=f"/events?eventid={id}&informasjon={informasjon}"
@@ -103,7 +103,7 @@ class Events(web.View):
         """Put route function."""
         # check login
         session = await get_session(self.request)
-        loggedin = LoginAdapter().isloggedin(session)
+        loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
         token = session["token"]
@@ -127,10 +127,9 @@ class Events(web.View):
                 informasjon = "Arrangementinformasjon er oppdatert."
             else:
                 informasjon = f"En feil oppstod {res}."
-        except Exception:
-            logging.error("Error handling post - events")
-            informasjon = "Det har oppstått en feil."
-            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
             location=f"/events?eventid={id}&informasjon={informasjon}"

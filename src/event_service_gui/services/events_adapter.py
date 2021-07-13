@@ -8,8 +8,9 @@ from aiohttp import hdrs
 from aiohttp import web
 from multidict import MultiDict
 
-# TODO - hente fra configuration
-EVENT_SERVICE_URL = "http://localhost:8082"
+EVENT_SERVICE_HOST = os.getenv("EVENT_SERVICE_HOST", "localhost")
+EVENT_SERVICE_PORT = os.getenv("EVENT_SERVICE_PORT", "8082")
+EVENT_SERVICE_URL = f"http://{EVENT_SERVICE_HOST}:{EVENT_SERVICE_PORT}"
 
 
 class EventsAdapter:

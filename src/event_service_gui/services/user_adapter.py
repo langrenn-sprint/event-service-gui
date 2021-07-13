@@ -1,4 +1,4 @@
-"""Module for login adapter."""
+"""Module for user adapter."""
 import logging
 import os
 from typing import List
@@ -12,8 +12,8 @@ USER_SERVICE_PORT = os.getenv("USER_SERVICE_PORT", "8084")
 USER_SERVICE_URL = f"http://{USER_SERVICE_HOST}:{USER_SERVICE_PORT}"
 
 
-class LoginAdapter:
-    """Class representing login."""
+class UserAdapter:
+    """Class representing user."""
 
     async def create_user(
         self,
