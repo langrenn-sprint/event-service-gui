@@ -36,6 +36,7 @@ class Schedules(web.View):
             {
                 "lopsinfo": "Kjøreplan",
                 "schedules": schedules,
+                "event": [],
                 "eventid": eventid,
                 "username": username,
             },

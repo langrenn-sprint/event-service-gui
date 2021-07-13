@@ -36,6 +36,7 @@ class Raceclasses(web.View):
             {
                 "lopsinfo": "Løpsklasser",
                 "raceclasses": raceclasses,
+                "event": [],
                 "eventid": eventid,
                 "username": username,
             },

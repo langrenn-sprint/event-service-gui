@@ -19,7 +19,7 @@ class ContestantsAdapter:
         """Get all innstillinger function."""
         contestants = []
         async with ClientSession() as session:
-            async with session.get(EVENT_SERVICE_URL + "contestants") as resp:
+            async with session.get(f"{EVENT_SERVICE_URL}/contestants") as resp:
                 logging.debug(f"get_all_contestants - got response {resp.status}")
                 if resp.status == "200":
                     contestants = await resp.json()

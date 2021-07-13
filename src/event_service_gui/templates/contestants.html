@@ -9,6 +9,7 @@
 {% block content %}
   <div class="w3-row-padding">
     <div class="w3-half">
+      {% if create_new %}
       <form action=/contestants method=post enctype="multipart/form-data" >
         <table cellpadding=4>
           <tr id=spacer></tr>
@@ -28,6 +29,39 @@
           </tr>
         </table>
       </form>
+      {% else %}
+      <table cellpadding=4>
+        <tr>
+          <td colspan=4 align=right>
+            <form action=/contestants method=get>
+              <input type="hidden" name=eventid value="{{ eventid }}">
+              <input type="submit" name=new value="  Legg til  ">
+            </form>
+          </td>
+        </tr>
+        <tr id=spacer></tr>
+        <tr>
+          <td colspan=4 id=headerblue>
+            <b>Deltakere</b>
+          </td>
+        </tr>
+        <tr>
+          <td>Startnr</td>
+          <td>Navn</td>
+          <td>Klasse</td>
+          <td>Klubb</td>
+        </tr>
+        {% for contestant in contestants %}
+        <tr>
+          <td>{{ contestant.nr }}</td>
+          <td>{{ contestant.name }}</td>
+          <td>{{ contestant.ageclass }}</td>
+          <td>{{ contestant.club }}</td>
+        </tr>
+        {% endfor %}
+        <tr id=spacer></tr>
+      </table>
+      {% endif %}
     </div>
   </div>
 

@@ -17,7 +17,7 @@ class SchedulesAdapter:
         """Get all innstillinger function."""
         schedules = []
         async with ClientSession() as session:
-            async with session.get(EVENT_SERVICE_URL + "schedules") as resp:
+            async with session.get(f"{EVENT_SERVICE_URL}/schedules") as resp:
                 logging.debug(f"get_all_schedules - got response {resp.status}")
                 if resp.status == "200":
                     schedules = await resp.json()

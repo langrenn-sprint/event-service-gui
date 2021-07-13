@@ -8,11 +8,11 @@
   </head>
   <body>
     <div class="w3-container" id=headeradmin>
-      <h2>Administrasjon {{ event.name }} - {% block titlemain %}{% endblock %}</h2>
+      <h2>{{ event.name }} - {% block titlemain %}{% endblock %} administrasjon</h2>
     </div>
     <div class="w3-container">
       <ul>
-        <li class=dropdown id=topborder>
+        <li class=dropdown>
           <a href=javascript:void(0) class=dropbtn>...</a>
           <div class=dropdown-content>
             <a href="/">Hovedside</a>
@@ -37,7 +37,7 @@
             <li id=topborder style="float:right">
               <a href=/login class=dropbtn>Logg inn</a>
           {% else %}
-            <li class=dropdown id=topborder style="float:right">
+            <li class=dropdown style="float:right">
               <a href=javascript:void(0) class=dropbtn>{{ username }}</a>
               <div class=dropdown-content>
                 <a href="/users">Brukere</a>

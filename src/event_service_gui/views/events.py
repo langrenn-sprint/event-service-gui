@@ -48,12 +48,12 @@ class Events(web.View):
             "events.html",
             self.request,
             {
+                "create_new": create_new,
                 "lopsinfo": "Arrangement",
                 "event": event,
                 "eventid": eventid,
                 "informasjon": informasjon,
                 "username": username,
-                "create_new": create_new,
             },
         )
 

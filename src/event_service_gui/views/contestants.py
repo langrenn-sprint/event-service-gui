@@ -15,25 +15,31 @@ class Contestants(web.View):
         """Get route function that return the index page."""
         try:
             id = self.request.rel_url.query["eventid"]
-
-            # check login
-            username = ""
-            session = await get_session(self.request)
-            loggedin = UserAdapter().isloggedin(session)
-            if not loggedin:
-                return web.HTTPSeeOther(location=f"/login?eventid={id}")
-            username = session["username"]
-            token = session["token"]
-
-            try:
-                informasjon = self.request.rel_url.query["informasjon"]
-            except Exception:
-                informasjon = ""
-
-            event = await EventsAdapter().get_event(token, id)
-
         except Exception:
             return web.HTTPSeeOther(location="/")
+
+        # check login
+        username = ""
+        session = await get_session(self.request)
+        loggedin = UserAdapter().isloggedin(session)
+        if not loggedin:
+            return web.HTTPSeeOther(location=f"/login?eventid={id}")
+        username = session["username"]
+        token = session["token"]
+
+        try:
+            informasjon = self.request.rel_url.query["informasjon"]
+        except Exception:
+            informasjon = ""
+        try:
+            create_new = False
+            new = self.request.rel_url.query["new"]
+            if new != "":
+                create_new = True
+        except Exception:
+            create_new = False
+
+        event = await EventsAdapter().get_event(token, id)
 
         # todo - get list of contestants
         contestants = await ContestantsAdapter().get_all_contestants()
@@ -44,6 +50,7 @@ class Contestants(web.View):
             {
                 "lopsinfo": "Deltakere",
                 "contestants": contestants,
+                "create_new": create_new,
                 "event": event,
                 "eventid": id,
                 "informasjon": informasjon,

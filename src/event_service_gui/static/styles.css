@@ -32,13 +32,13 @@ body {
 
 ul {
   	list-style-type: none;
-    margin: 0;
-    padding: 0;
 		background-color: #94b5e0;
+    margin: 0px;
+    padding: 0px;
 }
 
-#topborder {
-  	border-right: 1px solid white;
+.active {
+    background-color: #00247d;
 }
 
 a {
@@ -49,13 +49,11 @@ a:hover {
   background-color: #f1f2f7;
 }
 
-
-
 li, .dropbtn {
   display: inline-block;
   color: white;
+  padding: 2px 2px 2px 2px;
   text-align: center;
-  padding: 2px 4px 2px 2px;
   text-decoration: none;
 }
 
@@ -63,11 +61,11 @@ li:hover, .dropdown:hover, .dropbtn:hover {
   background-color: #00247d;
 }
 
-.dropbtnactive {
-  background-color: grey;
+#topborder {
+  border-left: 1px solid white;
 }
 
-.active {
+.dropbtnactive {
   background-color: grey;
 }
 

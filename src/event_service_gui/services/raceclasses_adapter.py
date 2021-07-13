@@ -17,7 +17,7 @@ class RaceclassesAdapter:
         """Get all innstillinger function."""
         raceclasses = []
         async with ClientSession() as session:
-            async with session.get(EVENT_SERVICE_URL + "raceclasses") as resp:
+            async with session.get(f"{EVENT_SERVICE_URL}/raceclasses") as resp:
                 logging.debug(f"get_all_raceclasses - got response {resp.status}")
                 if resp.status == "200":
                     raceclasses = await resp.json()
