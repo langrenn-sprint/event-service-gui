@@ -58,7 +58,6 @@ class Contestants(web.View):
         loggedin = LoginAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
-        token = session["token"]
 
         informasjon = ""
         try:
@@ -72,7 +71,7 @@ class Contestants(web.View):
                 logging.info(f"File {file}")
                 text_file = file.file
                 content = text_file.read()
-                logging.info(f"Content {content}")
+                logging.debug(f"Content {content}")
 
                 # todo: test when backend service is available
                 res = 0
