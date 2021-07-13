@@ -3,11 +3,25 @@
   {{ lopsinfo }}
 {% endblock %}
 {% block refresh %}{% endblock %}
-{% block titlemain %}
-  {{ lopsinfo }}
+{% block titlemain %}{{ lopsinfo }}{% endblock %}
+{% block menuitems %}
+  <li id=topborder>
+    <a href=/events?eventid={{ eventid }} class=dropbtn>Info</a>
+  </li>
+  <li id=topborder class=active>
+    <a href=/contestants?eventid={{ eventid }} class=dropbtn>Deltakere</a>
+  </li>
+  <li id=topborder>
+    <a href=/raceclasses?eventid={{ eventid }} class=dropbtn>Løpsklasser</a>
+  </li>
+  <li id=topborder>
+    <a href=/schedules?eventid={{ eventid }} class=dropbtn>Kjøreplan</a>
+  </li>
 {% endblock %}
+
 {% block content %}
   <div class="w3-row-padding">
+    <div class="w3-quart"></div>
     <div class="w3-half">
       {% if create_new %}
       <form action=/contestants method=post enctype="multipart/form-data" >

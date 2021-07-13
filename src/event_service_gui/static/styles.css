@@ -21,15 +21,6 @@ body {
     font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-.row::after {
-  clear: both;
-  display: table;
-}
-
 ul {
   	list-style-type: none;
 		background-color: #94b5e0;
@@ -43,10 +34,6 @@ ul {
 
 a {
   color: black;
-}
-
-a:hover {
-  background-color: #f1f2f7;
 }
 
 li, .dropbtn {
@@ -147,7 +134,6 @@ tr:nth-child(even){background-color: #f2f2f2;}
     color: black;
     background-color: yellow;
     text-align: right;
-    padding: 2px 2px 2px 2px;
 }
 
 #info {
@@ -193,7 +179,7 @@ async function savefile(inp)
 
 /**** Responsivt design ****/
 .w3-container {
-  padding:0.01em 0px
+  padding:0.02em 0px
 }
 
 .w3-third,.w3-quart,.w3-row-padding,.w3-half {
@@ -221,23 +207,33 @@ async function savefile(inp)
 }
 
 /* Use a media query to add a breakpoint */
-@media screen and (max-width: 1200px) {
-  .w3-third {
-    width: 100%; /* The width is 100%, when the viewport is x px or smaller */
-  }
-}
-
 @media screen and (max-width: 1600px) {
   .w3-quart {
     width: 50%; /* The width is 100%, when the viewport is x px or smaller */
   }
-}
-
-@media screen and (max-width: 800px) {
-  .w3-quart, .w3-half {
+  .w3-third, .w3-half {
     width: 100%; /* The width is 100%, when the viewport is x px or smaller */
   }
 }
+
+@media screen and (max-width: 800px) {
+  .w3-quart {
+    width: 100%; /* The width is 100%, when the viewport is x px or smaller */
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+
+/* End responsive design */
 
 /* START: Tooltip - to show image - start */
 .tooltip {
@@ -265,5 +261,4 @@ async function savefile(inp)
   width:900px;
   height:600px;
 }
-
 /* END: Tooltip - to show image - END */
