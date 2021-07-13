@@ -178,7 +178,7 @@ function naviger(id) {
   elmnt.scrollIntoView();
 }
 
-async function SaveFile(inp)
+async function savefile(inp)
 {
     let formData = new FormData();
     let file = inp.files[0];

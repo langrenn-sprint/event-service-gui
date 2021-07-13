@@ -67,16 +67,22 @@ class Contestants(web.View):
             id = form["eventid"]
 
             # Create new deltakere
-            # todo: test when backend service is available
             if "create" in form.keys():
                 file = form["file"]
                 logging.info(f"File {file}")
-                logging.info(f"File_stream {file.file}")
-                res = await ContestantsAdapter().create_contestants(token, id, file)
+                text_file = file.file
+                content = text_file.read()
+                logging.info(f"Content {content}")
+
+                # todo: test when backend service is available
+                res = 0
+                # res = await ContestantsAdapter().create_contestants(token, id, file)
                 if res == 201:
                     informasjon = "Deltakere ble registrert."
                 else:
-                    informasjon = f"Det har oppstått en feil {res}"
+                    informasjon = (
+                        f"Det har oppstått en feil - {res}. Innhold i fil: {content}"
+                    )
 
         except Exception:
             logging.error("Error handling post - deltakere")

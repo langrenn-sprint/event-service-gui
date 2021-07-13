@@ -54,7 +54,7 @@ class EventsAdapter:
             async with session.get(
                 f"{EVENT_SERVICE_URL}/events/{id}", headers=headers
             ) as resp:
-                logging.info(f"get_event {id} - got response {resp.status}")
+                logging.debug(f"get_event {id} - got response {resp.status}")
                 if resp.status == 200:
                     event = await resp.json()
                     logging.debug(f"event - got response {event}")
