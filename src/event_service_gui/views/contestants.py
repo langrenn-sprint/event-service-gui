@@ -58,6 +58,7 @@ class Contestants(web.View):
         loggedin = LoginAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
+        token = session["token"]
 
         informasjon = ""
         try:
@@ -74,17 +75,15 @@ class Contestants(web.View):
                 logging.debug(f"Content {content}")
 
                 # todo: test when backend service is available
-                res = 0
-                # res = await ContestantsAdapter().create_contestants(token, id, file)
+                res = "0"
+                res = await ContestantsAdapter().create_contestants(token, id, content)
                 if res == 201:
                     informasjon = "Deltakere ble registrert."
                 else:
-                    informasjon = (
-                        f"Det har oppstått en feil - {res}. Innhold i fil: {content}"
-                    )
+                    informasjon = f"Det har oppstått en feil, kode: {res}."
 
-        except Exception:
-            logging.error("Error handling post - deltakere")
+        except Exception as e:
+            logging.error(f"Error handling post - deltakere {e}")
             informasjon = "Det har oppstått en feil."
 
         return web.HTTPSeeOther(

@@ -4,7 +4,6 @@ from typing import List
 
 from aiohttp import ClientSession
 from aiohttp import hdrs
-from aiohttp import web
 from multidict import MultiDict
 
 # TODO - hente fra configuration
@@ -41,7 +40,6 @@ class ContestantsAdapter:
                 if res == 201:
                     logging.debug(f"result - got response {resp}")
                 else:
-                    logging.error(f"create_contestants failed - {resp.status}")
-                    raise web.HTTPBadRequest(reason="Create contestants failed.")
+                    logging.error(f"create_contestants failed: {resp}")
 
         return resp.status
