@@ -10,7 +10,6 @@ class Logout(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
-
         try:
             session = await get_session(self.request)
             session.invalidate()

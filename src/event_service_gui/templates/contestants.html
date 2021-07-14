@@ -29,7 +29,7 @@
           <tr id=spacer></tr>
           <tr>
             <td colspan=2 id=headerblue>
-              <b>Deltakerliste fra fil</b>
+              <b>Importer deltakerliste fra fil</b>
             </td>
           </tr>
           <tr>
@@ -41,6 +41,12 @@
               <input type="submit" name=create value="  Last opp  ">
             </td>
           </tr>
+          <tr>
+            <td colspan=2>
+              <br>Informasjon: Deltakerliste eksporteres fra Sportsadmin (Excel eller XML eksport?). Brukerveiledning for eksportering finnes i <a href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.
+            </td>
+          </tr>
+          <tr id=spacer></tr>
         </table>
       </form>
       {% else %}
@@ -54,23 +60,20 @@
           </td>
         </tr>
         <tr id=spacer></tr>
-        <tr>
-          <td colspan=4 id=headerblue>
-            <b>Deltakere</b>
-          </td>
-        </tr>
-        <tr>
+        <tr id=headerblue>
           <td>Startnr</td>
           <td>Navn</td>
-          <td>Klasse</td>
           <td>Klubb</td>
+          <td>Klasse</td>
+          <td>Krets</td>
         </tr>
         {% for contestant in contestants %}
         <tr>
           <td>{{ contestant.nr }}</td>
           <td>{{ contestant.name }}</td>
-          <td>{{ contestant.ageclass }}</td>
           <td>{{ contestant.club }}</td>
+          <td>{{ contestant.ageclass }}</td>
+          <td>{{ contestant.region }}</td>
         </tr>
         {% endfor %}
         <tr id=spacer></tr>

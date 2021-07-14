@@ -1,11 +1,7 @@
 {% extends "adm_base.html" %}
-{% block titleheader %}
-  {{ lopsinfo }}
-{% endblock %}
+{% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block refresh %}{% endblock %}
-{% block titlemain %}
-  {{ lopsinfo }}
-{% endblock %}
+{% block titlemain %}{{ lopsinfo }}{% endblock %}
 {% block menuitems %}
   <li id=topborder>
     <a href=/events?eventid={{ eventid }} class=dropbtn>Info</a>
@@ -22,6 +18,28 @@
 {% endblock %}
 {% block content %}
   <div class="w3-row-padding">
+    <div class="w3-quart"></div>
+      <div class="w3-half">
+        <table>
+           <tr id=headerblue>
+            <td>Årsklasse</td>
+            <td>Løpsklasse</td>
+            <td>Løype</td>
+            <td>Deltakere</td>
+            <td>Starttid</td>
+            <td></td>
+          </tr>
+          {% for klasse in ageclasses %}
+              <tr>
+                <td>{{ klasse.ageclass }}</td>
+                <td><a href=schedules?raceclass={{ klasse.raceclass }}>{{ klasse.raceclass }}</a></td>
+                <td>{{ klasse.distance }}</td>
+                <td>{{ klasse.participants }}</td>
+                <td>{{ klasse.timestart }}</td>
+                <td><a href=startlist?raceclass={{ klasse.raceclass }}>Startliste</a></td>
+              </tr>
+          {% endfor %}
+        </table>
+      </div>
   </div>
-
 {% endblock %}

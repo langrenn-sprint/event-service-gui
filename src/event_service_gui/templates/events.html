@@ -1,11 +1,7 @@
 {% extends "adm_base.html" %}
-{% block titleheader %}
-  {{ lopsinfo }}
-{% endblock %}
+{% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block refresh %}{% endblock %}
-{% block titlemain %}
-  {{ lopsinfo }}
-{% endblock %}
+{% block titlemain %}{{ lopsinfo }}{% endblock %}
 {% block menuitems %}
   <li id=topborder class=active>
     <a href=/events?eventid={{ eventid }} class=dropbtn>Info</a>
@@ -70,12 +66,12 @@
       </form>
       {% else %}
       <form action=/events method=post>
+        <input type="hidden" name="id" value="{{ event.id }}">
         <table cellpadding=4>
           <tr id=spacer></tr>
           <tr>
             <td colspan=2 id=headerblue>
-              <b>Rediger arrangementsinformasjon</b>
-              <input type="hidden" name="id" value="{{ event.id }}">
+              Rediger arrangementsinformasjon
             </td>
           </tr>
           <tr>
