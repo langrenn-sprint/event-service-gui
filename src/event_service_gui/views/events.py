@@ -39,8 +39,8 @@ class Events(web.View):
         username = session["username"]
         token = session["token"]
 
-        event = []
-        if not create_new:
+        event = {"name": "Nytt arrangement", "organiser": "Ikke valgt"}
+        if (not create_new) and (eventid != ""):
             logging.debug(f"get_event {eventid}")
             event = await EventsAdapter().get_event(token, eventid)
 
@@ -67,6 +67,7 @@ class Events(web.View):
         token = session["token"]
 
         informasjon = ""
+        id = ""
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
@@ -88,6 +89,7 @@ class Events(web.View):
                 res = await EventsAdapter().delete_event(token, id)
                 if res == 204:
                     informasjon = "Arrangement er slettet."
+                    return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
                 else:
                     logging.error(f"Error: {res}")
                     informasjon = f"Det har oppstått en feil - {res}."

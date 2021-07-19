@@ -3,6 +3,12 @@
   <head>
     <title>{% block titleheader %}{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="../static/styles.css">
+    {% if event.organiser[:5] == "Kjels" %}
+      <link rel="stylesheet" type="text/css" href="../static/styles_kjelsaas.css">
+    {% else %}
+      <link rel="stylesheet" type="text/css" href="../static/styles_lyn.css">
+    {% endif %}
+
     <meta http-equiv="refresh" content="{% block refresh %}{% endblock %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
@@ -10,7 +16,7 @@
     <div class="w3-row-padding">
     {% block titlecontainer %}{% endblock %}
       <div id=spacer></div>
-      <div class="w3-container" id=adminpagetitle>{{ event.name }}: {% block titlemain %}{% endblock %}</div>
+      <div class="w3-container" id=adminpagetitle>{{ event.name }}</div>
       <div id=spacer></div>
       <div class="w3-container">
         <ul>

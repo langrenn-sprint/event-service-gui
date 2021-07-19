@@ -41,9 +41,9 @@ class EventsAdapter:
                     logging.error(f"Error {resp.status} getting events: {resp} ")
         return events
 
-    async def get_event(self, token: str, id: str) -> List:
+    async def get_event(self, token: str, id: str) -> dict:
         """Get event function."""
-        event = []
+        event = {}
         headers = MultiDict(
             {
                 hdrs.CONTENT_TYPE: "application/json",

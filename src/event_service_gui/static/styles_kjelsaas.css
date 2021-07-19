@@ -1,0 +1,40 @@
+/*****************************************
+* styles for langrenn sprint webpages    *
+* club specific part                     *
+*
+* Lyn farger: Rød vanlig:  #A30013
+*             Rød mørk (hover) #75000e
+              Blå #1f3d8e
+*
+* Kjelsås farger:
+              Kongeblå (PMS 280) - #00247d
+              Orange PMS 1365 - #ffb549
+              Lys blå PMS 278 - #94b5e0
+*****************************************/
+
+
+ul {
+		background-color: #94b5e0;
+}
+
+.active {
+    background-color: #00247d;
+}
+
+li:hover, .dropdown:hover, .dropbtn:hover {
+  background-color: #00247d;
+}
+
+#topborder {
+  border-left: 1px solid white;
+}
+
+#headerblue {
+    color: white;
+    background-color: #00247d;
+}
+
+#headerblack {
+    color: black;
+    background-color: #ffb549;
+}

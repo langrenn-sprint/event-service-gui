@@ -37,7 +37,7 @@ class Login(web.View):
         except Exception:
             create_new = False
 
-        event = {"name": "Administrasjon"}
+        event = {"name": "Administrasjon", "organiser": "Ikke valgt"}
 
         return await aiohttp_jinja2.render_template_async(
             "login.html",

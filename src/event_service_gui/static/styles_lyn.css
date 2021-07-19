@@ -1,0 +1,36 @@
+/*****************************************
+* styles for langrenn sprint webpages    *
+* club specific part                     *
+*
+* Lyn farger: Rød vanlig:  #A30013
+*             Rød mørk (hover) #75000e
+              Blå #1f3d8e
+*
+*****************************************/
+
+
+ul {
+		background-color: #A30013;
+}
+
+.active {
+    background-color: #75000e;
+}
+
+li:hover, .dropdown:hover, .dropbtn:hover {
+  background-color: #75000e;
+}
+
+#topborder {
+  border-left: 1px solid white;
+}
+
+#headerblue {
+    color: white;
+    background-color: #75000e;
+}
+
+#headerblack {
+    color: black;
+    background-color: #1f3d8e;
+}

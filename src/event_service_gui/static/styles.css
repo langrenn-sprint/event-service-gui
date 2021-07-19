@@ -1,20 +1,7 @@
-/*********************************
-* stiler for sprint nettsider    *
-*
-* Lyn farger: Rød vanlig:  #A30013
-*             Rød mørk (hover) #75000e
-              Grå mørk #3D3D3D
-              Grå lys #f1f2f7
-              Blå #1f3d8e
-*
-* Kjelsås farger:
-              Kongeblå (PMS 280) - #00247d
-              Orange PMS 1365 - #ffb549
-              Lys blå PMS 278 - #94b5e0
-              Grå mørk #3D3D3D
-              Grå lys #f1f2f7
-              Font: Verdana
-*********************************/
+/*****************************************
+* styles for langrenn sprint webpages    *
+* generic part                           *
+*****************************************/
 
 
 body {
@@ -23,13 +10,8 @@ body {
 
 ul {
   	list-style-type: none;
-		background-color: #94b5e0;
     margin: 0px;
     padding: 0px;
-}
-
-.active {
-    background-color: #00247d;
 }
 
 a {
@@ -42,14 +24,6 @@ li, .dropbtn {
   padding: 2px 2px 2px 2px;
   text-align: center;
   text-decoration: none;
-}
-
-li:hover, .dropdown:hover, .dropbtn:hover {
-  background-color: #00247d;
-}
-
-#topborder {
-  border-left: 1px solid white;
 }
 
 .dropbtnactive {
@@ -109,24 +83,12 @@ tr:nth-child(even){background-color: #f2f2f2;}
 
 #adminpagetitle {
   text-align: center;
-  color: black;
-  background-color: yellow;
+  color: grey;
   font-size: 2.0em;
 }
 
-#headerblue {
-    color: white;
-    background-color: #00247d;
-}
-
-#headerblack {
-    color: black;
-    background-color: #ffb549;
-}
-
 #footeradmin {
-    color: black;
-    background-color: yellow;
+    color: grey;
     text-align: right;
     padding: 4px 4px 4px 4px;
 }
@@ -134,10 +96,6 @@ tr:nth-child(even){background-color: #f2f2f2;}
 #info {
     color: orange;
     font-weight: bold;
-}
-
-#fremhev {
-    background-color: yellow;
 }
 
 #spacer {
@@ -174,7 +132,7 @@ async function savefile(inp)
 
 /**** Responsivt design ****/
 .w3-container {
-  padding:0.02em 0px
+  padding:0.01em 0px
 }
 
 .w3-third,.w3-quart,.w3-row-padding,.w3-half {
