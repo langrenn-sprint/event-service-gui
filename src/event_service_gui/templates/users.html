@@ -1,4 +1,9 @@
 {% extends "adm_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-quart"></div>
+  <div class="w3-half">
+{% endblock %}
+
 {% block titleheader %}
   {{ lopsinfo }}
 {% endblock %}
@@ -7,9 +12,6 @@
   {{ lopsinfo }}
 {% endblock %}
 {% block content %}
-  <div class="w3-row-padding">
-    <div class="w3-quart"></div>
-    <div class="w3-half">
       {% if create_new %}
         <form action="/users" method="post">
           <table cellpadding=4>
@@ -72,7 +74,4 @@
             <tr id=spacer></tr>
           </table>
       {% endif %}
-    </div>
-  </div>
-
 {% endblock %}

@@ -30,12 +30,15 @@ class Main(web.View):
 
         events = await EventsAdapter().get_all_events(token)
         logging.debug(f"Events: {events}")
+
+        event = {"name": "Langrenn"}
+
         return await aiohttp_jinja2.render_template_async(
             "index.html",
             self.request,
             {
-                "lopsinfo": "Langrenn startside",
-                "event": [],
+                "lopsinfo": "Startside",
+                "event": event,
                 "eventid": "",
                 "events": events,
                 "informasjon": informasjon,

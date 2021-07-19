@@ -7,39 +7,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
-    <div class="w3-container" id=headeradmin>
-      <h2>{{ event.name }} - {% block titlemain %}{% endblock %} administrasjon</h2>
-    </div>
-    <div class="w3-container">
-      <ul>
-        <li class=dropdown>
-          <a href=javascript:void(0) class=dropbtn>...</a>
-          <div class=dropdown-content>
-            <a href="/">Hovedside</a>
-          </div>
-        </li>
-        {% block menuitems %}{% endblock %}
-        {% if username == "" %}
-          <li id=topborder style="float:right">
-            <a href=/login class=dropbtn>Logg inn</a>
-        {% else %}
-          <li class=dropdown style="float:right">
-            <a href=javascript:void(0) class=dropbtn>{{ username }}</a>
+    <div class="w3-row-padding">
+    {% block titlecontainer %}{% endblock %}
+      <div id=spacer></div>
+      <div class="w3-container" id=adminpagetitle>{{ event.name }}: {% block titlemain %}{% endblock %}</div>
+      <div id=spacer></div>
+      <div class="w3-container">
+        <ul>
+          <li class=dropdown>
+            <a href=javascript:void(0) class=dropbtn>...</a>
             <div class=dropdown-content>
-              <a href="/users">Brukere</a>
-              <a href="/logout">Logg ut</a>
+              <a href="/">Hovedside</a>
             </div>
-        {% endif %}
-        </li>
-      </ul>
-    </div>
-    <div id=spacer></div>
-    <div class="w3-container" id=info>{{ informasjon }}</div>
-    {% block content %}{% endblock %}
-    <div class="w3-container">
-      <div id=footeradmin>
-        <a href="https://github.com/langrenn-sprint">langrenn-sprint (GitHub)</a> - utviklet av Lyn ski og Kjelsås langrenn
+          </li>
+          {% block menuitems %}{% endblock %}
+          {% if username == "" %}
+            <li id=topborder style="float:right">
+              <a href=/login class=dropbtn>Logg inn</a>
+          {% else %}
+            <li class=dropdown style="float:right">
+              <a href=javascript:void(0) class=dropbtn>{{ username }}</a>
+              <div class=dropdown-content>
+                <a href="/users">Brukere</a>
+                <a href="/logout">Logg ut</a>
+              </div>
+          {% endif %}
+          </li>
+        </ul>
       </div>
+      <div id=spacer></div>
+      <div class="w3-container" id=info>{{ informasjon }}</div>
+      {% block content %}{% endblock %}
+      <div class="w3-container" id=footeradmin>
+          <a href="https://github.com/langrenn-sprint">langrenn-sprint</a> - utviklet av Lyn ski og Kjelsås langrenn
+      </div>
+      <div id=spacer></div>
     </div>
   </body>
 </html>

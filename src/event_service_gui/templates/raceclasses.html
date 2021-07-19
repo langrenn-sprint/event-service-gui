@@ -1,4 +1,9 @@
 {% extends "adm_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-quart"></div>
+  <div class="w3-half">
+{% endblock %}
+
 {% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block refresh %}{% endblock %}
 {% block titlemain %}{{ lopsinfo }}{% endblock %}
@@ -17,29 +22,24 @@
   </li>
 {% endblock %}
 {% block content %}
-  <div class="w3-row-padding">
-    <div class="w3-quart"></div>
-      <div class="w3-half">
-        <table>
-           <tr id=headerblue>
-            <td>Årsklasse</td>
-            <td>Løpsklasse</td>
-            <td>Løype</td>
-            <td>Deltakere</td>
-            <td>Starttid</td>
-            <td></td>
+    <table>
+       <tr id=headerblue>
+        <td>Årsklasse</td>
+        <td>Løpsklasse</td>
+        <td>Løype</td>
+        <td>Deltakere</td>
+        <td>Starttid</td>
+        <td></td>
+      </tr>
+      {% for klasse in ageclasses %}
+          <tr>
+            <td>{{ klasse.ageclass }}</td>
+            <td><a href=schedules?raceclass={{ klasse.raceclass }}>{{ klasse.raceclass }}</a></td>
+            <td>{{ klasse.distance }}</td>
+            <td>{{ klasse.participants }}</td>
+            <td>{{ klasse.timestart }}</td>
+            <td><a href=startlist?raceclass={{ klasse.raceclass }}>Startliste</a></td>
           </tr>
-          {% for klasse in ageclasses %}
-              <tr>
-                <td>{{ klasse.ageclass }}</td>
-                <td><a href=schedules?raceclass={{ klasse.raceclass }}>{{ klasse.raceclass }}</a></td>
-                <td>{{ klasse.distance }}</td>
-                <td>{{ klasse.participants }}</td>
-                <td>{{ klasse.timestart }}</td>
-                <td><a href=startlist?raceclass={{ klasse.raceclass }}>Startliste</a></td>
-              </tr>
-          {% endfor %}
-        </table>
-      </div>
-  </div>
+      {% endfor %}
+    </table>
 {% endblock %}

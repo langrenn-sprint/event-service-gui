@@ -40,12 +40,14 @@ class Users(web.View):
             users = await UserAdapter().get_all_users(token)
             logging.info(f"Users: {users}")
 
+        event = {"name": "Administrasjon"}
+
         return await aiohttp_jinja2.render_template_async(
             "users.html",
             self.request,
             {
                 "lopsinfo": "Brukere",
-                "event": [],
+                "event": event,
                 "eventid": "",
                 "informasjon": informasjon,
                 "username": username,

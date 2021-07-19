@@ -24,15 +24,18 @@ Her finner du en enkel webserver som generer html basert på csv-filer i test-da
 ```
 
 ## oppdatere
+```
 % poetry update / poetry add <module>
+```
 
 ## Miljøvariable
-Du kan sette opp ei .env fil med miljøvariable. Eksempel:
 ```
+Du kan sette opp ei .env fil med miljøvariable. Eksempel:
 HOST_PORT=8080
 ```
 
 ### Config gcloud
+```
 gcloud -v
 gcloud auth login
 gcloud config set project langrenn-sprint
@@ -45,7 +48,9 @@ docker-compose up --build event-service  user-service mongodb
 
 Denne fila _skal_ ligge i .dockerignore og .gitignore
 ### Kjøre webserver lokalt
-Start lokal webserver mha aiohttp-devtools(adev):
+```
+
+## Start lokal webserver mha aiohttp-devtools(adev):
 ```
 % source .env
 % cd src && poetry run adev runserver -p 8080 event_service_gui
@@ -61,15 +66,3 @@ Når du endrer koden i event_service_gui, vil webserveren laste applikasjonen p�
 
 # Referanser
 aiohttp: https://docs.aiohttp.org/
-
-# tmp
-reader = MultipartReader.from_response(self.request)
-metadata = None
-filedata = None
-while True:
-    part = await reader.next()
-    if part is None:
-        break
-    if part.headers[aiohttp.hdrs.CONTENT_TYPE] == "application/json":
-        metadata = await part.json()
-        continue

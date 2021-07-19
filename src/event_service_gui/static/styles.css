@@ -85,14 +85,6 @@ li.dropdown {
   display: block;
 }
 
-h1 {
-  text-align: center;
-}
-
-h2 {
-  text-align: center;
-}
-
 .img_desi {
   width: auto;
   height: 100px;
@@ -115,6 +107,13 @@ table {
 
 tr:nth-child(even){background-color: #f2f2f2;}
 
+#adminpagetitle {
+  text-align: center;
+  color: black;
+  background-color: yellow;
+  font-size: 2.0em;
+}
+
 #headerblue {
     color: white;
     background-color: #00247d;
@@ -125,15 +124,11 @@ tr:nth-child(even){background-color: #f2f2f2;}
     background-color: #ffb549;
 }
 
-#headeradmin {
-    color: black;
-    background-color: yellow;
-}
-
 #footeradmin {
     color: black;
     background-color: yellow;
     text-align: right;
+    padding: 4px 4px 4px 4px;
 }
 
 #info {
@@ -146,7 +141,7 @@ tr:nth-child(even){background-color: #f2f2f2;}
 }
 
 #spacer {
-  height: 5px;
+  height: 4px;
 }
 
 #bredde {
@@ -183,7 +178,7 @@ async function savefile(inp)
 }
 
 .w3-third,.w3-quart,.w3-row-padding,.w3-half {
-  padding:0.01em 0px
+  padding:0.01em 2px
 }
 .w3-container:after,.w3-container:before,.w3-row-padding:after,.w3-row-padding:before {
   content:"";
@@ -194,6 +189,7 @@ async function savefile(inp)
 .w3-half {
   float:left;width:100%;
   width:50%;
+  border-style: groove;
 }
 
 .w3-third {

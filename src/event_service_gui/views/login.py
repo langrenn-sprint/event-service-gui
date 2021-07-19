@@ -37,12 +37,14 @@ class Login(web.View):
         except Exception:
             create_new = False
 
+        event = {"name": "Administrasjon"}
+
         return await aiohttp_jinja2.render_template_async(
             "login.html",
             self.request,
             {
                 "lopsinfo": "Login",
-                "event": [],
+                "event": event,
                 "eventid": eventid,
                 "informasjon": informasjon,
                 "username": username,
@@ -95,12 +97,13 @@ class Login(web.View):
             result = 400
 
         if result != 200:
+            event = {"name": "Administrasjon"}
             return await aiohttp_jinja2.render_template_async(
                 "login.html",
                 self.request,
                 {
                     "lopsinfo": "Login resultat",
-                    "event": [],
+                    "event": event,
                     "eventid": eventid,
                     "informasjon": informasjon,
                 },
