@@ -9,6 +9,7 @@ import aiohttp_jinja2
 from aiohttp_session import get_session, setup
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
+from dotenv import load_dotenv
 import jinja2
 
 from .views import (
@@ -23,7 +24,13 @@ from .views import (
     Users,
 )
 
+load_dotenv()
 LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = int(os.getenv("DB_PORT", 27017))
+DB_NAME = os.getenv("DB_NAME", "test")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 
 async def handler(request) -> web.Response:
