@@ -67,10 +67,16 @@
       </table>
     </form>
     {% else %}
+    <div align=right>
+            <form action=/events method=post>
+              <input type="hidden" name="id" value="{{ event.id }}">
+              <input type="submit" name=delete value=Slett>
+            </form>
+    </div>
+    <div id=spacer></div>
     <form action=/events method=post>
       <input type="hidden" name="id" value="{{ event.id }}">
       <table cellpadding=4>
-        <tr id=spacer></tr>
         <tr>
           <td colspan=2 id=headerblue>
             Rediger arrangementsinformasjon
@@ -105,16 +111,5 @@
         <tr id=spacer></tr>
       </table>
     </form>
-    <table cellpadding=4>
-      <tr>
-          <td></td>
-          <td>
-            <form action=/events method=post>
-              <input type="hidden" name="id" value="{{ event.id }}">
-              <input type="submit" name=delete value=Slett>
-            </form>
-          </td>
-      </tr>
-    </table>
     {% endif %}
 {% endblock %}

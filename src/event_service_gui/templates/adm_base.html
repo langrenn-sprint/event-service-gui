@@ -16,14 +16,23 @@
     <div class="w3-row-padding">
     {% block titlecontainer %}{% endblock %}
       <div id=spacer></div>
-      <div class="w3-container" id=adminpagetitle>{{ event.name }}</div>
+      <div class="w3-container" id=adminpagetitle>
+        {% block titlemain %}{% endblock %} {{ event.name }}
+      </div>
       <div id=spacer></div>
       <div class="w3-container">
         <ul>
           <li class=dropdown>
             <a href=javascript:void(0) class=dropbtn>...</a>
             <div class=dropdown-content>
-              <a href="/">Hovedside</a>
+              {% if eventid == "" %}
+                <a href="/">Hovedside</a>
+              {% else %}
+                <a href="/events?eventid={{ eventid }}">Hovedside</a>
+                <a href="/contestants?eventid={{ eventid }}">Deltakere</a>
+                <a href="/raceclasses?eventid={{ eventid }}">Løpsklasser</a>
+                <a href="/schedules?eventid={{ eventid }}">Kjøreplan</a>
+              {% endif %}
             </div>
           </li>
           {% block menuitems %}{% endblock %}
@@ -41,13 +50,16 @@
           </li>
         </ul>
       </div>
-      <div id=spacer></div>
-      <div class="w3-container" id=info>{{ informasjon }}</div>
-      {% block content %}{% endblock %}
-      <div class="w3-container" id=footeradmin>
-          <a href="https://github.com/langrenn-sprint">langrenn-sprint</a> - utviklet av Lyn ski og Kjelsås langrenn
-      </div>
-      <div id=spacer></div>
+    <div id=spacer></div>
+    <div class="w3-container" id=info>{{ informasjon }}</div>
+    {% block content %}{% endblock %}
+    <div id=spacer></div>
+  </div>
+  <div class="w3-row-padding">
+    <div class="w3-quart-empty"></div>
+    <div class="w3-half-empty" id=footeradmin>
+        <a href="https://github.com/langrenn-sprint">langrenn-sprint</a> - utviklet av Lyn ski og Kjelsås langrenn
     </div>
+  </div>
   </body>
 </html>
