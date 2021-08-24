@@ -46,7 +46,12 @@
         </tr>
         <tr>
           <td colspan=2>
-            <br>Informasjon: Deltakerliste eksporteres fra Sportsadmin (Excel eller XML eksport?). Brukerveiledning for eksportering finnes i <a href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.
+            <br>Informasjon
+          </td>
+        </tr>
+        <tr>
+          <td colspan=2>
+            Kommaseparert fil med alle deltakere. Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.
           </td>
         </tr>
         <tr id=spacer></tr>
@@ -56,7 +61,7 @@
     <div align=right>
       <form action=/contestants method=get>
         <input type="hidden" name=eventid value="{{ eventid }}">
-        <input type="submit" name=new value="  Legg til deltaker ">
+        <input type="submit" name=new value="  Last inn deltakere ">
       </form>
     </div>
     <div id=spacer></div>
@@ -65,16 +70,18 @@
         <td>Startnr</td>
         <td>Navn</td>
         <td>Klubb</td>
-        <td>Klasse</td>
+        <td>Årsklasse</td>
+        <td>Løpsklasse</td>
         <td>Krets</td>
       </tr>
       {% for contestant in contestants %}
       <tr>
-        <td>{{ contestant.nr }}</td>
-        <td>{{ contestant.name }}</td>
-        <td>{{ contestant.club }}</td>
-        <td>{{ contestant.ageclass }}</td>
-        <td>{{ contestant.region }}</td>
+        <td>{{ contestant.Startnr }}</td>
+        <td>{{ contestant.Navn }}</td>
+        <td>{{ contestant.Klubb }}</td>
+        <td>{{ contestant.ÅrsKlasse }}</td>
+        <td>{{ contestant.Løpsklasse }}</td>
+        <td>{{ contestant.Krets }}</td>
       </tr>
       {% endfor %}
       <tr id=spacer></tr>

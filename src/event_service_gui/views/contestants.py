@@ -5,7 +5,12 @@ from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
-from event_service_gui.services import ContestantsAdapter, EventsAdapter, UserAdapter
+from event_service_gui.services import (
+    ContestantsAdapter,
+    DeltakereService,
+    EventsAdapter,
+    UserAdapter,
+)
 
 
 class Contestants(web.View):
@@ -42,7 +47,8 @@ class Contestants(web.View):
         event = await EventsAdapter().get_event(token, id)
 
         # todo - get list of contestants
-        contestants = await ContestantsAdapter().get_all_contestants()
+        # contestants = await ContestantsAdapter().get_all_contestants()
+        contestants = await DeltakereService().get_all_deltakere(self.request.app["db"])
         logging.debug(f"Contestants: {contestants}")
         return await aiohttp_jinja2.render_template_async(
             "contestants.html",
@@ -77,18 +83,18 @@ class Contestants(web.View):
             if "create" in form.keys():
                 file = form["file"]
                 logging.info(f"File {file}")
-                text_file = file.file
-                content = text_file.read()
-                logging.debug(f"Content {content}")
 
                 # todo: test when backend service is available
                 res = "0"
-                res = await ContestantsAdapter().create_contestants(token, id, content)
+                res = await ContestantsAdapter().create_contestants(
+                    token, id, file.file
+                )
                 if res == 201:
                     informasjon = "Deltakere ble registrert."
+                    logging.debug(f"Contestans created {res}")
                 else:
                     informasjon = f"Det har oppstått en feil, kode: {res}."
-
+                    logging.error(f"Error in post contestants: {res}")
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."

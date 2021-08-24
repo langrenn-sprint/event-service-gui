@@ -11,6 +11,7 @@ from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 from dotenv import load_dotenv
 import jinja2
+import motor.motor_asyncio
 
 from .views import (
     Contestants,
@@ -65,6 +66,11 @@ async def create_app() -> web.Application:
     )
     logging.debug(f"template_path: {template_path}")
     logging.debug(f"static_path: {static_path}")
+
+    # todo - remove: Set up database connection:
+    client = motor.motor_asyncio.AsyncIOMotorClient(DB_HOST, DB_PORT)
+    db = client.DB_NAME
+    app["db"] = db
 
     app.add_routes(
         [
