@@ -22,7 +22,8 @@
   </li>
 {% endblock %}
 {% block content %}
-    {% if create_new %}
+  <div id=spacer></div>
+  {% if create_new %}
     <form action=/events method=post>
       <table cellpadding=4>
         <tr id=spacer></tr>
@@ -66,11 +67,11 @@
         <tr id=spacer></tr>
       </table>
     </form>
-    {% else %}
+  {% else %}
     <div align=right>
             <form action=/events method=post>
               <input type="hidden" name="id" value="{{ event.id }}">
-              <input type="submit" name=delete value=Slett>
+              <input type="submit" name=delete value="  Slett  ">
             </form>
     </div>
     <div id=spacer></div>
