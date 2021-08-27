@@ -35,17 +35,17 @@
           <td>Årsklasse</td>
           <td>Løype</td>
           <td>Løpsklasse</td>
-          <td>Rekkefølge</td>
-          <td>Deltakere</td>
+          <td>Startrekkefølge</td>
+          <td>Antall påmeldte</td>
         </tr>
         {% for klasse in ageclasses %}
             <input type="hidden" name="ageclass_{{ klasse.Klasse }}" value="{{ klasse.Klasse }}">
             <tr>
               <td>{{ klasse.Klasse }}</td>
-              <td>{{ klasse.Løype }}</td>
-              <td><input type=text name="raceclass_{{ klasse.Klasse }}" value="{{ klasse.Løpsklasse }}"></td>
-              <td><input type=text name="order_{{ klasse.Klasse }}" value="{{ klasse.Rekkefølge }}"></td>
-              <td>{{ klasse.Antall }}</td>
+              <td>{{ klasse.Distance }}</td>
+              <td><input type=text name="raceclass_{{ klasse.Klasse }}" value="{{ klasse.Raceclass }}"></td>
+              <td><input type=text name="order_{{ klasse.Klasse }}" value="{{ klasse.Order }}"></td>
+              <td>{{ klasse.Participants }}</td>
             </tr>
         {% endfor %}
       </table>
@@ -67,16 +67,16 @@
         <td>Årsklasse</td>
         <td>Løype</td>
         <td>Løpsklasse</td>
-        <td>Rekkefølge</td>
+        <td>Startrekkefølge</td>
         <td>Deltakere</td>
       </tr>
       {% for klasse in ageclasses %}
           <tr>
             <td>{{ klasse.Klasse }}</td>
-            <td>{{ klasse.Løype }}</td>
-            <td>{{ klasse.Løpsklasse }}</td>
-            <td>{{ klasse.Rekkefølge }}</td>
-            <td>{{ klasse.Antall }}</td>
+            <td>{{ klasse.Distance }}</td>
+            <td>{{ klasse.Raceclass }}</td>
+            <td>{{ klasse.Order }}</td>
+            <td>{{ klasse.Participants }}</td>
           </tr>
       {% endfor %}
     </table>
