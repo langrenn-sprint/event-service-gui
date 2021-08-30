@@ -57,19 +57,15 @@ class RaceclassesAdapter:
 
         return returncode
 
-    async def update_participants_mongo(self, db) -> int:
+    async def update_participant_count_mongo(self, db, new_classes: dict) -> int:
         """Update klasser function."""
         returncode = 201
         try:
             ageclasses = await RaceclassesAdapter().get_mongo(db)
 
             for ageclass in ageclasses:
-                contestants = await DeltakereService().get_deltakere_by_arsklasse(
-                    db, ageclass["Klasse"]
-                )
-                logging.info(f"Antall deltakere {len(contestants)}")
                 _myquery = {"Klasse": ageclass["Klasse"]}
-                _newvalue = {"Participants": len(contestants)}
+                _newvalue = {"Participants": new_classes[ageclass["Klasse"]]}
                 result = await db.klasser_collection.update_one(
                     _myquery, {"$set": _newvalue}
                 )
@@ -80,3 +76,22 @@ class RaceclassesAdapter:
             returncode = 401
 
         return returncode
+
+    async def get_classes_with_participants(self, db) -> List:
+        """Get all classes and count registered contestants."""
+        try:
+            contestants = await DeltakereService().get_all_deltakere(db)
+            classes = {}
+
+            for contestant in contestants:
+                if contestant["ÅrsKlasse"] not in classes.keys():
+                    classes[contestant["ÅrsKlasse"]] = 1
+                else:
+                    classes[contestant["ÅrsKlasse"]] = (
+                        classes[contestant["ÅrsKlasse"]] + 1
+                    )
+            logging.info(f"Found classes : {classes.items()}")
+        except Exception as e:
+            logging.error(f"Error: {e}")
+
+        return classes

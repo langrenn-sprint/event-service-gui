@@ -45,26 +45,28 @@ class Raceclasses(web.View):
         event = await EventsAdapter().get_event(token, eventid)
         ageclasses = await RaceclassesAdapter().get_mongo(self.request.app["db"])
 
-        # validate and enrich content
+        # validate and enrich missing content
         if edit_mode:
             i = 0
             for ageclass in ageclasses:
                 i = i + 1
                 if "Raceclass" not in ageclass:
                     _tmp = ageclass["Klasse"].replace(" ", "")
-                    ageclass["Raceclass"] = _tmp.replace("år", "")
+                    _tmp = _tmp.replace("Menn", "M")
+                    _tmp = _tmp.replace("Kvinner", "K")
+                    _tmp = _tmp.replace("junior", "J")
+                    _tmp = _tmp.replace("Junior", "J")
+                    _tmp = _tmp.replace("Felles", "F")
+                    _tmp = _tmp.replace("år", "")
+                    ageclass["Raceclass"] = _tmp
                 if "Order" not in ageclass:
                     ageclass["Order"] = i
-                if "Participants" not in ageclass:
-                    await RaceclassesAdapter().update_participants_mongo(
-                        self.request.app["db"]
-                    )
 
         return await aiohttp_jinja2.render_template_async(
             "raceclasses.html",
             self.request,
             {
-                "lopsinfo": "Løpsklasser",
+                "lopsinfo": "Klasser",
                 "ageclasses": ageclasses,
                 "edit_mode": edit_mode,
                 "event": event,
@@ -94,12 +96,27 @@ class Raceclasses(web.View):
                 result = await RaceclassesAdapter().update_mongo(
                     self.request.app["db"], request_body
                 )
-                informasjon = f"Informasjon er oppdatert {result}"
+                informasjon = f"Informasjon er oppdatert - {result}"
+            # Create classes from list of contestants
+            elif "create" in form.keys():
+                # TODO: extract info
+                result = await RaceclassesAdapter().update_mongo(
+                    self.request.app["db"], request_body
+                )
+                informasjon = f"Informasjon er oppdatert - {result}"
+            elif "participants" in form.keys():
+                classes = await RaceclassesAdapter().get_classes_with_participants(
+                    self.request.app["db"]
+                )
+                result = await RaceclassesAdapter().update_participant_count_mongo(
+                    self.request.app["db"], classes
+                )
+                informasjon = f"Antall deltakere pr. klasse er oppdatert - {result}"
 
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
-            location=f"/raceclasses?eventid={eventid}&informasjon={informasjon}&edit_mode=True"
+            location=f"/raceclasses?eventid={eventid}&informasjon={informasjon}"
         )

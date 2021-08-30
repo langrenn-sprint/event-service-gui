@@ -18,7 +18,7 @@
     <a href=/contestants?eventid={{ eventid }} class=dropbtn>Deltakere</a>
   </li>
   <li id=topborder>
-    <a href=/raceclasses?eventid={{ eventid }} class=dropbtn>Løpsklasser</a>
+    <a href=/raceclasses?eventid={{ eventid }} class=dropbtn>Klasser</a>
   </li>
   <li id=topborder>
     <a href=/schedules?eventid={{ eventid }} class=dropbtn>Kjøreplan</a>
@@ -70,8 +70,7 @@
         <td>Startnr</td>
         <td>Navn</td>
         <td>Klubb</td>
-        <td>Årsklasse</td>
-        <td>Løpsklasse</td>
+        <td>Klasse</td>
         <td>Krets</td>
       </tr>
       {% for contestant in contestants %}
@@ -79,8 +78,7 @@
         <td>{{ contestant.Startnr }}</td>
         <td>{{ contestant.Navn }}</td>
         <td>{{ contestant.Klubb }}</td>
-        <td>{{ contestant.ÅrsKlasse }}</td>
-        <td>{{ contestant.Løpsklasse }}</td>
+        <td>{{ contestant.Klasse }}</td>
         <td>{{ contestant.Krets }}</td>
       </tr>
       {% endfor %}

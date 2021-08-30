@@ -15,7 +15,7 @@
     <a href=/contestants?eventid={{ eventid }} class=dropbtn>Deltakere</a>
   </li>
   <li id=topborder class=active>
-    <a href=/raceclasses?eventid={{ eventid }} class=dropbtn>Løpsklasser</a>
+    <a href=/raceclasses?eventid={{ eventid }} class=dropbtn>Klasser</a>
   </li>
   <li id=topborder>
     <a href=/schedules?eventid={{ eventid }} class=dropbtn>Kjøreplan</a>
@@ -24,17 +24,26 @@
 {% block content %}
   <div id=spacer></div>
   {% if edit_mode %}
-    <form action=/raceclasses method=post>
-      <div align=right>
-        <input type="hidden" name="eventid" value="{{ eventid }}">
-        <input type="submit" name=update value="  Oppdater  ">
-      </div>
-      <div id=spacer></div>
+    <div align=right>
+      <table>
+         <tr><td align=right>
+          <form action=/raceclasses method=post>
+            <input type="hidden" name="eventid" value="{{ eventid }}">
+            <input type="submit" name=participants value="  Refresh deltakerantall  ">
+          </form>
+        </td><td align=right>
+          <form action=/raceclasses method=post>
+              <input type="hidden" name="eventid" value="{{ eventid }}">
+              <input type="submit" name=update value="  Oppdater  ">
+        </td></tr>
+      </table>
+    </div>
+    <div id=spacer></div>
       <table>
          <tr id=headerblue>
           <td>Årsklasse</td>
           <td>Løype</td>
-          <td>Løpsklasse</td>
+          <td>Klasse</td>
           <td>Startrekkefølge</td>
           <td>Antall påmeldte</td>
         </tr>
@@ -56,9 +65,9 @@
     </form>
   {% else %}
     <div align=right>
-            <form action=/raceclasses method=post>
+            <form action=/raceclasses method=get>
               <input type="hidden" name="eventid" value="{{ eventid }}">
-              <input type="submit" name=edit value="  Rediger  ">
+              <input type="submit" name=edit_mode value="  Rediger  ">
             </form>
     </div>
     <div id=spacer></div>
