@@ -57,7 +57,7 @@ class RaceclassesAdapter:
 
         return returncode
 
-    async def update_participant_count_mongo(self, db, new_classes: List) -> int:
+    async def update_participant_count_mongo(self, db, new_classes: dict) -> int:
         """Update klasser function."""
         returncode = 201
         try:
@@ -77,11 +77,11 @@ class RaceclassesAdapter:
 
         return returncode
 
-    async def get_classes_with_participants(self, db) -> List:
+    async def get_classes_with_participants(self, db) -> dict:
         """Get all classes and count registered contestants."""
         try:
             contestants = await DeltakereService().get_all_deltakere(db)
-            classes = []
+            classes = {}
 
             for contestant in contestants:
                 if contestant["ÅrsKlasse"] not in classes.keys():
