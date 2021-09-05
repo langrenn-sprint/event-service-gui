@@ -121,9 +121,7 @@ class EventsAdapter:
                 f"{EVENT_SERVICE_URL}/events/{id}", headers=headers, json=request_body
             ) as resp:
                 if resp.status == 204:
-                    logging.debug(f"result - got response {resp}")
-                    location = resp.headers[hdrs.LOCATION]
-                    id = location.split(os.path.sep)[-1]
+                    logging.debug(f"update event - got response {resp}")
                 else:
                     logging.error(f"update_event failed - {resp.status}")
                     raise web.HTTPBadRequest(reason="Update event failed.")

@@ -4,7 +4,7 @@ import os
 from typing import List
 
 from aiohttp import ClientSession
-from aiohttp import hdrs
+from aiohttp import hdrs, web
 from multidict import MultiDict
 
 EVENT_SERVICE_HOST = os.getenv("EVENT_SERVICE_HOST", "localhost")
@@ -14,6 +14,34 @@ EVENT_SERVICE_URL = f"http://{EVENT_SERVICE_HOST}:{EVENT_SERVICE_PORT}"
 
 class ContestantsAdapter:
     """Class representing contestants."""
+
+    async def create_contestant(
+        self, token: str, event_id: str, request_body: dict
+    ) -> str:
+        """Create new contestant function."""
+        id = ""
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+
+        async with ClientSession() as session:
+            async with session.post(
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants",
+                headers=headers,
+                json=request_body,
+            ) as resp:
+                if resp.status == 201:
+                    logging.debug(f"result - got response {resp}")
+                    location = resp.headers[hdrs.LOCATION]
+                    id = location.split(os.path.sep)[-1]
+                else:
+                    logging.error(f"create_contestant failed - {resp.status}")
+                    raise web.HTTPBadRequest(reason="Create contestant failed.")
+
+        return id
 
     async def create_contestants(self, token: str, id: str, inputfile) -> str:
         """Create new contestants function."""

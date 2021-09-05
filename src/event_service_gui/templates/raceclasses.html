@@ -45,16 +45,18 @@
           <td>Løype</td>
           <td>Klasse</td>
           <td>Startrekkefølge</td>
+          <td></td>
           <td>Antall påmeldte</td>
         </tr>
         {% for klasse in ageclasses %}
-            <input type="hidden" name="ageclass_{{ klasse.Klasse }}" value="{{ klasse.Klasse }}">
+            <input type="hidden" name="ageclass_{{ klasse.raceclass }}" value="{{ klasse.raceclass }}">
             <tr>
-              <td>{{ klasse.Klasse }}</td>
-              <td>{{ klasse.Distance }}</td>
-              <td><input type=text name="raceclass_{{ klasse.Klasse }}" value="{{ klasse.Raceclass }}"></td>
-              <td><input type=text name="order_{{ klasse.Klasse }}" value="{{ klasse.Order }}"></td>
-              <td>{{ klasse.Participants }}</td>
+              <td>{{ klasse.name }}</td>
+              <td>{{ klasse.distance }}</td>
+              <td><input type=text name="raceclass_{{ klasse.raceclass }}" value="{{ klasse.raceclass }}"></td>
+              <td><input type=text name="order_{{ klasse.raceclass }}" value="{{ klasse.order }}"></td>
+              <td><input type=text name="id_{{ klasse.raceclass }}" value="{{ klasse.id }}"></td>
+              <td>{{ klasse.participants }}</td>
             </tr>
         {% endfor %}
       </table>
@@ -81,11 +83,11 @@
       </tr>
       {% for klasse in ageclasses %}
           <tr>
-            <td>{{ klasse.Klasse }}</td>
-            <td>{{ klasse.Distance }}</td>
-            <td>{{ klasse.Raceclass }}</td>
-            <td>{{ klasse.Order }}</td>
-            <td>{{ klasse.Participants }}</td>
+            <td>{{ klasse.name }}</td>
+            <td>{{ klasse.distance }}</td>
+            <td>{{ klasse.raceclass }}</td>
+            <td>{{ klasse.order }}</td>
+            <td>{{ klasse.participants }}</td>
           </tr>
       {% endfor %}
     </table>

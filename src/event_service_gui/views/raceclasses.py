@@ -43,24 +43,8 @@ class Raceclasses(web.View):
         token = session["token"]
 
         event = await EventsAdapter().get_event(token, eventid)
-        ageclasses = await RaceclassesAdapter().get_mongo(self.request.app["db"])
 
-        # validate and enrich missing content
-        if edit_mode:
-            i = 0
-            for ageclass in ageclasses:
-                i = i + 1
-                if "Raceclass" not in ageclass:
-                    _tmp = ageclass["Klasse"].replace(" ", "")
-                    _tmp = _tmp.replace("Menn", "M")
-                    _tmp = _tmp.replace("Kvinner", "K")
-                    _tmp = _tmp.replace("junior", "J")
-                    _tmp = _tmp.replace("Junior", "J")
-                    _tmp = _tmp.replace("Felles", "F")
-                    _tmp = _tmp.replace("år", "")
-                    ageclass["Raceclass"] = _tmp
-                if "Order" not in ageclass:
-                    ageclass["Order"] = i
+        ageclasses = await RaceclassesAdapter().get_ageclasses(token, eventid)
 
         return await aiohttp_jinja2.render_template_async(
             "raceclasses.html",

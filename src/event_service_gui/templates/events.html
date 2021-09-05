@@ -24,6 +24,38 @@
 {% block content %}
   <div id=spacer></div>
   {% if create_new %}
+    <form action=/events method=post enctype="multipart/form-data" >
+      <table cellpadding=4>
+        <tr id=spacer></tr>
+        <tr>
+          <td colspan=2 id=headerblue>
+            <b>Importer eventinformasjon fra fil</b>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="file" name="file" onchange="savefile(this)">
+          </td>
+          <td>
+            <input type="submit" name=create_file value="  Last opp  ">
+          </td>
+        </tr>
+        <tr>
+          <td colspan=2>
+            <br>Informasjon
+          </td>
+        </tr>
+        <tr>
+          <td colspan=2>
+            Filformat som aksepteres:<br>
+            1. XML: SSF XML - eksportert fra Sportsadmin. <br>
+            Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.
+          </td>
+        </tr>
+        <tr id=spacer></tr>
+      </table>
+    </form>
+
     <form action=/events method=post>
       <table cellpadding=4>
         <tr id=spacer></tr>
@@ -60,7 +92,7 @@
         <tr>
             <td></td>
             <td>
-              <input type="submit" name=create value="  Opprett  ">
+              <input type="submit" name=create_manual value="  Opprett  ">
             </td>
             <td></td>
         </tr>
@@ -70,13 +102,13 @@
   {% else %}
     <div align=right>
             <form action=/events method=post>
-              <input type="hidden" name="id" value="{{ event.id }}">
+              <input type="hidden" name="eventid" value="{{ event.id }}">
               <input type="submit" name=delete value="  Slett  ">
             </form>
     </div>
     <div id=spacer></div>
     <form action=/events method=post>
-      <input type="hidden" name="id" value="{{ event.id }}">
+      <input type="hidden" name="eventid" value="{{ event.id }}">
       <table cellpadding=4>
         <tr>
           <td colspan=2 id=headerblue>
