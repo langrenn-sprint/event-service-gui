@@ -128,6 +128,7 @@ class RaceclassesAdapter:
 
     async def get_classes_with_participants(self, db) -> dict:
         """Get all classes and count registered contestants."""
+        # todo: bør telle direkte i backend - og oppdatere i databasen.
         try:
             contestants = await DeltakereService().get_all_deltakere(db)
             classes = {}

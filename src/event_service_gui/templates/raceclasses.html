@@ -52,10 +52,10 @@
             <input type="hidden" name="ageclass_{{ klasse.raceclass }}" value="{{ klasse.raceclass }}">
             <tr>
               <td>{{ klasse.name }}</td>
-              <td>{{ klasse.distance }}</td>
+              <td><input type=text name="distance_{{ klasse.distance }}" value="{{ klasse.distance }}"></td>
               <td><input type=text name="raceclass_{{ klasse.raceclass }}" value="{{ klasse.raceclass }}"></td>
               <td><input type=text name="order_{{ klasse.raceclass }}" value="{{ klasse.order }}"></td>
-              <td><input type=text name="id_{{ klasse.raceclass }}" value="{{ klasse.id }}"></td>
+              <td><input type=hidden name="id_{{ klasse.raceclass }}" value="{{ klasse.id }}"></td>
               <td>{{ klasse.participants }}</td>
             </tr>
         {% endfor %}

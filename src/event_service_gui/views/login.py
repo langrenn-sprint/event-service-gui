@@ -97,7 +97,7 @@ class Login(web.View):
             result = 400
 
         if result != 200:
-            event = {"name": "Administrasjon"}
+            event = {"name": "Administrasjon", "organiser": "Ikke valgt"}
             return await aiohttp_jinja2.render_template_async(
                 "login.html",
                 self.request,

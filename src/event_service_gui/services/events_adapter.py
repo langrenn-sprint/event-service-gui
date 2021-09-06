@@ -30,7 +30,7 @@ class EventsAdapter:
             async with session.get(
                 f"{EVENT_SERVICE_URL}/events", headers=headers
             ) as resp:
-                logging.info(f"get_all_events - got response {resp.status}")
+                logging.debug(f"get_all_events - got response {resp.status}")
                 if resp.status == 200:
                     events = await resp.json()
                     logging.debug(f"events - got response {events}")
@@ -99,7 +99,7 @@ class EventsAdapter:
         async with ClientSession() as session:
             async with session.delete(url, headers=headers) as response:
                 pass
-            logging.info(f"Delete event: {id} - res {response.status}")
+            logging.debug(f"Delete event: {id} - res {response.status}")
             if response.status == 204:
                 logging.debug(f"result - got response {response}")
             else:
@@ -125,5 +125,5 @@ class EventsAdapter:
                 else:
                     logging.error(f"update_event failed - {resp.status}")
                     raise web.HTTPBadRequest(reason="Update event failed.")
-            logging.info(f"Updated event: {id} - res {resp.status}")
+            logging.debug(f"Updated event: {id} - res {resp.status}")
         return resp.status

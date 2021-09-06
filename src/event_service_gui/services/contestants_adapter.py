@@ -64,13 +64,21 @@ class ContestantsAdapter:
 
         return resp.status
 
-    async def get_all_contestants(self) -> List:
+    async def get_all_contestants(self, token: str, event_id: str) -> List:
         """Get all contestants function."""
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
         contestants = []
         async with ClientSession() as session:
-            async with session.get(f"{EVENT_SERVICE_URL}/contestants") as resp:
+            async with session.get(
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants", headers=headers
+            ) as resp:
                 logging.debug(f"get_all_contestants - got response {resp.status}")
-                if resp.status == "200":
+                if resp.status == 200:
                     contestants = await resp.json()
                 else:
                     logging.error(f"Error in contestants: {resp}")

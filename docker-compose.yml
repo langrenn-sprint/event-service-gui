@@ -11,9 +11,9 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - HOST_PORT=8080
       - EVENT_SERVICE_HOST=event-service
-      - EVENT_SERVICE_PORT=8082
+      - EVENT_SERVICE_PORT=8080
       - USER_SERVICE_HOST=user-service
-      - USER_SERVICE_PORT=8086
+      - USER_SERVICE_PORT=8080
     depends_on:
       - "event-service"
   event-service:

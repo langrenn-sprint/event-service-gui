@@ -8,7 +8,6 @@ from aiohttp_session import get_session
 
 from event_service_gui.services import (
     ContestantsAdapter,
-    DeltakereService,
     EventsAdapter,
     UserAdapter,
 )
@@ -50,9 +49,7 @@ class Contestants(web.View):
 
         event = await EventsAdapter().get_event(token, eventid)
 
-        # todo - get list of contestants
-        # contestants = await ContestantsAdapter().get_all_contestants()
-        contestants = await DeltakereService().get_all_deltakere(self.request.app["db"])
+        contestants = await ContestantsAdapter().get_all_contestants(token, eventid)
         logging.debug(f"Contestants: {contestants}")
         return await aiohttp_jinja2.render_template_async(
             "contestants.html",
@@ -93,6 +90,7 @@ class Contestants(web.View):
                 xml_root = ET.fromstring(content)
                 # loop all entry classes
                 ageclasses = []
+                i = 0
                 for entry in xml_root.iter("Entry"):
                     ageclass = {
                         "name": entry.find("EntryClass").get("shortName"),
@@ -104,13 +102,15 @@ class Contestants(web.View):
                     for contestant in entry.iter("Competitor"):
                         logging.info(f"Cont: {contestant.find('Person')}")
                         request_body = get_contestant_info_from_xml(
-                            contestant.find("Person"), ageclass.get("name")
+                            contestant.find("Person"), ageclass.get("name"), eventid
                         )
 
                         id = await ContestantsAdapter().create_contestant(
                             token, eventid, request_body
                         )
                         logging.info(f"Created contstant, id {id}")
+                        i = i + 1
+                informasjon = f"Opprettet {i} deltakere."
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."

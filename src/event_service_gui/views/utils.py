@@ -32,38 +32,34 @@ def get_ageclasses_from_xml(eventid, entries) -> list:
     return ageclasses
 
 
-def get_contestant_info_from_xml(contestant, ageclass: str) -> Optional[str]:
+def get_contestant_info_from_xml(
+    contestant, ageclass: str, event_id: str
+) -> Optional[str]:
     """Extract person info from xml object."""
-    c_name = ""
-    c_birthdate = ""
-    c_club = ""
-    c_team = ""
-    c_district = ""
-    c_email = ""
-
     name = contestant.find("Name")
-    family = name.find("Family")
-    given = name.find("Given")
-    c_name = f"{given.text} {family.text}"
+    c_family = name.find("Family").text
+    c_given = name.find("Given").text
     birthdate = contestant.find("BirthDate").attrib
     c_birthdate = (
-        f"{birthdate.get('year')}.{birthdate.get('month')}.{birthdate.get('day')}"
+        f"{birthdate.get('year')}-{birthdate.get('month')}-{birthdate.get('day')}"
     )
     c_club = contestant.get("clubName")
     c_team = contestant.find("Team").get("name")
-    c_district = contestant.find("District").get("name")
     c_email = contestant.find("Email").text
-    # send contestant to backend
+    c_idrett_id = contestant.find("Identity").get("value")
+
     request_body = {
-        "name": c_name,
-        "birthdate": c_birthdate,
+        "first_name": c_given,
+        "last_name": c_family,
+        "birth_date": c_birthdate,
         "club": c_club,
         "team": c_team,
-        "district": c_district,
+        "event_id": event_id,
+        "minidrett_id": c_idrett_id,
         "email": c_email,
         "ageclass": ageclass,
     }
-    logging.info(f"Person, request body: {request_body}")
+    logging.info(f"Contestant, request body: {request_body}")
 
     return request_body
 

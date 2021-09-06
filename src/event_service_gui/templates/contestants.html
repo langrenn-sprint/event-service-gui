@@ -74,15 +74,15 @@
         <td>Navn</td>
         <td>Klubb</td>
         <td>Klasse</td>
-        <td>Krets</td>
+        <td>Team</td>
       </tr>
       {% for contestant in contestants %}
       <tr>
-        <td>{{ contestant.Startnr }}</td>
-        <td>{{ contestant.Navn }}</td>
-        <td>{{ contestant.Klubb }}</td>
-        <td>{{ contestant.Klasse }}</td>
-        <td>{{ contestant.Krets }}</td>
+        <td>{{ contestant.startnr }}</td>
+        <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
+        <td>{{ contestant.club }}</td>
+        <td>{{ contestant.ageclass }}</td>
+        <td>{{ contestant.team }}</td>
       </tr>
       {% endfor %}
       <tr id=spacer></tr>
