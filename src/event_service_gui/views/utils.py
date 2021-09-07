@@ -3,7 +3,7 @@
 import logging
 
 
-def get_ageclasses_from_xml(eventid, entries) -> list:
+def get_ageclasses_from_xml(eventid: str, entries: list) -> list:
     """Extract ageclasses info from xml object."""
     # enrich data send event to backend
     ageclasses = []

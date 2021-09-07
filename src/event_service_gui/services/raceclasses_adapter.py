@@ -110,7 +110,7 @@ class RaceclassesAdapter:
         """Update klasser function."""
         returncode = 201
         try:
-            ageclasses = await RaceclassesAdapter().get_mongo(db)
+            ageclasses = []
 
             for ageclass in ageclasses:
                 _myquery = {"name": ageclass["name"]}

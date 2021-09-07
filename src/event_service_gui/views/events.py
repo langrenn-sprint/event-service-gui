@@ -4,7 +4,7 @@ import logging
 from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
-from defusedxml.ElementTree import parse
+from defusedxml import parse
 
 from event_service_gui.services import EventsAdapter
 from event_service_gui.services import RaceclassesAdapter
