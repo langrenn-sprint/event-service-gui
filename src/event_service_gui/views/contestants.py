@@ -91,33 +91,43 @@ class Contestants(web.View):
             # Create new deltakere
             if "create" in form.keys():
                 file = form["file"]
-                logging.info(f"File name {file.filename}")
-                text_file = file.file
-                content = text_file.read()
-                logging.debug(f"Content {content}")
-                xml_root = parse(content)
-                # loop all entry classes
-                ageclasses = []
+                logging.debug(f"File type: {file.content_type}")
                 i = 0
-                for entry in xml_root.iter("Entry"):
-                    ageclass = {
-                        "name": entry.find("EntryClass").get("shortName"),
-                        "distance": entry.find("Exercise").get("name"),
-                    }
-                    ageclasses.append(ageclass)
-                    logging.info(f"Entry: {entry.tag}, {entry.attrib}")
-                    # loop all contestants in entry class
-                    for contestant in entry.iter("Competitor"):
-                        logging.info(f"Cont: {contestant.find('Person')}")
-                        request_body = get_contestant_info_from_xml(
-                            contestant.find("Person"), ageclass.get("name"), eventid
-                        )
 
-                        id = await ContestantsAdapter().create_contestant(
-                            token, eventid, request_body
-                        )
-                        logging.info(f"Created contstant, id {id}")
-                        i = i + 1
+                # handle file - xml and csv supported
+                if file.content_type == "text/xml":
+                    text_file = file.file
+                    content = text_file.read()
+                    logging.debug(f"Content {content}")
+                    xml_root = parse(content)
+                    # loop all entry classes
+                    ageclasses = []
+                    for entry in xml_root.iter("Entry"):
+                        ageclass = {
+                            "name": entry.find("EntryClass").get("shortName"),
+                            "distance": entry.find("Exercise").get("name"),
+                        }
+                        ageclasses.append(ageclass)
+                        logging.info(f"Entry: {entry.tag}, {entry.attrib}")
+                        # loop all contestants in entry class
+                        for contestant in entry.iter("Competitor"):
+                            logging.info(f"Cont: {contestant.find('Person')}")
+                            request_body = get_contestant_info_from_xml(
+                                contestant.find("Person"), ageclass.get("name"), eventid
+                            )
+
+                            id = await ContestantsAdapter().create_contestant(
+                                token, eventid, request_body
+                            )
+                            logging.info(f"Created contstant, id {id}")
+                            i = i + 1
+                elif file.content_type == "text/csv":
+                    id = await ContestantsAdapter().create_contestants(
+                        token, eventid, file
+                    )
+                else:
+                    raise Exception(f"Ugyldig filtype {file.content_type}")
+
                 informasjon = f"Opprettet {i} deltakere."
             # Update
             elif "update" in form.keys():

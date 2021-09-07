@@ -43,26 +43,26 @@ class ContestantsAdapter:
 
         return id
 
-    async def create_contestants(self, token: str, id: str, inputfile) -> str:
+    async def create_contestants(self, token: str, event_id: str, inputfile) -> str:
         """Create new contestants function."""
-        headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
-        )
+        headers = {
+            hdrs.AUTHORIZATION: f"Bearer {token}",
+        }
 
         async with ClientSession() as session:
             async with session.post(
-                f"{EVENT_SERVICE_URL}/contestants/{id}", headers=headers, data=inputfile
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants",
+                headers=headers,
+                data=inputfile,
             ) as resp:
                 res = resp.status
+                logging.info(f"result - got response {resp}")
                 if res == 201:
-                    logging.debug(f"result - got response {resp}")
+                    pass
                 else:
-                    logging.error(f"create_contestants failed: {resp}")
+                    raise Exception(f"create_contestants failed: {resp}")
 
-        return resp.status
+        return res
 
     async def get_all_contestants(self, token: str, event_id: str) -> List:
         """Get all contestants function."""
