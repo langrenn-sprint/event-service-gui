@@ -94,8 +94,8 @@ class Events(web.View):
                 content = text_file.read()
                 logging.debug(f"Content {content}")
                 xml_root = parse(content)
-                request_body = get_event_info_from_xml(xml_root.find("Competition"))
-                eventid = await EventsAdapter().create_event(token, request_body)
+                event_info = get_event_info_from_xml(xml_root.find("Competition"))
+                eventid = await EventsAdapter().create_event(token, event_info)
                 informasjon = f"Opprettet nytt arrangement,  eventid {eventid}"
 
                 # add Ageclasses
@@ -122,7 +122,6 @@ class Events(web.View):
                     informasjon = f"En feil oppstod {res}."
             elif "delete" in form.keys():
                 eventid = form["eventid"]
-                logging.info(f"Enter delete {eventid}")
                 res = await EventsAdapter().delete_event(token, eventid)
                 if res == 204:
                     informasjon = "Arrangement er slettet."

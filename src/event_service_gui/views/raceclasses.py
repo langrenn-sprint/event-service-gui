@@ -76,17 +76,12 @@ class Raceclasses(web.View):
 
             # Update
             if "update" in form.keys():
-                request_body = form
-                result = await RaceclassesAdapter().update_mongo(
-                    self.request.app["db"], request_body
-                )
+                result = "todo"
                 informasjon = f"Informasjon er oppdatert - {result}"
             # Create classes from list of contestants
             elif "create" in form.keys():
                 # TODO: extract info
-                result = await RaceclassesAdapter().update_mongo(
-                    self.request.app["db"], request_body
-                )
+                result = "todo"
                 informasjon = f"Informasjon er oppdatert - {result}"
             elif "participants" in form.keys():
                 classes = await RaceclassesAdapter().get_classes_with_participants(

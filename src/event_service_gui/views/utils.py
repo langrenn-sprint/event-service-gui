@@ -1,7 +1,6 @@
 """Utilities module for events resources."""
 
 import logging
-from typing import Optional
 
 
 def get_ageclasses_from_xml(eventid, entries) -> list:
@@ -27,14 +26,12 @@ def get_ageclasses_from_xml(eventid, entries) -> list:
             "distance": entry.find("Exercise").get("name"),
         }
         ageclasses.append(ageclass)
-        logging.info(f"Ageclass found: {ageclass}")
+        logging.debug(f"Ageclass found: {ageclass}")
 
     return ageclasses
 
 
-def get_contestant_info_from_xml(
-    contestant, ageclass: str, event_id: str
-) -> Optional[str]:
+def get_contestant_info_from_xml(contestant, ageclass: str, event_id: str) -> dict:
     """Extract person info from xml object."""
     name = contestant.find("Name")
     c_family = name.find("Family").text
@@ -43,28 +40,33 @@ def get_contestant_info_from_xml(
     c_birthdate = (
         f"{birthdate.get('year')}-{birthdate.get('month')}-{birthdate.get('day')}"
     )
+    c_gender = contestant.get("sex")
     c_club = contestant.get("clubName")
     c_team = contestant.find("Team").get("name")
+    c_region = contestant.find("District").get("name")
     c_email = contestant.find("Email").text
     c_idrett_id = contestant.find("Identity").get("value")
 
     request_body = {
+        "bib": "",
         "first_name": c_given,
         "last_name": c_family,
         "birth_date": c_birthdate,
+        "gender": c_gender,
+        "age_class": ageclass,
         "club": c_club,
         "team": c_team,
+        "region": c_region,
         "event_id": event_id,
         "minidrett_id": c_idrett_id,
         "email": c_email,
-        "ageclass": ageclass,
     }
-    logging.info(f"Contestant, request body: {request_body}")
+    logging.debug(f"Contestant, request body: {request_body}")
 
     return request_body
 
 
-def get_event_info_from_xml(event) -> Optional[str]:
+def get_event_info_from_xml(event) -> dict:
     """Extract person info from xml object."""
     c_name = event.find("EventName").text
     c_nifeventid = event.find("EventId").text
@@ -79,6 +81,6 @@ def get_event_info_from_xml(event) -> Optional[str]:
         "organiser": c_organiser,
         "venue": c_venue,
     }
-    logging.info(f"Event, request body: {request_body}")
+    logging.debug(f"Event, request body: {request_body}")
 
     return request_body

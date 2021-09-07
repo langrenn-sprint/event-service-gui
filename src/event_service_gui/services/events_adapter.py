@@ -1,4 +1,5 @@
 """Module for events adapter."""
+import copy
 import logging
 import os
 from typing import List
@@ -63,7 +64,7 @@ class EventsAdapter:
                     logging.error(f"Error {resp.status} getting events: {resp} ")
         return event
 
-    async def create_event(self, token: str, request_body: dict) -> str:
+    async def create_event(self, token: str, event: dict) -> str:
         """Create new event function."""
         id = ""
         headers = MultiDict(
@@ -72,6 +73,7 @@ class EventsAdapter:
                 hdrs.AUTHORIZATION: f"Bearer {token}",
             }
         )
+        request_body = copy.deepcopy(event)
 
         async with ClientSession() as session:
             async with session.post(

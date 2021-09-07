@@ -91,7 +91,7 @@ class Contestants(web.View):
             # Create new deltakere
             if "create" in form.keys():
                 file = form["file"]
-                logging.debug(f"File type: {file.content_type}")
+                logging.info(f"File type: {file.content_type}")
                 i = 0
 
                 # handle file - xml and csv supported
@@ -101,25 +101,25 @@ class Contestants(web.View):
                     logging.debug(f"Content {content}")
                     xml_root = parse(content)
                     # loop all entry classes
-                    ageclasses = []
+                    age_classes = []
                     for entry in xml_root.iter("Entry"):
-                        ageclass = {
+                        age_class = {
                             "name": entry.find("EntryClass").get("shortName"),
                             "distance": entry.find("Exercise").get("name"),
                         }
-                        ageclasses.append(ageclass)
-                        logging.info(f"Entry: {entry.tag}, {entry.attrib}")
+                        age_classes.append(age_class)
                         # loop all contestants in entry class
                         for contestant in entry.iter("Competitor"):
-                            logging.info(f"Cont: {contestant.find('Person')}")
                             request_body = get_contestant_info_from_xml(
-                                contestant.find("Person"), ageclass.get("name"), eventid
+                                contestant.find("Person"),
+                                age_class.get("name"),
+                                eventid,
                             )
 
                             id = await ContestantsAdapter().create_contestant(
                                 token, eventid, request_body
                             )
-                            logging.info(f"Created contstant, id {id}")
+                            logging.info(f"Created contestant, id {id}")
                             i = i + 1
                 elif file.content_type == "text/csv":
                     id = await ContestantsAdapter().create_contestants(
@@ -131,11 +131,28 @@ class Contestants(web.View):
                 informasjon = f"Opprettet {i} deltakere."
             # Update
             elif "update" in form.keys():
-                request_body = form
-                result = await ContestantsAdapter().update_contestants(
-                    token, eventid, request_body
+                contestant = await ContestantsAdapter().get_contestant(
+                    token, eventid, form["contestantid"]
+                )
+                contestant.update({"age_class": form["age_class"]})
+                contestant.update({"bib": form["bib"]})
+
+                result = await ContestantsAdapter().update_contestant(
+                    token, eventid, contestant
                 )
                 informasjon = f"Informasjon er oppdatert - {result}"
+            # delete
+            elif "delete_one" in form.keys():
+                result = await ContestantsAdapter().delete_contestant(
+                    token, eventid, form["contestantid"]
+                )
+                informasjon = f"Deltaker er slettet - {result}"
+            # delete_all
+            elif "delete_all" in form.keys():
+                result = await ContestantsAdapter().delete_all_contestants(
+                    token, eventid
+                )
+                informasjon = f"Deltakerne er slettet - {result}"
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."

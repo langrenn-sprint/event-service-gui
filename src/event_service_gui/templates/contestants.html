@@ -64,26 +64,38 @@
       <div id=spacer></div>
         <table>
           <tr id=headerblue>
+            <td align=right>
+              <form action=/contestants method=post>
+                <input type="hidden" name="eventid" value="{{ eventid }}">
+                <input type="submit" name=delete_all value="  Slett alle deltakere  ">
+              </form>
+            </td>
+          </tr>
+        </table>
+        <div id=spacer></div>
+        <table>
+          <tr id=headerblue>
             <td>Startnr</td>
             <td>Navn</td>
             <td>Klubb</td>
             <td>Klasse</td>
             <td>Team</td>
-            <td></td>
+            <td colspan="2"></td>
           </tr>
           {% for contestant in contestants %}
           <form action=/contestants method=post>
             <tr>
-              <td><input type=text name="startnr" value="{{ contestant.startnr }}"></td>
+              <td><input type=text name="bib" value="{{ contestant.bib }}"></td>
               <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
               <td>{{ contestant.club }}</td>
-              <td><input type=text name="ageclass" value="{{ contestant.ageclass }}"></td>
+              <td><input type=text name="age_class" value="{{ contestant.age_class }}"></td>
               <td>
                 {{ contestant.team }}
-                <input type=hidden name="id" value="{{ contestant.id }}">
+                <input type=hidden name="contestantid" value="{{ contestant.id }}">
                 <input type="hidden" name="eventid" value="{{ eventid }}">
               </td>
               <td><input type="submit" name=update value="  Oppdater  "></td>
+              <td><input type="submit" name=delete_one value="  Slett  "></td>
             </tr>
           </form>
           {% endfor %}
@@ -117,10 +129,10 @@
         </tr>
           {% for contestant in contestants %}
             <tr>
-              <td>{{ contestant.startnr }}</td>
+              <td>{{ contestant.bib }}</td>
               <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
               <td>{{ contestant.club }}</td>
-              <td>{{ contestant.ageclass }}</td>
+              <td>{{ contestant.age_class }}</td>
               <td>{{ contestant.team }}</td>
             </tr>
             {% endfor %}
