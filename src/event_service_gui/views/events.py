@@ -1,10 +1,10 @@
 """Resource module for main view."""
 import logging
-import xml.etree.ElementTree as ET
 
 from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
+from defusedxml.ElementTree import parse
 
 from event_service_gui.services import EventsAdapter
 from event_service_gui.services import RaceclassesAdapter
@@ -93,7 +93,7 @@ class Events(web.View):
                 text_file = file.file
                 content = text_file.read()
                 logging.debug(f"Content {content}")
-                xml_root = ET.fromstring(content)
+                xml_root = parse(content)
                 request_body = get_event_info_from_xml(xml_root.find("Competition"))
                 eventid = await EventsAdapter().create_event(token, request_body)
                 informasjon = f"Opprettet nytt arrangement,  eventid {eventid}"

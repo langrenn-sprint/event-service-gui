@@ -74,7 +74,7 @@ class Raceclasses(web.View):
             logging.debug(f"Form {form}")
             eventid = form["eventid"]
 
-            # Create new event
+            # Update
             if "update" in form.keys():
                 request_body = form
                 result = await RaceclassesAdapter().update_mongo(

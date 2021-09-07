@@ -1,10 +1,10 @@
 """Resource module for main view."""
 import logging
-import xml.etree.ElementTree as ET
 
 from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
+from defusedxml.ElementTree import parse
 
 from event_service_gui.services import (
     ContestantsAdapter,
@@ -46,6 +46,13 @@ class Contestants(web.View):
                 create_new = True
         except Exception:
             create_new = False
+        try:
+            edit_mode = False
+            edit = self.request.rel_url.query["edit_mode"]
+            if edit != "":
+                edit_mode = True
+        except Exception:
+            edit_mode = False
 
         event = await EventsAdapter().get_event(token, eventid)
 
@@ -58,6 +65,7 @@ class Contestants(web.View):
                 "lopsinfo": "Deltakere",
                 "contestants": contestants,
                 "create_new": create_new,
+                "edit_mode": edit_mode,
                 "event": event,
                 "eventid": eventid,
                 "informasjon": informasjon,
@@ -87,7 +95,7 @@ class Contestants(web.View):
                 text_file = file.file
                 content = text_file.read()
                 logging.debug(f"Content {content}")
-                xml_root = ET.fromstring(content)
+                xml_root = parse(content)
                 # loop all entry classes
                 ageclasses = []
                 i = 0
@@ -111,6 +119,13 @@ class Contestants(web.View):
                         logging.info(f"Created contstant, id {id}")
                         i = i + 1
                 informasjon = f"Opprettet {i} deltakere."
+            # Update
+            elif "update" in form.keys():
+                request_body = form
+                result = await ContestantsAdapter().update_contestants(
+                    token, eventid, request_body
+                )
+                informasjon = f"Informasjon er oppdatert - {result}"
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."

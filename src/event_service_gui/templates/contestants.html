@@ -60,32 +60,71 @@
         <tr id=spacer></tr>
       </table>
     </form>
-    {% else %}
-    <div align=right>
-      <form action=/contestants method=get>
-        <input type="hidden" name=eventid value="{{ eventid }}">
-        <input type="submit" name=new value="  Last inn deltakere ">
-      </form>
-    </div>
-    <div id=spacer></div>
-    <table>
-      <tr id=headerblue>
-        <td>Startnr</td>
-        <td>Navn</td>
-        <td>Klubb</td>
-        <td>Klasse</td>
-        <td>Team</td>
-      </tr>
-      {% for contestant in contestants %}
-      <tr>
-        <td>{{ contestant.startnr }}</td>
-        <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
-        <td>{{ contestant.club }}</td>
-        <td>{{ contestant.ageclass }}</td>
-        <td>{{ contestant.team }}</td>
-      </tr>
-      {% endfor %}
-      <tr id=spacer></tr>
-    </table>
+    {% elif edit_mode %}
+      <div id=spacer></div>
+        <table>
+          <tr id=headerblue>
+            <td>Startnr</td>
+            <td>Navn</td>
+            <td>Klubb</td>
+            <td>Klasse</td>
+            <td>Team</td>
+            <td></td>
+          </tr>
+          {% for contestant in contestants %}
+          <form action=/contestants method=post>
+            <tr>
+              <td><input type=text name="startnr" value="{{ contestant.startnr }}"></td>
+              <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
+              <td>{{ contestant.club }}</td>
+              <td><input type=text name="ageclass" value="{{ contestant.ageclass }}"></td>
+              <td>
+                {{ contestant.team }}
+                <input type=hidden name="id" value="{{ contestant.id }}">
+                <input type="hidden" name="eventid" value="{{ eventid }}">
+              </td>
+              <td><input type="submit" name=update value="  Oppdater  "></td>
+            </tr>
+          </form>
+          {% endfor %}
+        </table>
+      {% else %}
+        <div id=spacer></div>
+        <table>
+          <tr id=headerblue>
+            <td align=right>
+              <form action=/contestants method=get>
+                <input type="hidden" name="eventid" value="{{ eventid }}">
+                <input type="submit" name=edit_mode value="  Rediger  ">
+              </form>
+            </td>
+            <td>
+              <form action=/contestants method=get>
+                <input type="hidden" name=eventid value="{{ eventid }}">
+                <input type="submit" name=new value="  Last inn deltakere fra fil ">
+              </form>
+            </td>
+          </tr>
+        </table>
+      <div id=spacer></div>
+      <table>
+        <tr id=headerblue>
+          <td>Startnr</td>
+          <td>Navn</td>
+          <td>Klubb</td>
+          <td>Klasse</td>
+          <td>Team</td>
+        </tr>
+          {% for contestant in contestants %}
+            <tr>
+              <td>{{ contestant.startnr }}</td>
+              <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
+              <td>{{ contestant.club }}</td>
+              <td>{{ contestant.ageclass }}</td>
+              <td>{{ contestant.team }}</td>
+            </tr>
+            {% endfor %}
+        <tr id=spacer></tr>
+      </table>
     {% endif %}
-{% endblock %}
+  {% endblock %}
