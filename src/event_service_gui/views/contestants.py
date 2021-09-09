@@ -10,9 +10,6 @@ from event_service_gui.services import (
     EventsAdapter,
     UserAdapter,
 )
-from .utils_xml import (
-    get_all_contestant_info_from_xml,
-)
 
 
 class Contestants(web.View):
@@ -100,19 +97,13 @@ class Contestants(web.View):
                     text_file = file.file
                     content = text_file.read()
                     logging.debug(f"Content {content}")
-                    contestants = get_all_contestant_info_from_xml(content, eventid)
-
+                    # contestants = get_all_contestant_info_from_xml(content, eventid)
                     # loop all contestants in entry class
-                    for contestant in contestants:
-                        id = await ContestantsAdapter().create_contestant(
-                            token, eventid, contestant
-                        )
-                        logging.info(f"Created contestant, id {id}")
-                        i = i + 1
                 elif file.content_type == "text/csv":
-                    id = await ContestantsAdapter().create_contestants(
+                    resp = await ContestantsAdapter().create_contestants(
                         token, eventid, file
                     )
+                    logging.info(f"Created contestants: {resp}")
                 else:
                     raise Exception(f"Ugyldig filtype {file.content_type}")
 

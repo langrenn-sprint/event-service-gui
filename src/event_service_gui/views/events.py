@@ -6,9 +6,7 @@ import aiohttp_jinja2
 from aiohttp_session import get_session
 
 from event_service_gui.services import EventsAdapter
-from event_service_gui.services import RaceclassesAdapter
 from event_service_gui.services import UserAdapter
-from .utils_xml import get_ageclasses_from_xml, get_event_info_from_xml
 
 
 class Events(web.View):
@@ -92,15 +90,15 @@ class Events(web.View):
                 text_file = file.file
                 content = text_file.read()
                 logging.debug(f"Content {content}")
-                event_info = get_event_info_from_xml(content)
-                eventid = await EventsAdapter().create_event(token, event_info)
-                informasjon = f"Opprettet nytt arrangement,  eventid {eventid}"
+                # event_info = get_event_info_from_xml(content)
+                # eventid = await EventsAdapter().create_event(token, event_info)
+                informasjon = "Opprettet nytt arrangement"
 
                 # add Ageclasses
-                ageclasses = get_ageclasses_from_xml(eventid, content)
-                for ageclass in ageclasses:
-                    id = await RaceclassesAdapter().create_ageclass(token, ageclass)
-                    logging.info(f"Created ageclass with id: {id}")
+                # ageclasses = get_ageclasses_from_xml(eventid, content)
+                # for ageclass in ageclasses:
+                #    id = await RaceclassesAdapter().create_ageclass(token, ageclass)
+                #    logging.info(f"Created ageclass with id: {id}")
 
             elif "update" in form.keys():
                 # Update event

@@ -127,8 +127,8 @@ class ContestantsAdapter:
 
     async def get_contestant(
         self, token: str, event_id: str, contestant_id: str
-    ) -> List:
-        """Get all contestants function."""
+    ) -> dict:
+        """Get all contestant function."""
         headers = MultiDict(
             {
                 hdrs.CONTENT_TYPE: "application/json",
