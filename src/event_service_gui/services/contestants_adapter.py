@@ -49,7 +49,7 @@ class ContestantsAdapter:
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
-
+        logging.debug(f"Create contestants - got file {inputfile}")
         async with ClientSession() as session:
             async with session.post(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/contestants",

@@ -100,8 +100,9 @@ class Contestants(web.View):
                     # contestants = get_all_contestant_info_from_xml(content, eventid)
                     # loop all contestants in entry class
                 elif file.content_type == "text/csv":
+                    text_file = file.file
                     resp = await ContestantsAdapter().create_contestants(
-                        token, eventid, file
+                        token, eventid, text_file
                     )
                     logging.info(f"Created contestants: {resp}")
                 else:
