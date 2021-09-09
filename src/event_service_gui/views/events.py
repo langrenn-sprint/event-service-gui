@@ -4,12 +4,11 @@ import logging
 from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
-from defusedxml import parse
 
 from event_service_gui.services import EventsAdapter
 from event_service_gui.services import RaceclassesAdapter
 from event_service_gui.services import UserAdapter
-from .utils import get_ageclasses_from_xml, get_event_info_from_xml
+from .utils_xml import get_ageclasses_from_xml, get_event_info_from_xml
 
 
 class Events(web.View):
@@ -39,8 +38,8 @@ class Events(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location=f"/login?event={eventid}")
-        username = session["username"]
-        token = session["token"]
+        username = str(session["username"])
+        token = str(session["token"])
 
         event = {"name": "Nytt arrangement", "organiser": "Ikke valgt"}
         if (not create_new) and (eventid != ""):
@@ -67,7 +66,7 @@ class Events(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
-        token = session["token"]
+        token = str(session["token"])
 
         informasjon = ""
         eventid = ""
@@ -93,13 +92,12 @@ class Events(web.View):
                 text_file = file.file
                 content = text_file.read()
                 logging.debug(f"Content {content}")
-                xml_root = parse(content)
-                event_info = get_event_info_from_xml(xml_root.find("Competition"))
+                event_info = get_event_info_from_xml(content)
                 eventid = await EventsAdapter().create_event(token, event_info)
                 informasjon = f"Opprettet nytt arrangement,  eventid {eventid}"
 
                 # add Ageclasses
-                ageclasses = get_ageclasses_from_xml(eventid, xml_root.iter("Entry"))
+                ageclasses = get_ageclasses_from_xml(eventid, content)
                 for ageclass in ageclasses:
                     id = await RaceclassesAdapter().create_ageclass(token, ageclass)
                     logging.info(f"Created ageclass with id: {id}")
@@ -113,7 +111,7 @@ class Events(web.View):
                     "webpage": form["webpage"],
                     "information": form["information"],
                 }
-                eventid = form["eventid"]
+                eventid = str(form["eventid"])
                 res = await EventsAdapter().update_event(token, eventid, request_body)
                 if res == 204:
                     informasjon = "Arrangementinformasjon er oppdatert."
@@ -121,7 +119,7 @@ class Events(web.View):
                     logging.error(f"Error update event: {res}")
                     informasjon = f"En feil oppstod {res}."
             elif "delete" in form.keys():
-                eventid = form["eventid"]
+                eventid = str(form["eventid"])
                 res = await EventsAdapter().delete_event(token, eventid)
                 if res == 204:
                     informasjon = "Arrangement er slettet."

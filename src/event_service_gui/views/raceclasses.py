@@ -39,8 +39,8 @@ class Raceclasses(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location=f"/login?event={eventid}")
-        username = session["username"]
-        token = session["token"]
+        username = str(session["username"])
+        token = str(session["token"])
 
         event = await EventsAdapter().get_event(token, eventid)
 
@@ -87,10 +87,10 @@ class Raceclasses(web.View):
                 classes = await RaceclassesAdapter().get_classes_with_participants(
                     self.request.app["db"]
                 )
-                result = await RaceclassesAdapter().update_participant_count_mongo(
+                returncode = await RaceclassesAdapter().update_participant_count_mongo(
                     self.request.app["db"], classes
                 )
-                informasjon = f"Antall deltakere pr. klasse er oppdatert - {result}"
+                informasjon = f"Antall deltakere pr. klasse er oppdatert - {returncode}"
 
         except Exception as e:
             logging.error(f"Error: {e}")

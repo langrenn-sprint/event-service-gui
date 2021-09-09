@@ -27,8 +27,8 @@ class Schedules(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location=f"/login?event={eventid}")
-        username = session["username"]
-        token = session["token"]
+        username = str(session["username"])
+        token = str(session["token"])
 
         # TODO - get list of schedules
         schedules = await SchedulesAdapter().get_all_schedules()

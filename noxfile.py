@@ -109,9 +109,9 @@ def safety(session: Session) -> None:
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
     pass
-    # args = session.posargs or locations
-    # session.install("mypy")
-    # session.run("mypy", *args)
+    args = session.posargs or locations
+    session.install("mypy")
+    session.run("mypy", *args)
 
 
 @nox.session(python="3.7")

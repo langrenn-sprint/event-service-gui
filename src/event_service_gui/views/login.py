@@ -32,7 +32,7 @@ class Login(web.View):
                 loggedin = UserAdapter().isloggedin(session)
                 if loggedin:
                     create_new = True
-                    username = session["username"]
+                    username = str(session["username"])
 
         except Exception:
             create_new = False
@@ -69,12 +69,12 @@ class Login(web.View):
             # Create new event
             if "create" in form.keys():
                 session = await get_session(self.request)
-                token = session["token"]
+                token = str(session["token"])
                 id = await UserAdapter().create_user(
                     token,
-                    form["newrole"],
-                    form["newusername"],
-                    form["newpassword"],
+                    str(form["newrole"]),
+                    str(form["newusername"]),
+                    str(form["newpassword"]),
                     session,
                 )
                 informasjon = f"Ny bruker opprettet med id {id}"
@@ -86,7 +86,7 @@ class Login(web.View):
                 # Perform login
                 session = await new_session(self.request)
                 result = await UserAdapter().login(
-                    form["username"], form["password"], session
+                    str(form["username"]), str(form["password"]), session
                 )
                 if result != 200:
                     informasjon = f"Innlogging feilet - {result}"

@@ -63,7 +63,7 @@ class ContestantsAdapter:
                 else:
                     raise Exception(f"create_contestants failed: {resp}")
 
-        return res
+        return str(res)
 
     async def delete_all_contestants(self, token: str, event_id: str) -> str:
         """Delete all contestants in one event function."""
@@ -82,7 +82,7 @@ class ContestantsAdapter:
                     pass
                 else:
                     raise Exception(f"delete_all_contestants failed: {resp}")
-        return res
+        return str(res)
 
     async def delete_contestant(
         self, token: str, event_id: str, contestant_id: str
@@ -103,7 +103,7 @@ class ContestantsAdapter:
                     pass
                 else:
                     raise Exception(f"delete_contestant failed: {resp}")
-        return res
+        return str(res)
 
     async def get_all_contestants(self, token: str, event_id: str) -> List:
         """Get all contestants function."""
@@ -171,4 +171,4 @@ class ContestantsAdapter:
                 else:
                     logging.error(f"update_contestant failed: {resp}")
 
-        return resp.status
+        return str(resp.status)

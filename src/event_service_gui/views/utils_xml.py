@@ -2,10 +2,14 @@
 
 import logging
 
+from defusedxml.ElementTree import parse
 
-def get_ageclasses_from_xml(eventid: str, entries: list) -> list:
+
+def get_ageclasses_from_xml(eventid: str, content) -> list:
     """Extract ageclasses info from xml object."""
     # enrich data send event to backend
+    xml_root = parse(content)
+    entries = xml_root.iter("Entry")
     ageclasses = []
     order = 0
     for entry in entries:
@@ -31,7 +35,29 @@ def get_ageclasses_from_xml(eventid: str, entries: list) -> list:
     return ageclasses
 
 
-def get_contestant_info_from_xml(contestant, ageclass: str, event_id: str) -> dict:
+def get_all_contestant_info_from_xml(content, eventid: str) -> dict:
+    """Extract contestants info from xml object."""
+    xml_root = parse(content)
+    contestants = {}
+    # loop all entry classes
+    for entry in xml_root.iter("Entry"):
+        age_class = {
+            "name": entry.find("EntryClass").get("shortName"),
+            "distance": entry.find("Exercise").get("name"),
+        }
+        # loop all contestants in entry class
+        for contestant in entry.iter("Competitor"):
+            request_body = get_one_contestant_info_from_xml(
+                str(contestant.find("Person")),
+                str(age_class.get("name")),
+                eventid,
+            )
+            contestants.append(request_body)
+
+    return contestants
+
+
+def get_one_contestant_info_from_xml(contestant, ageclass: str, event_id: str) -> dict:
     """Extract person info from xml object."""
     name = contestant.find("Name")
     c_family = name.find("Family").text
@@ -66,8 +92,11 @@ def get_contestant_info_from_xml(contestant, ageclass: str, event_id: str) -> di
     return request_body
 
 
-def get_event_info_from_xml(event) -> dict:
+def get_event_info_from_xml(content) -> dict:
     """Extract person info from xml object."""
+    xml_root = parse(content)
+    event = xml_root.find("Competition")
+
     c_name = event.find("EventName").text
     c_nifeventid = event.find("EventId").text
     c_date = event.get("startDate")

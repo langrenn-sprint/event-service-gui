@@ -4,14 +4,15 @@ import logging
 from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
-from defusedxml import parse
 
 from event_service_gui.services import (
     ContestantsAdapter,
     EventsAdapter,
     UserAdapter,
 )
-from .utils import get_contestant_info_from_xml
+from .utils_xml import (
+    get_all_contestant_info_from_xml,
+)
 
 
 class Contestants(web.View):
@@ -32,8 +33,8 @@ class Contestants(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location=f"/login?eventid={eventid}")
-        username = session["username"]
-        token = session["token"]
+        username = str(session["username"])
+        token = str(session["token"])
 
         try:
             informasjon = self.request.rel_url.query["informasjon"]
@@ -80,13 +81,13 @@ class Contestants(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
-        token = session["token"]
+        token = str(session["token"])
 
         informasjon = ""
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
-            eventid = form["eventid"]
+            eventid = str(form["eventid"])
 
             # Create new deltakere
             if "create" in form.keys():
@@ -99,28 +100,15 @@ class Contestants(web.View):
                     text_file = file.file
                     content = text_file.read()
                     logging.debug(f"Content {content}")
-                    xml_root = parse(content)
-                    # loop all entry classes
-                    age_classes = []
-                    for entry in xml_root.iter("Entry"):
-                        age_class = {
-                            "name": entry.find("EntryClass").get("shortName"),
-                            "distance": entry.find("Exercise").get("name"),
-                        }
-                        age_classes.append(age_class)
-                        # loop all contestants in entry class
-                        for contestant in entry.iter("Competitor"):
-                            request_body = get_contestant_info_from_xml(
-                                contestant.find("Person"),
-                                age_class.get("name"),
-                                eventid,
-                            )
+                    contestants = get_all_contestant_info_from_xml(content, eventid)
 
-                            id = await ContestantsAdapter().create_contestant(
-                                token, eventid, request_body
-                            )
-                            logging.info(f"Created contestant, id {id}")
-                            i = i + 1
+                    # loop all contestants in entry class
+                    for contestant in contestants:
+                        id = await ContestantsAdapter().create_contestant(
+                            token, eventid, contestant
+                        )
+                        logging.info(f"Created contestant, id {id}")
+                        i = i + 1
                 elif file.content_type == "text/csv":
                     id = await ContestantsAdapter().create_contestants(
                         token, eventid, file
@@ -132,7 +120,7 @@ class Contestants(web.View):
             # Update
             elif "update" in form.keys():
                 contestant = await ContestantsAdapter().get_contestant(
-                    token, eventid, form["contestantid"]
+                    token, eventid, str(form["contestantid"])
                 )
                 contestant.update({"age_class": form["age_class"]})
                 contestant.update({"bib": form["bib"]})
@@ -144,7 +132,7 @@ class Contestants(web.View):
             # delete
             elif "delete_one" in form.keys():
                 result = await ContestantsAdapter().delete_contestant(
-                    token, eventid, form["contestantid"]
+                    token, eventid, str(form["contestantid"])
                 )
                 informasjon = f"Deltaker er slettet - {result}"
             # delete_all

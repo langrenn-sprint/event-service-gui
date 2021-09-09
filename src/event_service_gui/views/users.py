@@ -18,8 +18,8 @@ class Users(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
-        token = session["token"]
-        username = session["username"]
+        token = str(session["token"])
+        username = str(session["username"])
         users = []
 
         try:
@@ -66,7 +66,7 @@ class Users(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
-        token = session["token"]
+        token = str(session["token"])
 
         try:
             form = await self.request.post()
@@ -75,17 +75,17 @@ class Users(web.View):
             if "create" in form.keys():
                 id = await UserAdapter().create_user(
                     token,
-                    form["newrole"],
-                    form["newusername"],
-                    form["newpassword"],
+                    str(form["newrole"]),
+                    str(form["newusername"]),
+                    str(form["newpassword"]),
                     session,
                 )
                 informasjon = f"Ny bruker opprettet med id {id}"
             elif "delete" in form.keys():
-                id = form["id"]
+                id = str(form["id"])
                 logging.info(f"Enter delete {id}")
                 res = await UserAdapter().delete_user(token, id)
-                if res == 204:
+                if res == "204":
                     informasjon = "Bruker er slettet."
                 else:
                     informasjon = f"En feil oppstod {res}."

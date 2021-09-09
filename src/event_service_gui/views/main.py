@@ -25,8 +25,8 @@ class Main(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
-        username = session["username"]
-        token = session["token"]
+        username = str(session["username"])
+        token = str(session["token"])
 
         events = await EventsAdapter().get_all_events(token)
         logging.debug(f"Events: {events}")

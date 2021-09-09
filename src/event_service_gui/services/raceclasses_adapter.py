@@ -110,9 +110,8 @@ class RaceclassesAdapter:
         """Update klasser function."""
         returncode = 201
         try:
-            ageclasses = []
 
-            for ageclass in ageclasses:
+            for ageclass in new_classes:
                 _myquery = {"name": ageclass["name"]}
                 _newvalue = {"Participants": new_classes[ageclass["name"]]}
                 result = await db.klasser_collection.update_one(
@@ -131,7 +130,7 @@ class RaceclassesAdapter:
         # todo: bør telle direkte i backend - og oppdatere i databasen.
         try:
             contestants = await DeltakereService().get_all_deltakere(db)
-            classes = {}
+            classes = {str: int}
 
             for contestant in contestants:
                 if contestant["name"] not in classes.keys():
