@@ -35,7 +35,7 @@ def get_ageclasses_from_xml(eventid: str, content) -> list:
     return ageclasses
 
 
-def get_all_contestant_info_from_xml(content, eventid: str) -> dict:
+def get_all_contestant_info_from_xml(content, eventid: str) -> list:
     """Extract contestants info from xml object."""
     xml_root = parse(content)
     contestants = []
