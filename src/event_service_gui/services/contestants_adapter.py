@@ -135,7 +135,7 @@ class ContestantsAdapter:
                 hdrs.AUTHORIZATION: f"Bearer {token}",
             }
         )
-        contestant = []
+        contestant = {}
         async with ClientSession() as session:
             async with session.get(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{contestant_id}",
