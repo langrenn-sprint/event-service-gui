@@ -38,7 +38,7 @@ def get_ageclasses_from_xml(eventid: str, content) -> list:
 def get_all_contestant_info_from_xml(content, eventid: str) -> dict:
     """Extract contestants info from xml object."""
     xml_root = parse(content)
-    contestants = {}
+    contestants = []
     # loop all entry classes
     for entry in xml_root.iter("Entry"):
         age_class = {

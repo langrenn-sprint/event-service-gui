@@ -72,7 +72,7 @@ class Raceclasses(web.View):
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
-            eventid = form["eventid"]
+            eventid = str(form["eventid"])
 
             # Update
             if "update" in form.keys():
@@ -84,13 +84,7 @@ class Raceclasses(web.View):
                 result = "todo"
                 informasjon = f"Informasjon er oppdatert - {result}"
             elif "participants" in form.keys():
-                classes = await RaceclassesAdapter().get_classes_with_participants(
-                    self.request.app["db"]
-                )
-                returncode = await RaceclassesAdapter().update_participant_count_mongo(
-                    self.request.app["db"], classes
-                )
-                informasjon = f"Antall deltakere pr. klasse er oppdatert - {returncode}"
+                informasjon = "TODO: Antall deltakere pr. klasse er oppdatert"
 
         except Exception as e:
             logging.error(f"Error: {e}")

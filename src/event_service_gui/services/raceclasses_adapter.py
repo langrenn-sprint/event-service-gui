@@ -8,10 +8,6 @@ from aiohttp import hdrs
 from aiohttp import web
 from multidict import MultiDict
 
-from event_service_gui.services import (
-    DeltakereService,
-)
-
 EVENT_SERVICE_HOST = os.getenv("EVENT_SERVICE_HOST", "localhost")
 EVENT_SERVICE_PORT = os.getenv("EVENT_SERVICE_PORT", "8082")
 EVENT_SERVICE_URL = f"http://{EVENT_SERVICE_HOST}:{EVENT_SERVICE_PORT}"
@@ -124,21 +120,3 @@ class RaceclassesAdapter:
             returncode = 401
 
         return returncode
-
-    async def get_classes_with_participants(self, db) -> dict:
-        """Get all classes and count registered contestants."""
-        # todo: bør telle direkte i backend - og oppdatere i databasen.
-        try:
-            contestants = await DeltakereService().get_all_deltakere(db)
-            classes = {str: int}
-
-            for contestant in contestants:
-                if contestant["name"] not in classes.keys():
-                    classes[contestant["name"]] = 1
-                else:
-                    classes[contestant["name"]] = classes[contestant["name"]] + 1
-            logging.info(f"Found classes : {classes.items()}")
-        except Exception as e:
-            logging.error(f"Error: {e}")
-
-        return classes
