@@ -25,6 +25,7 @@ PyJWT = "^2.1.0"
 multidict = "^5.1.0"
 jwt = "^1.2.0"
 aiohttp-session = "^2.9.0"
+cryptography = "^3.4.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.1"
