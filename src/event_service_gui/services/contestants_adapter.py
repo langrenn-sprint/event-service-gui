@@ -47,6 +47,7 @@ class ContestantsAdapter:
     async def create_contestants(self, token: str, event_id: str, inputfile) -> str:
         """Create new contestants function."""
         headers = {
+            hdrs.CONTENT_TYPE: "multipart/form-data",
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
         logging.debug(f"Create contestants - got file {inputfile}")
