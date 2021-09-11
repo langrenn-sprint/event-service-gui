@@ -47,7 +47,7 @@ class ContestantsAdapter:
     async def create_contestants(self, token: str, event_id: str, inputfile) -> str:
         """Create new contestants function."""
         headers = {
-            hdrs.CONTENT_TYPE: "multipart/form-data",
+            hdrs.CONTENT_TYPE: "text/csv",
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
         logging.debug(f"Create contestants - got file {inputfile}")
@@ -58,9 +58,9 @@ class ContestantsAdapter:
                 data=inputfile,
             ) as resp:
                 res = resp.status
-                logging.debug(f"result - got response {resp}")
-                if res == 201:
-                    pass
+                logging.info(f"result - got response {res} - {resp}")
+                if res == 200:
+                    res = await resp.json()
                 else:
                     raise Exception(f"create_contestants failed: {resp}")
 

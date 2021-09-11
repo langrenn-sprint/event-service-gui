@@ -26,7 +26,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if create_new %}
+    {% if action == "new_from_file" %}
     <form action=/contestants method=post enctype="multipart/form-data" >
       <table cellpadding=4>
         <tr id=spacer></tr>
@@ -60,11 +60,25 @@
         <tr id=spacer></tr>
       </table>
     </form>
-    {% elif edit_mode %}
+    {% elif  action == "edit_mode" %}
       <div id=spacer></div>
         <table>
-          <tr id=headerblue>
-            <td align=right>
+          <tr id=headerblue align=right>
+            <td>
+              <form action=/contestants method=get>
+                <input type="hidden" name=eventid value="{{ eventid }}">
+                <input type="hidden" name=action value="new_from_file">
+                <input type="submit" name=new_from_file value="  Last inn deltakere fra fil ">
+              </form>
+            </td>
+            <td>
+              <form action=/contestants method=get>
+                <input type="hidden" name=eventid value="{{ eventid }}">
+                <input type="hidden" name=action value="new_manual">
+                <input type="submit" name=new_manual value="  Legg til deltaker mauelt ">
+              </form>
+            </td>
+            <td>
               <form action=/contestants method=post>
                 <input type="hidden" name="eventid" value="{{ eventid }}">
                 <input type="submit" name=delete_all value="  Slett alle deltakere  ">
@@ -78,28 +92,197 @@
             <td>Startnr</td>
             <td>Navn</td>
             <td>Klubb</td>
+            <td>Født</td>
+            <td></td>
             <td>Klasse</td>
             <td>Team</td>
+            <td>Region</td>
+            <td>Idrettsnr</td>
             <td colspan="2"></td>
           </tr>
           {% for contestant in contestants %}
-          <form action=/contestants method=post>
             <tr>
-              <td><input type=text name="bib" value="{{ contestant.bib }}"></td>
+              <td>{{ contestant.bib }}</td>
               <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
               <td>{{ contestant.club }}</td>
-              <td><input type=text name="age_class" value="{{ contestant.age_class }}"></td>
+              <td>{{ contestant.birth_date }}</td>
+              <td>{{ contestant.gender }}</td>
+              <td>{{ contestant.age_class }}</td>
+              <td>{{ contestant.team }}</td>
+              <td>{{ contestant.region }}</td>
+              <td>{{ contestant.minidrett_id }}</td>
               <td>
-                {{ contestant.team }}
-                <input type=hidden name="contestantid" value="{{ contestant.id }}">
-                <input type="hidden" name="eventid" value="{{ eventid }}">
+                <form action=/contestants method=get>
+                  <input type="submit" name=update_one value="  Rediger  ">
+                  <input type="hidden" name=action value="update_one">
+                  <input type="hidden" name="id" value="{{ contestant.id }}">
+                  <input type="hidden" name="eventid" value="{{ eventid }}">
+                </form>
               </td>
-              <td><input type="submit" name=update value="  Oppdater  "></td>
-              <td><input type="submit" name=delete_one value="  Slett  "></td>
+              <td>
+                <form action=/contestants method=post>
+                  <input type="submit" name=delete_one value="  Slett  ">
+                  <input type="hidden" name="id" value="{{ contestant.id }}">
+                  <input type="hidden" name="eventid" value="{{ eventid }}">
+                </form>
+              </td>
             </tr>
-          </form>
           {% endfor %}
         </table>
+      {% elif action == "new_manual" %}
+        <div id=spacer></div>
+        <form action=/contestants method=post>
+          <table cellpadding=4>
+            <tr id=spacer></tr>
+            <tr>
+              <td colspan=3 id=headerblue>
+                <b>Opprett ny deltaker</b>
+              </td>
+            </tr>
+            <tr>
+              <td width=150>Fornavn</td>
+              <td><input type=text name="first_name" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Etternavn</td>
+              <td><input type=text name="last_name" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Fødseldato</td>
+              <td><input type=text name="birth_date" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Kjønn</td>
+              <td><input type=text name="gender" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Aldersklasse</td>
+              <td><input type=text name="age_class" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Region</td>
+              <td><input type=text name="region" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Klubb</td>
+              <td><input type=text name="club" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Team</td>
+              <td><input type=text name="team" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Epost</td>
+              <td><input type=text name="email" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Startnummer</td>
+              <td><input type=text name="bib" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Idrettsnummer</td>
+              <td><input type=text name="minidrett_id" value=""></td>
+              <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                  <input type="hidden" name="eventid" value="{{ eventid }}">
+                  <input type="submit" name=create_one value="  Opprett  ">
+                </td>
+                <td></td>
+            </tr>
+            <tr id=spacer></tr>
+          </table>
+        </form>
+        {% elif action == "update_one" %}
+          <div id=spacer></div>
+          <form action=/contestants method=post>
+            <table cellpadding=4>
+              <tr id=spacer></tr>
+              <tr>
+                <td colspan=3 id=headerblue>
+                  <b>Oppdater deltaker</b>
+                </td>
+              </tr>
+              <tr>
+                <td width=150>Fornavn</td>
+                <td><input type=text name="first_name" value="{{ contestant.first_name }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Etternavn</td>
+                <td><input type=text name="last_name" value="{{ contestant.last_name }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Fødseldato</td>
+                <td><input type=text name="birth_date" value="{{ contestant.birth_date }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Kjønn</td>
+                <td><input type=text name="gender" value="{{ contestant.gender }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Aldersklasse</td>
+                <td><input type=text name="age_class" value="{{ contestant.age_class }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Region</td>
+                <td><input type=text name="region" value="{{ contestant.region }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Klubb</td>
+                <td><input type=text name="club" value="{{ contestant.club }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Team</td>
+                <td><input type=text name="team" value="{{ contestant.team }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Epost</td>
+                <td><input type=text name="email" value="{{ contestant.email }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Startnummer</td>
+                <td><input type=text name="bib" value="{{ contestant.bib }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Idrettsnummer</td>
+                <td><input type=text name="minidrett_id" value="{{ contestant.minidrett_id }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                  <td></td>
+                  <td>
+                    <input type="hidden" name="eventid" value="{{ eventid }}">
+                    <input type="hidden" name="id" value="{{ contestant.id }}">
+                    <input type="submit" name=update_one value="  Oppdater  ">
+                  </td>
+                  <td></td>
+              </tr>
+              <tr id=spacer></tr>
+            </table>
+          </form>
+
       {% else %}
         <div id=spacer></div>
         <table>
@@ -107,13 +290,8 @@
             <td align=right>
               <form action=/contestants method=get>
                 <input type="hidden" name="eventid" value="{{ eventid }}">
+                <input type="hidden" name=action value="edit_mode">
                 <input type="submit" name=edit_mode value="  Rediger  ">
-              </form>
-            </td>
-            <td>
-              <form action=/contestants method=get>
-                <input type="hidden" name=eventid value="{{ eventid }}">
-                <input type="submit" name=new value="  Last inn deltakere fra fil ">
               </form>
             </td>
           </tr>
@@ -124,16 +302,24 @@
           <td>Startnr</td>
           <td>Navn</td>
           <td>Klubb</td>
+          <td>Født</td>
+          <td></td>
           <td>Klasse</td>
           <td>Team</td>
+          <td>Region</td>
+          <td>Idrettsnr</td>
         </tr>
           {% for contestant in contestants %}
             <tr>
               <td>{{ contestant.bib }}</td>
               <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
               <td>{{ contestant.club }}</td>
+              <td>{{ contestant.birth_date }}</td>
+              <td>{{ contestant.gender }}</td>
               <td>{{ contestant.age_class }}</td>
               <td>{{ contestant.team }}</td>
+              <td>{{ contestant.region }}</td>
+              <td>{{ contestant.minidrett_id }}</td>
             </tr>
             {% endfor %}
         <tr id=spacer></tr>

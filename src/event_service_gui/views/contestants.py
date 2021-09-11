@@ -37,20 +37,19 @@ class Contestants(web.View):
             informasjon = self.request.rel_url.query["informasjon"]
         except Exception:
             informasjon = ""
+
+        contestant = {}
         try:
-            create_new = False
-            new = self.request.rel_url.query["new"]
-            if new != "":
-                create_new = True
+            action = self.request.rel_url.query["action"]
+            if action == "update_one":
+                id = self.request.rel_url.query["id"]
+                contestant = await ContestantsAdapter().get_contestant(
+                    token, eventid, id
+                )
+
         except Exception:
-            create_new = False
-        try:
-            edit_mode = False
-            edit = self.request.rel_url.query["edit_mode"]
-            if edit != "":
-                edit_mode = True
-        except Exception:
-            edit_mode = False
+            action = ""
+        logging.debug(f"Action: {action}")
 
         event = await EventsAdapter().get_event(token, eventid)
 
@@ -60,13 +59,13 @@ class Contestants(web.View):
             "contestants.html",
             self.request,
             {
-                "lopsinfo": "Deltakere",
+                "action": action,
                 "contestants": contestants,
-                "create_new": create_new,
-                "edit_mode": edit_mode,
+                "contestant": contestant,
                 "event": event,
                 "eventid": eventid,
                 "informasjon": informasjon,
+                "lopsinfo": "Deltakere",
                 "username": username,
             },
         )
@@ -89,41 +88,54 @@ class Contestants(web.View):
             # Create new deltakere
             if "create" in form.keys():
                 file = form["file"]
+                text_file = file.file
                 logging.info(f"File type: {file.content_type}")
-                i = 0
 
                 # handle file - xml and csv supported
                 if file.content_type == "text/xml":
-                    text_file = file.file
                     content = text_file.read()
                     logging.debug(f"Content {content}")
                     # contestants = get_all_contestant_info_from_xml(content, eventid)
                     # loop all contestants in entry class
                 elif file.content_type == "text/csv":
                     resp = await ContestantsAdapter().create_contestants(
-                        token, eventid, form
+                        token, eventid, text_file
                     )
-                    logging.info(f"Created contestants: {resp}")
+                    logging.debug(f"Created contestants: {resp}")
+                    informasjon = f"Opprettet deltakere: {resp}"
                 else:
                     raise Exception(f"Ugyldig filtype {file.content_type}")
 
-                informasjon = f"Opprettet {i} deltakere."
-            # Update
-            elif "update" in form.keys():
-                contestant = await ContestantsAdapter().get_contestant(
-                    token, eventid, str(form["contestantid"])
-                )
-                contestant.update({"age_class": form["age_class"]})
-                contestant.update({"bib": form["bib"]})
-
-                result = await ContestantsAdapter().update_contestant(
-                    token, eventid, contestant
-                )
-                informasjon = f"Informasjon er oppdatert - {result}"
+            elif "create_one" in form.keys() or "update_one" in form.keys():
+                request_body = {
+                    "first_name": str(form["first_name"]),
+                    "last_name": str(form["last_name"]),
+                    "birth_date": str(form["birth_date"]),
+                    "gender": str(form["gender"]),
+                    "age_class": str(form["age_class"]),
+                    "region": str(form["region"]),
+                    "club": str(form["club"]),
+                    "event_id": eventid,
+                    "email": str(form["email"]),
+                    "team": str(form["team"]),
+                    "minidrett_id": str(form["minidrett_id"]),
+                    "bib": str(form["bib"]),
+                }
+                if "create_one" in form.keys():
+                    id = await ContestantsAdapter().create_contestant(
+                        token, eventid, request_body
+                    )
+                    informasjon = f"Deltaker er opprettet - {id}"
+                else:
+                    request_body["id"] = str(form["id"])
+                    result = await ContestantsAdapter().update_contestant(
+                        token, eventid, request_body
+                    )
+                    informasjon = f"Informasjon er oppdatert - {result}"
             # delete
             elif "delete_one" in form.keys():
                 result = await ContestantsAdapter().delete_contestant(
-                    token, eventid, str(form["contestantid"])
+                    token, eventid, str(form["id"])
                 )
                 informasjon = f"Deltaker er slettet - {result}"
             # delete_all
