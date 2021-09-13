@@ -20,7 +20,7 @@ class Contestants(web.View):
         try:
             eventid = self.request.rel_url.query["eventid"]
         except Exception:
-            eventid == ""
+            eventid = ""
         if eventid == "":
             informasjon = "Ingen event valgt."
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

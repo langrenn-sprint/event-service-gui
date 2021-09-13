@@ -44,6 +44,44 @@ class RaceclassesAdapter:
 
         return id
 
+    async def delete_all_ageclasses(self, token: str, event_id: str) -> str:
+        """Delete all ageclasses in one event function."""
+        headers = {
+            hdrs.AUTHORIZATION: f"Bearer {token}",
+        }
+
+        async with ClientSession() as session:
+            async with session.delete(
+                f"{EVENT_SERVICE_URL}/events/{event_id}/ageclasses",
+                headers=headers,
+            ) as resp:
+                res = resp.status
+                logging.debug(f"delete all result - got response {resp}")
+                if res == 204:
+                    pass
+                else:
+                    raise Exception(f"delete_all_ageclasses failed: {resp}")
+        return str(res)
+
+    async def delete_ageclass(self, token: str, event_id: str, ageclass_id: str) -> str:
+        """Delete one ageclass function."""
+        headers = {
+            hdrs.AUTHORIZATION: f"Bearer {token}",
+        }
+
+        async with ClientSession() as session:
+            async with session.delete(
+                f"{EVENT_SERVICE_URL}/events/{event_id}/ageclasses/{ageclass_id}",
+                headers=headers,
+            ) as resp:
+                res = resp.status
+                logging.debug(f"delete result - got response {resp}")
+                if res == 204:
+                    pass
+                else:
+                    raise Exception(f"delete_ageclass failed: {resp}")
+        return str(res)
+
     async def generate_ageclasses(self, token: str, eventid: str) -> str:
         """Generate ageclasses based upon registrations."""
         contestants = await ContestantsAdapter().get_all_contestants(token, eventid)
@@ -153,25 +191,5 @@ class RaceclassesAdapter:
                     # Perform login
                 else:
                     logging.error(f"Error {resp.status} update ageclass: {resp} ")
-
-        return returncode
-
-    # todo - update
-    async def update_participant_count_mongo(self, db, new_classes: dict) -> int:
-        """Update klasser function."""
-        returncode = 201
-        try:
-
-            for ageclass in new_classes:
-                _myquery = {"name": ageclass["name"]}
-                _newvalue = {"Participants": new_classes[ageclass["name"]]}
-                result = await db.klasser_collection.update_one(
-                    _myquery, {"$set": _newvalue}
-                )
-                logging.debug(result)
-            logging.debug(f"Updated participants: {returncode}")
-        except Exception as e:
-            logging.error(f"Error: {e}")
-            returncode = 401
 
         return returncode

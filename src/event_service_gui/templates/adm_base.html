@@ -27,10 +27,11 @@
             <div class=dropdown-content>
               <a href="/">Hovedside</a>
               {% if eventid != "" %}
-                <a href="/events?eventid={{ eventid }}">Info</a>
-                <a href="/contestants?eventid={{ eventid }}">Deltakere</a>
-                <a href="/raceclasses?eventid={{ eventid }}">Løpsklasser</a>
-                <a href="/schedules?eventid={{ eventid }}">Kjøreplan</a>
+                <a>{{ event.name }}</a>
+                <a href="/events?eventid={{ eventid }}">&nbsp;&nbsp;&nbsp;Info</a>
+                <a href="/contestants?eventid={{ eventid }}">&nbsp;&nbsp;&nbsp;Deltakere</a>
+                <a href="/raceclasses?eventid={{ eventid }}">&nbsp;&nbsp;&nbsp;Løpsklasser</a>
+                <a href="/schedules?eventid={{ eventid }}">&nbsp;&nbsp;&nbsp;Kjøreplan</a>
               {% endif %}
             </div>
           </li>
