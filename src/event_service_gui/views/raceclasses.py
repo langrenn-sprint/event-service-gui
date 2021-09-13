@@ -117,16 +117,14 @@ class Raceclasses(web.View):
                 informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
             # delete
             elif "delete_one" in form.keys():
-                result = await RaceclassesAdapter().delete_ageclass(
+                res = await RaceclassesAdapter().delete_ageclass(
                     token, eventid, str(form["id"])
                 )
                 informasjon = f"Klasse er slettet - {result}"
             # delete_all
             elif "delete_all" in form.keys():
-                result = await RaceclassesAdapter().delete_all_ageclasses(
-                    token, eventid
-                )
-                informasjon = f"Klasser er slettet - {result}"
+                res = await RaceclassesAdapter().delete_all_ageclasses(token, eventid)
+                informasjon = f"Klasser er slettet - {res}"
 
         except Exception as e:
             logging.error(f"Error: {e}")
