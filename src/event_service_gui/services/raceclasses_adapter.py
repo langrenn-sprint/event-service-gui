@@ -84,39 +84,7 @@ class RaceclassesAdapter:
 
     async def generate_ageclasses(self, token: str, eventid: str) -> str:
         """Generate ageclasses based upon registrations."""
-        contestants = await ContestantsAdapter().get_all_contestants(token, eventid)
-        logging.debug(f"Contestants: {contestants}")
-        information = ""
-        classes = {}
-
-        for contestant in contestants:
-            if contestant["age_class"] in classes:
-                tmp = classes[contestant["age_class"]]
-                classes[contestant["age_class"]] = tmp + 1
-            else:
-                classes[contestant["age_class"]] = 1
-
-        i = 0
-        for age_class in classes:
-            i = i + 1
-            race_class = age_class.replace(" ", "")
-            race_class = race_class.replace("år", "")
-            race_class = race_class.replace("År", "")
-            race_class = race_class.replace("Menn", "M")
-            race_class = race_class.replace("Kvinner", "K")
-            race_class = race_class.replace("Junior", "J")
-            race_class = race_class.replace("Senior", "S")
-            request_body = {
-                "age_class": age_class,
-                "distance": "None",
-                "event_id": eventid,
-                "order": i,
-                "race_class": race_class,
-                "contestants": classes[age_class],
-            }
-            result = await RaceclassesAdapter().create_ageclass(token, request_body)
-            logging.debug(f"Create ageclass: {result}")
-        information = f"Opprettet {i} aldersklasser: {classes}"
+        information = f"TODO Opprettet {eventid} aldersklasser: {token}"
         return information
 
     async def get_ageclass(self, token: str, ageclass_id: str) -> dict:
