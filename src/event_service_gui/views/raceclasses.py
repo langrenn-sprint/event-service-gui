@@ -21,17 +21,6 @@ class Raceclasses(web.View):
         except Exception:
             informasjon = "Ingen event valgt."
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
-        try:
-            informasjon = self.request.rel_url.query["informasjon"]
-        except Exception:
-            informasjon = ""
-        try:
-            edit_mode = False
-            edit = self.request.rel_url.query["edit_mode"]
-            if edit != "":
-                edit_mode = True
-        except Exception:
-            edit_mode = False
 
         # check login
         username = ""
@@ -44,18 +33,34 @@ class Raceclasses(web.View):
 
         event = await EventsAdapter().get_event(token, eventid)
 
+        try:
+            informasjon = self.request.rel_url.query["informasjon"]
+        except Exception:
+            informasjon = ""
+        klasse = {}
+        try:
+            action = self.request.rel_url.query["action"]
+            if action == "update_one":
+                id = self.request.rel_url.query["id"]
+                klasse = await RaceclassesAdapter().get_ageclass(token, id)
+
+        except Exception:
+            action = ""
+        logging.debug(f"Action: {action}")
+
         ageclasses = await RaceclassesAdapter().get_ageclasses(token, eventid)
 
         return await aiohttp_jinja2.render_template_async(
             "raceclasses.html",
             self.request,
             {
-                "lopsinfo": "Klasser",
+                "action": action,
                 "ageclasses": ageclasses,
-                "edit_mode": edit_mode,
                 "event": event,
                 "eventid": eventid,
                 "informasjon": informasjon,
+                "lopsinfo": "Klasser",
+                "klasse": klasse,
                 "username": username,
             },
         )
@@ -67,6 +72,7 @@ class Raceclasses(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
+        token = str(session["token"])
 
         informasjon = ""
         try:
@@ -75,16 +81,52 @@ class Raceclasses(web.View):
             eventid = str(form["eventid"])
 
             # Update
-            if "update" in form.keys():
-                result = "todo"
+            if "update_one" in form.keys():
+                eventid = str(form["eventid"])
+                request_body = {
+                    "age_class": str(form["age_class"]),
+                    "distance": str(form["distance"]),
+                    "event_id": eventid,
+                    "order": str(form["order"]),
+                    "race_class": str(form["race_class"]),
+                    "contestants": str(form["contestants"]),
+                }
+
+                result = await RaceclassesAdapter().update_ageclass(
+                    token, eventid, request_body
+                )
                 informasjon = f"Informasjon er oppdatert - {result}"
+            elif "update_order" in form.keys():
+                for input in form.keys():
+                    if input.startswith("id_"):
+                        id = str(form[input])
+                        age_class = await RaceclassesAdapter().get_ageclass(token, id)
+                        age_class["race_class"] = str(form[f"race_{id}"])
+                        age_class["order"] = str(form[f"order_{id}"])
+                        result = await RaceclassesAdapter().update_ageclass(
+                            token, id, age_class
+                        )
+                        logging.info(f"Age_class: {age_class} - update result {result}")
+                informasjon = "Klasser er oppdatert."
             # Create classes from list of contestants
-            elif "create" in form.keys():
-                # TODO: extract info
-                result = "todo"
-                informasjon = f"Informasjon er oppdatert - {result}"
-            elif "participants" in form.keys():
-                informasjon = "TODO: Antall deltakere pr. klasse er oppdatert"
+            elif "generate_ageclasses" in form.keys():
+                informasjon = await RaceclassesAdapter().generate_ageclasses(
+                    token, eventid
+                )
+            elif "refresh_contestants" in form.keys():
+                informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
+            # delete
+            elif "delete_one" in form.keys():
+                result = await RaceclassesAdapter().delete_ageclass(
+                    token, eventid, str(form["id"])
+                )
+                informasjon = f"Klasse er slettet - {result}"
+            # delete_all
+            elif "delete_all" in form.keys():
+                result = await RaceclassesAdapter().delete_all_ageclasses(
+                    token, eventid
+                )
+                informasjon = f"Klasser er slettet - {result}"
 
         except Exception as e:
             logging.error(f"Error: {e}")

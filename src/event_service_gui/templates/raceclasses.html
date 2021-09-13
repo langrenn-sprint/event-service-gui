@@ -3,8 +3,9 @@
   <div class="w3-quart"></div>
   <div class="w3-half">
 {% endblock %}
-
-{% block titleheader %}{{ lopsinfo }}{% endblock %}
+{% block titleheader %}
+  {{ lopsinfo }}
+{% endblock %}
 {% block refresh %}{% endblock %}
 {% block titlemain %}{{ lopsinfo }}{% endblock %}
 {% block menuitems %}
@@ -21,55 +22,160 @@
     <a href=/schedules?eventid={{ eventid }} class=dropbtn>Kjøreplan</a>
   </li>
 {% endblock %}
+
 {% block content %}
   <div id=spacer></div>
-  {% if edit_mode %}
-    <div align=right>
+  {% if  action == "edit_mode" %}
       <table>
-         <tr><td align=right>
-          <form action=/raceclasses method=post>
-            <input type="hidden" name="eventid" value="{{ eventid }}">
-            <input type="submit" name=participants value="  Refresh deltakerantall  ">
-          </form>
-        </td><td align=right>
-          <form action=/raceclasses method=post>
+        <tr id=headerblue align=right>
+          <td>
+            <form action=/raceclasses method=post>
               <input type="hidden" name="eventid" value="{{ eventid }}">
-              <input type="submit" name=update value="  Oppdater  ">
-        </td></tr>
+              <input type="submit" name="refresh_contestants" value="  Refresh deltakerantall  ">
+            </form>
+          </td>
+          <td>
+            <form action=/raceclasses method=get>
+              <input type="hidden" name="eventid" value="{{ eventid }}">
+              <input type="hidden" name=action value="update_order">
+              <input type="submit" name="generate_ageclasses" value="  Rediger startrekkefølge  ">
+            </form>
+          </td>
+          <td>
+            <form action=/raceclasses method=post>
+              <input type="hidden" name="eventid" value="{{ eventid }}">
+              <input type="submit" name="generate_ageclasses" value="  Generer årsklasser  ">
+            </form>
+          </td>
+          <td>
+            <form action=/raceclasses method=post>
+              <input type="hidden" name="eventid" value="{{ eventid }}">
+              <input type="submit" name="delete_all" value="  Slett alle årsklasser  ">
+            </form>
+          </td>
       </table>
-    </div>
     <div id=spacer></div>
       <table>
          <tr id=headerblue>
           <td>Årsklasse</td>
           <td>Løype</td>
-          <td>Klasse</td>
+          <td>Løpsklasse</td>
           <td>Startrekkefølge</td>
+          <td>Deltakere</td>
           <td></td>
-          <td>Antall påmeldte</td>
+          <td></td>
         </tr>
         {% for klasse in ageclasses %}
-            <input type="hidden" name="ageclass_{{ klasse.raceclass }}" value="{{ klasse.raceclass }}">
             <tr>
-              <td>{{ klasse.name }}</td>
-              <td><input type=text name="distance_{{ klasse.distance }}" value="{{ klasse.distance }}"></td>
-              <td><input type=text name="raceclass_{{ klasse.raceclass }}" value="{{ klasse.raceclass }}"></td>
-              <td><input type=text name="order_{{ klasse.raceclass }}" value="{{ klasse.order }}"></td>
-              <td><input type=hidden name="id_{{ klasse.raceclass }}" value="{{ klasse.id }}"></td>
-              <td>{{ klasse.participants }}</td>
+              <td>{{ klasse.age_class }}</td>
+              <td>{{ klasse.distance }}</td>
+              <td>{{ klasse.race_class }}</td>
+              <td>{{ klasse.order }}</td>
+              <td>{{ klasse.contestants }}</td>
+              <td>
+                <form action=/raceclasses method=get>
+                  <input type="submit" name=update_one value="  Rediger  ">
+                  <input type="hidden" name=action value="update_one">
+                  <input type="hidden" name="id" value="{{ klasse.id }}">
+                  <input type="hidden" name="eventid" value="{{ eventid }}">
+                </form>
+              </td>
+              <td>
+                <form action=/raceclasses method=post>
+                  <input type="submit" name=delete_one value="  Slett  ">
+                  <input type="hidden" name="id" value="{{ klasse.id }}">
+                  <input type="hidden" name="eventid" value="{{ eventid }}">
+                </form>
+              </td>
             </tr>
         {% endfor %}
       </table>
-      <div id=spacer></div>
-      <div align=right>
-        <input type="submit" name=update value="  Oppdater  ">
-      </div>
-    </form>
+      {% elif  action == "update_order" %}
+        <div id=spacer></div>
+        <form action=/raceclasses method=post>
+          <div align=right>
+            <input type="submit" name=update_order value="  Oppdater  ">
+          </div>
+          <table>
+             <tr id=headerblue>
+              <td>Årsklasse</td>
+              <td>Løype</td>
+              <td>Løpsklasse</td>
+              <td>Startrekkefølge</td>
+              <td>Deltakere</td>
+            </tr>
+            {% for klasse in ageclasses %}
+                <tr>
+                  <td>{{ klasse.age_class }}</td>
+                  <td>{{ klasse.distance }}</td>
+                  <td><input type=text name="race_{{ klasse.id }}" value="{{ klasse.race_class }}"></td>
+                  <td>
+                    <input type=text name="order_{{ klasse.id }}" value="{{ klasse.order }}">
+                    <input type="hidden" name="id_{{ klasse.id }}" value="{{ klasse.id }}">
+                  </td>
+                  <td>{{ klasse.contestants }}</td>
+                </tr>
+            {% endfor %}
+          </table>
+          <div id=spacer></div>
+          <div align=right>
+            <input type="submit" name=update_order value="  Oppdater  ">
+            <input type="hidden" name="eventid" value="{{ eventid }}">
+          </div>
+        </form>
+      {% elif action == "update_one" %}
+        <div id=spacer></div>
+        <form action=/raceclasses method=post>
+          <table cellpadding=4>
+            <tr id=spacer></tr>
+            <tr>
+              <td colspan=3 id=headerblue>
+                <b>Oppdater klasse</b>
+              </td>
+            </tr>
+            <tr>
+              <td width=150>Klasse</td>
+              <td><input type=text name="age_class" value="{{ klasse.age_class }}"></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Distanse</td>
+              <td><input type=text name="distance" value="{{ klasse.distance }}"></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Startrekkefølge</td>
+              <td><input type=text name="order" value="{{ klasse.order }}"></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Løpsklasse</td>
+              <td><input type=text name="race_class" value="{{ klasse.race_class }}"></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Deltakere</td>
+              <td><input type=text name="contestants" value="{{ klasse.contestants }}"></td>
+              <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                  <input type="hidden" name="eventid" value="{{ eventid }}">
+                  <input type="hidden" name="id" value="{{ klasse.id }}">
+                  <input type="submit" name=update_one value="  Oppdater  ">
+                </td>
+                <td></td>
+            </tr>
+            <tr id=spacer></tr>
+          </table>
+        </form>
   {% else %}
     <div align=right>
             <form action=/raceclasses method=get>
               <input type="hidden" name="eventid" value="{{ eventid }}">
-              <input type="submit" name=edit_mode value="  Rediger  ">
+              <input type="hidden" name=action value="edit_mode">
+              <input type="submit" value="  Rediger  ">
             </form>
     </div>
     <div id=spacer></div>
@@ -83,11 +189,11 @@
       </tr>
       {% for klasse in ageclasses %}
           <tr>
-            <td>{{ klasse.name }}</td>
+            <td>{{ klasse.age_class }}</td>
             <td>{{ klasse.distance }}</td>
-            <td>{{ klasse.raceclass }}</td>
+            <td>{{ klasse.race_class }}</td>
             <td>{{ klasse.order }}</td>
-            <td>{{ klasse.participants }}</td>
+            <td>{{ klasse.contestants }}</td>
           </tr>
       {% endfor %}
     </table>

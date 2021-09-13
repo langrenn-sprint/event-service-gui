@@ -20,9 +20,10 @@ class Contestants(web.View):
         try:
             eventid = self.request.rel_url.query["eventid"]
         except Exception:
-            return web.HTTPSeeOther(location="/")
+            eventid = ""
         if eventid == "":
-            return web.HTTPSeeOther(location="/")
+            informasjon = "Ingen event valgt."
+            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
         # check login
         username = ""
