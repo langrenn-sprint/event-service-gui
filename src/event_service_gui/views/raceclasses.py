@@ -120,7 +120,7 @@ class Raceclasses(web.View):
                 res = await RaceclassesAdapter().delete_ageclass(
                     token, eventid, str(form["id"])
                 )
-                informasjon = f"Klasse er slettet - {result}"
+                informasjon = f"Klasse er slettet - {res}"
             # delete_all
             elif "delete_all" in form.keys():
                 res = await RaceclassesAdapter().delete_all_ageclasses(token, eventid)
