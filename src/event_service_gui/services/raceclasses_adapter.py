@@ -8,10 +8,6 @@ from aiohttp import hdrs
 from aiohttp import web
 from multidict import MultiDict
 
-from event_service_gui.services import (
-    ContestantsAdapter,
-)
-
 EVENT_SERVICE_HOST = os.getenv("EVENT_SERVICE_HOST", "localhost")
 EVENT_SERVICE_PORT = os.getenv("EVENT_SERVICE_PORT", "8082")
 EVENT_SERVICE_URL = f"http://{EVENT_SERVICE_HOST}:{EVENT_SERVICE_PORT}"
