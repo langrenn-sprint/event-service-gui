@@ -10,16 +10,16 @@
 {% block titlemain %}{{ lopsinfo }}{% endblock %}
 {% block menuitems %}
   <li id=topborder>
-    <a href=/events?eventid={{ eventid }} class=dropbtn>Info</a>
+    <a href=/events?event_id={{ event_id }} class=dropbtn>Info</a>
   </li>
   <li id=topborder class=active>
-    <a href=/contestants?eventid={{ eventid }} class=dropbtn>Deltakere</a>
+    <a href=/contestants?event_id={{ event_id }} class=dropbtn>Deltakere</a>
   </li>
   <li id=topborder>
-    <a href=/raceclasses?eventid={{ eventid }} class=dropbtn>Klasser</a>
+    <a href=/raceclasses?event_id={{ event_id }} class=dropbtn>Klasser</a>
   </li>
   <li id=topborder>
-    <a href=/schedules?eventid={{ eventid }} class=dropbtn>Kjøreplan</a>
+    <a href=/schedules?event_id={{ event_id }} class=dropbtn>Kjøreplan</a>
   </li>
 {% endblock %}
 
@@ -38,7 +38,7 @@
             <input type="file" name="file" onchange="savefile(this)">
           </td>
           <td>
-            <input type="hidden" name=eventid value="{{ eventid }}">
+            <input type="hidden" name=event_id value="{{ event_id }}">
             <input type="submit" name=create value="  Last opp  ">
           </td>
         </tr>
@@ -64,21 +64,21 @@
           <tr id=headerblue align=right>
             <td>
               <form action=/contestants method=get>
-                <input type="hidden" name=eventid value="{{ eventid }}">
+                <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="new_from_file">
                 <input type="submit" name=new_from_file value="  Last inn deltakere fra fil ">
               </form>
             </td>
             <td>
               <form action=/contestants method=get>
-                <input type="hidden" name=eventid value="{{ eventid }}">
+                <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="new_manual">
                 <input type="submit" name=new_manual value="  Legg til deltaker mauelt ">
               </form>
             </td>
             <td>
               <form action=/contestants method=post>
-                <input type="hidden" name="eventid" value="{{ eventid }}">
+                <input type="hidden" name="event_id" value="{{ event_id }}">
                 <input type="submit" name=delete_all value="  Slett alle deltakere  ">
               </form>
             </td>
@@ -105,7 +105,7 @@
               <td>{{ contestant.club }}</td>
               <td>{{ contestant.birth_date }}</td>
               <td>{{ contestant.gender }}</td>
-              <td>{{ contestant.age_class }}</td>
+              <td>{{ contestant.ageclass }}</td>
               <td>{{ contestant.team }}</td>
               <td>{{ contestant.region }}</td>
               <td>{{ contestant.minidrett_id }}</td>
@@ -114,14 +114,14 @@
                   <input type="submit" name=update_one value="  Rediger  ">
                   <input type="hidden" name=action value="update_one">
                   <input type="hidden" name="id" value="{{ contestant.id }}">
-                  <input type="hidden" name="eventid" value="{{ eventid }}">
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
                 </form>
               </td>
               <td>
                 <form action=/contestants method=post>
                   <input type="submit" name=delete_one value="  Slett  ">
                   <input type="hidden" name="id" value="{{ contestant.id }}">
-                  <input type="hidden" name="eventid" value="{{ eventid }}">
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
                 </form>
               </td>
             </tr>
@@ -159,7 +159,7 @@
             </tr>
             <tr>
               <td>Aldersklasse</td>
-              <td><input type=text name="age_class" value=""></td>
+              <td><input type=text name="ageclass" value=""></td>
               <td></td>
             </tr>
             <tr>
@@ -195,7 +195,7 @@
             <tr>
                 <td></td>
                 <td>
-                  <input type="hidden" name="eventid" value="{{ eventid }}">
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
                   <input type="submit" name=create_one value="  Opprett  ">
                 </td>
                 <td></td>
@@ -235,7 +235,7 @@
               </tr>
               <tr>
                 <td>Aldersklasse</td>
-                <td><input type=text name="age_class" value="{{ contestant.age_class }}"></td>
+                <td><input type=text name="ageclass" value="{{ contestant.ageclass }}"></td>
                 <td></td>
               </tr>
               <tr>
@@ -271,7 +271,7 @@
               <tr>
                   <td></td>
                   <td>
-                    <input type="hidden" name="eventid" value="{{ eventid }}">
+                    <input type="hidden" name="event_id" value="{{ event_id }}">
                     <input type="hidden" name="id" value="{{ contestant.id }}">
                     <input type="submit" name=update_one value="  Oppdater  ">
                   </td>
@@ -287,7 +287,7 @@
           <tr id=headerblue>
             <td align=right>
               <form action=/contestants method=get>
-                <input type="hidden" name="eventid" value="{{ eventid }}">
+                <input type="hidden" name="event_id" value="{{ event_id }}">
                 <input type="hidden" name=action value="edit_mode">
                 <input type="submit" name=edit_mode value="  Rediger  ">
               </form>
@@ -314,7 +314,7 @@
               <td>{{ contestant.club }}</td>
               <td>{{ contestant.birth_date }}</td>
               <td>{{ contestant.gender }}</td>
-              <td>{{ contestant.age_class }}</td>
+              <td>{{ contestant.ageclass }}</td>
               <td>{{ contestant.team }}</td>
               <td>{{ contestant.region }}</td>
               <td>{{ contestant.minidrett_id }}</td>

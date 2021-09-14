@@ -39,7 +39,7 @@ class Main(web.View):
             {
                 "lopsinfo": "Startside",
                 "event": event,
-                "eventid": "",
+                "event_id": "",
                 "events": events,
                 "informasjon": informasjon,
                 "username": username,

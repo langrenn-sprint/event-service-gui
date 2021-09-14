@@ -26,12 +26,12 @@
             <a href=javascript:void(0) class=dropbtn>...</a>
             <div class=dropdown-content>
               <a href="/">Hovedside</a>
-              {% if eventid != "" %}
+              {% if event_id != "" %}
                 <a>{{ event.name }}</a>
-                <a href="/events?eventid={{ eventid }}">&nbsp;&nbsp;&nbsp;Info</a>
-                <a href="/contestants?eventid={{ eventid }}">&nbsp;&nbsp;&nbsp;Deltakere</a>
-                <a href="/raceclasses?eventid={{ eventid }}">&nbsp;&nbsp;&nbsp;Løpsklasser</a>
-                <a href="/schedules?eventid={{ eventid }}">&nbsp;&nbsp;&nbsp;Kjøreplan</a>
+                <a href="/events?event_id={{ event_id }}">&nbsp;&nbsp;&nbsp;Info</a>
+                <a href="/contestants?event_id={{ event_id }}">&nbsp;&nbsp;&nbsp;Deltakere</a>
+                <a href="/raceclasses?event_id={{ event_id }}">&nbsp;&nbsp;&nbsp;Løpsklasser</a>
+                <a href="/schedules?event_id={{ event_id }}">&nbsp;&nbsp;&nbsp;Kjøreplan</a>
               {% endif %}
             </div>
           </li>

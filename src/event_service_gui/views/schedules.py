@@ -17,22 +17,22 @@ class Schedules(web.View):
         """Get route function that return the index page."""
         informasjon = ""
         try:
-            eventid = self.request.rel_url.query["eventid"]
+            event_id = self.request.rel_url.query["event_id"]
         except Exception:
-            eventid = ""
+            event_id = ""
 
         # check login
         username = ""
         session = await get_session(self.request)
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
-            return web.HTTPSeeOther(location=f"/login?event={eventid}")
+            return web.HTTPSeeOther(location=f"/login?event={event_id}")
         username = str(session["username"])
         token = str(session["token"])
 
         # TODO - get list of schedules
         schedules = await SchedulesAdapter().get_all_schedules()
-        event = await EventsAdapter().get_event(token, eventid)
+        event = await EventsAdapter().get_event(token, event_id)
         logging.debug(f"Schedules: {schedules}")
         return await aiohttp_jinja2.render_template_async(
             "schedules.html",
@@ -41,7 +41,7 @@ class Schedules(web.View):
                 "lopsinfo": "Kjøreplan",
                 "schedules": schedules,
                 "event": event,
-                "eventid": eventid,
+                "event_id": event_id,
                 "informasjon": informasjon,
                 "username": username,
             },

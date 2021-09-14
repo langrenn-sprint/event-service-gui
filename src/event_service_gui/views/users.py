@@ -48,7 +48,7 @@ class Users(web.View):
             {
                 "lopsinfo": "Brukere",
                 "event": event,
-                "eventid": "",
+                "event_id": "",
                 "informasjon": informasjon,
                 "username": username,
                 "users": users,

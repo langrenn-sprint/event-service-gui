@@ -9,16 +9,16 @@
 {% block titlemain %}{{ lopsinfo }}{% endblock %}
 {% block menuitems %}
   <li id=topborder class=active>
-    <a href=/events?eventid={{ eventid }} class=dropbtn>Info</a>
+    <a href=/events?event_id={{ event_id }} class=dropbtn>Info</a>
   </li>
   <li id=topborder>
-    <a href=/contestants?eventid={{ eventid }} class=dropbtn>Deltakere</a>
+    <a href=/contestants?event_id={{ event_id }} class=dropbtn>Deltakere</a>
   </li>
   <li id=topborder>
-    <a href=/raceclasses?eventid={{ eventid }} class=dropbtn>Klasser</a>
+    <a href=/raceclasses?event_id={{ event_id }} class=dropbtn>Klasser</a>
   </li>
   <li id=topborder>
-    <a href=/schedules?eventid={{ eventid }} class=dropbtn>Kjøreplan</a>
+    <a href=/schedules?event_id={{ event_id }} class=dropbtn>Kjøreplan</a>
   </li>
 {% endblock %}
 {% block content %}
@@ -102,13 +102,13 @@
   {% else %}
     <div align=right>
             <form action=/events method=post>
-              <input type="hidden" name="eventid" value="{{ event.id }}">
+              <input type="hidden" name="event_id" value="{{ event.id }}">
               <input type="submit" name=delete value="  Slett  ">
             </form>
     </div>
     <div id=spacer></div>
     <form action=/events method=post>
-      <input type="hidden" name="eventid" value="{{ event.id }}">
+      <input type="hidden" name="event_id" value="{{ event.id }}">
       <table cellpadding=4>
         <tr>
           <td colspan=2 id=headerblue>

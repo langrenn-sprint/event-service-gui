@@ -13,16 +13,16 @@
 {% endblock %}
 {% block menuitems %}
   <li id=topborder>
-    <a href=/events?eventid={{ eventid }} class=dropbtn>Info</a>
+    <a href=/events?event_id={{ event_id }} class=dropbtn>Info</a>
   </li>
   <li id=topborder>
-    <a href=/contestants?eventid={{ eventid }} class=dropbtn>Deltakere</a>
+    <a href=/contestants?event_id={{ event_id }} class=dropbtn>Deltakere</a>
   </li>
   <li id=topborder>
-    <a href=/raceclasses?eventid={{ eventid }} class=dropbtn>Klasser</a>
+    <a href=/raceclasses?event_id={{ event_id }} class=dropbtn>Klasser</a>
   </li>
   <li id=topborder class=active>
-    <a href=/schedules?eventid={{ eventid }} class=dropbtn>Kjøreplan</a>
+    <a href=/schedules?event_id={{ event_id }} class=dropbtn>Kjøreplan</a>
   </li>
 {% endblock %}
 {% block content %}

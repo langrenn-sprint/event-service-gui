@@ -15,9 +15,9 @@ class Events(web.View):
     async def get(self) -> web.Response:
         """Get route function that return the events page."""
         try:
-            eventid = self.request.rel_url.query["eventid"]
+            event_id = self.request.rel_url.query["event_id"]
         except Exception:
-            eventid = ""
+            event_id = ""
         try:
             informasjon = self.request.rel_url.query["informasjon"]
         except Exception:
@@ -35,14 +35,14 @@ class Events(web.View):
         session = await get_session(self.request)
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
-            return web.HTTPSeeOther(location=f"/login?event={eventid}")
+            return web.HTTPSeeOther(location=f"/login?event={event_id}")
         username = str(session["username"])
         token = str(session["token"])
 
         event = {"name": "Nytt arrangement", "organiser": "Ikke valgt"}
-        if (not create_new) and (eventid != ""):
-            logging.debug(f"get_event {eventid}")
-            event = await EventsAdapter().get_event(token, eventid)
+        if (not create_new) and (event_id != ""):
+            logging.debug(f"get_event {event_id}")
+            event = await EventsAdapter().get_event(token, event_id)
 
         return await aiohttp_jinja2.render_template_async(
             "events.html",
@@ -51,7 +51,7 @@ class Events(web.View):
                 "create_new": create_new,
                 "lopsinfo": "Arrangement",
                 "event": event,
-                "eventid": eventid,
+                "event_id": event_id,
                 "informasjon": informasjon,
                 "username": username,
             },
@@ -67,7 +67,7 @@ class Events(web.View):
         token = str(session["token"])
 
         informasjon = ""
-        eventid = ""
+        event_id = ""
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
@@ -81,8 +81,8 @@ class Events(web.View):
                     "webpage": form["webpage"],
                     "information": form["information"],
                 }
-                eventid = await EventsAdapter().create_event(token, request_body)
-                informasjon = f"Opprettet nytt arrangement,  eventid {eventid}"
+                event_id = await EventsAdapter().create_event(token, request_body)
+                informasjon = f"Opprettet nytt arrangement,  event_id {event_id}"
             elif "create_file" in form.keys():
                 # create event based upon data in xml file
                 file = form["file"]
@@ -91,11 +91,11 @@ class Events(web.View):
                 content = text_file.read()
                 logging.debug(f"Content {content}")
                 # event_info = get_event_info_from_xml(content)
-                # eventid = await EventsAdapter().create_event(token, event_info)
+                # event_id = await EventsAdapter().create_event(token, event_info)
                 informasjon = "Opprettet nytt arrangement"
 
                 # add Ageclasses
-                # ageclasses = get_ageclasses_from_xml(eventid, content)
+                # ageclasses = get_ageclasses_from_xml(event_id, content)
                 # for ageclass in ageclasses:
                 #    id = await RaceclassesAdapter().create_ageclass(token, ageclass)
                 #    logging.info(f"Created ageclass with id: {id}")
@@ -109,16 +109,16 @@ class Events(web.View):
                     "webpage": form["webpage"],
                     "information": form["information"],
                 }
-                eventid = str(form["eventid"])
-                res = await EventsAdapter().update_event(token, eventid, request_body)
+                event_id = str(form["event_id"])
+                res = await EventsAdapter().update_event(token, event_id, request_body)
                 if res == 204:
                     informasjon = "Arrangementinformasjon er oppdatert."
                 else:
                     logging.error(f"Error update event: {res}")
                     informasjon = f"En feil oppstod {res}."
             elif "delete" in form.keys():
-                eventid = str(form["eventid"])
-                res = await EventsAdapter().delete_event(token, eventid)
+                event_id = str(form["event_id"])
+                res = await EventsAdapter().delete_event(token, event_id)
                 if res == 204:
                     informasjon = "Arrangement er slettet."
                     return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
@@ -130,5 +130,5 @@ class Events(web.View):
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
-            location=f"/events?eventid={eventid}&informasjon={informasjon}"
+            location=f"/events?event_id={event_id}&informasjon={informasjon}"
         )

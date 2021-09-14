@@ -20,9 +20,9 @@ class Login(web.View):
         except Exception:
             informasjon = ""
         try:
-            eventid = self.request.rel_url.query["eventid"]
+            event_id = self.request.rel_url.query["event_id"]
         except Exception:
-            eventid = ""
+            event_id = ""
 
         try:
             create_new = False
@@ -45,7 +45,7 @@ class Login(web.View):
             {
                 "lopsinfo": "Login",
                 "event": event,
-                "eventid": eventid,
+                "event_id": event_id,
                 "informasjon": informasjon,
                 "username": username,
                 "create_new": create_new,
@@ -61,10 +61,10 @@ class Login(web.View):
         try:
             form = await self.request.post()
             try:
-                eventid = self.request.rel_url.query["eventid"]
-                logging.debug(f"Event: {eventid}")
+                event_id = self.request.rel_url.query["event_id"]
+                logging.debug(f"Event: {event_id}")
             except Exception:
-                eventid = ""
+                event_id = ""
 
             # Create new event
             if "create" in form.keys():
@@ -104,13 +104,13 @@ class Login(web.View):
                 {
                     "lopsinfo": "Login resultat",
                     "event": event,
-                    "eventid": eventid,
+                    "event_id": event_id,
                     "informasjon": informasjon,
                 },
             )
-        elif eventid != "":
+        elif event_id != "":
             return web.HTTPSeeOther(
-                location=f"/events?event={eventid}&informasjon={informasjon}"
+                location=f"/events?event={event_id}&informasjon={informasjon}"
             )
         else:
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

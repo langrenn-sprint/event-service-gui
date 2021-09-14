@@ -18,10 +18,10 @@ class Contestants(web.View):
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
         try:
-            eventid = self.request.rel_url.query["eventid"]
+            event_id = self.request.rel_url.query["event_id"]
         except Exception:
-            eventid = ""
-        if eventid == "":
+            event_id = ""
+        if event_id == "":
             informasjon = "Ingen event valgt."
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
@@ -30,7 +30,7 @@ class Contestants(web.View):
         session = await get_session(self.request)
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
-            return web.HTTPSeeOther(location=f"/login?eventid={eventid}")
+            return web.HTTPSeeOther(location=f"/login?event_id={event_id}")
         username = str(session["username"])
         token = str(session["token"])
 
@@ -45,16 +45,16 @@ class Contestants(web.View):
             if action == "update_one":
                 id = self.request.rel_url.query["id"]
                 contestant = await ContestantsAdapter().get_contestant(
-                    token, eventid, id
+                    token, event_id, id
                 )
 
         except Exception:
             action = ""
         logging.debug(f"Action: {action}")
 
-        event = await EventsAdapter().get_event(token, eventid)
+        event = await EventsAdapter().get_event(token, event_id)
 
-        contestants = await ContestantsAdapter().get_all_contestants(token, eventid)
+        contestants = await ContestantsAdapter().get_all_contestants(token, event_id)
         logging.debug(f"Contestants: {contestants}")
         return await aiohttp_jinja2.render_template_async(
             "contestants.html",
@@ -64,7 +64,7 @@ class Contestants(web.View):
                 "contestants": contestants,
                 "contestant": contestant,
                 "event": event,
-                "eventid": eventid,
+                "event_id": event_id,
                 "informasjon": informasjon,
                 "lopsinfo": "Deltakere",
                 "username": username,
@@ -84,7 +84,7 @@ class Contestants(web.View):
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
-            eventid = str(form["eventid"])
+            event_id = str(form["event_id"])
 
             # Create new deltakere
             if "create" in form.keys():
@@ -96,11 +96,11 @@ class Contestants(web.View):
                 if file.content_type == "text/xml":
                     content = text_file.read()
                     logging.debug(f"Content {content}")
-                    # contestants = get_all_contestant_info_from_xml(content, eventid)
+                    # contestants = get_all_contestant_info_from_xml(content, event_id)
                     # loop all contestants in entry class
                 elif file.content_type == "text/csv":
                     resp = await ContestantsAdapter().create_contestants(
-                        token, eventid, text_file
+                        token, event_id, text_file
                     )
                     logging.debug(f"Created contestants: {resp}")
                     informasjon = f"Opprettet deltakere: {resp}"
@@ -113,10 +113,10 @@ class Contestants(web.View):
                     "last_name": str(form["last_name"]),
                     "birth_date": str(form["birth_date"]),
                     "gender": str(form["gender"]),
-                    "age_class": str(form["age_class"]),
+                    "ageclass": str(form["ageclass"]),
                     "region": str(form["region"]),
                     "club": str(form["club"]),
-                    "event_id": eventid,
+                    "event_id": event_id,
                     "email": str(form["email"]),
                     "team": str(form["team"]),
                     "minidrett_id": str(form["minidrett_id"]),
@@ -124,25 +124,25 @@ class Contestants(web.View):
                 }
                 if "create_one" in form.keys():
                     id = await ContestantsAdapter().create_contestant(
-                        token, eventid, request_body
+                        token, event_id, request_body
                     )
                     informasjon = f"Deltaker er opprettet - {id}"
                 else:
                     request_body["id"] = str(form["id"])
                     result = await ContestantsAdapter().update_contestant(
-                        token, eventid, request_body
+                        token, event_id, request_body
                     )
                     informasjon = f"Informasjon er oppdatert - {result}"
             # delete
             elif "delete_one" in form.keys():
                 result = await ContestantsAdapter().delete_contestant(
-                    token, eventid, str(form["id"])
+                    token, event_id, str(form["id"])
                 )
                 informasjon = f"Deltaker er slettet - {result}"
             # delete_all
             elif "delete_all" in form.keys():
                 result = await ContestantsAdapter().delete_all_contestants(
-                    token, eventid
+                    token, event_id
                 )
                 informasjon = f"Deltakerne er slettet - {result}"
         except Exception as e:
@@ -150,5 +150,5 @@ class Contestants(web.View):
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
-            location=f"/contestants?eventid={eventid}&informasjon={informasjon}"
+            location=f"/contestants?event_id={event_id}&informasjon={informasjon}"
         )
