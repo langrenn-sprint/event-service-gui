@@ -66,14 +66,20 @@
               <form action=/contestants method=get>
                 <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="new_from_file">
-                <input type="submit" name=new_from_file value="  Last inn deltakere fra fil ">
+                <input type="submit" name=new_from_file value="  Last inn deltakere fra fil  ">
               </form>
             </td>
             <td>
               <form action=/contestants method=get>
                 <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="new_manual">
-                <input type="submit" name=new_manual value="  Legg til deltaker mauelt ">
+                <input type="submit" name=new_manual value="  Legg til deltaker mauelt  ">
+              </form>
+            </td>
+            <td>
+              <form action=/contestants method=post>
+                <input type="hidden" name=event_id value="{{ event_id }}">
+                <input type="submit" name=assign_bibs value="  Tildel startnummer  ">
               </form>
             </td>
             <td>

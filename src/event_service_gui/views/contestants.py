@@ -87,7 +87,9 @@ class Contestants(web.View):
             event_id = str(form["event_id"])
 
             # Create new deltakere
-            if "create" in form.keys():
+            if "assign_bibs" in form.keys():
+                informasjon = await ContestantsAdapter().assign_bibs(token, event_id)
+            elif "create" in form.keys():
                 file = form["file"]
                 text_file = file.file
                 logging.info(f"File type: {file.content_type}")

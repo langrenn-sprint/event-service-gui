@@ -16,6 +16,25 @@ EVENT_SERVICE_URL = f"http://{EVENT_SERVICE_HOST}:{EVENT_SERVICE_PORT}"
 class ContestantsAdapter:
     """Class representing contestants."""
 
+    async def assign_bibs(self, token: str, event_id: str) -> str:
+        """Generate ageclasses based upon registrations."""
+        headers = MultiDict(
+            {
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/assign-bibs"
+        async with ClientSession() as session:
+            async with session.post(url, headers=headers) as resp:
+                res = resp.status
+                logging.debug(f"assign_bibs result - got response {resp}")
+                if res == 201:
+                    pass
+                else:
+                    raise Exception(f"assign_bibs failed: {resp}")
+            information = "Startnummer tildelt."
+        return information
+
     async def create_contestant(
         self, token: str, event_id: str, request_body: dict
     ) -> str:
