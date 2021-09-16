@@ -34,3 +34,10 @@ li:hover, .dropdown:hover, .dropbtn:hover {
     color: black;
     background-color: #1f3d8e;
 }
+
+#adminpagetitle {
+  text-align: center;
+  color: white;
+  font-size: 2.0em;
+	background-color: #A30013;
+}

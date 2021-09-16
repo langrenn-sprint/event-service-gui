@@ -1,0 +1,23 @@
+{% extends "adm_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-quart"></div>
+  <div class="w3-half">
+{% endblock %}
+
+{% block titleheader %}{{ lopsinfo }}{% endblock %}
+{% block refresh %}{% endblock %}
+{% block titlemain %}{{ lopsinfo }}{% endblock %}
+{% block menuitems %}
+  <li id=topborder class=active>
+    <a href=/events?event_id={{ event_id }} class=dropbtn>Info</a>
+  </li>
+{% endblock %}
+{% block content %}
+  <div id=spacer></div>
+  <table>
+    <tr>
+      <td>Hello</td>
+      <td>Hello 2</td>
+    </tr>
+  </table>
+{% endblock %}

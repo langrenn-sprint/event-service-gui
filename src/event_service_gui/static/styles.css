@@ -81,12 +81,6 @@ table {
 
 tr:nth-child(even){background-color: #f2f2f2;}
 
-#adminpagetitle {
-  text-align: center;
-  color: grey;
-  font-size: 2.0em;
-}
-
 #footeradmin {
     color: grey;
     text-align: right;
@@ -100,6 +94,10 @@ tr:nth-child(even){background-color: #f2f2f2;}
 
 #spacer {
   height: 4px;
+}
+
+#minispacer {
+  height: 1px;
 }
 
 #bredde {

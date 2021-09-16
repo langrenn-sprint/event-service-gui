@@ -1,5 +1,6 @@
 """Package for all views."""
 from .contestants import Contestants
+from .dashboard import Dashboard
 from .events import Events
 from .liveness import Ping, Ready
 from .login import Login
