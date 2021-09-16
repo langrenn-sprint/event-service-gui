@@ -5,7 +5,7 @@ from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
-from event_service_gui.services import DashboardAdapter
+# from event_service_gui.services import DashboardAdapter
 from event_service_gui.services import EventsAdapter
 from event_service_gui.services import UserAdapter
 
@@ -65,7 +65,7 @@ class Dashboard(web.View):
         loggedin = UserAdapter().isloggedin(session)
         if not loggedin:
             return web.HTTPSeeOther(location="/login")
-        token = str(session["token"])
+        # token = str(session["token"])
 
         informasjon = ""
         event_id = ""
