@@ -76,7 +76,8 @@ class Events(web.View):
             if "create_manual" in form.keys():
                 request_body = {
                     "name": form["name"],
-                    "date": form["date"],
+                    "date_of_event": form["date_of_event"],
+                    "competition_format": form["competition_format"],
                     "organiser": form["organiser"],
                     "webpage": form["webpage"],
                     "information": form["information"],
@@ -102,29 +103,23 @@ class Events(web.View):
 
             elif "update" in form.keys():
                 # Update event
+                event_id = str(form["event_id"])
                 request_body = {
                     "name": form["name"],
-                    "date": form["date"],
+                    "date_of_event": form["date_of_event"],
+                    "competition_format": form["competition_format"],
                     "organiser": form["organiser"],
                     "webpage": form["webpage"],
                     "information": form["information"],
+                    "id": event_id,
                 }
-                event_id = str(form["event_id"])
                 res = await EventsAdapter().update_event(token, event_id, request_body)
-                if res == 204:
-                    informasjon = "Arrangementinformasjon er oppdatert."
-                else:
-                    logging.error(f"Error update event: {res}")
-                    informasjon = f"En feil oppstod {res}."
+                informasjon = f"Arrangementinformasjon er oppdatert {res}."
             elif "delete" in form.keys():
                 event_id = str(form["event_id"])
                 res = await EventsAdapter().delete_event(token, event_id)
-                if res == 204:
-                    informasjon = "Arrangement er slettet."
-                    return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
-                else:
-                    logging.error(f"Error delete event: {res}")
-                    informasjon = f"Det har oppstått en feil - {res}."
+                informasjon = f"Arrangement er slettet {res}."
+                return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."

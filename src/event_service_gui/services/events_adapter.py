@@ -106,7 +106,9 @@ class EventsAdapter:
                 logging.debug(f"result - got response {response}")
             else:
                 logging.error(f"delete_event failed - {response.status}, {response}")
-                raise web.HTTPBadRequest(reason="Delete event failed.")
+                raise web.HTTPBadRequest(
+                    reason=f"Delete event failed {response.status}."
+                )
         return str(response.status)
 
     async def update_event(self, token: str, id: str, request_body: dict) -> str:
@@ -126,6 +128,8 @@ class EventsAdapter:
                     logging.debug(f"update event - got response {resp}")
                 else:
                     logging.error(f"update_event failed - {resp.status}")
-                    raise web.HTTPBadRequest(reason="Update event failed.")
+                    raise web.HTTPBadRequest(
+                        reason=f"Update event failed - {resp.status}."
+                    )
             logging.debug(f"Updated event: {id} - res {resp.status}")
         return str(resp.status)

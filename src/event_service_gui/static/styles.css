@@ -92,6 +92,24 @@ tr:nth-child(even){background-color: #f2f2f2;}
     font-weight: bold;
 }
 
+#green {
+    color: green;
+    font-weight: bold;
+}
+#orange {
+    color: orange;
+    font-weight: bold;
+}
+#red {
+    color: red;
+    font-weight: bold;
+}
+#black {
+    color: black;
+    font-weight: bold;
+}
+
+
 #spacer {
   height: 4px;
 }
@@ -106,6 +124,10 @@ tr:nth-child(even){background-color: #f2f2f2;}
 
 #subheader {
     background-color: lightgrey;
+}
+
+#tablespacer {
+    background-color: white;
 }
 
 function naviger(id) {

@@ -71,8 +71,20 @@
         </tr>
         <tr>
           <td>Dato</td>
-          <td><input type=date name=date value=""></td>
+          <td><input type=date name=date_of_event value=""></td>
           <td></td>
+        </tr>
+        <tr>
+          <td>Format</td>
+          <td>
+            <select name="competition_format">
+              <option value=""></option>
+              <option value="Sprint">Sprint</option>
+              <option value="Fellesstart">Fellesstart</option>
+              <option value="Intervallstart">Intervallstart</option>
+            </select>
+          </td>
+          <td>Type arrangement (sprint, fellesstart, intervallstart)</td>
         </tr>
         <tr>
           <td>Arrangør</td>
@@ -121,7 +133,11 @@
         </tr>
         <tr>
           <td>Dato</td>
-          <td><input type=date name=date value="{{ event.date }}"></td>
+          <td><input type=text name=date_of_event value="{{ event.date_of_event }}"></td>
+        </tr>
+        <tr>
+          <td>Format</td>
+          <td><input type=text name=competition_format value="{{ event.competition_format }}"></td>
         </tr>
         <tr>
           <td>Arrangør</td>
