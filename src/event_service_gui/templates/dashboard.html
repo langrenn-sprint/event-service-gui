@@ -14,10 +14,59 @@
 {% endblock %}
 {% block content %}
   <div id=spacer></div>
-  <table>
+  <table cellpadding=4>
     <tr>
-      <td>Hello</td>
-      <td>Hello 2</td>
+      <td valign=top>
+        <table>
+          <tr id=subheader id=black>
+            <td id=black>Event informasjon</td><td width=100>Status</td>
+          </tr>
+          <tr>
+            <td>Attributter registrert: 5 av 5.</td><td id=green>OK</td>
+          </tr>
+        </table>
+      </td>
+      <td valign=top>
+        <table>
+          <tr id=subheader>
+            <td id=black>Klasser</td><td width=100>Status</td>
+          </tr>
+          <tr>
+            <td>Aldersklasser: 4, løpsklasser: 4.</td><td id=green>OK</td>
+          </tr>
+          <tr>
+            <td>Startrekkefølge: 0 av 4.</td><td id=red>Mangler</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr id=tablespacer>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td valign=top>
+        <table>
+          <tr id=subheader id=black>
+            <td id=black>Deltakere</td><td width=100>Status</td>
+          </tr>
+          <tr>
+            <td>Antall deltakere: 34</td><td id=green>OK</td>
+          </tr>
+          <tr>
+            <td>Startnummer tildelt: 32 av 34</td><td id=orange>Delvis</td>
+          </tr>
+        </table>
+      </td>
+      <td valign=top>
+        <table>
+          <tr id=subheader>
+            <td id=black></td><td width=100>Status</td>
+          </tr>
+          <tr>
+            <td></td><td></td>
+          </tr>
+        </table>
+      </td>
     </tr>
   </table>
 {% endblock %}
