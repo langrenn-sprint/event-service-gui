@@ -36,8 +36,7 @@ class EventsAdapter:
                     events = await resp.json()
                     logging.debug(f"events - got response {events}")
                 elif resp.status == 401:
-                    logging.info("TODO Performing new login")
-                    # Perform login
+                    raise Exception(f"Login expired: {resp}")
                 else:
                     logging.error(f"Error {resp.status} getting events: {resp} ")
         return events

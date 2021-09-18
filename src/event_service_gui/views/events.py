@@ -49,7 +49,7 @@ class Events(web.View):
             self.request,
             {
                 "create_new": create_new,
-                "lopsinfo": "Arrangement",
+                "lopsinfo": "Informasjon",
                 "event": event,
                 "event_id": event_id,
                 "informasjon": informasjon,

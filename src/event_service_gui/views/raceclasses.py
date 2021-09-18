@@ -104,7 +104,6 @@ class Raceclasses(web.View):
                         age_class = await RaceclassesAdapter().get_ageclass(
                             token, event_id, id
                         )
-                        age_class["raceclass"] = str(form[f"race_{id}"])
                         age_class["order"] = str(form[f"order_{id}"])
                         result = await RaceclassesAdapter().update_ageclass(
                             token, event_id, id, age_class

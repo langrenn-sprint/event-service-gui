@@ -17,7 +17,7 @@
     {% block titlecontainer %}{% endblock %}
       <div id=spacer></div>
       <div class="w3-container" id=adminpagetitle>
-        {% block titlemain %}{% endblock %} {{ event.name }}
+        {{ event.name }}
       </div>
       <div id=minispacer></div>
       <div class="w3-container">
@@ -35,6 +35,9 @@
                 <a href="/schedules?event_id={{ event_id }}">&nbsp;&nbsp;&nbsp;Kjøreplan</a>
               {% endif %}
             </div>
+          </li>
+          <li id=topborder class=active>
+            {% block titlemain %}{% endblock %}
           </li>
           {% block menuitems %}{% endblock %}
           {% if username == "" %}
@@ -54,11 +57,8 @@
     <div id=spacer></div>
     <div class="w3-container" id=info>{{ informasjon }}</div>
     {% block content %}{% endblock %}
-    <div id=spacer></div>
-  </div>
-  <div class="w3-row-padding">
-    <div class="w3-quart-empty"></div>
-    <div class="w3-half-empty" id=footeradmin>
+    <p><br></p>
+    <div id=footeradmin>
         <a href="https://github.com/langrenn-sprint">langrenn-sprint</a> - utviklet av Lyn ski og Kjelsås langrenn
     </div>
   </div>

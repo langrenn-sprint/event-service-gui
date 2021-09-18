@@ -10,16 +10,10 @@
 {% block titlemain %}{{ lopsinfo }}{% endblock %}
 {% block menuitems %}
   <li id=topborder>
-    <a href=/events?event_id={{ event_id }} class=dropbtn>Info</a>
-  </li>
-  <li id=topborder class=active>
-    <a href=/contestants?event_id={{ event_id }} class=dropbtn>Deltakere</a>
+    <a href=/contestants?event_id={{ event_id }} class=dropbtn>Velg klasse</a>
   </li>
   <li id=topborder>
-    <a href=/raceclasses?event_id={{ event_id }} class=dropbtn>Klasser</a>
-  </li>
-  <li id=topborder>
-    <a href=/schedules?event_id={{ event_id }} class=dropbtn>Kjøreplan</a>
+    <a href=/contestants?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>
   </li>
 {% endblock %}
 
@@ -288,18 +282,6 @@
           </form>
 
       {% else %}
-        <div id=spacer></div>
-        <table>
-          <tr id=headerblue>
-            <td align=right>
-              <form action=/contestants method=get>
-                <input type="hidden" name="event_id" value="{{ event_id }}">
-                <input type="hidden" name=action value="edit_mode">
-                <input type="submit" name=edit_mode value="  Rediger  ">
-              </form>
-            </td>
-          </tr>
-        </table>
       <div id=spacer></div>
       <table>
         <tr id=headerblue>

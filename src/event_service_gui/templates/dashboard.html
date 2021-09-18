@@ -7,11 +7,6 @@
 {% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block refresh %}{% endblock %}
 {% block titlemain %}{{ lopsinfo }}{% endblock %}
-{% block menuitems %}
-  <li id=topborder class=active>
-    <a href=/events?event_id={{ event_id }} class=dropbtn>Info</a>
-  </li>
-{% endblock %}
 {% block content %}
   <div id=spacer></div>
   <table cellpadding=4>
@@ -19,7 +14,7 @@
       <td valign=top>
         <table>
           <tr id=subheader id=black>
-            <td id=black>Event informasjon</td><td width=100>Status</td>
+            <td id=black>1. Arrangementsinformasjon</td><td width=100>Status</td>
           </tr>
           <tr>
             <td>Attributter registrert: 5 av 5.</td><td id=green>OK</td>
@@ -29,7 +24,7 @@
       <td valign=top>
         <table>
           <tr id=subheader>
-            <td id=black>Klasser</td><td width=100>Status</td>
+            <td id=black>3. Klasser</td><td width=100>Status</td>
           </tr>
           <tr>
             <td>Aldersklasser: 4, løpsklasser: 4.</td><td id=green>OK</td>
@@ -47,7 +42,7 @@
       <td valign=top>
         <table>
           <tr id=subheader id=black>
-            <td id=black>Deltakere</td><td width=100>Status</td>
+            <td id=black>2. Deltakere</td><td width=100>Status</td>
           </tr>
           <tr>
             <td>Antall deltakere: 34</td><td id=green>OK</td>

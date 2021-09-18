@@ -6,6 +6,8 @@
 
 body {
     font-family: Verdana, Arial, Helvetica, sans-serif;
+    background-image: url('https://www.harnaes.no/sprint/web/SprintBG2.jpg');
+    background-size: cover;
 }
 
 ul {
@@ -167,7 +169,7 @@ async function savefile(inp)
 .w3-half {
   float:left;width:100%;
   width:50%;
-  border-style: groove;
+  background-color: white;
 }
 
 .w3-third {

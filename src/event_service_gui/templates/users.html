@@ -11,6 +11,11 @@
 {% block titlemain %}
   {{ lopsinfo }}
 {% endblock %}
+{% block menuitems %}
+  <li id=topborder>
+    <a href=/users?event_id={{ event_id }}&new=true class=dropbtn>Ny bruker</a>
+  </li>
+{% endblock %}
 {% block content %}
       {% if create_new %}
         <form action="/users" method="post">
@@ -41,13 +46,6 @@
         </form>
       {% else %}
           <table cellpadding=4>
-            <tr>
-              <td colspan=4 align=right>
-                <form action=/users method=get>
-                  <input type="submit" name=new value="  Ny bruker  ">
-                </form>
-              </td>
-            </tr>
             <tr id=spacer></tr>
             <tr>
               <td colspan=3 id=headerblue>

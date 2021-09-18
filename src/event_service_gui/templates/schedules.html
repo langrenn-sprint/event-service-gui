@@ -11,19 +11,5 @@
 {% block titlemain %}
   {{ lopsinfo }}
 {% endblock %}
-{% block menuitems %}
-  <li id=topborder>
-    <a href=/events?event_id={{ event_id }} class=dropbtn>Info</a>
-  </li>
-  <li id=topborder>
-    <a href=/contestants?event_id={{ event_id }} class=dropbtn>Deltakere</a>
-  </li>
-  <li id=topborder>
-    <a href=/raceclasses?event_id={{ event_id }} class=dropbtn>Klasser</a>
-  </li>
-  <li id=topborder class=active>
-    <a href=/schedules?event_id={{ event_id }} class=dropbtn>Kjøreplan</a>
-  </li>
-{% endblock %}
 {% block content %}
 {% endblock %}

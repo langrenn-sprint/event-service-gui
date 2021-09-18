@@ -10,19 +10,9 @@
 {% block titlemain %}{{ lopsinfo }}{% endblock %}
 {% block menuitems %}
   <li id=topborder>
-    <a href=/events?event_id={{ event_id }} class=dropbtn>Info</a>
-  </li>
-  <li id=topborder>
-    <a href=/contestants?event_id={{ event_id }} class=dropbtn>Deltakere</a>
-  </li>
-  <li id=topborder class=active>
-    <a href=/raceclasses?event_id={{ event_id }} class=dropbtn>Klasser</a>
-  </li>
-  <li id=topborder>
-    <a href=/schedules?event_id={{ event_id }} class=dropbtn>Kjøreplan</a>
+    <a href=/raceclasses?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>
   </li>
 {% endblock %}
-
 {% block content %}
   <div id=spacer></div>
   {% if  action == "edit_mode" %}
@@ -108,7 +98,7 @@
                 <tr>
                   <td>{{ klasse.name }}</td>
                   <td>{{ klasse.distance }}</td>
-                  <td><input type=text name="race_{{ klasse.id }}" value="{{ klasse.raceclass }}"></td>
+                  <td>{{ klasse.raceclass }}</td>
                   <td>
                     <input type=text name="order_{{ klasse.id }}" value="{{ klasse.order }}">
                     <input type="hidden" name="id_{{ klasse.id }}" value="{{ klasse.id }}">
@@ -171,13 +161,6 @@
           </table>
         </form>
   {% else %}
-    <div align=right>
-            <form action=/raceclasses method=get>
-              <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="hidden" name=action value="edit_mode">
-              <input type="submit" value="  Rediger  ">
-            </form>
-    </div>
     <div id=spacer></div>
     <table>
        <tr id=headerblue>
