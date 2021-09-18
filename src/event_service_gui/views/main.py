@@ -19,10 +19,10 @@ class Main(web.View):
         except Exception:
             informasjon = ""
 
+        session = await get_session(self.request)
         try:
             # check login
             username = ""
-            session = await get_session(self.request)
             loggedin = UserAdapter().isloggedin(session)
             if not loggedin:
                 return web.HTTPSeeOther(location="/login")
