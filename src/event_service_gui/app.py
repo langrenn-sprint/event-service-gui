@@ -8,7 +8,6 @@ from aiohttp import web
 import aiohttp_jinja2
 from aiohttp_session import get_session, setup
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
-from cryptography import fernet
 from dotenv import load_dotenv
 import jinja2
 import motor.motor_asyncio
@@ -49,7 +48,10 @@ async def create_app() -> web.Application:
     app = web.Application()
 
     # sesson handling - secret_key must be 32 url-safe base64-encoded bytes
-    fernet_key = fernet.Fernet.generate_key()
+    # from cryptography import fernet
+    # fernet_key = fernet.Fernet.generate_key() - avoid generating new key for every restart
+    # print(f"Fernet_key: {fernet_key}")
+    fernet_key = os.getenv("FERNET_KEY", "23EHUWpP_tpleR_RjuX5hxndWqyc0vO-cjNUMSzbjN4=")
     secret_key = base64.urlsafe_b64decode(fernet_key)
     setup(app, EncryptedCookieStorage(secret_key))
     app.router.add_get("/secret", handler)
