@@ -82,25 +82,6 @@ class RaceclassesAdapter:
                     raise Exception(f"delete_ageclass failed: {resp}")
         return str(res)
 
-    async def generate_ageclasses(self, token: str, event_id: str) -> str:
-        """Generate ageclasses based upon registrations."""
-        headers = MultiDict(
-            {
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
-        )
-        url = f"{EVENT_SERVICE_URL}/events/{event_id}/generate-ageclasses"
-        async with ClientSession() as session:
-            async with session.post(url, headers=headers) as resp:
-                res = resp.status
-                logging.debug(f"generate_ageclasses result - got response {resp}")
-                if res == 201:
-                    pass
-                else:
-                    raise Exception(f"generate_ageclasses failed: {resp}")
-        information = "Opprettet aldersklasser."
-        return information
-
     async def get_ageclass(self, token: str, event_id: str, ageclass_id: str) -> dict:
         """Get all ageclass function."""
         headers = MultiDict(

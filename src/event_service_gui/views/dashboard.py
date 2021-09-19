@@ -34,52 +34,31 @@ class Dashboard(web.View):
         # check login
         username = ""
         session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location=f"/login?event={event_id}")
-        username = str(session["username"])
-        token = str(session["token"])
-
-        event = {"name": "Nytt arrangement", "organiser": "Ikke valgt"}
-        if event_id != "":
-            logging.debug(f"get_event {event_id}")
-            event = await EventsAdapter().get_event(token, event_id)
-
-        return await aiohttp_jinja2.render_template_async(
-            "dashboard.html",
-            self.request,
-            {
-                "create_new": create_new,
-                "lopsinfo": "Dashboard",
-                "event": event,
-                "event_id": event_id,
-                "informasjon": informasjon,
-                "username": username,
-            },
-        )
-
-    async def post(self) -> web.Response:
-        """Post route function that creates a collection of klasses."""
-        # check login
-        session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location="/login")
-        # token = str(session["token"])
-
-        informasjon = ""
-        event_id = ""
         try:
-            form = await self.request.post()
-            logging.debug(f"Form {form}")
+            loggedin = UserAdapter().isloggedin(session)
+            if not loggedin:
+                return web.HTTPSeeOther(location=f"/login?event={event_id}")
+            username = str(session["username"])
+            token = str(session["token"])
 
-            # Create new event
-            if "create_manual" in form.keys():
-                informasjon = f"Opprettet nytt arrangement,  event_id {event_id}"
+            event = {"name": "Nytt arrangement", "organiser": "Ikke valgt"}
+            if event_id != "":
+                logging.debug(f"get_event {event_id}")
+                event = await EventsAdapter().get_event(token, event_id)
+
+            return await aiohttp_jinja2.render_template_async(
+                "dashboard.html",
+                self.request,
+                {
+                    "create_new": create_new,
+                    "lopsinfo": "Status",
+                    "event": event,
+                    "event_id": event_id,
+                    "informasjon": informasjon,
+                    "username": username,
+                },
+            )
         except Exception as e:
-            logging.error(f"Error: {e}")
-            informasjon = f"Det har oppstått en feil - {e.args}."
-
-        return web.HTTPSeeOther(
-            location=f"/events?event_id={event_id}&informasjon={informasjon}"
-        )
+            logging.error(f"Error: {e}. Starting new session.")
+            session.invalidate()
+            return web.HTTPSeeOther(location="/login")

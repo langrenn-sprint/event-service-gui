@@ -15,46 +15,51 @@ class Users(web.View):
         """Get route function that return the index page."""
         # check login
         session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
+        try:
+            loggedin = UserAdapter().isloggedin(session)
+            if not loggedin:
+                return web.HTTPSeeOther(location="/login")
+            token = str(session["token"])
+            username = str(session["username"])
+            users = []
+
+            try:
+                informasjon = self.request.rel_url.query["informasjon"]
+            except Exception:
+                informasjon = ""
+
+            try:
+                create_new = False
+                new = self.request.rel_url.query["new"]
+                if new != "":
+                    create_new = True
+
+            except Exception:
+                create_new = False
+
+            if not create_new:
+                users = await UserAdapter().get_all_users(token)
+                logging.info(f"Users: {users}")
+
+            event = {"name": "Administrasjon", "organiser": "Ikke valgt"}
+
+            return await aiohttp_jinja2.render_template_async(
+                "users.html",
+                self.request,
+                {
+                    "lopsinfo": "Brukere",
+                    "event": event,
+                    "event_id": "",
+                    "informasjon": informasjon,
+                    "username": username,
+                    "users": users,
+                    "create_new": create_new,
+                },
+            )
+        except Exception as e:
+            logging.error(f"Error: {e}. Starting new session.")
+            session.invalidate()
             return web.HTTPSeeOther(location="/login")
-        token = str(session["token"])
-        username = str(session["username"])
-        users = []
-
-        try:
-            informasjon = self.request.rel_url.query["informasjon"]
-        except Exception:
-            informasjon = ""
-
-        try:
-            create_new = False
-            new = self.request.rel_url.query["new"]
-            if new != "":
-                create_new = True
-
-        except Exception:
-            create_new = False
-
-        if not create_new:
-            users = await UserAdapter().get_all_users(token)
-            logging.info(f"Users: {users}")
-
-        event = {"name": "Administrasjon", "organiser": "Ikke valgt"}
-
-        return await aiohttp_jinja2.render_template_async(
-            "users.html",
-            self.request,
-            {
-                "lopsinfo": "Brukere",
-                "event": event,
-                "event_id": "",
-                "informasjon": informasjon,
-                "username": username,
-                "users": users,
-                "create_new": create_new,
-            },
-        )
 
     async def post(self) -> web.Response:
         """Get route function that return the index page."""

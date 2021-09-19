@@ -17,6 +17,25 @@ EVENT_SERVICE_URL = f"http://{EVENT_SERVICE_HOST}:{EVENT_SERVICE_PORT}"
 class EventsAdapter:
     """Class representing events."""
 
+    async def generate_classes(self, token: str, event_id: str) -> str:
+        """Generate classes based upon registered contestants."""
+        headers = MultiDict(
+            {
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        url = f"{EVENT_SERVICE_URL}/events/{event_id}/generate-raceclasses"
+        async with ClientSession() as session:
+            async with session.post(url, headers=headers) as resp:
+                res = resp.status
+                logging.debug(f"generate_ageclasses result - got response {resp}")
+                if res == 201:
+                    pass
+                else:
+                    raise Exception(f"generate-classes failed: {resp}")
+        information = "Opprettet klasser."
+        return information
+
     async def get_all_events(self, token: str) -> List:
         """Get all events function."""
         events = []
@@ -59,6 +78,8 @@ class EventsAdapter:
                 if resp.status == 200:
                     event = await resp.json()
                     logging.debug(f"event - got response {event}")
+                elif resp.status == 401:
+                    raise Exception(f"Login expired: {resp}")
                 else:
                     logging.error(f"Error {resp.status} getting events: {resp} ")
         return event

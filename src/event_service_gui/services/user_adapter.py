@@ -89,8 +89,7 @@ class UserAdapter:
                     users = await resp.json()
                     logging.debug(f"users - got response {users}")
                 elif resp.status == 401:
-                    logging.info("TO-DO Performing new login")
-                    # Perform login
+                    raise Exception(f"Login expired: {resp}")
                 else:
                     logging.error(f"Error {resp.status} getting users: {resp} ")
         return users

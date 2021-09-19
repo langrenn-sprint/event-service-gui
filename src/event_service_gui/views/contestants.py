@@ -28,48 +28,55 @@ class Contestants(web.View):
         # check login
         username = ""
         session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location=f"/login?event_id={event_id}")
-        username = str(session["username"])
-        token = str(session["token"])
-
         try:
-            informasjon = self.request.rel_url.query["informasjon"]
-        except Exception:
-            informasjon = ""
+            loggedin = UserAdapter().isloggedin(session)
+            if not loggedin:
+                return web.HTTPSeeOther(location=f"/login?event_id={event_id}")
+            username = str(session["username"])
+            token = str(session["token"])
 
-        contestant = {}
-        try:
-            action = self.request.rel_url.query["action"]
-            if action == "update_one":
-                id = self.request.rel_url.query["id"]
-                contestant = await ContestantsAdapter().get_contestant(
-                    token, event_id, id
-                )
+            try:
+                informasjon = self.request.rel_url.query["informasjon"]
+            except Exception:
+                informasjon = ""
 
-        except Exception:
-            action = ""
-        logging.debug(f"Action: {action}")
+            contestant = {}
+            try:
+                action = self.request.rel_url.query["action"]
+                if action == "update_one":
+                    id = self.request.rel_url.query["id"]
+                    contestant = await ContestantsAdapter().get_contestant(
+                        token, event_id, id
+                    )
 
-        event = await EventsAdapter().get_event(token, event_id)
+            except Exception:
+                action = ""
+            logging.debug(f"Action: {action}")
 
-        contestants = await ContestantsAdapter().get_all_contestants(token, event_id)
-        logging.debug(f"Contestants: {contestants}")
-        return await aiohttp_jinja2.render_template_async(
-            "contestants.html",
-            self.request,
-            {
-                "action": action,
-                "contestants": contestants,
-                "contestant": contestant,
-                "event": event,
-                "event_id": event_id,
-                "informasjon": informasjon,
-                "lopsinfo": "Deltakere",
-                "username": username,
-            },
-        )
+            event = await EventsAdapter().get_event(token, event_id)
+
+            contestants = await ContestantsAdapter().get_all_contestants(
+                token, event_id
+            )
+            logging.debug(f"Contestants: {contestants}")
+            return await aiohttp_jinja2.render_template_async(
+                "contestants.html",
+                self.request,
+                {
+                    "action": action,
+                    "contestants": contestants,
+                    "contestant": contestant,
+                    "event": event,
+                    "event_id": event_id,
+                    "informasjon": informasjon,
+                    "lopsinfo": "Deltakere",
+                    "username": username,
+                },
+            )
+        except Exception as e:
+            logging.error(f"Error: {e}. Starting new session.")
+            session.invalidate()
+            return web.HTTPSeeOther(location="/login")
 
     async def post(self) -> web.Response:
         """Post route function that creates deltakerliste."""

@@ -25,45 +25,52 @@ class Raceclasses(web.View):
         # check login
         username = ""
         session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location=f"/login?event={event_id}")
-        username = str(session["username"])
-        token = str(session["token"])
-
-        event = await EventsAdapter().get_event(token, event_id)
-
         try:
-            informasjon = self.request.rel_url.query["informasjon"]
-        except Exception:
-            informasjon = ""
-        klasse = {}
-        try:
-            action = self.request.rel_url.query["action"]
-            if action == "update_one":
-                id = self.request.rel_url.query["id"]
-                klasse = await RaceclassesAdapter().get_ageclass(token, event_id, id)
+            loggedin = UserAdapter().isloggedin(session)
+            if not loggedin:
+                return web.HTTPSeeOther(location=f"/login?event={event_id}")
+            username = str(session["username"])
+            token = str(session["token"])
 
-        except Exception:
-            action = ""
-        logging.debug(f"Action: {action}")
+            event = await EventsAdapter().get_event(token, event_id)
 
-        ageclasses = await RaceclassesAdapter().get_ageclasses(token, event_id)
+            try:
+                informasjon = self.request.rel_url.query["informasjon"]
+            except Exception:
+                informasjon = ""
+            klasse = {}
+            try:
+                action = self.request.rel_url.query["action"]
+                if action == "update_one":
+                    id = self.request.rel_url.query["id"]
+                    klasse = await RaceclassesAdapter().get_ageclass(
+                        token, event_id, id
+                    )
 
-        return await aiohttp_jinja2.render_template_async(
-            "raceclasses.html",
-            self.request,
-            {
-                "action": action,
-                "ageclasses": ageclasses,
-                "event": event,
-                "event_id": event_id,
-                "informasjon": informasjon,
-                "lopsinfo": "Klasser",
-                "klasse": klasse,
-                "username": username,
-            },
-        )
+            except Exception:
+                action = ""
+            logging.debug(f"Action: {action}")
+
+            ageclasses = await RaceclassesAdapter().get_ageclasses(token, event_id)
+
+            return await aiohttp_jinja2.render_template_async(
+                "raceclasses.html",
+                self.request,
+                {
+                    "action": action,
+                    "ageclasses": ageclasses,
+                    "event": event,
+                    "event_id": event_id,
+                    "informasjon": informasjon,
+                    "lopsinfo": "Klasser",
+                    "klasse": klasse,
+                    "username": username,
+                },
+            )
+        except Exception as e:
+            logging.error(f"Error: {e}. Starting new session.")
+            session.invalidate()
+            return web.HTTPSeeOther(location="/login")
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""
@@ -112,9 +119,7 @@ class Raceclasses(web.View):
                 informasjon = "Klasser er oppdatert."
             # Create classes from list of contestants
             elif "generate_ageclasses" in form.keys():
-                informasjon = await RaceclassesAdapter().generate_ageclasses(
-                    token, event_id
-                )
+                informasjon = await EventsAdapter().generate_classes(token, event_id)
             elif "refresh_no_of_contestants" in form.keys():
                 informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
             # delete
