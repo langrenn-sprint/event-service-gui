@@ -10,11 +10,11 @@ from event_service_gui.services import EventsAdapter
 from event_service_gui.services import UserAdapter
 
 
-class Dashboard(web.View):
+class Tasks(web.View):
     """Class representing the main view."""
 
     async def get(self) -> web.Response:
-        """Get route function that return the dashboards page."""
+        """Get route function that return the tasks page."""
         try:
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
@@ -40,10 +40,10 @@ class Dashboard(web.View):
                 event = await EventsAdapter().get_event(token, event_id)
 
             return await aiohttp_jinja2.render_template_async(
-                "dashboard.html",
+                "tasks.html",
                 self.request,
                 {
-                    "lopsinfo": "Status",
+                    "lopsinfo": "Oppgaver",
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,

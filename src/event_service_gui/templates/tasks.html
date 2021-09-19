@@ -1,0 +1,67 @@
+{% extends "adm_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-quart"></div>
+  <div class="w3-half">
+{% endblock %}
+
+{% block titleheader %}{{ lopsinfo }}{% endblock %}
+{% block refresh %}{% endblock %}
+{% block titlemain %}{{ lopsinfo }}{% endblock %}
+{% block content %}
+  <div id=spacer></div>
+  <table cellpadding=4>
+    <tr>
+      <td valign=top>
+        <table>
+          <tr id=subheader id=black>
+            <td id=black>Arbeidsflyt - før rennet</td><td width=100>Status</td>
+          </tr>
+          <tr>
+            <td>1. Opprett arrangement (<a id=orange href=/contestants?event_id={{ event_id }}&action=edit_mode class=dropbtn>sjekk</a>)</td><td id=green>Utført</td>
+          </tr>
+          <tr>
+            <td>2. Last inn deltakere (<a id=orange href=/contestants?event_id={{ event_id }}&action=edit_mode class=dropbtn>sjekk</a>)</td>
+            <td id=red>Mangler</td>
+          </tr>
+          <tr>
+            <td>3. Opprett klasser</td><td id=></td>
+          </tr>
+          <tr>
+            <td>4. Generer heatliste/startrekkefølge</td><td id=></td>
+          </tr>
+          <tr>
+            <td>5. Tildel startnummer</td><td id=></td>
+          </tr>
+          <tr>
+            <td>6. Tilpass tidksjema</td><td id=></td>
+          </tr>
+          <tr>
+            <td>7. Etteranmeldinger</td><td id=></td>
+          </tr>
+        </table>
+      </td>
+      <td valign=top>
+        <table>
+          <tr id=subheader id=black>
+            <td id=black>Mens rennet pågår</td><td width=100>Status</td>
+          </tr>
+          <tr>
+            <td>Registrere start</td><td id=></td>
+          </tr>
+          <tr>
+            <td>Registrere målpassering</td><td id=></td>
+          </tr>
+          <tr>
+            <td>Monitorere</td><td id=></td>
+          </tr>
+          <tr>
+            <td>Skrive ut resultater</td><td id=></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr id=tablespacer>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+{% endblock %}
