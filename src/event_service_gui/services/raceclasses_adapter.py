@@ -16,10 +16,10 @@ EVENT_SERVICE_URL = f"http://{EVENT_SERVICE_HOST}:{EVENT_SERVICE_PORT}"
 class RaceclassesAdapter:
     """Class representing raceclasses."""
 
-    async def create_ageclass(
+    async def create_raceclass(
         self, token: str, event_id: str, request_body: dict
     ) -> str:
-        """Create new ageclass function."""
+        """Create new raceclass function."""
         id = ""
         headers = MultiDict(
             {
@@ -30,29 +30,29 @@ class RaceclassesAdapter:
 
         async with ClientSession() as session:
             async with session.post(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/ageclasses",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses",
                 headers=headers,
                 json=request_body,
             ) as resp:
                 if resp.status == 201:
-                    logging.debug(f"create ageclass - got response {resp}")
+                    logging.debug(f"create raceclass - got response {resp}")
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
                 else:
-                    logging.error(f"create_ageclass failed - {resp.status}")
-                    raise web.HTTPBadRequest(reason="Create ageclass failed.")
+                    logging.error(f"create_raceclass failed - {resp.status}")
+                    raise web.HTTPBadRequest(reason="Create raceclass failed.")
 
         return id
 
-    async def delete_all_ageclasses(self, token: str, event_id: str) -> str:
-        """Delete all ageclasses in one event function."""
+    async def delete_all_raceclasses(self, token: str, event_id: str) -> str:
+        """Delete all raceclasses in one event function."""
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
 
         async with ClientSession() as session:
             async with session.delete(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/ageclasses",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses",
                 headers=headers,
             ) as resp:
                 res = resp.status
@@ -60,18 +60,20 @@ class RaceclassesAdapter:
                 if res == 204:
                     pass
                 else:
-                    raise Exception(f"delete_all_ageclasses failed: {resp}")
+                    raise Exception(f"delete_all_raceclasses failed: {resp}")
         return str(res)
 
-    async def delete_ageclass(self, token: str, event_id: str, ageclass_id: str) -> str:
-        """Delete one ageclass function."""
+    async def delete_raceclass(
+        self, token: str, event_id: str, raceclass_id: str
+    ) -> str:
+        """Delete one raceclass function."""
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
 
         async with ClientSession() as session:
             async with session.delete(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/ageclasses/{ageclass_id}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses/{raceclass_id}",
                 headers=headers,
             ) as resp:
                 res = resp.status
@@ -79,33 +81,33 @@ class RaceclassesAdapter:
                 if res == 204:
                     pass
                 else:
-                    raise Exception(f"delete_ageclass failed: {resp}")
+                    raise Exception(f"delete_raceclass failed: {resp}")
         return str(res)
 
-    async def get_ageclass(self, token: str, event_id: str, ageclass_id: str) -> dict:
-        """Get all ageclass function."""
+    async def get_raceclass(self, token: str, event_id: str, raceclass_id: str) -> dict:
+        """Get all raceclass function."""
         headers = MultiDict(
             {
                 hdrs.CONTENT_TYPE: "application/json",
                 hdrs.AUTHORIZATION: f"Bearer {token}",
             }
         )
-        ageclass = {}
+        raceclass = {}
         async with ClientSession() as session:
             async with session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/ageclasses/{ageclass_id}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses/{raceclass_id}",
                 headers=headers,
             ) as resp:
-                logging.debug(f"get_ageclass - got response {resp.status}")
+                logging.debug(f"get_raceclass - got response {resp.status}")
                 if resp.status == 200:
-                    ageclass = await resp.json()
+                    raceclass = await resp.json()
                 else:
-                    logging.error(f"Error in get_ageclass: {resp}")
-        return ageclass
+                    logging.error(f"Error in get_raceclass: {resp}")
+        return raceclass
 
-    async def get_ageclasses(self, token: str, event_id: str) -> List:
-        """Get all ageclasses function."""
-        ageclasses = []
+    async def get_raceclasses(self, token: str, event_id: str) -> List:
+        """Get all raceclasses function."""
+        raceclasses = []
         headers = MultiDict(
             {
                 hdrs.CONTENT_TYPE: "application/json",
@@ -114,24 +116,24 @@ class RaceclassesAdapter:
         )
         async with ClientSession() as session:
             async with session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/ageclasses", headers=headers
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses", headers=headers
             ) as resp:
                 if resp.status == 200:
-                    all_ageclasses = await resp.json()
-                    for ageclass in all_ageclasses:
+                    all_raceclasses = await resp.json()
+                    for raceclass in all_raceclasses:
                         try:
-                            if ageclass["event_id"] == event_id:
-                                ageclasses.append(ageclass)
+                            if raceclass["event_id"] == event_id:
+                                raceclasses.append(raceclass)
                         except Exception as e:
                             logging.error(f"Error - data quality: {e}")
                 elif resp.status == 401:
                     logging.info("TODO Performing new login")
                     # Perform login
                 else:
-                    logging.error(f"Error {resp.status} getting ageclasses: {resp} ")
-        return ageclasses
+                    logging.error(f"Error {resp.status} getting raceclasses: {resp} ")
+        return raceclasses
 
-    async def update_ageclass(
+    async def update_raceclass(
         self, token: str, event_id: str, id: str, new_data: dict
     ) -> int:
         """Update klasser function."""
@@ -144,7 +146,7 @@ class RaceclassesAdapter:
         )
         async with ClientSession() as session:
             async with session.put(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/ageclasses/{id}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses/{id}",
                 headers=headers,
                 json=new_data,
             ) as resp:
@@ -155,6 +157,6 @@ class RaceclassesAdapter:
                     logging.info("TODO Performing new login")
                     # Perform login
                 else:
-                    logging.error(f"Error {resp.status} update ageclass: {resp} ")
+                    logging.error(f"Error {resp.status} update raceclass: {resp} ")
 
         return returncode

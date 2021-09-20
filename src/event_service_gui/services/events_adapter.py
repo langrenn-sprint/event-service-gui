@@ -28,7 +28,7 @@ class EventsAdapter:
         async with ClientSession() as session:
             async with session.post(url, headers=headers) as resp:
                 res = resp.status
-                logging.debug(f"generate_ageclasses result - got response {resp}")
+                logging.debug(f"generate_raceclasses result - got response {resp}")
                 if res == 201:
                     pass
                 else:

@@ -8,6 +8,7 @@ from aiohttp_session import get_session
 from event_service_gui.services import (
     ContestantsAdapter,
     EventsAdapter,
+    RaceclassesAdapter,
     UserAdapter,
 )
 
@@ -40,6 +41,15 @@ class Contestants(web.View):
             except Exception:
                 informasjon = ""
 
+            try:
+                valgt_klasse = self.request.rel_url.query["klasse"]
+            except Exception:
+                valgt_klasse = ""  # noqa: F841
+
+            raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
+            for klasse in raceclasses:
+                klasse["ageclass_web"] = klasse["ageclass_name"].replace(" ", "%20")
+
             contestant = {}
             try:
                 action = self.request.rel_url.query["action"]
@@ -56,7 +66,7 @@ class Contestants(web.View):
             event = await EventsAdapter().get_event(token, event_id)
 
             contestants = await ContestantsAdapter().get_all_contestants(
-                token, event_id
+                token, event_id, valgt_klasse
             )
             logging.debug(f"Contestants: {contestants}")
             return await aiohttp_jinja2.render_template_async(
@@ -69,7 +79,9 @@ class Contestants(web.View):
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,
-                    "lopsinfo": "Deltakere",
+                    "raceclasses": raceclasses,
+                    "valgt_klasse": valgt_klasse,
+                    "lopsinfo": f"Deltakere {valgt_klasse}",
                     "username": username,
                 },
             )

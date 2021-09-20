@@ -17,7 +17,7 @@ class ContestantsAdapter:
     """Class representing contestants."""
 
     async def assign_bibs(self, token: str, event_id: str) -> str:
-        """Generate ageclasses based upon registrations."""
+        """Generate bibs based upon registrations."""
         headers = MultiDict(
             {
                 hdrs.AUTHORIZATION: f"Bearer {token}",
@@ -125,8 +125,10 @@ class ContestantsAdapter:
                     raise Exception(f"delete_contestant failed: {resp}")
         return str(res)
 
-    async def get_all_contestants(self, token: str, event_id: str) -> List:
-        """Get all contestants function."""
+    async def get_all_contestants(
+        self, token: str, event_id: str, ageclass_name: str
+    ) -> List:
+        """Get all contestants / by class (optional) function."""
         headers = MultiDict(
             {
                 hdrs.CONTENT_TYPE: "application/json",
@@ -142,7 +144,15 @@ class ContestantsAdapter:
                 if resp.status == 200:
                     contestants = await resp.json()
                 else:
-                    logging.error(f"Error in contestants: {resp}")
+                    logging.error(f"Error getting contestants: {resp}")
+
+        # TODO: Bør flyttes til backend
+        if ageclass_name != "":
+            tmp_contestants = []
+            for x in contestants:
+                if x["ageclass"] == ageclass_name:
+                    tmp_contestants.append(x)
+            contestants = tmp_contestants
         return contestants
 
     async def get_contestant(

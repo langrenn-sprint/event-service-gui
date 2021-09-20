@@ -32,7 +32,10 @@ class Main(web.View):
             events = await EventsAdapter().get_all_events(token)
             logging.debug(f"Events: {events}")
 
-            event = {"name": "Langrenn", "organiser": "Ikke valgt"}
+            event = {
+                "name": "Langrenn, arrangørmodul",
+                "organiser": "Ikke valgt",
+            }
 
             return await aiohttp_jinja2.render_template_async(
                 "index.html",

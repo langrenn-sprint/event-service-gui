@@ -43,7 +43,7 @@ class Raceclasses(web.View):
                 action = self.request.rel_url.query["action"]
                 if action == "update_one":
                     id = self.request.rel_url.query["id"]
-                    klasse = await RaceclassesAdapter().get_ageclass(
+                    klasse = await RaceclassesAdapter().get_raceclass(
                         token, event_id, id
                     )
 
@@ -51,14 +51,14 @@ class Raceclasses(web.View):
                 action = ""
             logging.debug(f"Action: {action}")
 
-            ageclasses = await RaceclassesAdapter().get_ageclasses(token, event_id)
+            raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
 
             return await aiohttp_jinja2.render_template_async(
                 "raceclasses.html",
                 self.request,
                 {
                     "action": action,
-                    "ageclasses": ageclasses,
+                    "raceclasses": raceclasses,
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,
@@ -96,11 +96,11 @@ class Raceclasses(web.View):
                     "event_id": event_id,
                     "id": id,
                     "order": str(form["order"]),
-                    "raceclass": str(form["raceclass"]),
+                    "ageclass_name": str(form["ageclass_name"]),
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }
 
-                result = await RaceclassesAdapter().update_ageclass(
+                result = await RaceclassesAdapter().update_raceclass(
                     token, event_id, id, request_body
                 )
                 informasjon = f"Informasjon er oppdatert - {result}"
@@ -108,29 +108,29 @@ class Raceclasses(web.View):
                 for input in form.keys():
                     if input.startswith("id_"):
                         id = str(form[input])
-                        age_class = await RaceclassesAdapter().get_ageclass(
+                        age_class = await RaceclassesAdapter().get_raceclass(
                             token, event_id, id
                         )
                         age_class["order"] = str(form[f"order_{id}"])
-                        result = await RaceclassesAdapter().update_ageclass(
+                        result = await RaceclassesAdapter().update_raceclass(
                             token, event_id, id, age_class
                         )
                         logging.info(f"Age_class: {age_class} - update result {result}")
                 informasjon = "Klasser er oppdatert."
             # Create classes from list of contestants
-            elif "generate_ageclasses" in form.keys():
+            elif "generate_raceclasses" in form.keys():
                 informasjon = await EventsAdapter().generate_classes(token, event_id)
             elif "refresh_no_of_contestants" in form.keys():
                 informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
             # delete
             elif "delete_one" in form.keys():
-                res = await RaceclassesAdapter().delete_ageclass(
+                res = await RaceclassesAdapter().delete_raceclass(
                     token, event_id, str(form["id"])
                 )
                 informasjon = f"Klasse er slettet - {res}"
             # delete_all
             elif "delete_all" in form.keys():
-                res = await RaceclassesAdapter().delete_all_ageclasses(token, event_id)
+                res = await RaceclassesAdapter().delete_all_raceclasses(token, event_id)
                 informasjon = f"Klasser er slettet - {res}"
 
         except Exception as e:

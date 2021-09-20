@@ -20,11 +20,11 @@
       <div id=spacer></div>
     <table>
       <tr>
-        <td colspan=4 id=headerblue>
+        <td colspan=4>
           <b>Velg arrangement</b>
         </td>
       </tr>
-      <tr>
+      <tr id=headerblue>
         <td>Navn</td>
         <td>Dato</td>
         <td>Klubb</td>
@@ -33,7 +33,7 @@
       {% for oneevent in events %}
       <tr>
         <td><a href="/dashboard?event_id={{ oneevent.id }}">{{ oneevent.name }}</a></td>
-        <td>{{ oneevent.date }}</td>
+        <td>{{ oneevent.date_of_event }}</td>
         <td>{{ oneevent.organiser }}</td>
         <td></td>
       </tr>

@@ -9,8 +9,13 @@
 {% block refresh %}{% endblock %}
 {% block titlemain %}{{ lopsinfo }}{% endblock %}
 {% block menuitems %}
-  <li id=topborder>
-    <a href=/contestants?event_id={{ event_id }} class=dropbtn>Velg klasse</a>
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
+    <div class=dropdown-content>
+      {% for klasse in raceclasses %}
+        <a href=/contestants?event_id={{ event_id }}&klasse={{ klasse.ageclass_web }}&action={{ action }}>{{ klasse.ageclass_name }}</a>
+      {% endfor %}
+    </div>
   </li>
   <li id=topborder>
     <a href=/contestants?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>

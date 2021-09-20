@@ -28,19 +28,19 @@
             <form action=/raceclasses method=get>
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="hidden" name=action value="update_order">
-              <input type="submit" name="generate_ageclasses" value="  Rediger startrekkefølge  ">
+              <input type="submit" name="generate_raceclasses" value="  Rediger startrekkefølge  ">
             </form>
           </td>
           <td>
             <form action=/raceclasses method=post>
               <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="submit" name="generate_ageclasses" value="  Generer årsklasser  ">
+              <input type="submit" name="generate_raceclasses" value="  Generer klasser  ">
             </form>
           </td>
           <td>
             <form action=/raceclasses method=post>
               <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="submit" name="delete_all" value="  Slett alle årsklasser  ">
+              <input type="submit" name="delete_all" value="  Slett alle klasser  ">
             </form>
           </td>
       </table>
@@ -55,11 +55,11 @@
           <td></td>
           <td></td>
         </tr>
-        {% for klasse in ageclasses %}
+        {% for klasse in raceclasses %}
             <tr>
-              <td>{{ klasse.name }}</td>
+              <td>{{ klasse.ageclass_name }}</td>
               <td>{{ klasse.distance }}</td>
-              <td>{{ klasse.raceclass }}</td>
+              <td>{{ klasse.name }}</td>
               <td>{{ klasse.order }}</td>
               <td>{{ klasse.no_of_contestants }}</td>
               <td>
@@ -94,11 +94,11 @@
               <td>Startrekkefølge</td>
               <td>Deltakere</td>
             </tr>
-            {% for klasse in ageclasses %}
+            {% for klasse in raceclasses %}
                 <tr>
-                  <td>{{ klasse.name }}</td>
+                  <td>{{ klasse.ageclass_name }}</td>
                   <td>{{ klasse.distance }}</td>
-                  <td>{{ klasse.raceclass }}</td>
+                  <td>{{ klasse.name }}</td>
                   <td>
                     <input type=text name="order_{{ klasse.id }}" value="{{ klasse.order }}">
                     <input type="hidden" name="id_{{ klasse.id }}" value="{{ klasse.id }}">
@@ -125,7 +125,7 @@
             </tr>
             <tr>
               <td width=150>Klasse</td>
-              <td><input type=text name="name" value="{{ klasse.name }}"></td>
+              <td><input type=text name="ageclass_name" value="{{ klasse.ageclass_name }}"></td>
               <td></td>
             </tr>
             <tr>
@@ -140,7 +140,7 @@
             </tr>
             <tr>
               <td>Løpsklasse</td>
-              <td><input type=text name="raceclass" value="{{ klasse.raceclass }}"></td>
+              <td><input type=text name="name" value="{{ klasse.name }}"></td>
               <td></td>
             </tr>
             <tr>
@@ -170,11 +170,11 @@
         <td>Startrekkefølge</td>
         <td>Deltakere</td>
       </tr>
-      {% for klasse in ageclasses %}
+      {% for klasse in raceclasses %}
           <tr>
-            <td>{{ klasse.name }}</td>
+            <td>{{ klasse.ageclass_name }}</td>
             <td>{{ klasse.distance }}</td>
-            <td>{{ klasse.raceclass }}</td>
+            <td>{{ klasse.name }}</td>
             <td>{{ klasse.order }}</td>
             <td>{{ klasse.no_of_contestants }}</td>
           </tr>
