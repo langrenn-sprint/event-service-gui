@@ -7,8 +7,8 @@ from aiohttp import ClientSession, hdrs, web
 from aiohttp_session import Session
 from multidict import MultiDict
 
-USER_SERVICE_HOST = os.getenv("USER_SERVICE_HOST", "localhost")
-USER_SERVICE_PORT = os.getenv("USER_SERVICE_PORT", "8084")
+USER_SERVICE_HOST = os.getenv("USER_SERVICE_HOST")
+USER_SERVICE_PORT = os.getenv("USER_SERVICE_PORT")
 USER_SERVICE_URL = f"http://{USER_SERVICE_HOST}:{USER_SERVICE_PORT}"
 
 
