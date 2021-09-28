@@ -22,13 +22,6 @@ class Events(web.View):
             informasjon = self.request.rel_url.query["informasjon"]
         except Exception:
             informasjon = ""
-        try:
-            create_new = False
-            new = self.request.rel_url.query["new"]
-            if new != "":
-                create_new = True
-        except Exception:
-            create_new = False
 
         # check login
         username = ""
@@ -40,6 +33,17 @@ class Events(web.View):
             username = str(session["username"])
             token = str(session["token"])
 
+            try:
+                create_new = False
+                new = self.request.rel_url.query["new"]
+                if new != "":
+                    create_new = True
+            except Exception:
+                create_new = False
+
+            competition_formats = await EventsAdapter().get_competition_formats(token)
+            logging.info(f"Format: {competition_formats}")
+
             event = {"name": "Nytt arrangement", "organiser": "Ikke valgt"}
             if (not create_new) and (event_id != ""):
                 logging.debug(f"get_event {event_id}")
@@ -49,6 +53,7 @@ class Events(web.View):
                 "events.html",
                 self.request,
                 {
+                    "competition_formats": competition_formats,
                     "create_new": create_new,
                     "lopsinfo": "Informasjon",
                     "event": event,
@@ -82,6 +87,7 @@ class Events(web.View):
                 request_body = {
                     "name": form["name"],
                     "date_of_event": form["date_of_event"],
+                    "time_of_event": form["time_of_event"],
                     "competition_format": form["competition_format"],
                     "organiser": form["organiser"],
                     "webpage": form["webpage"],
@@ -112,6 +118,7 @@ class Events(web.View):
                 request_body = {
                     "name": form["name"],
                     "date_of_event": form["date_of_event"],
+                    "time_of_event": form["time_of_event"],
                     "competition_format": form["competition_format"],
                     "organiser": form["organiser"],
                     "webpage": form["webpage"],

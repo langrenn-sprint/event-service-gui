@@ -61,16 +61,20 @@
           <td></td>
         </tr>
         <tr>
+          <td>Tid</td>
+          <td><input type=time name=time_of_event value=""></td>
+          <td>Klokkeslett for første start</td>
+        </tr>
+        <tr>
           <td>Format</td>
           <td>
             <select name="competition_format">
-              <option value=""></option>
-              <option value="Sprint">Sprint</option>
-              <option value="Fellesstart">Fellesstart</option>
-              <option value="Intervallstart">Intervallstart</option>
+              {% for format in competition_formats %}
+                <option value="{{ format.name }}">{{ format.name }}</option>
+              {% endfor %}
             </select>
           </td>
-          <td>Type arrangement (sprint, fellesstart, intervallstart)</td>
+          <td>Type arrangement</td>
         </tr>
         <tr>
           <td>Arrangør</td>
@@ -120,6 +124,10 @@
         <tr>
           <td>Dato</td>
           <td><input type=text name=date_of_event value="{{ event.date_of_event }}"></td>
+        </tr>
+        <tr>
+          <td>Tid</td>
+          <td><input type=text name=time_of_event value="{{ event.time_of_event }}"></td>
         </tr>
         <tr>
           <td>Format</td>

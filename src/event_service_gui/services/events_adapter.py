@@ -60,6 +60,34 @@ class EventsAdapter:
                     logging.error(f"Error {resp.status} getting events: {resp} ")
         return events
 
+    async def get_competition_formats(self, token: str) -> List:
+        """Get competition_formats function."""
+        competition_formats = []
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+
+        async with ClientSession() as session:
+            async with session.get(
+                f"{EVENT_SERVICE_URL}/competition-formats", headers=headers
+            ) as resp:
+                logging.debug(f"get_competition_formats - got response {resp.status}")
+                if resp.status == 200:
+                    competition_formats = await resp.json()
+                    logging.debug(
+                        f"competition_formats - got response {competition_formats}"
+                    )
+                elif resp.status == 401:
+                    raise Exception(f"Login expired: {resp}")
+                else:
+                    logging.error(
+                        f"Error {resp.status} getting competition_formats: {resp} "
+                    )
+        return competition_formats
+
     async def get_event(self, token: str, id: str) -> dict:
         """Get event function."""
         event = {}
@@ -104,8 +132,11 @@ class EventsAdapter:
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
                 else:
-                    logging.error(f"create_event failed - {resp.status}")
-                    raise web.HTTPBadRequest(reason="Create event failed.")
+                    body = await resp.json()
+                    logging.error(f"create_event failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Create event failed, reason: {body['detail']}."
+                    )
 
         return id
 
