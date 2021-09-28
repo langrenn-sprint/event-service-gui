@@ -30,8 +30,21 @@ Her finner du en enkel webserver som generer html basert på csv-filer i test-da
 
 ## Miljøvariable
 ```
-Du kan sette opp ei .env fil med miljøvariable. Eksempel:
-HOST_PORT=8080
+Du må sette opp ei .env fil med miljøvariable. Eksempel:
+JWT_SECRET=secret
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=password
+DB_USER=event-service
+DB_PASSWORD=secret
+EVENT_SERVICE_HOST=localhost
+EVENT_SERVICE_PORT=8082
+FERNET_KEY=23EHUWpP_tpleR_RjuX5hxndWqyc0vO-cjNUMSzbjN4=
+JWT_EXP_DELTA_SECONDS=3600
+LOGGING_LEVEL=INFO
+RACE_SERVICE_HOST=localhost
+RACE_SERVICE_PORT=8084
+USER_SERVICE_HOST=localhost
+USER_SERVICE_PORT=8086
 ```
 
 ### Config gcloud
@@ -44,7 +57,7 @@ gcloud auth configure-docker
 ### Starte services i docker
 docker-compose pull #oppdatere images
 docker-compose up --build
-docker-compose up --build event-service user-service mongodb
+docker-compose up --build event-service race-service user-service mongodb
 
 Denne fila _skal_ ligge i .dockerignore og .gitignore
 ### Kjøre webserver lokalt
