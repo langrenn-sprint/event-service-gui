@@ -31,7 +31,12 @@ class ContestantsAdapter:
                 if res == 201:
                     pass
                 else:
-                    raise Exception(f"assign_bibs failed: {resp}")
+                    servicename = "assign_bibs"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
             information = "Startnummer tildelt."
         return information
 
@@ -58,9 +63,12 @@ class ContestantsAdapter:
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
                 else:
-                    logging.error(f"create_contestant failed - {resp.status}")
-                    raise web.HTTPBadRequest(reason="Create contestant failed.")
-
+                    servicename = "create_contestant"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return id
 
     async def create_contestants(self, token: str, event_id: str, inputfile) -> str:
@@ -81,8 +89,12 @@ class ContestantsAdapter:
                 if res == 200:
                     res = await resp.json()
                 else:
-                    raise Exception(f"create_contestants failed: {resp}")
-
+                    servicename = "create_contestants"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return str(res)
 
     async def delete_all_contestants(self, token: str, event_id: str) -> str:
@@ -101,7 +113,12 @@ class ContestantsAdapter:
                 if res == 204:
                     pass
                 else:
-                    raise Exception(f"delete_all_contestants failed: {resp}")
+                    servicename = "delete_all_contestants"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return str(res)
 
     async def delete_contestant(
@@ -122,7 +139,12 @@ class ContestantsAdapter:
                 if res == 204:
                     pass
                 else:
-                    raise Exception(f"delete_contestant failed: {resp}")
+                    servicename = "delete_contestant"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return str(res)
 
     async def get_all_contestants(
@@ -144,7 +166,12 @@ class ContestantsAdapter:
                 if resp.status == 200:
                     contestants = await resp.json()
                 else:
-                    logging.error(f"Error getting contestants: {resp}")
+                    servicename = "get_all_contestants"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
 
         # TODO: Bør flyttes til backend
         if ageclass_name != "":
@@ -175,7 +202,12 @@ class ContestantsAdapter:
                 if resp.status == 200:
                     contestant = await resp.json()
                 else:
-                    logging.error(f"Error in contestants: {resp}")
+                    servicename = "get_contestant"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return contestant
 
     async def update_contestant(
@@ -199,6 +231,11 @@ class ContestantsAdapter:
                 if res == 204:
                     logging.debug(f"result - got response {resp}")
                 else:
-                    logging.error(f"update_contestant failed: {resp}")
+                    servicename = "update_contestant"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
 
         return str(resp.status)

@@ -32,7 +32,12 @@ class EventsAdapter:
                 if res == 201:
                     pass
                 else:
-                    raise Exception(f"generate-classes failed: {resp}")
+                    servicename = "generate_classes"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         information = "Opprettet klasser."
         return information
 
@@ -83,8 +88,11 @@ class EventsAdapter:
                 elif resp.status == 401:
                     raise Exception(f"Login expired: {resp}")
                 else:
-                    logging.error(
-                        f"Error {resp.status} getting competition_formats: {resp} "
+                    servicename = "get_competition_formats"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
                     )
         return competition_formats
 
@@ -109,7 +117,12 @@ class EventsAdapter:
                 elif resp.status == 401:
                     raise Exception(f"Login expired: {resp}")
                 else:
-                    logging.error(f"Error {resp.status} getting events: {resp} ")
+                    servicename = "get_event"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return event
 
     async def create_event(self, token: str, event: dict) -> str:
@@ -132,10 +145,11 @@ class EventsAdapter:
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
                 else:
+                    servicename = "create_event"
                     body = await resp.json()
-                    logging.error(f"create_event failed - {resp.status} - {body}")
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
-                        reason=f"Create event failed, reason: {body['detail']}."
+                        reason=f"Error - {resp.status}: {body['detail']}."
                     )
 
         return id
@@ -150,17 +164,19 @@ class EventsAdapter:
         )
         url = f"{EVENT_SERVICE_URL}/events/{id}"
         async with ClientSession() as session:
-            async with session.delete(url, headers=headers) as response:
+            async with session.delete(url, headers=headers) as resp:
                 pass
-            logging.debug(f"Delete event: {id} - res {response.status}")
-            if response.status == 204:
-                logging.debug(f"result - got response {response}")
+            logging.debug(f"Delete event: {id} - res {resp.status}")
+            if resp.status == 204:
+                logging.debug(f"result - got response {resp}")
             else:
-                logging.error(f"delete_event failed - {response.status}, {response}")
+                servicename = "delete_event"
+                body = await resp.json()
+                logging.error(f"{servicename} failed - {resp.status} - {body}")
                 raise web.HTTPBadRequest(
-                    reason=f"Delete event failed {response.status}."
+                    reason=f"Error - {resp.status}: {body['detail']}."
                 )
-        return str(response.status)
+        return str(resp.status)
 
     async def update_event(self, token: str, id: str, request_body: dict) -> str:
         """Update event function."""
@@ -178,9 +194,11 @@ class EventsAdapter:
                 if resp.status == 204:
                     logging.debug(f"update event - got response {resp}")
                 else:
-                    logging.error(f"update_event failed - {resp.status}")
+                    servicename = "update_event"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
-                        reason=f"Update event failed - {resp.status}."
+                        reason=f"Error - {resp.status}: {body['detail']}."
                     )
             logging.debug(f"Updated event: {id} - res {resp.status}")
         return str(resp.status)

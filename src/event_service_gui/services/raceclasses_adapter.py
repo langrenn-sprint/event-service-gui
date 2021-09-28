@@ -39,8 +39,12 @@ class RaceclassesAdapter:
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
                 else:
-                    logging.error(f"create_raceclass failed - {resp.status}")
-                    raise web.HTTPBadRequest(reason="Create raceclass failed.")
+                    servicename = "create_raceclass"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
 
         return id
 
@@ -60,7 +64,12 @@ class RaceclassesAdapter:
                 if res == 204:
                     pass
                 else:
-                    raise Exception(f"delete_all_raceclasses failed: {resp}")
+                    servicename = "delete_all_raceclasses"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return str(res)
 
     async def delete_raceclass(
@@ -81,7 +90,12 @@ class RaceclassesAdapter:
                 if res == 204:
                     pass
                 else:
-                    raise Exception(f"delete_raceclass failed: {resp}")
+                    servicename = "delete_raceclass"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return str(res)
 
     async def get_raceclass(self, token: str, event_id: str, raceclass_id: str) -> dict:
@@ -98,11 +112,16 @@ class RaceclassesAdapter:
                 f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses/{raceclass_id}",
                 headers=headers,
             ) as resp:
-                logging.debug(f"get_raceclass - got response {resp.status}")
+                logging.info(f"get_raceclass - got response {resp.status}")
                 if resp.status == 200:
                     raceclass = await resp.json()
                 else:
-                    logging.error(f"Error in get_raceclass: {resp}")
+                    servicename = "get_raceclass"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return raceclass
 
     async def get_raceclasses(self, token: str, event_id: str) -> List:
@@ -118,6 +137,7 @@ class RaceclassesAdapter:
             async with session.get(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses", headers=headers
             ) as resp:
+                logging.info(f"get_raceclasses - got response {resp.status}")
                 if resp.status == 200:
                     all_raceclasses = await resp.json()
                     for raceclass in all_raceclasses:
@@ -126,11 +146,13 @@ class RaceclassesAdapter:
                                 raceclasses.append(raceclass)
                         except Exception as e:
                             logging.error(f"Error - data quality: {e}")
-                elif resp.status == 401:
-                    logging.info("TODO Performing new login")
-                    # Perform login
                 else:
-                    logging.error(f"Error {resp.status} getting raceclasses: {resp} ")
+                    servicename = "get_raceclasses"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return raceclasses
 
     async def update_raceclass(
@@ -151,12 +173,15 @@ class RaceclassesAdapter:
                 json=new_data,
             ) as resp:
                 returncode = resp.status
-                if resp.status == 200:
+                logging.info(f"update_raceclass - got response {resp.status}")
+                if resp.status == 204:
                     pass
-                elif resp.status == 401:
-                    logging.info("TODO Performing new login")
-                    # Perform login
                 else:
-                    logging.error(f"Error {resp.status} update raceclass: {resp} ")
+                    servicename = "update_raceclass"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
 
         return returncode

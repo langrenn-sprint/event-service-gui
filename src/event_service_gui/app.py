@@ -52,7 +52,7 @@ async def create_app() -> web.Application:
     # from cryptography import fernet
     # fernet_key = fernet.Fernet.generate_key() - avoid generating new key for every restart
     # print(f"Fernet_key: {fernet_key}")
-    fernet_key = os.getenv("FERNET_KEY")
+    fernet_key = os.getenv("FERNET_KEY", "23EHUWpP_tpleR_RjuX5hxndWqyc0vO-cjNUMSzbjN4=")
     secret_key = base64.urlsafe_b64decode(fernet_key)
     setup(app, EncryptedCookieStorage(secret_key))
     app.router.add_get("/secret", handler)

@@ -108,14 +108,16 @@ class Raceclasses(web.View):
                 for input in form.keys():
                     if input.startswith("id_"):
                         id = str(form[input])
-                        age_class = await RaceclassesAdapter().get_raceclass(
+                        race_class = await RaceclassesAdapter().get_raceclass(
                             token, event_id, id
                         )
-                        age_class["order"] = str(form[f"order_{id}"])
+                        race_class["order"] = str(form[f"order_{id}"])
                         result = await RaceclassesAdapter().update_raceclass(
-                            token, event_id, id, age_class
+                            token, event_id, id, race_class
                         )
-                        logging.info(f"Age_class: {age_class} - update result {result}")
+                        logging.info(
+                            f"New race_class: {race_class}- update result {result}"
+                        )
                 informasjon = "Klasser er oppdatert."
             # Create classes from list of contestants
             elif "generate_raceclasses" in form.keys():
