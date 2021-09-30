@@ -117,3 +117,32 @@ class RaceplansAdapter:
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
         return raceplan
+
+    async def update_raceplan(self, token: str, id: str, new_data: dict) -> int:
+        """Update klasser function."""
+        returncode = 201
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        async with ClientSession() as session:
+            async with session.put(
+                f"{RACE_SERVICE_URL}/raceplans/{id}",
+                headers=headers,
+                json=new_data,
+            ) as resp:
+                returncode = resp.status
+                logging.info(f"update_raceplan - got response {resp.status}")
+                if resp.status == 204:
+                    pass
+                else:
+                    servicename = "update_raceplan"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+
+        return returncode

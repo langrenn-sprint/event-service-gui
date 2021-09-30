@@ -98,10 +98,10 @@ class Raceplans(web.View):
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }
 
-                result = await RaceplansAdapter().update_raceplan(
-                    token, event_id, id, request_body
+                res = await RaceplansAdapter().update_raceplan(
+                    token, event_id, request_body
                 )
-                informasjon = f"Informasjon er oppdatert - {result}"
+                informasjon = f"Informasjon er oppdatert - {res}"
             # Create classes from list of contestants
             elif "generate_raceplans" in form.keys():
                 res = await RaceplansAdapter().generate_raceplans(token, event_id)
