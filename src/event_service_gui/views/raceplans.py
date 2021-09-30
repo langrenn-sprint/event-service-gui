@@ -104,11 +104,13 @@ class Raceplans(web.View):
                 informasjon = f"Informasjon er oppdatert - {res}"
             # Create classes from list of contestants
             elif "generate_raceplans" in form.keys():
-                res = await RaceplansAdapter().generate_raceplans(token, event_id)
-                informasjon = f"Opprettet kjøreplan - {res}"
+                result = await RaceplansAdapter().generate_raceplans(token, event_id)
+                informasjon = f"Opprettet kjøreplan - {result}"
             elif "delete_one" in form.keys():
-                res = await RaceplansAdapter().delete_raceplan(token, str(form["id"]))
-                informasjon = f"Kjøreplaner er slettet - {res}"
+                result = await RaceplansAdapter().delete_raceplan(
+                    token, str(form["id"])
+                )
+                informasjon = f"Kjøreplaner er slettet - {result}"
 
         except Exception as e:
             logging.error(f"Error: {e}")
