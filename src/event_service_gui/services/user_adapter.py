@@ -7,9 +7,9 @@ from aiohttp import ClientSession, hdrs, web
 from aiohttp_session import Session
 from multidict import MultiDict
 
-USER_SERVICE_HOST = os.getenv("USER_SERVICE_HOST")
-USER_SERVICE_PORT = os.getenv("USER_SERVICE_PORT")
-USER_SERVICE_URL = f"http://{USER_SERVICE_HOST}:{USER_SERVICE_PORT}"
+USERS_HOST_SERVER = os.getenv("USERS_HOST_SERVER")
+USERS_HOST_PORT = os.getenv("USERS_HOST_PORT")
+USER_SERVICE_URL = f"http://{USERS_HOST_SERVER}:{USERS_HOST_PORT}"
 
 
 class UserAdapter:

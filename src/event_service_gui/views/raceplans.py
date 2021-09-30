@@ -6,11 +6,11 @@ import aiohttp_jinja2
 from aiohttp_session import get_session
 
 from event_service_gui.services import EventsAdapter
-from event_service_gui.services import RaceclassesAdapter
+from event_service_gui.services import RaceplansAdapter
 from event_service_gui.services import UserAdapter
 
 
-class Raceclasses(web.View):
+class Raceplans(web.View):
     """Class representing the main view."""
 
     async def get(self) -> web.Response:
@@ -38,32 +38,30 @@ class Raceclasses(web.View):
                 informasjon = self.request.rel_url.query["informasjon"]
             except Exception:
                 informasjon = ""
-            klasse = {}
             try:
                 action = self.request.rel_url.query["action"]
                 if action == "update_one":
-                    id = self.request.rel_url.query["id"]
-                    klasse = await RaceclassesAdapter().get_raceclass(
-                        token, event_id, id
-                    )
-
+                    pass
             except Exception:
                 action = ""
             logging.debug(f"Action: {action}")
 
-            raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
+            # TODO - get list of raceplans
+            raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)
+            races = raceplans[0]["races"]
+            event = await EventsAdapter().get_event(token, event_id)
 
             return await aiohttp_jinja2.render_template_async(
-                "raceclasses.html",
+                "raceplans.html",
                 self.request,
                 {
                     "action": action,
-                    "raceclasses": raceclasses,
+                    "lopsinfo": "Kjøreplan",
+                    "raceplans": raceplans,
+                    "races": races,
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,
-                    "lopsinfo": "Klasser",
-                    "klasse": klasse,
                     "username": username,
                 },
             )
@@ -100,45 +98,22 @@ class Raceclasses(web.View):
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }
 
-                result = await RaceclassesAdapter().update_raceclass(
+                result = await RaceplansAdapter().update_raceplan(
                     token, event_id, id, request_body
                 )
                 informasjon = f"Informasjon er oppdatert - {result}"
-            elif "update_order" in form.keys():
-                for input in form.keys():
-                    if input.startswith("id_"):
-                        id = str(form[input])
-                        race_class = await RaceclassesAdapter().get_raceclass(
-                            token, event_id, id
-                        )
-                        race_class["order"] = int(form[f"order_{id}"])
-                        result = await RaceclassesAdapter().update_raceclass(
-                            token, event_id, id, race_class
-                        )
-                        logging.info(
-                            f"New race_class: {race_class}- update result {result}"
-                        )
-                informasjon = "Klasser er oppdatert."
             # Create classes from list of contestants
-            elif "generate_raceclasses" in form.keys():
-                informasjon = await EventsAdapter().generate_classes(token, event_id)
-            elif "refresh_no_of_contestants" in form.keys():
-                informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
-            # delete
+            elif "generate_raceplans" in form.keys():
+                res = await RaceplansAdapter().generate_raceplans(token, event_id)
+                informasjon = f"Opprettet kjøreplan - {res}"
             elif "delete_one" in form.keys():
-                res = await RaceclassesAdapter().delete_raceclass(
-                    token, event_id, str(form["id"])
-                )
-                informasjon = f"Klasse er slettet - {res}"
-            # delete_all
-            elif "delete_all" in form.keys():
-                res = await RaceclassesAdapter().delete_all_raceclasses(token, event_id)
-                informasjon = f"Klasser er slettet - {res}"
+                res = await RaceplansAdapter().delete_raceplan(token, str(form["id"]))
+                informasjon = f"Kjøreplaner er slettet - {res}"
 
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
-            location=f"/raceclasses?event_id={event_id}&informasjon={informasjon}"
+            location=f"/raceplans?event_id={event_id}&informasjon={informasjon}"
         )

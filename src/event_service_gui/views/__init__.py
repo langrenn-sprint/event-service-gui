@@ -7,6 +7,6 @@ from .login import Login
 from .logout import Logout
 from .main import Main
 from .raceclasses import Raceclasses
-from .schedules import Schedules
+from .raceplans import Raceplans
 from .tasks import Tasks
 from .users import Users

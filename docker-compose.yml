@@ -10,12 +10,12 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - HOST_PORT=8080
-      - EVENT_SERVICE_HOST=event-service
-      - EVENT_SERVICE_PORT=8080
+      - EVENTS_HOST_SERVER=event-service
+      - EVENTS_HOST_PORT=8080
       - RACE_SERVICE_HOST=race-service
       - RACE_SERVICE_PORT=8080
-      - USER_SERVICE_HOST=user-service
-      - USER_SERVICE_PORT=8080
+      - USERS_HOST_SERVER=user-service
+      - USERS_HOST_PORT=8080
     depends_on:
       - "event-service"
   event-service:
@@ -43,6 +43,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - EVENTS_HOST_SERVER=event-service
+      - EVENTS_HOST_PORT=8080
       - USERS_HOST_SERVER=user-service
       - USERS_HOST_PORT=8080
       - LOGGING_LEVEL=${LOGGING_LEVEL}

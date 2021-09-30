@@ -1,0 +1,87 @@
+{% extends "adm_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-quart"></div>
+  <div class="w3-half">
+{% endblock %}
+
+{% block titleheader %}
+  {{ lopsinfo }}
+{% endblock %}
+{% block refresh %}{% endblock %}
+{% block titlemain %}
+  {{ lopsinfo }}
+{% endblock %}
+{% block menuitems %}
+  <li id=topborder>
+    <a href=/raceplans?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>
+  </li>
+{% endblock %}
+{% block content %}
+<div id=spacer></div>
+{% if  action == "edit_mode" %}
+    <table>
+      <tr id=headerblue align=right>
+        <td>
+          <form action=/raceplans method=get>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name=action value="update_time">
+            <input type="submit" name="generate_race" value="  Rediger starttid  ">
+          </form>
+        </td>
+        <td>
+          <form action=/raceplans method=post>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="generate_raceplans" value="  Generer kjøreplan  ">
+          </form>
+        </td>
+        <td>
+          <form action=/raceplans method=post>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="delete_all" value="  Slett alle kjøreplaner  ">
+          </form>
+        </td>
+    </table>
+    <div id=spacer></div>
+    <table>
+       <tr id=headerblue>
+        <td>Løpsklasse</td>
+        <td>Første start</td>
+        <td>Deltakere</td>
+        <td>Heat</td>
+        <td></td>
+      </tr>
+      {% for race in races %}
+          <tr>
+            <td>{{ race.raceclass }}</td>
+            <td>{{ race.start_time[-8:] }}</td>
+            <td>{{ race.no_of_contestants }}</td>
+            <td>{{ race.heat }}</td>
+            <td>
+              <form action=/raceplans method=post>
+                <input type="submit" name=delete_one value="  Slett  ">
+                <input type="hidden" name="id" value="{{ race.id }}">
+                <input type="hidden" name="event_id" value="{{ event_id }}">
+              </form>
+            </td>
+          </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <table>
+       <tr id=headerblue>
+        <td>Løpsklasse</td>
+        <td>Første start</td>
+        <td>Deltakere</td>
+        <td>Heat</td>
+      </tr>
+      {% for race in races %}
+          <tr>
+            <td>{{ race.raceclass }}</td>
+            <td>{{ race.start_time[-8:] }}</td>
+            <td>{{ race.no_of_contestants }}</td>
+            <td>{{ race.heat }}</td>
+          </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+{% endblock %}

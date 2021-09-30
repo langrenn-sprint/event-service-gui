@@ -42,7 +42,7 @@ class Events(web.View):
                 create_new = False
 
             competition_formats = await EventsAdapter().get_competition_formats(token)
-            logging.info(f"Format: {competition_formats}")
+            logging.debug(f"Format: {competition_formats}")
 
             event = {"name": "Nytt arrangement", "organiser": "Ikke valgt"}
             if (not create_new) and (event_id != ""):

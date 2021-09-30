@@ -8,9 +8,9 @@ from aiohttp import ClientSession
 from aiohttp import hdrs, web
 from multidict import MultiDict
 
-EVENT_SERVICE_HOST = os.getenv("EVENT_SERVICE_HOST", "localhost")
-EVENT_SERVICE_PORT = os.getenv("EVENT_SERVICE_PORT", "8082")
-EVENT_SERVICE_URL = f"http://{EVENT_SERVICE_HOST}:{EVENT_SERVICE_PORT}"
+EVENTS_HOST_SERVER = os.getenv("EVENTS_HOST_SERVER", "localhost")
+EVENTS_HOST_PORT = os.getenv("EVENTS_HOST_PORT", "8082")
+EVENT_SERVICE_URL = f"http://{EVENTS_HOST_SERVER}:{EVENTS_HOST_PORT}"
 
 
 class ContestantsAdapter:

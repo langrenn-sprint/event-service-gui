@@ -21,7 +21,7 @@ from .views import (
     Main,
     Ping,
     Raceclasses,
-    Schedules,
+    Raceplans,
     Tasks,
     Users,
 )
@@ -86,7 +86,7 @@ async def create_app() -> web.Application:
             web.view("/logout", Logout),
             web.view("/ping", Ping),
             web.view("/raceclasses", Raceclasses),
-            web.view("/schedules", Schedules),
+            web.view("/raceplans", Raceplans),
             web.view("/tasks", Tasks),
             web.view("/users", Users),
             web.static("/static", static_path),
