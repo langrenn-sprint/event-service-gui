@@ -40,17 +40,18 @@ class Raceplans(web.View):
                 informasjon = ""
             try:
                 action = self.request.rel_url.query["action"]
-                if action == "update_one":
-                    pass
             except Exception:
                 action = ""
             logging.debug(f"Action: {action}")
 
             # TODO - get list of raceplans
             raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)
-            races = raceplans[0]["races"]
+            logging.debug(f"Raceplans len {len(raceplans)}")
+
+            races = []
+            if len(raceplans) > 0:
+                races = raceplans[0]["races"]
             event = await EventsAdapter().get_event(token, event_id)
-            logging.debug(f"Raceplans: {raceplans}")
 
             return await aiohttp_jinja2.render_template_async(
                 "raceplans.html",
