@@ -112,7 +112,7 @@ class RaceclassesAdapter:
                 f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses/{raceclass_id}",
                 headers=headers,
             ) as resp:
-                logging.info(f"get_raceclass - got response {resp.status}")
+                logging.debug(f"get_raceclass - got response {resp.status}")
                 if resp.status == 200:
                     raceclass = await resp.json()
                 else:
@@ -137,11 +137,11 @@ class RaceclassesAdapter:
             async with session.get(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses", headers=headers
             ) as resp:
-                logging.info(f"get_raceclasses - got response {resp.status}")
+                logging.debug(f"get_raceclasses - got response {resp.status}")
                 if resp.status == 200:
                     all_raceclasses = await resp.json()
                     for raceclass in all_raceclasses:
-                        logging.info(f"Raceclasses order: {raceclass['order']}.")
+                        logging.debug(f"Raceclasses order: {raceclass['order']}.")
 
                         try:
                             if raceclass["event_id"] == event_id:
@@ -175,7 +175,7 @@ class RaceclassesAdapter:
                 json=new_data,
             ) as resp:
                 returncode = resp.status
-                logging.info(f"update_raceclass - got response {resp.status}")
+                logging.debug(f"update_raceclass - got response {resp.status}")
                 if resp.status == 204:
                     pass
                 else:

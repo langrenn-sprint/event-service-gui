@@ -12,8 +12,8 @@ services:
       - HOST_PORT=8080
       - EVENTS_HOST_SERVER=event-service
       - EVENTS_HOST_PORT=8080
-      - RACE_SERVICE_HOST=race-service
-      - RACE_SERVICE_PORT=8080
+      - RACE_HOST_SERVER=race-service
+      - RACE_HOST_PORT=8080
       - USERS_HOST_SERVER=user-service
       - USERS_HOST_PORT=8080
     depends_on:

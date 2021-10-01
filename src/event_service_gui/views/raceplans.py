@@ -44,13 +44,7 @@ class Raceplans(web.View):
                 action = ""
             logging.debug(f"Action: {action}")
 
-            # TODO - get list of raceplans
-            raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)
-            logging.debug(f"Raceplans len {len(raceplans)}")
-
-            races = []
-            if len(raceplans) > 0:
-                races = raceplans[0]["races"]
+            races = await RaceplansAdapter().get_all_races(token, event_id)
             event = await EventsAdapter().get_event(token, event_id)
 
             return await aiohttp_jinja2.render_template_async(
@@ -59,7 +53,6 @@ class Raceplans(web.View):
                 {
                     "action": action,
                     "lopsinfo": "Kjøreplan",
-                    "raceplans": raceplans,
                     "races": races,
                     "event": event,
                     "event_id": event_id,

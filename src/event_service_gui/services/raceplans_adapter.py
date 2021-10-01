@@ -8,19 +8,21 @@ from aiohttp import hdrs
 from aiohttp import web
 from multidict import MultiDict
 
-RACE_SERVICE_HOST = os.getenv("RACE_SERVICE_HOST", "localhost")
-RACE_SERVICE_PORT = os.getenv("RACE_SERVICE_PORT", "8088")
-RACE_SERVICE_URL = f"http://{RACE_SERVICE_HOST}:{RACE_SERVICE_PORT}"
+RACE_HOST_SERVER = os.getenv("RACE_HOST_SERVER", "localhost")
+RACE_HOST_PORT = os.getenv("RACE_HOST_PORT", "8088")
+RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
 
 
 class RaceplansAdapter:
     """Class representing raceplans."""
 
-    async def delete_raceplans(self, token: str, id: str) -> str:
+    async def delete_raceplans(self, token: str, event_id: str) -> str:
         """Delete all raceplans in one event function."""
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
+        # FIXME: get correct id
+        id = event_id
         async with ClientSession() as session:
             async with session.delete(
                 f"{RACE_SERVICE_URL}/raceplans/{id}",
@@ -89,34 +91,29 @@ class RaceplansAdapter:
                     )
         return raceplans
 
-    async def get_raceplan(self, token: str, id: str) -> dict:
-        """Get event function."""
-        raceplan = {}
-        headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
-        )
+    async def get_all_races(self, token: str, event_id: str) -> dict:
+        """Get all races function."""
+        raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)
+        logging.debug(f"Raceplans len {len(raceplans)}")
 
-        async with ClientSession() as session:
-            async with session.get(
-                f"{RACE_SERVICE_URL}/raceplans/{id}", headers=headers
-            ) as resp:
-                logging.debug(f"get_raceplan {id} - got response {resp.status}")
-                if resp.status == 200:
-                    raceplan = await resp.json()
-                    logging.debug(f"get_raceplan - got response {raceplan}")
-                elif resp.status == 401:
-                    raise Exception(f"Login expired: {resp}")
-                else:
-                    servicename = "get_raceplan"
-                    body = await resp.json()
-                    logging.error(f"{servicename} failed - {resp.status} - {body}")
-                    raise web.HTTPBadRequest(
-                        reason=f"Error - {resp.status}: {body['detail']}."
-                    )
-        return raceplan
+        races = []
+        if len(raceplans) > 0:
+            races = raceplans[0]["races"]
+        return races
+
+    async def get_race_by_class(
+        self, token: str, event_id: str, valgt_klasse: str
+    ) -> dict:
+        """Get all races function."""
+        races = await RaceplansAdapter().get_all_races(token, event_id)
+        for race in races:
+            if race["raceclass"] == valgt_klasse:
+                return race
+        # no match on class - raise error
+        logging.error(f"get_race_by_class, no races found for {valgt_klasse}")
+        raise web.HTTPBadRequest(reason=f"Ingen løp funnet for {valgt_klasse}.")
+
+        return races
 
     async def update_raceplan(self, token: str, id: str, new_data: dict) -> int:
         """Update klasser function."""
@@ -134,7 +131,7 @@ class RaceplansAdapter:
                 json=new_data,
             ) as resp:
                 returncode = resp.status
-                logging.info(f"update_raceplan - got response {resp.status}")
+                logging.debug(f"update_raceplan - got response {resp.status}")
                 if resp.status == 204:
                     pass
                 else:
