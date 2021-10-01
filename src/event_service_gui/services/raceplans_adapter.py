@@ -16,7 +16,7 @@ RACE_SERVICE_URL = f"http://{RACE_SERVICE_HOST}:{RACE_SERVICE_PORT}"
 class RaceplansAdapter:
     """Class representing raceplans."""
 
-    async def delete_raceplan(self, token: str, id: str) -> str:
+    async def delete_raceplans(self, token: str, id: str) -> str:
         """Delete all raceplans in one event function."""
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",

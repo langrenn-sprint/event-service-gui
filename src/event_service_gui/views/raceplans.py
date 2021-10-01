@@ -50,6 +50,7 @@ class Raceplans(web.View):
             raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)
             races = raceplans[0]["races"]
             event = await EventsAdapter().get_event(token, event_id)
+            logging.debug(f"Raceplans: {raceplans}")
 
             return await aiohttp_jinja2.render_template_async(
                 "raceplans.html",
@@ -80,12 +81,11 @@ class Raceplans(web.View):
         token = str(session["token"])
 
         informasjon = ""
-        try:
-            form = await self.request.post()
-            logging.debug(f"Form {form}")
-            event_id = str(form["event_id"])
+        form = await self.request.post()
+        event_id = str(form["event_id"])
+        logging.info(f"Form {form}")
 
-            # Update
+        try:
             if "update_one" in form.keys():
                 id = str(form["id"])
                 request_body = {
@@ -93,7 +93,7 @@ class Raceplans(web.View):
                     "distance": str(form["distance"]),
                     "event_id": event_id,
                     "id": id,
-                    "order": str(form["order"]),
+                    "order": int(form["order"]),
                     "ageclass_name": str(form["ageclass_name"]),
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }
@@ -106,8 +106,8 @@ class Raceplans(web.View):
             elif "generate_raceplans" in form.keys():
                 result = await RaceplansAdapter().generate_raceplans(token, event_id)
                 informasjon = f"Opprettet kjøreplan - {result}"
-            elif "delete_one" in form.keys():
-                result = await RaceplansAdapter().delete_raceplan(
+            elif "delete_all" in form.keys():
+                result = await RaceplansAdapter().delete_raceplans(
                     token, str(form["id"])
                 )
                 informasjon = f"Kjøreplaner er slettet - {result}"

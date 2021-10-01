@@ -95,7 +95,7 @@ class Raceclasses(web.View):
                     "distance": str(form["distance"]),
                     "event_id": event_id,
                     "id": id,
-                    "order": str(form["order"]),
+                    "order": int(form["order"]),
                     "ageclass_name": str(form["ageclass_name"]),
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }
@@ -111,7 +111,7 @@ class Raceclasses(web.View):
                         race_class = await RaceclassesAdapter().get_raceclass(
                             token, event_id, id
                         )
-                        race_class["order"] = str(form[f"order_{id}"])
+                        race_class["order"] = int(form[f"order_{id}"])
                         result = await RaceclassesAdapter().update_raceclass(
                             token, event_id, id, race_class
                         )
