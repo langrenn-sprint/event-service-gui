@@ -6,6 +6,7 @@ import aiohttp_jinja2
 from aiohttp_session import get_session
 
 from event_service_gui.services import UserAdapter
+from .utils import check_login
 
 
 class Users(web.View):
@@ -13,14 +14,8 @@ class Users(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
-        # check login
-        session = await get_session(self.request)
         try:
-            loggedin = UserAdapter().isloggedin(session)
-            if not loggedin:
-                return web.HTTPSeeOther(location="/login")
-            token = str(session["token"])
-            username = str(session["username"])
+            user = await check_login(self)
             users = []
 
             try:
@@ -38,7 +33,7 @@ class Users(web.View):
                 create_new = False
 
             if not create_new:
-                users = await UserAdapter().get_all_users(token)
+                users = await UserAdapter().get_all_users(user["token"])
                 logging.info(f"Users: {users}")
 
             event = {"name": "Administrasjon", "organiser": "Ikke valgt"}
@@ -51,35 +46,28 @@ class Users(web.View):
                     "event": event,
                     "event_id": "",
                     "informasjon": informasjon,
-                    "username": username,
+                    "username": user["name"],
                     "users": users,
                     "create_new": create_new,
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Starting new session.")
-            session.invalidate()
-            return web.HTTPSeeOther(location="/login")
+            logging.error(f"Error: {e}. Redirect to main page.")
+            return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
         """Get route function that return the index page."""
         informasjon = ""
-        logging.debug(f"Login: {self}")
-
-        # check login
-        session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location="/login")
-        token = str(session["token"])
+        user = await check_login(self)
 
         try:
             form = await self.request.post()
 
             # Create new event
             if "create" in form.keys():
+                session = await get_session(self.request)
                 id = await UserAdapter().create_user(
-                    token,
+                    user["token"],
                     str(form["newrole"]),
                     str(form["newusername"]),
                     str(form["newpassword"]),
@@ -89,7 +77,7 @@ class Users(web.View):
             elif "delete" in form.keys():
                 id = str(form["id"])
                 logging.info(f"Enter delete {id}")
-                res = await UserAdapter().delete_user(token, id)
+                res = await UserAdapter().delete_user(user["token"], id)
                 if res == "204":
                     informasjon = "Bruker er slettet."
                 else:

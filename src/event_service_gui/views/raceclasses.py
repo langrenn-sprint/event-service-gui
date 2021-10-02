@@ -3,11 +3,10 @@ import logging
 
 from aiohttp import web
 import aiohttp_jinja2
-from aiohttp_session import get_session
 
 from event_service_gui.services import EventsAdapter
 from event_service_gui.services import RaceclassesAdapter
-from event_service_gui.services import UserAdapter
+from .utils import check_login, get_event
 
 
 class Raceclasses(web.View):
@@ -19,20 +18,11 @@ class Raceclasses(web.View):
         try:
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
-            informasjon = "Ingen event valgt."
-            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+            event_id = ""
 
-        # check login
-        username = ""
-        session = await get_session(self.request)
         try:
-            loggedin = UserAdapter().isloggedin(session)
-            if not loggedin:
-                return web.HTTPSeeOther(location=f"/login?event={event_id}")
-            username = str(session["username"])
-            token = str(session["token"])
-
-            event = await EventsAdapter().get_event(token, event_id)
+            user = await check_login(self)
+            event = await get_event(user["token"], event_id)
 
             try:
                 informasjon = self.request.rel_url.query["informasjon"]
@@ -44,14 +34,16 @@ class Raceclasses(web.View):
                 if action == "update_one":
                     id = self.request.rel_url.query["id"]
                     klasse = await RaceclassesAdapter().get_raceclass(
-                        token, event_id, id
+                        user["token"], event_id, id
                     )
 
             except Exception:
                 action = ""
             logging.debug(f"Action: {action}")
 
-            raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
+            raceclasses = await RaceclassesAdapter().get_raceclasses(
+                user["token"], event_id
+            )
 
             return await aiohttp_jinja2.render_template_async(
                 "raceclasses.html",
@@ -64,22 +56,16 @@ class Raceclasses(web.View):
                     "informasjon": informasjon,
                     "lopsinfo": "Klasser",
                     "klasse": klasse,
-                    "username": username,
+                    "username": user["name"],
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Starting new session.")
-            session.invalidate()
-            return web.HTTPSeeOther(location="/login")
+            logging.error(f"Error: {e}. Redirect to main page.")
+            return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""
-        # check login
-        session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location="/login")
-        token = str(session["token"])
+        user = await check_login(self)
 
         informasjon = ""
         try:
@@ -101,7 +87,7 @@ class Raceclasses(web.View):
                 }
 
                 result = await RaceclassesAdapter().update_raceclass(
-                    token, event_id, id, request_body
+                    user["token"], event_id, id, request_body
                 )
                 informasjon = f"Informasjon er oppdatert - {result}"
             elif "update_order" in form.keys():
@@ -109,11 +95,11 @@ class Raceclasses(web.View):
                     if input.startswith("id_"):
                         id = str(form[input])
                         race_class = await RaceclassesAdapter().get_raceclass(
-                            token, event_id, id
+                            user["token"], event_id, id
                         )
                         race_class["order"] = int(form[f"order_{id}"])
                         result = await RaceclassesAdapter().update_raceclass(
-                            token, event_id, id, race_class
+                            user["token"], event_id, id, race_class
                         )
                         logging.info(
                             f"New race_class: {race_class}- update result {result}"
@@ -121,18 +107,22 @@ class Raceclasses(web.View):
                 informasjon = "Klasser er oppdatert."
             # Create classes from list of contestants
             elif "generate_raceclasses" in form.keys():
-                informasjon = await EventsAdapter().generate_classes(token, event_id)
+                informasjon = await EventsAdapter().generate_classes(
+                    user["token"], event_id
+                )
             elif "refresh_no_of_contestants" in form.keys():
                 informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
             # delete
             elif "delete_one" in form.keys():
                 res = await RaceclassesAdapter().delete_raceclass(
-                    token, event_id, str(form["id"])
+                    user["token"], event_id, str(form["id"])
                 )
                 informasjon = f"Klasse er slettet - {res}"
             # delete_all
             elif "delete_all" in form.keys():
-                res = await RaceclassesAdapter().delete_all_raceclasses(token, event_id)
+                res = await RaceclassesAdapter().delete_all_raceclasses(
+                    user["token"], event_id
+                )
                 informasjon = f"Klasser er slettet - {res}"
 
         except Exception as e:

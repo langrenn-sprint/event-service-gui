@@ -3,11 +3,10 @@ import logging
 
 from aiohttp import web
 import aiohttp_jinja2
-from aiohttp_session import get_session
 
 from event_service_gui.services import EventsAdapter
 from event_service_gui.services import RaceplansAdapter
-from event_service_gui.services import UserAdapter
+from .utils import check_login, get_event
 
 
 class Raceplans(web.View):
@@ -19,20 +18,11 @@ class Raceplans(web.View):
         try:
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
-            informasjon = "Ingen event valgt."
-            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+            event_id = ""
 
-        # check login
-        username = ""
-        session = await get_session(self.request)
         try:
-            loggedin = UserAdapter().isloggedin(session)
-            if not loggedin:
-                return web.HTTPSeeOther(location=f"/login?event={event_id}")
-            username = str(session["username"])
-            token = str(session["token"])
-
-            event = await EventsAdapter().get_event(token, event_id)
+            user = await check_login(self)
+            event = await get_event(user["token"], event_id)
 
             try:
                 informasjon = self.request.rel_url.query["informasjon"]
@@ -44,8 +34,8 @@ class Raceplans(web.View):
                 action = ""
             logging.debug(f"Action: {action}")
 
-            races = await RaceplansAdapter().get_all_races(token, event_id)
-            event = await EventsAdapter().get_event(token, event_id)
+            races = await RaceplansAdapter().get_all_races(user["token"], event_id)
+            event = await EventsAdapter().get_event(user["token"], event_id)
 
             return await aiohttp_jinja2.render_template_async(
                 "raceplans.html",
@@ -57,22 +47,16 @@ class Raceplans(web.View):
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,
-                    "username": username,
+                    "username": user["name"],
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Starting new session.")
-            session.invalidate()
-            return web.HTTPSeeOther(location="/login")
+            logging.error(f"Error: {e}. Redirect to main page.")
+            return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""
-        # check login
-        session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location="/login")
-        token = str(session["token"])
+        user = await check_login(self)
 
         informasjon = ""
         form = await self.request.post()
@@ -93,16 +77,18 @@ class Raceplans(web.View):
                 }
 
                 res = await RaceplansAdapter().update_raceplan(
-                    token, event_id, request_body
+                    user["token"], event_id, request_body
                 )
                 informasjon = f"Informasjon er oppdatert - {res}"
             # Create classes from list of contestants
             elif "generate_raceplans" in form.keys():
-                result = await RaceplansAdapter().generate_raceplans(token, event_id)
+                result = await RaceplansAdapter().generate_raceplans(
+                    user["token"], event_id
+                )
                 informasjon = f"Opprettet kjøreplan - {result}"
             elif "delete_all" in form.keys():
                 result = await RaceplansAdapter().delete_raceplans(
-                    token, str(form["id"])
+                    user["token"], str(form["id"])
                 )
                 informasjon = f"Kjøreplaner er slettet - {result}"
 

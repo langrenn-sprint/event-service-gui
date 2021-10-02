@@ -3,10 +3,9 @@ import logging
 
 from aiohttp import web
 import aiohttp_jinja2
-from aiohttp_session import get_session
 
 from event_service_gui.services import EventsAdapter
-from event_service_gui.services import UserAdapter
+from .utils import check_login, get_event
 
 
 class Events(web.View):
@@ -23,15 +22,9 @@ class Events(web.View):
         except Exception:
             informasjon = ""
 
-        # check login
-        username = ""
-        session = await get_session(self.request)
         try:
-            loggedin = UserAdapter().isloggedin(session)
-            if not loggedin:
-                return web.HTTPSeeOther(location=f"/login?event={event_id}")
-            username = str(session["username"])
-            token = str(session["token"])
+            user = await check_login(self)
+            event = await get_event(user["token"], event_id)
 
             try:
                 create_new = False
@@ -41,13 +34,10 @@ class Events(web.View):
             except Exception:
                 create_new = False
 
-            competition_formats = await EventsAdapter().get_competition_formats(token)
+            competition_formats = await EventsAdapter().get_competition_formats(
+                user["token"]
+            )
             logging.debug(f"Format: {competition_formats}")
-
-            event = {"name": "Nytt arrangement", "organiser": "Ikke valgt"}
-            if (not create_new) and (event_id != ""):
-                logging.debug(f"get_event {event_id}")
-                event = await EventsAdapter().get_event(token, event_id)
 
             return await aiohttp_jinja2.render_template_async(
                 "events.html",
@@ -59,22 +49,17 @@ class Events(web.View):
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,
-                    "username": username,
+                    "username": user["name"],
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Starting new session.")
-            session.invalidate()
-            return web.HTTPSeeOther(location="/login")
+            logging.error(f"Error: {e}. Redirect to main page.")
+            return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
         """Post route function that creates a collection of klasses."""
         # check login
-        session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location="/login")
-        token = str(session["token"])
+        user = await check_login(self)
 
         informasjon = ""
         event_id = ""
@@ -93,7 +78,9 @@ class Events(web.View):
                     "webpage": form["webpage"],
                     "information": form["information"],
                 }
-                event_id = await EventsAdapter().create_event(token, request_body)
+                event_id = await EventsAdapter().create_event(
+                    user["token"], request_body
+                )
                 informasjon = f"Opprettet nytt arrangement,  event_id {event_id}"
             elif "create_file" in form.keys():
                 # create event based upon data in xml file
@@ -103,13 +90,13 @@ class Events(web.View):
                 content = text_file.read()
                 logging.debug(f"Content {content}")
                 # event_info = get_event_info_from_xml(content)
-                # event_id = await EventsAdapter().create_event(token, event_info)
+                # event_id = await EventsAdapter().create_event(user["token"], event_info)
                 informasjon = "Opprettet nytt arrangement"
 
                 # add Ageclasses
                 # ageclasses = get_ageclasses_from_xml(event_id, content)
                 # for ageclass in ageclasses:
-                #    id = await RaceclassesAdapter().create_ageclass(token, ageclass)
+                #    id = await RaceclassesAdapter().create_ageclass(user["token"], ageclass)
                 #    logging.info(f"Created ageclass with id: {id}")
 
             elif "update" in form.keys():
@@ -125,11 +112,13 @@ class Events(web.View):
                     "information": form["information"],
                     "id": event_id,
                 }
-                res = await EventsAdapter().update_event(token, event_id, request_body)
+                res = await EventsAdapter().update_event(
+                    user["token"], event_id, request_body
+                )
                 informasjon = f"Arrangementinformasjon er oppdatert {res}."
             elif "delete" in form.keys():
                 event_id = str(form["event_id"])
-                res = await EventsAdapter().delete_event(token, event_id)
+                res = await EventsAdapter().delete_event(user["token"], event_id)
                 informasjon = f"Arrangement er slettet {res}."
                 return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
         except Exception as e:

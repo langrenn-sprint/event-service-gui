@@ -3,14 +3,13 @@ import logging
 
 from aiohttp import web
 import aiohttp_jinja2
-from aiohttp_session import get_session
 
 from event_service_gui.services import (
     ContestantsAdapter,
     EventsAdapter,
     RaceclassesAdapter,
-    UserAdapter,
 )
+from .utils import check_login, get_event
 
 
 class Contestants(web.View):
@@ -26,15 +25,9 @@ class Contestants(web.View):
             informasjon = "Ingen event valgt."
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
-        # check login
-        username = ""
-        session = await get_session(self.request)
         try:
-            loggedin = UserAdapter().isloggedin(session)
-            if not loggedin:
-                return web.HTTPSeeOther(location=f"/login?event_id={event_id}")
-            username = str(session["username"])
-            token = str(session["token"])
+            user = await check_login(self)
+            event = await get_event(user["token"], event_id)
 
             try:
                 informasjon = self.request.rel_url.query["informasjon"]
@@ -46,7 +39,9 @@ class Contestants(web.View):
             except Exception:
                 valgt_klasse = ""  # noqa: F841
 
-            raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
+            raceclasses = await RaceclassesAdapter().get_raceclasses(
+                user["token"], event_id
+            )
             for klasse in raceclasses:
                 klasse["ageclass_web"] = klasse["ageclass_name"].replace(" ", "%20")
 
@@ -56,17 +51,17 @@ class Contestants(web.View):
                 if action == "update_one":
                     id = self.request.rel_url.query["id"]
                     contestant = await ContestantsAdapter().get_contestant(
-                        token, event_id, id
+                        user["token"], event_id, id
                     )
 
             except Exception:
                 action = ""
             logging.debug(f"Action: {action}")
 
-            event = await EventsAdapter().get_event(token, event_id)
+            event = await EventsAdapter().get_event(user["token"], event_id)
 
             contestants = await ContestantsAdapter().get_all_contestants(
-                token, event_id, valgt_klasse
+                user["token"], event_id, valgt_klasse
             )
             logging.debug(f"Contestants: {contestants}")
             return await aiohttp_jinja2.render_template_async(
@@ -82,22 +77,17 @@ class Contestants(web.View):
                     "raceclasses": raceclasses,
                     "valgt_klasse": valgt_klasse,
                     "lopsinfo": f"Deltakere {valgt_klasse}",
-                    "username": username,
+                    "username": user["name"],
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Starting new session.")
-            session.invalidate()
-            return web.HTTPSeeOther(location="/login")
+            logging.error(f"Error: {e}. Redirect to main page.")
+            return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
         """Post route function that creates deltakerliste."""
         # check login
-        session = await get_session(self.request)
-        loggedin = UserAdapter().isloggedin(session)
-        if not loggedin:
-            return web.HTTPSeeOther(location="/login")
-        token = str(session["token"])
+        user = await check_login(self)
 
         informasjon = ""
         try:
@@ -107,7 +97,9 @@ class Contestants(web.View):
 
             # Create new deltakere
             if "assign_bibs" in form.keys():
-                informasjon = await ContestantsAdapter().assign_bibs(token, event_id)
+                informasjon = await ContestantsAdapter().assign_bibs(
+                    user["token"], event_id
+                )
             elif "create" in form.keys():
                 file = form["file"]
                 text_file = file.file
@@ -121,7 +113,7 @@ class Contestants(web.View):
                     # loop all contestants in entry class
                 elif file.content_type == "text/csv":
                     resp = await ContestantsAdapter().create_contestants(
-                        token, event_id, text_file
+                        user["token"], event_id, text_file
                     )
                     logging.debug(f"Created contestants: {resp}")
                     informasjon = f"Opprettet deltakere: {resp}"
@@ -145,25 +137,25 @@ class Contestants(web.View):
                 }
                 if "create_one" in form.keys():
                     id = await ContestantsAdapter().create_contestant(
-                        token, event_id, request_body
+                        user["token"], event_id, request_body
                     )
                     informasjon = f"Deltaker er opprettet - {id}"
                 else:
                     request_body["id"] = str(form["id"])
                     result = await ContestantsAdapter().update_contestant(
-                        token, event_id, request_body
+                        user["token"], event_id, request_body
                     )
                     informasjon = f"Informasjon er oppdatert - {result}"
             # delete
             elif "delete_one" in form.keys():
                 result = await ContestantsAdapter().delete_contestant(
-                    token, event_id, str(form["id"])
+                    user["token"], event_id, str(form["id"])
                 )
                 informasjon = f"Deltaker er slettet - {result}"
             # delete_all
             elif "delete_all" in form.keys():
                 result = await ContestantsAdapter().delete_all_contestants(
-                    token, event_id
+                    user["token"], event_id
                 )
                 informasjon = f"Deltakerne er slettet - {result}"
         except Exception as e:
