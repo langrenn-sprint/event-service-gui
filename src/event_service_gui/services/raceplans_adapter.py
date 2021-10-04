@@ -96,7 +96,7 @@ class RaceplansAdapter:
         raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)
         logging.debug(f"Raceplans len {len(raceplans)}")
 
-        races = []
+        races = {}
         if len(raceplans) > 0:
             races = raceplans[0]["races"]
         return races
