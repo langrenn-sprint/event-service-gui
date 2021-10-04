@@ -66,7 +66,7 @@ class RaceplansAdapter:
         return res
 
     async def get_all_raceplans(self, token: str, event_id: str) -> List:
-        """Get all raceplans function."""
+        """Get all raceplans for event function."""
         headers = MultiDict(
             {
                 hdrs.AUTHORIZATION: f"Bearer {token}",
@@ -75,7 +75,7 @@ class RaceplansAdapter:
         raceplans = []
         async with ClientSession() as session:
             async with session.get(
-                f"{RACE_SERVICE_URL}/raceplans", headers=headers
+                f"{RACE_SERVICE_URL}/raceplans?event-id={event_id}", headers=headers
             ) as resp:
                 logging.debug(f"get_all_raceplans - got response {resp.status}")
                 if resp.status == 200:
@@ -92,7 +92,7 @@ class RaceplansAdapter:
         return raceplans
 
     async def get_all_races(self, token: str, event_id: str) -> dict:
-        """Get all races function."""
+        """Get all races for event function."""
         raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)
         logging.debug(f"Raceplans len {len(raceplans)}")
 

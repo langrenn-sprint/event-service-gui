@@ -18,6 +18,8 @@
 {% endblock %}
 {% block content %}
 <div id=spacer></div>
+Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ total_no_of_contestants }}</b>
+<div id=spacer></div>
 {% if  action == "edit_mode" %}
     <table>
       <tr id=headerblue align=right>
@@ -46,8 +48,8 @@
        <tr id=headerblue>
         <td>Løpsklasse</td>
         <td>Første start</td>
-        <td>Deltakere</td>
-        <td>Heat</td>
+        <td>Antall deltakere</td>
+        <td>Startrekkefølge</td>
         <td></td>
       </tr>
       {% for race in races %}
@@ -55,7 +57,7 @@
             <td>{{ race.raceclass }}</td>
             <td>{{ race.start_time[-8:] }}</td>
             <td>{{ race.no_of_contestants }}</td>
-            <td>{{ race.heat }}</td>
+            <td>{{ race.order }}</td>
             <td>
               <form action=/raceplans method=post>
                 <input type="submit" name=delete_one value="  Slett  ">
