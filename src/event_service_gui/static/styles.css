@@ -157,7 +157,7 @@ async function savefile(inp)
   padding:0.01em 0px
 }
 
-.w3-third,.w3-quart,.w3-row-padding,.w3-half {
+.w3-third,.w3-quart,.w3-10,.w3-80,.w3-row-padding,.w3-half {
   padding:0.01em 2px
 }
 .w3-container:after,.w3-container:before,.w3-row-padding:after,.w3-row-padding:before {
@@ -172,6 +172,12 @@ async function savefile(inp)
   background-color: white;
 }
 
+.w3-80 {
+  float:left;width:100%;
+  width:80%;
+  background-color: white;
+}
+
 .w3-third {
   float:left;width:100%;
   width:33.33333%;
@@ -182,12 +188,17 @@ async function savefile(inp)
   width:25%;
 }
 
+.w3-10 {
+  float:left;width:100%;
+  width:10%;
+}
+
 /* Use a media query to add a breakpoint */
 @media screen and (max-width: 1600px) {
   .w3-quart {
     width: 50%; /* The width is 100%, when the viewport is x px or smaller */
   }
-  .w3-third, .w3-half {
+  .w3-third, .w3-half, .w3-80 {
     width: 100%; /* The width is 100%, when the viewport is x px or smaller */
   }
 }

@@ -1,7 +1,7 @@
 {% extends "adm_base.html" %}
 {% block titlecontainer %}
-  <div class="w3-quart"></div>
-  <div class="w3-half">
+  <div class="w3-10"></div>
+  <div class="w3-80">
 {% endblock %}
 {% block titleheader %}
   {{ lopsinfo }}
@@ -12,6 +12,7 @@
   <li class=dropdown id=topborder>
     <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
     <div class=dropdown-content>
+      <a href=/contestants?event_id={{ event_id }}&action={{ action }}>Alle</a>
       {% for klasse in raceclasses %}
         <a href=/contestants?event_id={{ event_id }}&klasse={{ klasse.ageclass_web }}&action={{ action }}>{{ klasse.ageclass_name }}</a>
       {% endfor %}
@@ -23,6 +24,7 @@
 {% endblock %}
 
 {% block content %}
+    Antall deltakere: {{ contestants|length }}<br>
     {% if action == "new_from_file" %}
     <form action=/contestants method=post enctype="multipart/form-data" >
       <table cellpadding=4>
