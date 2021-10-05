@@ -113,39 +113,62 @@
       <input type="hidden" name="event_id" value="{{ event.id }}">
       <table cellpadding=4>
         <tr>
-          <td colspan=2 id=headerblue>
+          <td colspan=3 id=headerblue>
             Rediger arrangementsinformasjon
           </td>
         </tr>
         <tr>
-          <td width=150>Navn</td>
-          <td><input type=text name=name value="{{ event.name }}"></td>
-        </tr>
+          <td valign=top>
+            <table cellpadding=4>
+              <tr>
+                <td width=150>Navn</td>
+                <td><input type=text name=name value="{{ event.name }}"></td>
+              </tr>
+              <tr>
+                <td>Dato</td>
+                <td><input type=text name=date_of_event value="{{ event.date_of_event }}"></td>
+              </tr>
+              <tr>
+                <td>Tid</td>
+                <td><input type=text name=time_of_event value="{{ event.time_of_event }}"></td>
+              </tr>
+              <tr>
+                <td>Format</td>
+                <td><input type=text name=competition_format value="{{ event.competition_format }}"></td>
+              </tr>
+              <tr>
+                <td>Arrangør</td>
+                <td><input type=text name=organiser value="{{ event.organiser }}"></td>
+              </tr>
+              <tr>
+                <td>Nettsted</td>
+                <td><input type=text name=webpage value="{{ event.webpage }}"></td>
+              </tr>
+              <tr>
+                <td>Informasjon</td>
+                <td><input type=text name=information value="{{ event.information }}"></td>
+              </tr>
+            </table>
+          </td>
+          <td width=150>
+          </td>
+          <td valign=top>
+              <table cellpadding=4>
+                <tr>
+                  <td width=150>Tid mellom heat</td>
+                  <td><input type=number name=time_between_heats value="{{ event.time_between_heats }}"></td>
+                  <td>Sekunder. Kun for sprint</td>
+                </tr>
+                <tr>
+                  <td>Tid mellom klasser</td>
+                  <td><input type=number name=time_between_rounds value="{{ event.time_between_rounds }}"></td>
+                  <td>Sekunder. Standard tid mellom siste start i en klasse og første i påfølgende.</td>
+                </tr>
+              </table>
+          </td>
         <tr>
-          <td>Dato</td>
-          <td><input type=text name=date_of_event value="{{ event.date_of_event }}"></td>
-        </tr>
         <tr>
-          <td>Tid</td>
-          <td><input type=text name=time_of_event value="{{ event.time_of_event }}"></td>
-        </tr>
-        <tr>
-          <td>Format</td>
-          <td><input type=text name=competition_format value="{{ event.competition_format }}"></td>
-        </tr>
-        <tr>
-          <td>Arrangør</td>
-          <td><input type=text name=organiser value="{{ event.organiser }}"></td>
-        </tr>
-        <tr>
-          <td>Nettsted</td>
-          <td><input type=text name=webpage value="{{ event.webpage }}"></td>
-        </tr>
-        <tr>
-          <td>Informasjon</td>
-          <td><input type=text name=information value="{{ event.information }}"></td>
-        </tr>
-        <tr>
+            <td></td>
             <td></td>
             <td>
               <input type="submit" name=update value="  Oppdater  ">

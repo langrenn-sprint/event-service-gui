@@ -110,6 +110,8 @@ class Events(web.View):
                     "organiser": form["organiser"],
                     "webpage": form["webpage"],
                     "information": form["information"],
+                    "time_between_heats": form["time_between_heats"],
+                    "time_between_rounds": form["time_between_rounds"],
                     "id": event_id,
                 }
                 res = await EventsAdapter().update_event(
