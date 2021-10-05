@@ -43,7 +43,7 @@ class EventsAdapter:
         return information
 
     async def delete_competition_format(self, token: str, id: str) -> str:
-        """delete_all_competition_formats"""
+        """Function to delete one competition_format."""
         headers = MultiDict(
             {
                 hdrs.AUTHORIZATION: f"Bearer {token}",
