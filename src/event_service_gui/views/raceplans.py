@@ -37,13 +37,15 @@ class Raceplans(web.View):
             raceplans = await RaceplansAdapter().get_all_raceplans(
                 user["token"], event_id
             )
-            total_no_of_contestants = 0
+            raceplan = {}
             races = []
             if len(raceplans) > 0:
                 races = raceplans[0]["races"]
                 if len(races) == 0:
                     informasjon = f"{informasjon} Ingen kjøreplaner funnet."
-                total_no_of_contestants = raceplans[0]["no_of_contestants"]
+                else:
+                    raceplan = raceplans[0]
+
             event = await EventsAdapter().get_event(user["token"], event_id)
 
             return await aiohttp_jinja2.render_template_async(
@@ -52,7 +54,7 @@ class Raceplans(web.View):
                 {
                     "action": action,
                     "lopsinfo": "Kjøreplan",
-                    "total_no_of_contestants": total_no_of_contestants,
+                    "raceplan": raceplan,
                     "races": races,
                     "event": event,
                     "event_id": event_id,

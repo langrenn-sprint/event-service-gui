@@ -16,13 +16,12 @@ RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
 class RaceplansAdapter:
     """Class representing raceplans."""
 
-    async def delete_raceplans(self, token: str, event_id: str) -> str:
+    async def delete_raceplans(self, token: str, id: str) -> str:
         """Delete all raceplans in one event function."""
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
-        # FIXME: get correct id
-        id = event_id
+        logging.info(f"delete raceplans, id: {id}")
         async with ClientSession() as session:
             async with session.delete(
                 f"{RACE_SERVICE_URL}/raceplans/{id}",

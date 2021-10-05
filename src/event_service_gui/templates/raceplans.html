@@ -18,7 +18,7 @@
 {% endblock %}
 {% block content %}
 <div id=spacer></div>
-Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ total_no_of_contestants }}</b>
+Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ raceplan.no_of_contestants }}</b>
 <div id=spacer></div>
 {% if  action == "edit_mode" %}
     <table>
@@ -39,6 +39,7 @@ Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ total_
         <td>
           <form action=/raceplans method=post>
             <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name="id" value="{{ raceplan.id }}">
             <input type="submit" name="delete_all" value="  Slett alle kjøreplaner  ">
           </form>
         </td>
@@ -79,7 +80,7 @@ Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ total_
       {% for race in races %}
           <tr>
             <td>{{ race.raceclass }}</td>
-            <td>{{ race.start_time[-8:] }}</td>
+            <td>{{ race.start_time }}</td>
             <td>{{ race.no_of_contestants }}</td>
             <td>{{ race.heat }}</td>
           </tr>
