@@ -56,7 +56,35 @@ class Settings(web.View):
 
             # Create default settings
             if "generate_default" in form.keys():
-                informasjon = f"Standard innstillinger er opprettet {user['name']}."
+
+                # delete all old information
+                competition_formats = await EventsAdapter().get_competition_formats(
+                    user["token"]
+                )
+                for format in competition_formats:
+                    informasjon = await EventsAdapter().delete_competition_format(
+                        user["token"], format["id"]
+                    )
+
+                # then create new with default values
+                request_body = {
+                    "name": "Interval Start",
+                    "starting_order": "Draw",
+                    "start_procedure": "Interval Start",
+                    "intervals": "00:00:30",
+                }
+                informasjon = await EventsAdapter().create_competition_format(
+                    user["token"], request_body
+                )
+                request_body = {
+                    "name": "Individual sprint without qualifying round",
+                    "starting_order": "Heat Start",
+                    "start_procedure": "Draw",
+                    "intervals": "00:02:00",
+                }
+                informasjon = await EventsAdapter().create_competition_format(
+                    user["token"], request_body
+                )
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."

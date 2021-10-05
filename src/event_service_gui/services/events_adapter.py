@@ -17,6 +17,55 @@ EVENT_SERVICE_URL = f"http://{EVENTS_HOST_SERVER}:{EVENTS_HOST_PORT}"
 class EventsAdapter:
     """Class representing events."""
 
+    async def create_competition_format(self, token: str, request_body: str) -> str:
+        """Generate create_competition_format standard values."""
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        url = f"{EVENT_SERVICE_URL}/competition-formats"
+        async with ClientSession() as session:
+            async with session.post(url, headers=headers, json=request_body) as resp:
+                res = resp.status
+                logging.debug(f"create_competition_format result - got response {resp}")
+                if res == 201:
+                    pass
+                else:
+                    servicename = "create_competition_format"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        information = f"Opprettet competition format {resp.status}."
+        return information
+
+    async def delete_competition_format(self, token: str, id: str) -> str:
+        """delete_all_competition_formats"""
+        headers = MultiDict(
+            {
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        url = f"{EVENT_SERVICE_URL}/competition-formats/{id}"
+        async with ClientSession() as session:
+            async with session.delete(url, headers=headers) as resp:
+                res = resp.status
+                logging.debug(f"delete_competition_format result - got response {resp}")
+                if res == 204:
+                    pass
+                else:
+                    servicename = "delete_competition_format"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        information = f"Slettet competition format {resp.status}."
+        return information
+
     async def generate_classes(self, token: str, event_id: str) -> str:
         """Generate classes based upon registered contestants."""
         headers = MultiDict(
