@@ -1,0 +1,55 @@
+{% extends "adm_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-10"></div>
+  <div class="w3-80">
+{% endblock %}
+
+{% block titleheader %}{{ lopsinfo }}{% endblock %}
+{% block refresh %}{% endblock %}
+{% block titlemain %}{{ lopsinfo }}{% endblock %}
+{% block content %}
+  <div id=spacer></div>
+    <div align=right>
+            <form action=/events method=post>
+              <input type="submit" name=generate_default value="  Generer default innstillinger  ">
+            </form>
+    </div>
+    <div id=spacer></div>
+    <form action=/settings method=post>
+      <table cellpadding=4>
+        <tr>
+          <td colspan=2 id=headerblue>
+            Competition_formats
+          </td>
+        </tr>
+        <tr id=spacer>
+          <td colspan="{{ competition_formats|length }}"></td>
+        </tr>
+        <tr>
+          <td valign=top>
+            <table cellpadding=4>
+              <tr>
+              {% for format in competition_formats %}
+                  <td>
+                    Navn: <b>{{ format.name }}</b><br>
+                    Startprosedyre: {{ format.start_procedure }}<br>
+                    Startrekkefølge: {{ format.starting_order }}<br>
+                    Startintervall: {{ format.intervals }}
+                  </td>
+              {% endfor %}
+              </tr>
+            </table>
+          </td>
+          <td width=150>
+          </td>
+        <tr>
+        <tr>
+            <td></td>
+            <td>
+              <input type="submit" name=update value="  Oppdater  ">
+            </td>
+        </tr>
+        <tr id=spacer></tr>
+      </table>
+    </form>
+{% endblock %}

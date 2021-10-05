@@ -8,5 +8,6 @@ from .logout import Logout
 from .main import Main
 from .raceclasses import Raceclasses
 from .raceplans import Raceplans
+from .settings import Settings
 from .tasks import Tasks
 from .users import Users

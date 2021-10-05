@@ -46,9 +46,10 @@
               <a href=/login class=dropbtn>Logg inn</a>
           {% else %}
             <li class=dropdown style="float:right">
-              <a href=javascript:void(0) class=dropbtn>{{ username }}</a>
+              <a href=javascript:void(0) class=dropbtn>Innlogget som: {{ username }}</a>
               <div class=dropdown-content>
                 <a href="/users">Brukere</a>
+                <a href="/settings">Globale innstillinger</a>
                 <a href="/logout">Logg ut</a>
               </div>
           {% endif %}
