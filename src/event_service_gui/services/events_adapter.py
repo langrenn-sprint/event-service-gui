@@ -17,7 +17,7 @@ EVENT_SERVICE_URL = f"http://{EVENTS_HOST_SERVER}:{EVENTS_HOST_PORT}"
 class EventsAdapter:
     """Class representing events."""
 
-    async def create_competition_format(self, token: str, request_body: str) -> str:
+    async def create_competition_format(self, token: str, request_body: dict) -> str:
         """Generate create_competition_format standard values."""
         headers = MultiDict(
             {
