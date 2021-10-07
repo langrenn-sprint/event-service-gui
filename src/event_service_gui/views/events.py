@@ -27,6 +27,10 @@ class Events(web.View):
             event = await get_event(user["token"], event_id)
 
             try:
+                action = self.request.rel_url.query["action"]
+            except Exception:
+                action = ""
+            try:
                 create_new = False
                 new = self.request.rel_url.query["new"]
                 if new != "":
@@ -43,6 +47,7 @@ class Events(web.View):
                 "events.html",
                 self.request,
                 {
+                    "action": action,
                     "competition_formats": competition_formats,
                     "create_new": create_new,
                     "lopsinfo": "Informasjon",
@@ -62,6 +67,7 @@ class Events(web.View):
         user = await check_login(self)
 
         informasjon = ""
+        action = ""
         event_id = ""
         try:
             form = await self.request.post()
@@ -82,6 +88,7 @@ class Events(web.View):
                     user["token"], request_body
                 )
                 informasjon = f"Opprettet nytt arrangement,  event_id {event_id}"
+                action = "next_contestants"
             elif "create_file" in form.keys():
                 # create event based upon data in xml file
                 file = form["file"]
@@ -128,5 +135,5 @@ class Events(web.View):
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
-            location=f"/events?event_id={event_id}&informasjon={informasjon}"
+            location=f"/events?event_id={event_id}&action={action}&informasjon={informasjon}"
         )

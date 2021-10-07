@@ -88,9 +88,10 @@ class Raceplans(web.View):
         user = await check_login(self)
 
         informasjon = ""
+        action = ""
         form = await self.request.post()
         event_id = str(form["event_id"])
-        logging.info(f"Form {form}")
+        logging.debug(f"Form {form}")
 
         try:
             if "update_one" in form.keys():
@@ -115,16 +116,24 @@ class Raceplans(web.View):
                     user["token"], event_id
                 )
                 informasjon = f"Opprettet kjøreplan - {result}"
+                action = "next_start_time"
             elif "delete_all" in form.keys():
                 result = await RaceplansAdapter().delete_raceplans(
                     user["token"], str(form["id"])
                 )
                 informasjon = f"Kjøreplaner er slettet - {result}"
-
+            elif "update_time" in form.keys():
+                logging.info(
+                    f"update_time - old:{form['old_time']}, new:{form['new_time']}, event:{form['event_id']}"
+                )
+                informasjon = (
+                    f"Tidplan er oppdatert {form['raceclass']} - {form['round']}"
+                )
+                action = "edit_time"
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
-            location=f"/raceplans?event_id={event_id}&informasjon={informasjon}"
+            location=f"/raceplans?event_id={event_id}&action={action}&informasjon={informasjon}"
         )

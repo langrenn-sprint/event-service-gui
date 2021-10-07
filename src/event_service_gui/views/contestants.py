@@ -56,7 +56,6 @@ class Contestants(web.View):
 
             except Exception:
                 action = ""
-            logging.debug(f"Action: {action}")
 
             event = await EventsAdapter().get_event(user["token"], event_id)
 
@@ -90,6 +89,7 @@ class Contestants(web.View):
         user = await check_login(self)
 
         informasjon = ""
+        action = ""
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
@@ -100,6 +100,7 @@ class Contestants(web.View):
                 informasjon = await ContestantsAdapter().assign_bibs(
                     user["token"], event_id
                 )
+                action = "next_raceplan"
             elif "create" in form.keys():
                 file = form["file"]
                 text_file = file.file
@@ -119,7 +120,7 @@ class Contestants(web.View):
                     informasjon = f"Opprettet deltakere: {resp}"
                 else:
                     raise Exception(f"Ugyldig filtype {file.content_type}")
-
+                action = "next_raceclasses"
             elif "create_one" in form.keys() or "update_one" in form.keys():
                 request_body = {
                     "first_name": str(form["first_name"]),
@@ -163,5 +164,5 @@ class Contestants(web.View):
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
-            location=f"/contestants?event_id={event_id}&informasjon={informasjon}"
+            location=f"/contestants?event_id={event_id}&action={action}&informasjon={informasjon}"
         )

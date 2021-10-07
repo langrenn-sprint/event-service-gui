@@ -68,6 +68,7 @@ class Raceclasses(web.View):
         user = await check_login(self)
 
         informasjon = ""
+        action = ""
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
@@ -104,12 +105,14 @@ class Raceclasses(web.View):
                         logging.info(
                             f"New race_class: {race_class}- update result {result}"
                         )
-                informasjon = "Klasser er oppdatert."
+                informasjon = "Rekkefølgen er oppdatert."
+                action = "next_bibs"
             # Create classes from list of contestants
             elif "generate_raceclasses" in form.keys():
                 informasjon = await EventsAdapter().generate_classes(
                     user["token"], event_id
                 )
+                action = "next_order"
             elif "refresh_no_of_contestants" in form.keys():
                 informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
             # delete
@@ -130,5 +133,5 @@ class Raceclasses(web.View):
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(
-            location=f"/raceclasses?event_id={event_id}&informasjon={informasjon}"
+            location=f"/raceclasses?event_id={event_id}&action={action}&informasjon={informasjon}"
         )

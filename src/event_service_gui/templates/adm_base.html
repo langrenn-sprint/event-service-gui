@@ -57,7 +57,73 @@
         </ul>
       </div>
     <div id=spacer></div>
-    <div class="w3-container" id=info>{{ informasjon }}</div>
+    <div class="w3-container" id=info>
+      {{ informasjon }}
+      {% if action == "next_contestants" %}
+        <br><br>
+        <table><tr><td width=150>Neste steg:</td>
+          <td>
+            <form action=/contestants method=get>
+              <input type="hidden" name=event_id value="{{ event_id }}">
+              <input type="hidden" name=action value="new_from_file">
+              <input type="submit" name=new_from_file value="  Last inn deltakere fra fil  ">
+            </form>
+          </td>
+        </tr></table>
+      {% elif action == "next_raceplan" %}
+        <br><br>
+        <table><tr><td width=150>Neste steg:</td>
+          <td>
+            <form action=/raceplans method=post>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="submit" name="generate_raceplan" value="  Generer kjøreplan  ">
+            </form>
+          </td>
+        </tr></table>
+      {% elif action == "next_raceclasses" %}
+        <br><br>
+        <table><tr><td width=150>Neste steg:</td>
+          <td>
+            <form action=/raceclasses method=post>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="submit" name="generate_raceclasses" value="  Generer klasser  ">
+            </form>
+          </td>
+        </tr></table>
+      {% elif action == "next_order" %}
+        <br><br>
+        <table><tr><td width=150>Neste steg:</td>
+          <td>
+            <form action=/raceclasses method=get>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="hidden" name=action value="update_order">
+              <input type="submit" name="generate_raceclasses" value="  Rediger startrekkefølge  ">
+            </form>
+          </td>
+        </tr></table>
+      {% elif action == "next_bibs" %}
+        <br><br>
+        <table><tr><td width=150>Neste steg:</td>
+          <td>
+            <form action=/contestants method=post>
+              <input type="hidden" name=event_id value="{{ event_id }}">
+              <input type="submit" name=assign_bibs value="  Tildel startnummer  ">
+            </form>
+          </td>
+        </tr></table>
+      {% elif action == "next_start_time" %}
+        <br><br>
+        <table><tr><td width=150>Neste steg:</td>
+          <td>
+            <form action=/raceplans method=get>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="hidden" name=action value="edit_time">
+              <input type="submit" name="edit_time" value="  Tilpass tidskjema  ">
+            </form>
+          </td>
+        </tr></table>
+      {% endif %}
+    </div>
     {% block content %}{% endblock %}
     <p><br></p>
     <div id=footeradmin>
