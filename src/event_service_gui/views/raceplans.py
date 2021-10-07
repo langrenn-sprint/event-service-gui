@@ -6,7 +6,7 @@ import aiohttp_jinja2
 
 from event_service_gui.services import EventsAdapter
 from event_service_gui.services import RaceplansAdapter
-from .utils import check_login, get_event
+from .utils import check_login, get_event, get_raceplan_summary
 
 
 class Raceplans(web.View):
@@ -38,6 +38,7 @@ class Raceplans(web.View):
                 user["token"], event_id
             )
             raceplan = {}
+            raceplan_summary = []
             races = []
             if len(raceplans) > 0:
                 races = raceplans[0]["races"]
@@ -45,6 +46,7 @@ class Raceplans(web.View):
                     informasjon = f"{informasjon} Ingen kjøreplaner funnet."
                 else:
                     raceplan = raceplans[0]
+                    raceplan_summary = get_raceplan_summary(races)
 
             event = await EventsAdapter().get_event(user["token"], event_id)
 
@@ -55,6 +57,7 @@ class Raceplans(web.View):
                     "action": action,
                     "lopsinfo": "Kjøreplan",
                     "raceplan": raceplan,
+                    "raceplan_summary": raceplan_summary,
                     "races": races,
                     "event": event,
                     "event_id": event_id,

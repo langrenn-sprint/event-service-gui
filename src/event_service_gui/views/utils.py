@@ -26,3 +26,31 @@ async def get_event(token: str, event_id: str) -> dict:
         event = await EventsAdapter().get_event(token, event_id)
 
     return event
+
+
+def get_raceplan_summary(races: list) -> list:
+    """Generate a summary with key timing for the raceplan."""
+    summary = []
+    raceclasses = {}
+
+    # create a dict of all raceclasses and populate
+    for race in races:
+        raceclasses[race["raceclass"]] = race["raceclass"]
+
+    # loop raceclasses and find key parameters
+    for raceclassname in raceclasses:
+        class_summary = {"name": raceclassname}
+        # loop through races - update start time pr round pr class
+        for race in races:
+            if race["raceclass"] == raceclassname:
+                if race["heat"] == 1:
+                    if race["round"] == "Q":
+                        class_summary["timeQ"] = race["start_time"]
+                    elif race["round"] == "S":
+                        class_summary["timeS"] = race["start_time"]
+                    elif race["round"] == "F":
+                        class_summary["timeF"] = race["start_time"]
+        logging.info(f"Raceclasses found: {class_summary}")
+        summary.append(class_summary)
+
+    return summary

@@ -18,7 +18,7 @@
 {% endblock %}
 {% block content %}
 <div id=spacer></div>
-Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ raceplan.no_of_contestants }}</b>
+Antall heat: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ raceplan.no_of_contestants }}</b>
 <div id=spacer></div>
 {% if  action == "edit_mode" %}
     <table>
@@ -51,7 +51,8 @@ Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ racepl
         <td>Runde</td>
         <td>Heat</td>
         <td>Id</td>
-        <td>Første start</td>
+        <td></td>
+        <td>Start</td>
         <td>Antall deltakere</td>
         <td>Startrekkefølge</td>
         <td></td>
@@ -61,8 +62,9 @@ Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ racepl
             <td>{{ race.raceclass }}</td>
             <td>{{ race.round }}</td>
             <td>{{ race.heat }}</td>
-            <td>{{ race.id }}</td>
-            <td>{{ race.start_time[-8:] }}</td>
+            <td>{{ race.index }}</td>
+            <td>{{ race.order }}</td>
+            <td>{{ race.start_time }}</td>
             <td>{{ race.no_of_contestants }}</td>
             <td>{{ race.order }}</td>
             <td>
@@ -79,19 +81,37 @@ Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ racepl
     <table>
        <tr id=headerblue>
         <td>Løpsklasse</td>
+        <td>Q start</td>
+        <td>S start</td>
+        <td>F start</td>
+      </tr>
+      {% for raceclass in raceplan_summary %}
+          <tr>
+            <td>{{ raceclass.name }}</td>
+            <td>{{ raceclass.timeQ[-8:] }}</td>
+            <td>{{ raceclass.timeS[-8:] }}</td>
+            <td>{{ raceclass.timeF[-8:] }}</td>
+          </tr>
+      {% endfor %}
+    </table>
+    <table>
+       <tr id=headerblue>
+        <td></td>
+        <td>Løpsklasse</td>
         <td>Runde</td>
         <td>Heat</td>
         <td>Id</td>
-        <td>Første start</td>
+        <td>Start</td>
         <td>Deltakere</td>
       </tr>
       {% for race in races %}
           <tr>
+            <td>{{ race.order }}</td>
             <td>{{ race.raceclass }}</td>
             <td>{{ race.round }}</td>
             <td>{{ race.heat }}</td>
-            <td>{{ race.id }}</td>
-            <td>{{ race.start_time }}</td>
+            <td>{{ race.index }}</td>
+            <td>{{ race.start_time[-8:] }}</td>
             <td>{{ race.no_of_contestants }}</td>
           </tr>
       {% endfor %}
