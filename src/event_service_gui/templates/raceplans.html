@@ -12,6 +12,15 @@
   {{ lopsinfo }}
 {% endblock %}
 {% block menuitems %}
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
+    <div class=dropdown-content>
+      <a href=raceplans?event_id={{ event_id }}>Alle</a>
+      {% for klasse in raceclasses %}
+        <a href=raceplans?klasse={{ klasse.name }}&event_id={{ event_id }}>{{ klasse.ageclass_name }}</a>
+      {% endfor %}
+    </div>
+  </li>
   <li id=topborder>
     <a href=/raceplans?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>
   </li>
@@ -58,6 +67,7 @@ Antall heat: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ raceplan.
         <td></td>
       </tr>
       {% for race in races %}
+        {% if (valgt_klasse == "") or (valgt_klasse == race.raceclass) %}
           <tr>
             <td>{{ race.raceclass }}</td>
             <td>{{ race.round }}</td>
@@ -75,6 +85,7 @@ Antall heat: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ raceplan.
               </form>
             </td>
           </tr>
+        {% endif %}
       {% endfor %}
     </table>
   {% else %}
@@ -86,12 +97,14 @@ Antall heat: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ raceplan.
         <td>F start</td>
       </tr>
       {% for raceclass in raceplan_summary %}
+        {% if  (valgt_klasse == "") or (valgt_klasse == raceclass.name) %}
           <tr>
             <td>{{ raceclass.name }}</td>
             <td>{{ raceclass.timeQ[-8:] }}</td>
             <td>{{ raceclass.timeS[-8:] }}</td>
             <td>{{ raceclass.timeF[-8:] }}</td>
           </tr>
+        {% endif %}
       {% endfor %}
     </table>
     <table>
@@ -105,6 +118,7 @@ Antall heat: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ raceplan.
         <td>Deltakere</td>
       </tr>
       {% for race in races %}
+        {% if (valgt_klasse == "") or (valgt_klasse == race.raceclass) %}
           <tr>
             <td>{{ race.order }}</td>
             <td>{{ race.raceclass }}</td>
@@ -114,6 +128,7 @@ Antall heat: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ raceplan.
             <td>{{ race.start_time[-8:] }}</td>
             <td>{{ race.no_of_contestants }}</td>
           </tr>
+        {% endif %}
       {% endfor %}
     </table>
   {% endif %}

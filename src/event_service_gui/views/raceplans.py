@@ -4,8 +4,11 @@ import logging
 from aiohttp import web
 import aiohttp_jinja2
 
-from event_service_gui.services import EventsAdapter
-from event_service_gui.services import RaceplansAdapter
+from event_service_gui.services import (
+    EventsAdapter,
+    RaceclassesAdapter,
+    RaceplansAdapter,
+)
 from .utils import check_login, get_event, get_raceplan_summary
 
 
@@ -34,6 +37,15 @@ class Raceplans(web.View):
                 action = ""
             logging.debug(f"Action: {action}")
 
+            try:
+                valgt_klasse = self.request.rel_url.query["klasse"]
+            except Exception:
+                valgt_klasse = ""  # noqa: F841
+
+            raceclasses = await RaceclassesAdapter().get_raceclasses(
+                user["token"], event_id
+            )
+
             raceplans = await RaceplansAdapter().get_all_raceplans(
                 user["token"], event_id
             )
@@ -56,6 +68,7 @@ class Raceplans(web.View):
                 {
                     "action": action,
                     "lopsinfo": "Kjøreplan",
+                    "raceclasses": raceclasses,
                     "raceplan": raceplan,
                     "raceplan_summary": raceplan_summary,
                     "races": races,
@@ -63,6 +76,7 @@ class Raceplans(web.View):
                     "event_id": event_id,
                     "informasjon": informasjon,
                     "username": user["name"],
+                    "valgt_klasse": valgt_klasse,
                 },
             )
         except Exception as e:

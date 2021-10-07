@@ -79,6 +79,12 @@ class RaceplansAdapter:
                 logging.debug(f"get_all_raceplans - got response {resp.status}")
                 if resp.status == 200:
                     raceplans = await resp.json()
+                    all_raceplans = await resp.json()
+                    for plan in all_raceplans:
+                        try:
+                            raceplans.append(plan)
+                        except Exception as e:
+                            logging.error(f"Error - data quality: {e}")
                 elif resp.status == 401:
                     raise Exception(f"Login expired: {resp}")
                 else:
