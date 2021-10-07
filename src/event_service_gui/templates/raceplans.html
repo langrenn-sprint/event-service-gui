@@ -33,7 +33,7 @@ Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ racepl
         <td>
           <form action=/raceplans method=post>
             <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="submit" name="generate_raceplans" value="  Generer kjøreplan  ">
+            <input type="submit" name="generate_raceplan" value="  Generer kjøreplan  ">
           </form>
         </td>
         <td>
@@ -48,6 +48,9 @@ Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ racepl
     <table>
        <tr id=headerblue>
         <td>Løpsklasse</td>
+        <td>Runde</td>
+        <td>Heat</td>
+        <td>Id</td>
         <td>Første start</td>
         <td>Antall deltakere</td>
         <td>Startrekkefølge</td>
@@ -56,6 +59,9 @@ Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ racepl
       {% for race in races %}
           <tr>
             <td>{{ race.raceclass }}</td>
+            <td>{{ race.round }}</td>
+            <td>{{ race.heat }}</td>
+            <td>{{ race.id }}</td>
             <td>{{ race.start_time[-8:] }}</td>
             <td>{{ race.no_of_contestants }}</td>
             <td>{{ race.order }}</td>
@@ -73,16 +79,20 @@ Antall klasser: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ racepl
     <table>
        <tr id=headerblue>
         <td>Løpsklasse</td>
+        <td>Runde</td>
+        <td>Heat</td>
+        <td>Id</td>
         <td>Første start</td>
         <td>Deltakere</td>
-        <td>Heat</td>
       </tr>
       {% for race in races %}
           <tr>
             <td>{{ race.raceclass }}</td>
+            <td>{{ race.round }}</td>
+            <td>{{ race.heat }}</td>
+            <td>{{ race.id }}</td>
             <td>{{ race.start_time }}</td>
             <td>{{ race.no_of_contestants }}</td>
-            <td>{{ race.heat }}</td>
           </tr>
       {% endfor %}
     </table>

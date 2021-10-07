@@ -40,7 +40,7 @@ class RaceplansAdapter:
                     )
         return str(res)
 
-    async def generate_raceplans(self, token: str, event_id: str) -> str:
+    async def generate_raceplan(self, token: str, event_id: str) -> str:
         """Generate classes based upon registered contestants."""
         headers = MultiDict(
             {

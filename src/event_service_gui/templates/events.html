@@ -52,23 +52,23 @@
         </tr>
         <tr>
           <td width=150>Navn</td>
-          <td><input type=text name="name" value=""></td>
+          <td><input type=text name="name" value="" required></td>
           <td></td>
         </tr>
         <tr>
           <td>Dato</td>
-          <td><input type=date name=date_of_event value=""></td>
-          <td></td>
+          <td><input type=text name=date_of_event value="" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required></td>
+          <td>Event dato, eksempel: 2021-10-26</td>
         </tr>
         <tr>
           <td>Tid</td>
-          <td><input type=time name=time_of_event value=""></td>
-          <td>Klokkeslett for første start</td>
+          <td><input type=text name=time_of_event value="" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" required></td>
+          <td>Klokkeslett for første start, ex: 14:00:00</td>
         </tr>
         <tr>
           <td>Format</td>
           <td>
-            <select name="competition_format">
+            <select name="competition_format" required>
               {% for format in competition_formats %}
                 <option value="{{ format.name }}">{{ format.name }}</option>
               {% endfor %}

@@ -100,7 +100,7 @@
                   <td>{{ klasse.distance }}</td>
                   <td>{{ klasse.name }}</td>
                   <td>
-                    <input type=number name="order_{{ klasse.id }}" value="{{ klasse.order }}">
+                    <input type=number name="order_{{ klasse.id }}" value="{{ klasse.order }}" min="1" max="99" size=5>
                     <input type="hidden" name="id_{{ klasse.id }}" value="{{ klasse.id }}">
                   </td>
                   <td>{{ klasse.no_of_contestants }}</td>
@@ -135,7 +135,7 @@
             </tr>
             <tr>
               <td>Startrekkefølge</td>
-              <td><input type=number name="order" value="{{ klasse.order }}"></td>
+              <td><input type=number name="order" value="{{ klasse.order }}" min="1" max="99"></td>
               <td></td>
             </tr>
             <tr>

@@ -93,8 +93,8 @@ class Raceplans(web.View):
                 )
                 informasjon = f"Informasjon er oppdatert - {res}"
             # Create classes from list of contestants
-            elif "generate_raceplans" in form.keys():
-                result = await RaceplansAdapter().generate_raceplans(
+            elif "generate_raceplan" in form.keys():
+                result = await RaceplansAdapter().generate_raceplan(
                     user["token"], event_id
                 )
                 informasjon = f"Opprettet kjøreplan - {result}"

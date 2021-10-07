@@ -77,7 +77,7 @@ class Settings(web.View):
                     user["token"], request_body
                 )
                 request_body = {
-                    "name": "Individual sprint without qualifying round",
+                    "name": "Individual Sprint",
                     "starting_order": "Heat Start",
                     "start_procedure": "Draw",
                     "intervals": "00:02:00",
