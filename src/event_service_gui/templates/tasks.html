@@ -14,50 +14,119 @@
       <td valign=top>
         <table>
           <tr id=subheader id=black>
-            <td id=black>Arbeidsflyt - før rennet</td><td width=100>Status</td>
+            <td id=black>Arbeidsflyt - før rennet</td>
+            <td width=150>Status</td>
+            <td></td>
           </tr>
           <tr>
-            <td>1. Opprett arrangement (<a id=orange href=/events?event_id={{ event_id }}&action=edit_mode class=dropbtn>endre</a>)</td><td id=green>Utført</td>
+            <td>1. Arrangement: Opprett (<a id=orange href=/events?event_id={{ event_id }} class=dropbtn>se/endre</a>)</td>
+            <td id=green>Utført</td>
+            <td></td>
           </tr>
           <tr>
-            <td>2. Last inn deltakere (<a id=orange href=/contestants?event_id={{ event_id }}&action=edit_mode class=dropbtn>endre</a>)</td>
-            <td id=red>Mangler</td>
+            <td>
+              2. Deltakere: Opprett (<a id=orange href=/contestants?event_id={{ event_id }} class=dropbtn>se/endre</a>)
+            </td>
+            {% if (task_status.done_2) %}
+              <td id=green>Utført</td>
+              <td>{{ task_status.no_of_contestants}} deltakere.</td>
+            {% else %}
+              <td id=red>Mangler</td>
+              <td>
+                  <form action=/contestants method=get>
+                    <input type="hidden" name=event_id value="{{ event_id }}">
+                    <input type="hidden" name=action value="new_from_file">
+                    <input type="submit" name=new_from_file value="  Last inn deltakere fra fil  ">
+                  </form>
+              </td>
+            {% endif %}
           </tr>
           <tr>
-            <td>3. Opprett klasser</td><td id=></td>
+            <td>3. Klasser: Opprett (<a id=orange href=/raceclasses?event_id={{ event_id }} class=dropbtn>se/endre</a>)</td>
+            {% if (task_status.done_3) %}
+              <td id=green>Utført</td>
+              <td>{{ task_status.no_of_raceclasses}} klasser.</td>
+            {% else %}
+              <td id=red>Mangler</td>
+              <td>
+                <form action=/raceclasses method=post>
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
+                  <input type="submit" name="generate_raceclasses" value="  Generer klasser  ">
+                </form>
+              </td>
+            {% endif %}
           </tr>
           <tr>
-            <td>4. Generer heatliste/startrekkefølge</td><td id=></td>
+            <td>4. Klasser: Startrekkefølge (<a id=orange href=/contestants?event_id={{ event_id }}&action=update_order class=dropbtn>se/endre</a>)</td>
+            {% if (task_status.done_4) %}
+              <td id=green>Utført</td>
+              <td></td>
+            {% else %}
+              <td id=red>Mangler</td>
+              <td>
+                <form action=/raceclasses method=get>
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
+                  <input type="hidden" name=action value="update_order">
+                  <input type="submit" name="generate_raceclasses" value="  Rediger startrekkefølge  ">
+                </form>
+              </td>
+            {% endif %}
           </tr>
           <tr>
-            <td>5. Tildel startnummer</td><td id=></td>
+            <td>5. Deltakere: Startnummer</td>
+            {% if (task_status.done_5) %}
+              <td id=green>Utført</td>
+              <td>{{ task_status.bib_missing}} deltakere mangler startnummer.</td>
+            {% else %}
+                {% if (task_status.no_of_contestants == task_status.bib_missing) %}
+                  <td id=red>Mangler</td>
+                  <td>
+                    <form action=/contestants method=post>
+                      <input type="hidden" name=event_id value="{{ event_id }}">
+                      <input type="submit" name=assign_bibs value="  Tildel startnummer  ">
+                    </form>
+                  </td>
+                {% else %}
+                  <td id=orange>Delvis</td>
+                  <td>{{ task_status.bib_missing}} deltakere mangler startnummer. </td>
+                {% endif %}
+            {% endif %}
           </tr>
           <tr>
-            <td>6. Tilpass tidksjema</td><td id=></td>
+            <td>6. Kjøreplan: Opprett</td>
+            {% if (task_status.done_6) %}
+              <td id=green>Utført</td>
+              <td>{{ task_status.no_of_races}} heat er opprettet.</td>
+            {% else %}
+              <td id=red>Mangler</td>
+              <td>
+                <form action=/raceplans method=post>
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
+                  <input type="submit" name="generate_raceplan" value="  Generer kjøreplan  ">
+                </form>
+              </td>
+            {% endif %}
           </tr>
           <tr>
-            <td>7. Etteranmeldinger</td><td id=></td>
+            <td>7. Kjøreplan: Tilpass tidksjema</td>
+            <td>Manuell sjekk</td>
+            <td>
+              <form action=/raceplans method=get>
+                <input type="hidden" name="event_id" value="{{ event_id }}">
+                <input type="hidden" name=action value="edit_time">
+                <input type="submit" name="edit_time" value="  Tilpass tidskjema  ">
+              </form>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+            </td>
+            <td id=></td>
           </tr>
         </table>
       </td>
       <td valign=top>
-        <table>
-          <tr id=subheader id=black>
-            <td id=black>Mens rennet pågår</td><td width=100>Status</td>
-          </tr>
-          <tr>
-            <td>Registrere start</td><td id=></td>
-          </tr>
-          <tr>
-            <td>Registrere målpassering</td><td id=></td>
-          </tr>
-          <tr>
-            <td>Monitorere</td><td id=></td>
-          </tr>
-          <tr>
-            <td>Skrive ut resultater</td><td id=></td>
-          </tr>
-        </table>
       </td>
     </tr>
     <tr id=tablespacer>

@@ -1,5 +1,10 @@
 """Resource module for liveness resources."""
+import logging
+import os
+
 from aiohttp import web
+
+CONFIG = os.getenv("CONFIG", "production")
 
 
 class Ready(web.View):
@@ -7,12 +12,17 @@ class Ready(web.View):
 
     async def get(self) -> web.Response:
         """Ready route function."""
-        db = self.request.app["db"]
-        result = await db.command("ping")
-        print(result)
-        if result["ok"] == 1:
-            return web.Response(text="OK")
-        raise web.HTTPInternalServerError
+        if CONFIG in {"test", "dev"}:
+            pass
+        else:  # pragma: no cover
+            db = self.request.app["db"]
+            result = await db.command("ping")
+            logging.debug(f"result of db-ping: {result}")
+            if result["ok"] == 1:
+                return web.Response(text="OK")
+            raise web.HTTPInternalServerError from None
+
+        return web.Response(text="OK")
 
 
 class Ping(web.View):
