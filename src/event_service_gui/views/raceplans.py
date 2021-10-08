@@ -124,7 +124,7 @@ class Raceplans(web.View):
                 informasjon = f"Kjøreplaner er slettet - {result}"
             elif "update_time" in form.keys():
                 logging.info(
-                    f"update_time - old:{form['old_time']}, new:{form['new_time']}, event:{form['event_id']}"
+                    f"update_time - old:{form['old_time']}, new:{form['new_time']}"
                 )
                 informasjon = (
                     f"Tidplan er oppdatert {form['raceclass']} - {form['round']}"
@@ -134,6 +134,5 @@ class Raceplans(web.View):
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
 
-        return web.HTTPSeeOther(
-            location=f"/raceplans?event_id={event_id}&action={action}&informasjon={informasjon}"
-        )
+        info = f"action={action}&informasjon={informasjon}"
+        return web.HTTPSeeOther(location=f"/raceplans?event_id={event_id}&{info}")

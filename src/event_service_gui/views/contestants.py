@@ -163,6 +163,5 @@ class Contestants(web.View):
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
 
-        return web.HTTPSeeOther(
-            location=f"/contestants?event_id={event_id}&action={action}&informasjon={informasjon}"
-        )
+        info = f"action={action}&informasjon={informasjon}"
+        return web.HTTPSeeOther(location=f"/contestants?event_id={event_id}&{info}")
