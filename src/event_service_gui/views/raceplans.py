@@ -126,9 +126,7 @@ class Raceplans(web.View):
                 logging.info(
                     f"update_time - old:{form['old_time']}, new:{form['new_time']}"
                 )
-                informasjon = (
-                    f"Tidplan er oppdatert {form['raceclass']} - {form['round']}"
-                )
+                informasjon = f"Tidplan er oppdatert {form['id']} - {form['round']}"
                 action = "edit_time"
         except Exception as e:
             logging.error(f"Error: {e}")
