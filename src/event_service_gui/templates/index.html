@@ -32,7 +32,7 @@
       </tr>
       {% for oneevent in events %}
       <tr>
-        <td><a href="/tasks?event_id={{ oneevent.id }}">{{ oneevent.name }}</a></td>
+        <td>{{ oneevent.name }} (<a href="/tasks?event_id={{ oneevent.id }}">status</a> / <a href="/events?event_id={{ oneevent.id }}">informasjon</a>)</td>
         <td>{{ oneevent.date_of_event }}</td>
         <td>{{ oneevent.organiser }}</td>
         <td></td>

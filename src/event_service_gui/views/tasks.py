@@ -65,7 +65,7 @@ async def get_task_status(token: str, event_id: str) -> dict:
         task_status["done_2"] = False
 
     task_status["bib_missing"] = i_missing_bib
-    if i_missing_bib == 0:
+    if i_missing_bib == 0 and len(contestants) > 0:
         task_status["done_5"] = True
     else:
         task_status["done_5"] = False
@@ -82,7 +82,7 @@ async def get_task_status(token: str, event_id: str) -> dict:
     else:
         task_status["done_3"] = False
     task_status["no_of_startorder_missing"] = i_missing_startorder
-    if i_missing_startorder == 0:
+    if (i_missing_startorder == 0) and (len(raceclasses) > 0):
         task_status["done_4"] = True
     else:
         task_status["done_4"] = False

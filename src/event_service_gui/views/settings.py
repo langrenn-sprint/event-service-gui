@@ -72,6 +72,7 @@ class Settings(web.View):
                     "starting_order": "Draw",
                     "start_procedure": "Interval Start",
                     "intervals": "00:00:30",
+                    "datatype": "interval_start",
                 }
                 informasjon = await EventsAdapter().create_competition_format(
                     user["token"], request_body
@@ -80,7 +81,10 @@ class Settings(web.View):
                     "name": "Individual Sprint",
                     "starting_order": "Heat Start",
                     "start_procedure": "Draw",
-                    "intervals": "00:02:00",
+                    "time_between_rounds": "00:05:00",
+                    "time_between_heats": "00:02:30",
+                    "max_no_of_contestants": 80,
+                    "datatype": "individual_sprint",
                 }
                 informasjon = await EventsAdapter().create_competition_format(
                     user["token"], request_body
