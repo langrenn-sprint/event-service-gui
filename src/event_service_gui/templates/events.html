@@ -114,7 +114,7 @@
       <table cellpadding=4>
         <tr>
           <td colspan=3 id=headerblue>
-            Rediger arrangementsinformasjon
+            Rediger arrangementsinformasjon {{ event }}
           </td>
         </tr>
         <tr>
@@ -154,16 +154,24 @@
           </td>
           <td valign=top>
               <table cellpadding=4>
-                <tr>
-                  <td width=150>Tid mellom heat</td>
-                  <td><input type=number name=time_between_heats value="{{ event.time_between_heats }}"></td>
-                  <td>Sekunder. Kun for sprint</td>
-                </tr>
-                <tr>
-                  <td>Tid mellom klasser</td>
-                  <td><input type=number name=time_between_rounds value="{{ event.time_between_rounds }}"></td>
-                  <td>Sekunder. Standard tid mellom siste start i en klasse og første i påfølgende.</td>
-                </tr>
+                {% if event.competition_format == "Interval Start" %}
+                  <tr>
+                    <td width=150>Startintervall</td>
+                    <td><input type=text name=intervals value="{{ event.intervals }}"></td>
+                    <td>Tid i sekunder.</td>
+                  </tr>
+                {% elif event.competition_format == "Individual Sprint" %}
+                  <tr>
+                    <td width=150>Tid mellom heat</td>
+                    <td><input type=text name= value="{{ event.time_between_rounds }}"></td>
+                    <td>Tid i sekunder.</td>
+                  </tr>
+                  <tr>
+                    <td>Tid mellom runder</td>
+                    <td><input type=text name= value="{{ event.time_between_heats }}"></td>
+                    <td>Sekunder. Standard tid mellom siste start i en runde og første i påfølgende.</td>
+                  </tr>
+                {% endif %}
               </table>
           </td>
         <tr>

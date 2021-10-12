@@ -176,6 +176,19 @@ class EventsAdapter:
 
     async def create_event(self, token: str, event: dict) -> str:
         """Create new event function."""
+
+        # add default values for selected competition format
+        competition_formats = await self.get_competition_formats(token)
+        for format in competition_formats:
+            if format["name"] == event["competition_format"]:
+                event["datatype"] = format["datatype"]
+                if format["datatype"] == "interval_start":
+                    event["intervals"] = format["intervals"]
+                elif format["datatype"] == "individual_sprint":
+                    event["time_between_rounds"] = format["time_between_rounds"]
+                    event["time_between_heats"] = format["time_between_heats"]
+                    event["max_no_of_contestants"] = format["max_no_of_contestants"]
+        breakpoint()
         id = ""
         headers = MultiDict(
             {
