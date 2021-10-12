@@ -176,7 +176,7 @@ class EventsAdapter:
 
     async def create_event(self, token: str, event: dict) -> str:
         """Create new event function."""
-
+        id = ""
         # add default values for selected competition format
         competition_formats = await self.get_competition_formats(token)
         for format in competition_formats:
@@ -188,8 +188,6 @@ class EventsAdapter:
                     event["time_between_rounds"] = format["time_between_rounds"]
                     event["time_between_heats"] = format["time_between_heats"]
                     event["max_no_of_contestants"] = format["max_no_of_contestants"]
-        breakpoint()
-        id = ""
         headers = MultiDict(
             {
                 hdrs.CONTENT_TYPE: "application/json",
