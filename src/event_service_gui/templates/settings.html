@@ -15,50 +15,71 @@
             </form>
     </div>
     <div id=spacer></div>
-    <form action=/settings method=post>
-      <table cellpadding=4>
-        <tr>
-          <td colspan=2 id=headerblue>
-            Competition_formats
-          </td>
-        </tr>
-        <tr id=spacer>
-          <td colspan="{{ competition_formats|length }}"></td>
-        </tr>
-        <tr>
+    <table cellpadding=4>
+      <tr>
+        <td colspan="{{ competition_formats|length }}" id=headerblue>
+          Competition_formats
+        </td>
+      </tr>
+      <tr id=spacer>
+      </tr>
+      <tr>
+        {% for format in competition_formats %}
           <td valign=top>
-            <table cellpadding=4>
-              <tr>
-              {% for format in competition_formats %}
+            <form action=/settings method=post>
+              <input type=hidden name=datatype value="{{ format.datatype }}">
+              <input type=hidden name=id value="{{ format.id }}">
+              <input type=hidden name=name value="{{ format.name }}">
+              <input type=hidden name=start_procedure value="{{ format.start_procedure }}">
+              <input type=hidden name=starting_order value="{{ format.starting_order }}">
+              <table>
+                <tr>
+                  <td>Navn:</td>
+                  <td><b>{{ format.name }}</b></td>
+                </tr>
+                <tr>
+                  <td>Startprosedyre:</td>
+                  <td>{{ format.start_procedure }}</td>
+                </tr>
+                <tr>
+                  <td>Startrekkefølge:</td>
+                  <td>{{ format.starting_order }}</td>
+                </tr>
+            {% if format.datatype == "interval_start" %}
+                <tr>
+                  <td>Startintervall:</td>
+                  <td><input type=text name=intervals value="{{ format.intervals }}" required></td>
+                </tr>
+                <tr><td colspan=2>&nbsp;</td></tr>
+                <tr><td colspan=2>&nbsp;</td></tr>
+            {% elif format.datatype == "individual_sprint" %}
+                <tr>
+                  <td>Pause mellom runde:</td>
+                  <td><input type=text name=time_between_rounds value="{{ format.time_between_rounds }}" required></td>
+                </tr>
+                <tr>
+                  <td>Pause mellom heat:</td>
+                  <td><input type=text name=time_between_heats value="{{ format.time_between_heats }}" required></td>
+                </tr>
+                <tr>
+                  <td>Deltakertak pr klasse:</td>
                   <td>
-                    {% if format.datatype == "interval_start" %}
-                      Navn: <b>{{ format.name }}</b><br>
-                      Startprosedyre: {{ format.start_procedure }}<br>
-                      Startrekkefølge: {{ format.starting_order }}<br>
-                      Startintervall: {{ format.intervals }}
-                    {% elif format.datatype == "individual_sprint" %}
-                      Navn: <b>{{ format.name }}</b><br>
-                      Startprosedyre: {{ format.start_procedure }}<br>
-                      Startrekkefølge: {{ format.starting_order }}<br>
-                      Pause mellom hver runde: {{ format.time_between_rounds }}<br>
-                      Pause mellom hvert heat: {{ format.time_between_heats }}<br>
-                      Antall deltakere: {{ format.max_no_of_contestants }}<br>
-                    {% endif %}
+                    {{ format.max_no_of_contestants }}
+                    <input type=hidden name=max_no_of_contestants value="{{ format.max_no_of_contestants }}">
                   </td>
-              {% endfor %}
-              </tr>
-            </table>
+                </tr>
+            {% endif %}
+                <tr>
+                  <td></td>
+                  <td>
+                    <input type="submit" name=update value="  Oppdater  ">
+                  </td>
+                </tr>
+              </table>
+            </form>
           </td>
-          <td width=150>
-          </td>
-        <tr>
-        <tr>
-            <td></td>
-            <td>
-              <input type="submit" name=update value="  Oppdater  ">
-            </td>
-        </tr>
-        <tr id=spacer></tr>
-      </table>
-    </form>
+        {% endfor %}
+      </tr>
+    <tr id=spacer></tr>
+  </table>
 {% endblock %}

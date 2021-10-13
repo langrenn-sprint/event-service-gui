@@ -238,6 +238,31 @@ class EventsAdapter:
                 )
         return str(resp.status)
 
+    async def update_competition_format(self, token: str, request_body: dict) -> str:
+        """Generate update_competition_format standard values."""
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        url = f"{EVENT_SERVICE_URL}/competition-formats/{request_body['id']}"
+        async with ClientSession() as session:
+            async with session.put(url, headers=headers, json=request_body) as resp:
+                res = resp.status
+                logging.debug(f"update_competition_format result - got response {resp}")
+                if res == 204:
+                    pass
+                else:
+                    servicename = "update_competition_format"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        information = f"Oppdatert competition format {resp.status}."
+        return information
+
     async def update_event(self, token: str, id: str, request_body: dict) -> str:
         """Update event function."""
         headers = MultiDict(

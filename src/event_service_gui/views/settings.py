@@ -89,6 +89,31 @@ class Settings(web.View):
                 informasjon = await EventsAdapter().create_competition_format(
                     user["token"], request_body
                 )
+            elif "update" in form.keys():
+                if form["datatype"] == "individual_sprint":
+                    request_body = {
+                        "id": form["id"],
+                        "name": form["name"],
+                        "starting_order": form["starting_order"],
+                        "start_procedure": form["start_procedure"],
+                        "datatype": form["datatype"],
+                        "time_between_rounds": form["time_between_rounds"],
+                        "time_between_heats": form["time_between_heats"],
+                        "max_no_of_contestants": form["max_no_of_contestants"],
+                    }
+                else:
+                    request_body = {
+                        "id": form["id"],
+                        "name": form["name"],
+                        "starting_order": form["starting_order"],
+                        "start_procedure": form["start_procedure"],
+                        "intervals": form["intervals"],
+                        "datatype": form["datatype"],
+                    }
+
+                informasjon = await EventsAdapter().update_competition_format(
+                    user["token"], request_body
+                )
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
