@@ -118,8 +118,8 @@
                   <input type="hidden" name="event_id" value="{{ event_id }}">
                   <input type="hidden" name="id" value="{{ raceclass.id }}">
                   <input type=hidden name=round value="timeS">
-                  <input type=hidden name=old_time value="{{ raceclass.timeS[-8:] }}">
-                  <input type=text name="new_time" value="{{ raceclass.timeS[-8:] }}" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" size=8 required>
+                  <input type=hidden name=old_time value="{{ raceclass.timeS }}">
+                  <input type=text name="new_time" value="{{ raceclass.timeS }}" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" size=8 required>
                   <input type="submit" name=update_time value="  Oppdater  ">
                 </form>
               </td>
@@ -128,8 +128,8 @@
                   <input type="hidden" name="event_id" value="{{ event_id }}">
                   <input type="hidden" name="id" value="{{ raceclass.id }}">
                   <input type=hidden name=round value="timeF">
-                  <input type=hidden name=old_time value="{{ raceclass.timeF[-8:] }}">
-                  <input type=text name="new_time" value="{{ raceclass.timeF[-8:] }}" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" size=8 required>
+                  <input type=hidden name=old_time value="{{ raceclass.timeF }}">
+                  <input type=text name="new_time" value="{{ raceclass.timeF }}" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" size=8 required>
                   <input type="submit" name=update_time value="  Oppdater  ">
                 </form>
               </td>
@@ -138,8 +138,8 @@
           <tr>
             <td>{{ raceclass.name }}</td>
             <td>{{ raceclass.timeQ }}</td>
-            <td>{{ raceclass.timeS[-8:] }}</td>
-            <td>{{ raceclass.timeF[-8:] }}</td>
+            <td>{{ raceclass.timeS }}</td>
+            <td>{{ raceclass.timeF }}</td>
           </tr>
         {% endif %}
       {% endfor %}
@@ -162,7 +162,7 @@
             <td>{{ race.round }}</td>
             <td>{{ race.heat }}</td>
             <td>{{ race.index }}</td>
-            <td>{{ race.start_time[-8:] }}</td>
+            <td>{{ race.start_time }}</td>
             <td>{{ race.no_of_contestants }}</td>
           </tr>
         {% endif %}

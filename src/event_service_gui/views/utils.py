@@ -45,11 +45,12 @@ def get_raceplan_summary(races: list) -> list:
             if race["raceclass"] == raceclassname:
                 if race["heat"] == 1:
                     if race["round"] == "Q":
-                        class_summary["timeQ"] = race["start_time"]
+                        class_summary["timeQ"] = race["start_time"][-8:]
                     elif race["round"] == "S":
-                        class_summary["timeS"] = race["start_time"]
+                        class_summary["timeS"] = race["start_time"][-8:]
                     elif race["round"] == "F":
-                        class_summary["timeF"] = race["start_time"]
+                        class_summary["timeF"] = race["start_time"][-8:]
         summary.append(class_summary)
+    logging.info(summary)
 
     return summary
