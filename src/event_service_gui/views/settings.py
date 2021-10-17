@@ -71,6 +71,7 @@ class Settings(web.View):
                     "name": "Interval Start",
                     "starting_order": "Draw",
                     "start_procedure": "Interval Start",
+                    "time_between_groups": "00:05:00",
                     "intervals": "00:00:30",
                     "datatype": "interval_start",
                 }
@@ -81,6 +82,7 @@ class Settings(web.View):
                     "name": "Individual Sprint",
                     "starting_order": "Heat Start",
                     "start_procedure": "Draw",
+                    "time_between_groups": "00:05:00",
                     "time_between_rounds": "00:05:00",
                     "time_between_heats": "00:02:30",
                     "max_no_of_contestants": "80",
@@ -97,6 +99,7 @@ class Settings(web.View):
                         "starting_order": form["starting_order"],
                         "start_procedure": form["start_procedure"],
                         "datatype": form["datatype"],
+                        "time_between_groups": form["time_between_groups"],
                         "time_between_rounds": form["time_between_rounds"],
                         "time_between_heats": form["time_between_heats"],
                         "max_no_of_contestants": form["max_no_of_contestants"],
@@ -107,6 +110,7 @@ class Settings(web.View):
                         "name": form["name"],
                         "starting_order": form["starting_order"],
                         "start_procedure": form["start_procedure"],
+                        "time_between_groups": form["time_between_groups"],
                         "intervals": form["intervals"],
                         "datatype": form["datatype"],
                     }

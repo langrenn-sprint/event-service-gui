@@ -141,8 +141,6 @@ class RaceclassesAdapter:
                 if resp.status == 200:
                     all_raceclasses = await resp.json()
                     for raceclass in all_raceclasses:
-                        logging.debug(f"Raceclasses order: {raceclass['order']}.")
-
                         try:
                             if raceclass["event_id"] == event_id:
                                 raceclasses.append(raceclass)

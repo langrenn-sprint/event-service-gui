@@ -185,6 +185,7 @@ class EventsAdapter:
                 if format["datatype"] == "interval_start":
                     event["intervals"] = format["intervals"]
                 elif format["datatype"] == "individual_sprint":
+                    event["time_between_groups"] = format["time_between_groups"]
                     event["time_between_rounds"] = format["time_between_rounds"]
                     event["time_between_heats"] = format["time_between_heats"]
                     event["max_no_of_contestants"] = format["max_no_of_contestants"]

@@ -153,6 +153,7 @@
         <td>Id</td>
         <td>Start</td>
         <td>Deltakere</td>
+        <td>Videre til</td>
       </tr>
       {% for race in races %}
         {% if (valgt_klasse == "") or (valgt_klasse == race.raceclass) %}
@@ -164,6 +165,7 @@
             <td>{{ race.index }}</td>
             <td>{{ race.start_time }}</td>
             <td>{{ race.no_of_contestants }}</td>
+            <td>{{ race.rule }}</td>
           </tr>
         {% endif %}
       {% endfor %}

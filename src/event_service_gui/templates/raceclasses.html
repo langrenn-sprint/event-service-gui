@@ -50,6 +50,7 @@
           <td>Årsklasse</td>
           <td>Løype</td>
           <td>Løpsklasse</td>
+          <td>Startgruppe</td>
           <td>Startrekkefølge</td>
           <td>Deltakere</td>
           <td></td>
@@ -60,6 +61,7 @@
               <td>{{ klasse.ageclass_name }}</td>
               <td>{{ klasse.distance }}</td>
               <td>{{ klasse.name }}</td>
+              <td>{{ klasse.group }}</td>
               <td>{{ klasse.order }}</td>
               <td>{{ klasse.no_of_contestants }}</td>
               <td>
@@ -91,6 +93,7 @@
               <td>Årsklasse</td>
               <td>Løype</td>
               <td>Løpsklasse</td>
+              <td>Startgruppe</td>
               <td>Startrekkefølge</td>
               <td>Deltakere</td>
             </tr>
@@ -99,6 +102,9 @@
                   <td>{{ klasse.ageclass_name }}</td>
                   <td>{{ klasse.distance }}</td>
                   <td>{{ klasse.name }}</td>
+                  <td>
+                    <input type=number name="group_{{ klasse.id }}" value="{{ klasse.group }}" min="1" max="99" size=5>
+                  </td>
                   <td>
                     <input type=number name="order_{{ klasse.id }}" value="{{ klasse.order }}" min="1" max="99" size=5>
                     <input type="hidden" name="id_{{ klasse.id }}" value="{{ klasse.id }}">
@@ -131,6 +137,11 @@
             <tr>
               <td>Distanse</td>
               <td><input type=text name="distance" value="{{ klasse.distance }}"></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Startgruppe</td>
+              <td><input type=number name="group" value="{{ klasse.group }}" min="1" max="99"></td>
               <td></td>
             </tr>
             <tr>
@@ -167,6 +178,7 @@
         <td>Årsklasse</td>
         <td>Løype</td>
         <td>Løpsklasse</td>
+        <td>Startgruppe</td>
         <td>Startrekkefølge</td>
         <td>Deltakere</td>
       </tr>
@@ -175,6 +187,7 @@
             <td>{{ klasse.ageclass_name }}</td>
             <td>{{ klasse.distance }}</td>
             <td>{{ klasse.name }}</td>
+            <td>{{ klasse.group }}</td>
             <td>{{ klasse.order }}</td>
             <td>{{ klasse.no_of_contestants }}</td>
           </tr>

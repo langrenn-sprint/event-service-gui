@@ -36,7 +36,6 @@ def get_raceplan_summary(races: list) -> list:
     # create a dict of all raceclasses and populate
     for race in races:
         raceclasses[race["raceclass"]] = race["raceclass"]
-
     # loop raceclasses and find key parameters
     for raceclassname in raceclasses:
         class_summary = {"name": raceclassname}

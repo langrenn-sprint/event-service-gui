@@ -45,6 +45,10 @@
                   <td>Startrekkefølge:</td>
                   <td>{{ format.starting_order }}</td>
                 </tr>
+                <tr>
+                  <td>Pause mellom grupper:</td>
+                  <td><input type=text name=time_between_groups value="{{ format.time_between_groups }}" required></td>
+                </tr>
             {% if format.datatype == "interval_start" %}
                 <tr>
                   <td>Startintervall:</td>
