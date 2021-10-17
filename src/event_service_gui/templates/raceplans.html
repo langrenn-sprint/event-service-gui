@@ -165,7 +165,14 @@
             <td>{{ race.index }}</td>
             <td>{{ race.start_time }}</td>
             <td>{{ race.no_of_contestants }}</td>
-            <td>{{ race.rule }}</td>
+            <td>
+              {% if race.rule['S']|length > 0 %}
+                Til semifinaler: {{ race.rule['S'] }}
+              {% endif %}
+              {% if race.rule['F']|length > 0 %}
+                Til Finaler: {{ race.rule['F'] }}
+              {% endif %}
+            </td>
           </tr>
         {% endif %}
       {% endfor %}

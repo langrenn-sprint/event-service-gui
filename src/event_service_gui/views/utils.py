@@ -50,6 +50,6 @@ def get_raceplan_summary(races: list) -> list:
                     elif race["round"] == "F":
                         class_summary["timeF"] = race["start_time"][-8:]
         summary.append(class_summary)
-    logging.info(summary)
+    logging.debug(summary)
 
     return summary
