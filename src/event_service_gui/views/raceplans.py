@@ -9,7 +9,7 @@ from event_service_gui.services import (
     RaceclassesAdapter,
     RaceplansAdapter,
 )
-from .utils import check_login, get_event, get_raceplan_summary
+from .utils import check_login, get_event, get_qualification_text, get_raceplan_summary
 
 
 class Raceplans(web.View):
@@ -58,7 +58,10 @@ class Raceplans(web.View):
                     informasjon = f"{informasjon} Ingen kjøreplaner funnet."
                 else:
                     raceplan = raceplans[0]
-                    raceplan_summary = get_raceplan_summary(races)
+                    raceplan_summary = get_raceplan_summary(races, raceclasses)
+                # generate text explaining qualificatoin rule (videre til)
+                for race in races:
+                    race["next_race"] = get_qualification_text(race)
 
             event = await EventsAdapter().get_event(user["token"], event_id)
 

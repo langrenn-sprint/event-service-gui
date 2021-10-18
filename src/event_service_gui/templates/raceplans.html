@@ -1,7 +1,7 @@
 {% extends "adm_base.html" %}
 {% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
+  <div class="w3-quart"></div>
+  <div class="w3-half">
 {% endblock %}
 
 {% block titleheader %}
@@ -98,6 +98,7 @@
         <td>Kvartfinale start</td>
         <td>Semifinaler</td>
         <td>Finaler</td>
+        <td>Antall deltakere</td>
       </tr>
       {% for raceclass in raceplan_summary %}
         {% if action == "edit_time" %}
@@ -140,39 +141,39 @@
             <td>{{ raceclass.timeQ }}</td>
             <td>{{ raceclass.timeS }}</td>
             <td>{{ raceclass.timeF }}</td>
+            <td>{{ raceclass.no_of_contestants }}</td>
           </tr>
         {% endif %}
       {% endfor %}
     </table>
     <table>
        <tr id=headerblue>
-        <td></td>
-        <td>Løpsklasse</td>
-        <td>Runde</td>
-        <td>Heat</td>
-        <td>Id</td>
         <td>Start</td>
-        <td>Deltakere</td>
+        <td>Løpsklasse</td>
+        <td>Heat</td>
+        <td></td>
         <td>Videre til</td>
+        <td>Ant.</td>
+        <td>Heat</td>
       </tr>
       {% for race in races %}
         {% if (valgt_klasse == "") or (valgt_klasse == race.raceclass) %}
           <tr>
-            <td>{{ race.order }}</td>
+            <td>{{ race.start_time[-8:] }}</td>
             <td>{{ race.raceclass }}</td>
-            <td>{{ race.round }}</td>
-            <td>{{ race.heat }}</td>
-            <td>{{ race.index }}</td>
-            <td>{{ race.start_time }}</td>
-            <td>{{ race.no_of_contestants }}</td>
             <td>
-              {% if race.rule['S']|length > 0 %}
-                Til semifinaler: {{ race.rule['S'] }}
-              {% endif %}
-              {% if race.rule['F']|length > 0 %}
-                Til Finaler: {{ race.rule['F'] }}
+              {% if race.round == "Q" %}
+                Kvartfinale - heat {{ race.heat }}
+              {% elif race.round == "S" %}
+                Semifinale {{ race.index }} - heat {{ race.heat }}
+              {% elif race.round == "F" %}
+                Finale {{ race.index }}
               {% endif %}
             </td>
+            <td></td>
+            <td>{{ race.next_race }}</td>
+            <td>{{ race.no_of_contestants }}</td>
+            <td>{{ race.order }}</td>
           </tr>
         {% endif %}
       {% endfor %}
