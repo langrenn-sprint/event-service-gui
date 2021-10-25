@@ -31,25 +31,26 @@ async def get_event(token: str, event_id: str) -> dict:
 def get_qualification_text(race: dict) -> str:
     """Generate a text with info about qualification rules."""
     text = ""
-    for key, value in race["rule"].items():
-        if key == "S":
-            for x, y in value.items():
-                if x == "A" and y > 0:
-                    text += f"{y} til semi A. "
-                elif x == "C" and y > 0:
-                    text += "Resten til semi C. "
-        elif key == "F":
-            for x, y in value.items():
-                if x == "A":
-                    text += f"{y} til finale A. "
-                elif x == "B" and y > 8:
-                    text += "Resten til finale B. "
-                elif x == "B":
-                    text += f"{y} til finale B. "
-                elif x == "C" and y > 8:
-                    text += "Resten til finale C. "
-                elif x == "C":
-                    text += f"{y} til finale C. "
+    if race["datatype"] == "individual_sprint":
+        for key, value in race["rule"].items():
+            if key == "S":
+                for x, y in value.items():
+                    if x == "A" and y > 0:
+                        text += f"{y} til semi A. "
+                    elif x == "C" and y > 0:
+                        text += "Resten til semi C. "
+            elif key == "F":
+                for x, y in value.items():
+                    if x == "A":
+                        text += f"{y} til finale A. "
+                    elif x == "B" and y > 8:
+                        text += "Resten til finale B. "
+                    elif x == "B":
+                        text += f"{y} til finale B. "
+                    elif x == "C" and y > 8:
+                        text += "Resten til finale C. "
+                    elif x == "C":
+                        text += f"{y} til finale C. "
 
     logging.info(f"Regel hele: {text}")
     return text
@@ -66,13 +67,14 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
         # loop through races - update start time pr round pr class
         for race in races:
             if race["raceclass"] == raceclass["name"]:
-                if race["heat"] == 1:
-                    if race["round"] == "Q":
-                        class_summary["timeQ"] = race["start_time"][-8:]
-                    elif race["round"] == "S":
-                        class_summary["timeS"] = race["start_time"][-8:]
-                    elif race["round"] == "F":
-                        class_summary["timeF"] = race["start_time"][-8:]
+                if race["datatype"] == "individual_sprint":
+                    if race["heat"] == 1:
+                        if race["round"] == "Q":
+                            class_summary["timeQ"] = race["start_time"][-8:]
+                        elif race["round"] == "S":
+                            class_summary["timeS"] = race["start_time"][-8:]
+                        elif race["round"] == "F":
+                            class_summary["timeF"] = race["start_time"][-8:]
         summary.append(class_summary)
     logging.debug(summary)
 
