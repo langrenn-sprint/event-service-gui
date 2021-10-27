@@ -9,6 +9,7 @@ from event_service_gui.services import (
     ContestantsAdapter,
     RaceclassesAdapter,
     RaceplansAdapter,
+    StartAdapter,
 )
 from .utils import check_login, get_event
 
@@ -103,6 +104,11 @@ async def get_task_status(token: str, event_id: str) -> dict:
         task_status["done_6"] = False
 
     # start list - TODO
-    task_status["done_8"] = False
+    startlist = await StartAdapter().get_all_starts_by_event(token, event_id)
+    if len(startlist) > 0:
+        task_status["no_of_starts"] = len(startlist[0]["start_entries"])
+        task_status["done_8"] = True
+    else:
+        task_status["done_8"] = False
 
     return task_status

@@ -130,7 +130,7 @@
           <td>8. Startliste: Opprett</td>
           {% if (task_status.done_8) %}
             <td id=green>Utført</td>
-            <td> startnummer er opprettet.</td>
+            <td> {{ task_status.no_of_starts }} starter er opprettet.</td>
           {% else %}
             <td id=red>Mangler</td>
             <td>

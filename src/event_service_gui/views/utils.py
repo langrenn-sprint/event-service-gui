@@ -51,8 +51,6 @@ def get_qualification_text(race: dict) -> str:
                         text += "Resten til finale C. "
                     elif x == "C":
                         text += f"{y} til finale C. "
-
-    logging.info(f"Regel hele: {text}")
     return text
 
 
