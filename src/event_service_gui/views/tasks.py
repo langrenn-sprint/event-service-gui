@@ -10,6 +10,7 @@ from event_service_gui.services import (
     RaceclassesAdapter,
     RaceplansAdapter,
     StartAdapter,
+    TimeEventsAdapter,
 )
 from .utils import check_login, get_event
 
@@ -103,12 +104,26 @@ async def get_task_status(token: str, event_id: str) -> dict:
     else:
         task_status["done_6"] = False
 
-    # start list - TODO
+    # start list
     startlist = await StartAdapter().get_all_starts_by_event(token, event_id)
     if len(startlist) > 0:
         task_status["no_of_starts"] = len(startlist[0]["start_entries"])
         task_status["done_8"] = True
     else:
         task_status["done_8"] = False
+
+    # qualification - next race
+    next_race_templates = []
+    passeringer = await TimeEventsAdapter().get_time_events_by_event_id(token, event_id)
+    for passering in passeringer:
+        if passering["point"] == "Template":
+            next_race_templates.append(passering)
+            logging.debug(passering)
+
+    if len(next_race_templates) > 0:
+        task_status["no_of_next_race"] = len(next_race_templates)
+        task_status["done_9"] = True
+    else:
+        task_status["done_9"] = False
 
     return task_status

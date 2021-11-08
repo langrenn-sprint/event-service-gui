@@ -143,13 +143,23 @@
             </td>
           {% endif %}
         </tr>
-
-          <tr>
-            <td></td>
+        <tr>
+          <td>9. Videre til oppsett: Opprett</td>
+          {% if (task_status.done_9) %}
+            <td id=green>Utført</td>
+            <td> {{ task_status.no_of_next_race }} <i>videre til</i> semi og finaler er opprettet.</td>
+          {% else %}
+            <td id=red>Oppsett for semifinaler og finaler mangler.</td>
             <td>
+              {% if (task_status.done_6) %}
+                <form action={{ result_gui_url }}/start method=post>
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
+                  <input type="submit" name="generate_next_race" value="  Generer videre til oppsett  ">
+                </form>
+              {% endif %}
             </td>
-            <td id=></td>
-          </tr>
+          {% endif %}
+        </tr>
         </table>
       </td>
       <td valign=top>

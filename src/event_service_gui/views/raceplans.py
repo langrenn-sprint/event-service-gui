@@ -53,14 +53,16 @@ class Raceplans(web.View):
             raceplan_summary = []
             races = []
             if len(raceplans) > 0:
-                races = raceplans[0]["races"]
+                races = await RaceplansAdapter().get_all_races(user["token"], event_id)
                 if len(races) == 0:
                     informasjon = f"{informasjon} Ingen kjøreplaner funnet."
                 else:
                     raceplan = raceplans[0]
+                    logging.info(f"summary: {races}")
                     raceplan_summary = get_raceplan_summary(races, raceclasses)
                 # generate text explaining qualificatoin rule (videre til)
                 for race in races:
+                    logging.info(f"qual: {race}")
                     race["next_race"] = get_qualification_text(race)
 
             event = await EventsAdapter().get_event(user["token"], event_id)

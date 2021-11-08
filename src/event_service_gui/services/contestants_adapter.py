@@ -182,6 +182,36 @@ class ContestantsAdapter:
             contestants = tmp_contestants
         return contestants
 
+    async def get_contestants_by_raceclass(
+        self, token: str, event_id: str, raceclass: str
+    ) -> List:
+        """Get all contestants by raceclass function."""
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        contestants = []
+        async with ClientSession() as session:
+            async with session.get(
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass}",
+                headers=headers,
+            ) as resp:
+                logging.debug(
+                    f"get_contestants_by_raceclass - got response {resp.status}"
+                )
+                if resp.status == 200:
+                    contestants = await resp.json()
+                else:
+                    servicename = "get_contestants_by_raceclass"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        return contestants
+
     async def get_contestant(
         self, token: str, event_id: str, contestant_id: str
     ) -> dict:

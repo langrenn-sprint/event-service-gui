@@ -79,12 +79,6 @@ class RaceplansAdapter:
                 logging.debug(f"get_all_raceplans - got response {resp.status}")
                 if resp.status == 200:
                     raceplans = await resp.json()
-                    all_raceplans = await resp.json()
-                    for plan in all_raceplans:
-                        try:
-                            raceplans.append(plan)
-                        except Exception as e:
-                            logging.error(f"Error - data quality: {e}")
                 elif resp.status == 401:
                     raise Exception(f"Login expired: {resp}")
                 else:
@@ -96,14 +90,30 @@ class RaceplansAdapter:
                     )
         return raceplans
 
-    async def get_all_races(self, token: str, event_id: str) -> dict:
+    async def get_all_races(self, token: str, event_id: str) -> List:
         """Get all races for event function."""
-        raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)
-        logging.debug(f"Raceplans len {len(raceplans)}")
-
-        races = {}
-        if len(raceplans) > 0:
-            races = raceplans[0]["races"]
+        headers = MultiDict(
+            {
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        races = []
+        async with ClientSession() as session:
+            async with session.get(
+                f"{RACE_SERVICE_URL}/races?event-id={event_id}", headers=headers
+            ) as resp:
+                logging.debug(f"get_all_races - got response {resp.status}")
+                if resp.status == 200:
+                    races = await resp.json()
+                elif resp.status == 401:
+                    raise Exception(f"Login expired: {resp}")
+                else:
+                    servicename = "get_all_races"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return races
 
     async def get_race_by_class(
