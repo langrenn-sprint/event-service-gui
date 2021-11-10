@@ -63,17 +63,15 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
         class_summary = {"name": raceclass["name"]}
         class_summary["no_of_contestants"] = raceclass["no_of_contestants"]
         # loop through races - update start time pr round pr class
-        for race in races:
+        for race in reversed(races):
             if race["raceclass"] == raceclass["name"]:
                 if race["datatype"] == "individual_sprint":
-                    if race["heat"] == 1:
-                        if race["round"] == "Q":
-                            class_summary["timeQ"] = race["start_time"][-8:]
-                        elif race["round"] == "S":
-                            class_summary["timeS"] = race["start_time"][-8:]
-                        elif race["round"] == "F":
-                            class_summary["timeF"] = race["start_time"][-8:]
+                    if race["round"] == "Q":
+                        class_summary["timeQ"] = race["start_time"][-8:]
+                    elif race["round"] == "S":
+                        class_summary["timeS"] = race["start_time"][-8:]
+                    elif race["round"] == "F":
+                        class_summary["timeF"] = race["start_time"][-8:]
         summary.append(class_summary)
     logging.debug(summary)
-
     return summary
