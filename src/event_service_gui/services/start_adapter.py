@@ -36,7 +36,6 @@ class StartAdapter:
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
                 else:
-                    breakpoint()
                     logging.error(
                         f"generate_startlist_for_event failed - {resp.status}"
                     )

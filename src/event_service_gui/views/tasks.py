@@ -116,7 +116,7 @@ async def get_task_status(token: str, event_id: str) -> dict:
     next_race_templates = []
     passeringer = await TimeEventsAdapter().get_time_events_by_event_id(token, event_id)
     for passering in passeringer:
-        if passering["point"] == "Template":
+        if passering["timing_point"] == "Template":
             next_race_templates.append(passering)
             logging.debug(passering)
 
