@@ -154,11 +154,12 @@ async function savefile(inp)
 
 /**** Responsivt design ****/
 .w3-container {
-  padding:0.01em 0px
+  padding:0.01em 0px;
+  background-color: white;
 }
 
 .w3-third,.w3-quart,.w3-10,.w3-80,.w3-row-padding,.w3-half {
-  padding:0.01em 2px
+  padding:0.01em 2px;
 }
 .w3-container:after,.w3-container:before,.w3-row-padding:after,.w3-row-padding:before {
   content:"";
