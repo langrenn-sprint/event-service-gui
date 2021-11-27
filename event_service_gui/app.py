@@ -34,6 +34,7 @@ DB_PORT = int(os.getenv("DB_PORT", 27017))
 DB_NAME = os.getenv("DB_NAME", "test")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
+PROJECT_ROOT = os.path.join(os.getcwd(), "event_service_gui")
 
 
 async def handler(request) -> web.Response:
@@ -60,17 +61,14 @@ async def create_app() -> web.Application:
 
     # Set up logging
     logging.basicConfig(level=LOGGING_LEVEL)
-    # Set up static path
-    static_path = os.path.join(os.getcwd(), "event_service_gui/static")
     # Set up template path
-    template_path = os.path.join(os.getcwd(), "event_service_gui/templates")
+    template_path = os.path.join(PROJECT_ROOT, "templates")
     aiohttp_jinja2.setup(
         app,
         enable_async=True,
         loader=jinja2.FileSystemLoader(template_path),
     )
     logging.debug(f"template_path: {template_path}")
-    logging.debug(f"static_path: {static_path}")
 
     # todo - remove: Set up database connection:
     client = motor.motor_asyncio.AsyncIOMotorClient(DB_HOST, DB_PORT)
@@ -91,7 +89,12 @@ async def create_app() -> web.Application:
             web.view("/settings", Settings),
             web.view("/tasks", Tasks),
             web.view("/users", Users),
-            web.static("/static", static_path),
         ]
     )
+
+    # Set up static path
+    static_dir = os.path.join(PROJECT_ROOT, "static")
+    logging.debug(f"static_dir: {static_dir}")
+    app.router.add_static("/static/", path=static_dir, name="static")
+
     return app
