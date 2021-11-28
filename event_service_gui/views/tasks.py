@@ -44,7 +44,7 @@ class Tasks(web.View):
                 "tasks.html",
                 self.request,
                 {
-                    "lopsinfo": "Oppgaver - oversikt",
+                    "lopsinfo": "Rennforberedelser - status",
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,

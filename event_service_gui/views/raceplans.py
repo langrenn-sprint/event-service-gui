@@ -121,9 +121,9 @@ class Raceplans(web.View):
                     user["token"], event_id
                 )
                 informasjon = f"Opprettet kjøreplan - {result}"
-                action = "next_start_time"
-                info = f"action={action}&informasjon={informasjon}"
-                return web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
+                return web.HTTPSeeOther(
+                    location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
+                )
             elif "delete_all" in form.keys():
                 result = await RaceplansAdapter().delete_raceplans(
                     user["token"], str(form["id"])

@@ -100,7 +100,10 @@ class Contestants(web.View):
                 informasjon = await ContestantsAdapter().assign_bibs(
                     user["token"], event_id
                 )
-                action = "next_raceplan"
+                return web.HTTPSeeOther(
+                    location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
+                )
+
             elif "create" in form.keys():
                 file = form["file"]
                 text_file = file.file
@@ -120,7 +123,10 @@ class Contestants(web.View):
                     informasjon = f"Opprettet deltakere: {resp}"
                 else:
                     raise Exception(f"Ugyldig filtype {file.content_type}")
-                action = "next_raceclasses"
+                return web.HTTPSeeOther(
+                    location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
+                )
+
             elif "create_one" in form.keys() or "update_one" in form.keys():
                 request_body = {
                     "first_name": str(form["first_name"]),

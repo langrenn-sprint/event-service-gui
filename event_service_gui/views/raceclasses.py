@@ -108,13 +108,17 @@ class Raceclasses(web.View):
                             f"New race_class: {race_class}- update result {result}"
                         )
                 informasjon = "Rekkefølgen er oppdatert."
-                action = "next_bibs"
+                return web.HTTPSeeOther(
+                    location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
+                )
             # Create classes from list of contestants
             elif "generate_raceclasses" in form.keys():
                 informasjon = await EventsAdapter().generate_classes(
                     user["token"], event_id
                 )
-                action = "next_order"
+                return web.HTTPSeeOther(
+                    location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
+                )
             elif "refresh_no_of_contestants" in form.keys():
                 informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
             # delete
