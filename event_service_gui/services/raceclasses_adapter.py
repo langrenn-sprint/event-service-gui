@@ -22,10 +22,10 @@ class RaceclassesAdapter:
         """Create new raceclass function."""
         id = ""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
 
         async with ClientSession() as session:
@@ -101,10 +101,10 @@ class RaceclassesAdapter:
     async def get_raceclass(self, token: str, event_id: str, raceclass_id: str) -> dict:
         """Get all raceclass function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         raceclass = {}
         async with ClientSession() as session:
@@ -128,10 +128,10 @@ class RaceclassesAdapter:
         """Get all raceclasses function."""
         raceclasses = []
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         async with ClientSession() as session:
             async with session.get(
@@ -141,6 +141,8 @@ class RaceclassesAdapter:
                 if resp.status == 200:
                     all_raceclasses = await resp.json()
                     for raceclass in all_raceclasses:
+                        logging.debug(f"Raceclasses order: {raceclass['order']}.")
+
                         try:
                             if raceclass["event_id"] == event_id:
                                 raceclasses.append(raceclass)
@@ -161,10 +163,10 @@ class RaceclassesAdapter:
         """Update klasser function."""
         returncode = 201
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         async with ClientSession() as session:
             async with session.put(

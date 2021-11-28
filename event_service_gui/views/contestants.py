@@ -106,23 +106,18 @@ class Contestants(web.View):
 
             elif "create" in form.keys():
                 file = form["file"]
-                text_file = file.file
-                logging.info(f"File type: {file.content_type}")
+                text_file = file.file  # type: ignore
+                logging.debug(f"File type: {file.content_type}")  # type: ignore
 
-                # handle file - xml and csv supported
-                if file.content_type == "text/xml":
-                    content = text_file.read()
-                    logging.debug(f"Content {content}")
-                    # contestants = get_all_contestant_info_from_xml(content, event_id)
-                    # loop all contestants in entry class
-                elif file.content_type == "text/csv":
+                # handle file - csv supported
+                if file.content_type == "text/csv":  # type: ignore
                     resp = await ContestantsAdapter().create_contestants(
                         user["token"], event_id, text_file
                     )
                     logging.debug(f"Created contestants: {resp}")
                     informasjon = f"Opprettet deltakere: {resp}"
                 else:
-                    raise Exception(f"Ugyldig filtype {file.content_type}")
+                    raise Exception(f"Ugyldig filtype {file.content_type}")  # type: ignore
                 return web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )

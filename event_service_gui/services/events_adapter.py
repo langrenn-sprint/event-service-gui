@@ -20,10 +20,10 @@ class EventsAdapter:
     async def create_competition_format(self, token: str, request_body: dict) -> str:
         """Generate create_competition_format standard values."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         url = f"{EVENT_SERVICE_URL}/competition-formats"
         async with ClientSession() as session:
@@ -45,9 +45,9 @@ class EventsAdapter:
     async def delete_competition_format(self, token: str, id: str) -> str:
         """Function to delete one competition_format."""
         headers = MultiDict(
-            {
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         url = f"{EVENT_SERVICE_URL}/competition-formats/{id}"
         async with ClientSession() as session:
@@ -69,9 +69,9 @@ class EventsAdapter:
     async def generate_classes(self, token: str, event_id: str) -> str:
         """Generate classes based upon registered contestants."""
         headers = MultiDict(
-            {
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         url = f"{EVENT_SERVICE_URL}/events/{event_id}/generate-raceclasses"
         async with ClientSession() as session:
@@ -94,10 +94,10 @@ class EventsAdapter:
         """Get all events function."""
         events = []
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
 
         async with ClientSession() as session:
@@ -118,10 +118,10 @@ class EventsAdapter:
         """Get competition_formats function."""
         competition_formats = []
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
 
         async with ClientSession() as session:
@@ -149,10 +149,10 @@ class EventsAdapter:
         """Get event function."""
         event = {}
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
 
         async with ClientSession() as session:
@@ -190,10 +190,10 @@ class EventsAdapter:
                     event["time_between_heats"] = format["time_between_heats"]
                     event["max_no_of_contestants"] = format["max_no_of_contestants"]
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         request_body = copy.deepcopy(event)
 
@@ -218,10 +218,10 @@ class EventsAdapter:
     async def delete_event(self, token: str, id: str) -> str:
         """Delete event function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         url = f"{EVENT_SERVICE_URL}/events/{id}"
         async with ClientSession() as session:
@@ -242,10 +242,10 @@ class EventsAdapter:
     async def update_competition_format(self, token: str, request_body: dict) -> str:
         """Generate update_competition_format standard values."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         url = f"{EVENT_SERVICE_URL}/competition-formats/{request_body['id']}"
         async with ClientSession() as session:
@@ -267,10 +267,10 @@ class EventsAdapter:
     async def update_event(self, token: str, id: str, request_body: dict) -> str:
         """Update event function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
 
         async with ClientSession() as session:

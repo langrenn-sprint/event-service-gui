@@ -73,6 +73,8 @@ class Raceclasses(web.View):
             form = await self.request.post()
             logging.debug(f"Form {form}")
             event_id = str(form["event_id"])
+            igroup = 0
+            iorder = 0
 
             # Update
             if "update_one" in form.keys():
@@ -82,8 +84,8 @@ class Raceclasses(web.View):
                     "distance": str(form["distance"]),
                     "event_id": event_id,
                     "id": id,
-                    "group": int(form["group"]),
-                    "order": int(form["order"]),
+                    "group": int(form["group"]),  # type: ignore
+                    "order": int(form["order"]),  # type: ignore
                     "ageclass_name": str(form["ageclass_name"]),
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }
@@ -99,8 +101,10 @@ class Raceclasses(web.View):
                         race_class = await RaceclassesAdapter().get_raceclass(
                             user["token"], event_id, id
                         )
-                        race_class["group"] = int(form[f"group_{id}"])
-                        race_class["order"] = int(form[f"order_{id}"])
+                        igroup = form[f"group_{id}"]  # type: ignore
+                        iorder = form[f"order_{id}"]  # type: ignore
+                        race_class["group"] = igroup
+                        race_class["order"] = iorder
                         result = await RaceclassesAdapter().update_raceclass(
                             user["token"], event_id, id, race_class
                         )

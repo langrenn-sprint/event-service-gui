@@ -104,7 +104,7 @@ class Raceplans(web.View):
                     "distance": str(form["distance"]),
                     "event_id": event_id,
                     "id": id,
-                    "order": int(form["order"]),
+                    "order": int(form["order"]),  # type: ignore
                     "ageclass_name": str(form["ageclass_name"]),
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }

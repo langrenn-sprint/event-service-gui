@@ -21,11 +21,12 @@ class TimeEventsAdapter:
         """Create new time_event function."""
         id = ""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
+
         request_body = copy.deepcopy(time_event)
 
         async with ClientSession() as session:
@@ -45,10 +46,10 @@ class TimeEventsAdapter:
     async def delete_time_event(self, token: str, id: str) -> str:
         """Delete time_event function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         url = f"{RACE_SERVICE_URL}/time-events/{id}"
         async with ClientSession() as session:
@@ -69,10 +70,10 @@ class TimeEventsAdapter:
     async def update_time_event(self, token: str, id: str, request_body: dict) -> str:
         """Update time_event function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
 
         async with ClientSession() as session:
@@ -94,9 +95,9 @@ class TimeEventsAdapter:
     async def get_time_event_by_id(self, token: str, id: str) -> dict:
         """Get one time_event - lap time or heat place function."""
         headers = MultiDict(
-            {
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         time_event = {}
         async with ClientSession() as session:
@@ -120,9 +121,9 @@ class TimeEventsAdapter:
     async def get_time_events_by_event_id(self, token: str, event_id: str) -> List:
         """Get all time_events - lap time or heat place function."""
         headers = MultiDict(
-            {
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         time_events = []
         async with ClientSession() as session:
@@ -150,9 +151,9 @@ class TimeEventsAdapter:
     ) -> List:
         """Get all time_events - lap time or heat place function."""
         headers = MultiDict(
-            {
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         time_events = []
         async with ClientSession() as session:
@@ -179,9 +180,9 @@ class TimeEventsAdapter:
     async def get_time_events_by_race_id(self, token: str, race_id: str) -> List:
         """Get time_events - lap time or heat place function."""
         headers = MultiDict(
-            {
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         time_events = []
         async with ClientSession() as session:

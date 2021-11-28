@@ -93,26 +93,27 @@ class Settings(web.View):
                 )
             elif "update" in form.keys():
                 if form["datatype"] == "individual_sprint":
+                    imax = int(form["max_no_of_contestants"])  # type: ignore
                     request_body = {
-                        "id": form["id"],
-                        "name": form["name"],
-                        "starting_order": form["starting_order"],
-                        "start_procedure": form["start_procedure"],
-                        "datatype": form["datatype"],
-                        "time_between_groups": form["time_between_groups"],
-                        "time_between_rounds": form["time_between_rounds"],
-                        "time_between_heats": form["time_between_heats"],
-                        "max_no_of_contestants": form["max_no_of_contestants"],
+                        "id": str(form["id"]),
+                        "name": str(form["name"]),
+                        "starting_order": str(form["starting_order"]),
+                        "start_procedure": str(form["start_procedure"]),
+                        "datatype": str(form["datatype"]),
+                        "time_between_groups": str(form["time_between_groups"]),
+                        "time_between_rounds": str(form["time_between_rounds"]),
+                        "time_between_heats": str(form["time_between_heats"]),
+                        "max_no_of_contestants": imax,  # type: ignore
                     }
                 else:
                     request_body = {
-                        "id": form["id"],
-                        "name": form["name"],
-                        "starting_order": form["starting_order"],
-                        "start_procedure": form["start_procedure"],
-                        "time_between_groups": form["time_between_groups"],
-                        "intervals": form["intervals"],
-                        "datatype": form["datatype"],
+                        "id": str(form["id"]),
+                        "name": str(form["name"]),
+                        "starting_order": str(form["starting_order"]),
+                        "start_procedure": str(form["start_procedure"]),
+                        "time_between_groups": str(form["time_between_groups"]),
+                        "intervals": str(form["intervals"]),
+                        "datatype": str(form["datatype"]),
                     }
 
                 informasjon = await EventsAdapter().update_competition_format(

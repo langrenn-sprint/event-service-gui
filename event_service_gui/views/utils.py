@@ -13,7 +13,7 @@ async def check_login(self) -> dict:
     loggedin = UserAdapter().isloggedin(session)
     if not loggedin:
         informasjon = "Logg inn for å se denne siden"
-        return web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")
+        return web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")  # type: ignore
 
     return {"name": session["username"], "token": session["token"]}
 

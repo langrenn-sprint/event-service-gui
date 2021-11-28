@@ -89,23 +89,6 @@ class Events(web.View):
                 )
                 informasjon = f"Opprettet nytt arrangement,  event_id {event_id}"
                 action = "next_contestants"
-            elif "create_file" in form.keys():
-                # create event based upon data in xml file
-                file = form["file"]
-                logging.info(f"File name {file.filename}")
-                text_file = file.file
-                content = text_file.read()
-                logging.debug(f"Content {content}")
-                # event_info = get_event_info_from_xml(content)
-                # event_id = await EventsAdapter().create_event(user["token"], event_info)
-                informasjon = "Opprettet nytt arrangement"
-
-                # add Ageclasses
-                # ageclasses = get_ageclasses_from_xml(event_id, content)
-                # for ageclass in ageclasses:
-                #    id = await RaceclassesAdapter().create_ageclass(user["token"], ageclass)
-                #    logging.info(f"Created ageclass with id: {id}")
-
             elif "update" in form.keys():
                 # Update event
                 event_id = str(form["event_id"])

@@ -31,10 +31,10 @@ class UserAdapter:
             "password": password,
         }
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            },
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         async with ClientSession() as session:
             async with session.post(
@@ -50,13 +50,13 @@ class UserAdapter:
 
         return id
 
-    async def delete_user(self, token: str, id: str) -> str:
+    async def delete_user(self, token: str, id: str) -> int:
         """Delete user function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         url = f"{USER_SERVICE_URL}/users/{id}"
         async with ClientSession() as session:
@@ -74,10 +74,10 @@ class UserAdapter:
         """Get all users function."""
         users = []
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
 
         async with ClientSession() as session:
@@ -102,9 +102,9 @@ class UserAdapter:
             "password": password,
         }
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-            },
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+            ]
         )
         async with ClientSession() as session:
             async with session.post(

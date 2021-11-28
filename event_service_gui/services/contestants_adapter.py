@@ -18,11 +18,8 @@ class ContestantsAdapter:
 
     async def assign_bibs(self, token: str, event_id: str) -> str:
         """Generate bibs based upon registrations."""
-        headers = MultiDict(
-            {
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
-        )
+        headers = MultiDict([(hdrs.AUTHORIZATION, f"Bearer {token}")])
+
         url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/assign-bibs"
         async with ClientSession() as session:
             async with session.post(url, headers=headers) as resp:
@@ -46,10 +43,10 @@ class ContestantsAdapter:
         """Create new contestant function."""
         id = ""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
 
         async with ClientSession() as session:
@@ -152,10 +149,10 @@ class ContestantsAdapter:
     ) -> List:
         """Get all contestants / by class (optional) function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         contestants = []
         async with ClientSession() as session:
@@ -185,10 +182,10 @@ class ContestantsAdapter:
     async def get_contestants_by_bib(self, token: str, event_id: str, bib: str) -> List:
         """Get all contestants by raceclass function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         contestants = []
         async with ClientSession() as session:
@@ -215,10 +212,10 @@ class ContestantsAdapter:
     ) -> List:
         """Get all contestants by raceclass function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         contestants = []
         async with ClientSession() as session:
@@ -245,10 +242,10 @@ class ContestantsAdapter:
     ) -> dict:
         """Get all contestant function."""
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
         contestant = {}
         async with ClientSession() as session:
@@ -277,10 +274,10 @@ class ContestantsAdapter:
 
         url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{contestant['id']}"
         headers = MultiDict(
-            {
-                hdrs.CONTENT_TYPE: "application/json",
-                hdrs.AUTHORIZATION: f"Bearer {token}",
-            }
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
         )
 
         async with ClientSession() as session:
