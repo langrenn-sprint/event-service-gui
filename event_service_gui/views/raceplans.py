@@ -123,10 +123,10 @@ class Raceplans(web.View):
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
             elif "delete_all" in form.keys():
-                result = await RaceplansAdapter().delete_raceplans(
+                resultat = await RaceplansAdapter().delete_raceplans(
                     user["token"], str(form["id"])
                 )
-                informasjon = f"Kjøreplaner er slettet - {result}"
+                informasjon = f"Kjøreplaner er slettet - {resultat}"
             elif "update_time" in form.keys():
                 logging.info(f"update_time - form:{form}")
                 order = str(form["order"])
