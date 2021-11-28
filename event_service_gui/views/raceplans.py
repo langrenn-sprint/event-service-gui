@@ -58,11 +58,9 @@ class Raceplans(web.View):
                     informasjon = f"{informasjon} Ingen kjøreplaner funnet."
                 else:
                     raceplan = raceplans[0]
-                    logging.info(f"summary: {races}")
                     raceplan_summary = get_raceplan_summary(races, raceclasses)
                 # generate text explaining qualificatoin rule (videre til)
                 for race in races:
-                    logging.info(f"qual: {race}")
                     race["next_race"] = get_qualification_text(race)
 
             event = await EventsAdapter().get_event(user["token"], event_id)
@@ -130,10 +128,12 @@ class Raceplans(web.View):
                 )
                 informasjon = f"Kjøreplaner er slettet - {result}"
             elif "update_time" in form.keys():
-                logging.info(
-                    f"update_time - old:{form['old_time']}, new:{form['new_time']}"
+                logging.info(f"update_time - form:{form}")
+                order = str(form["order"])
+                new_time = str(form["new_time"])
+                informasjon = await RaceplansAdapter().update_race_start_time(
+                    user["token"], event_id, order, new_time
                 )
-                informasjon = f"Tidplan er oppdatert {form['id']} - {form['round']}"
                 action = "edit_time"
         except Exception as e:
             logging.error(f"Error: {e}")

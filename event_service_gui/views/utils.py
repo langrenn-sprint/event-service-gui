@@ -68,10 +68,13 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
                 if race["datatype"] == "individual_sprint":
                     if race["round"] == "Q":
                         class_summary["timeQ"] = race["start_time"][-8:]
+                        class_summary["orderQ"] = race["order"]
                     elif race["round"] == "S":
                         class_summary["timeS"] = race["start_time"][-8:]
+                        class_summary["orderS"] = race["order"]
                     elif race["round"] == "F":
                         class_summary["timeF"] = race["start_time"][-8:]
+                        class_summary["orderF"] = race["order"]
         summary.append(class_summary)
     logging.debug(summary)
     return summary

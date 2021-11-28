@@ -158,3 +158,41 @@ class RaceplansAdapter:
                     )
 
         return returncode
+
+    async def update_race_start_time(
+        self, token: str, event_id: str, order: str, new_time: str
+    ) -> int:
+        """Update race start-time function."""
+        returncode = 0
+        headers = MultiDict(
+            {
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.AUTHORIZATION: f"Bearer {token}",
+            }
+        )
+        new_data = {
+            "order": order,
+            "new_time": new_time,
+        }
+        logging.info(f"New data - update time: {new_data}")
+
+        async with ClientSession() as session:
+            async with session.put(
+                f"{RACE_SERVICE_URL}/raceplans/update-start-time/{event_id}",
+                headers=headers,
+                json=new_data,
+            ) as resp:
+                returncode = resp.status
+                logging.debug(f"update_race_start_time - got response {resp.status}")
+                if resp.status == 204:
+                    pass
+                else:
+                    servicename = "update_race_start_time"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        informasjon = f"Tidplan er oppdatert {returncode}"
+
+        return informasjon
