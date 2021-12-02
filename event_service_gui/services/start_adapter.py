@@ -147,7 +147,7 @@ class StartAdapter:
         starts = []
         async with ClientSession() as session:
             async with session.get(
-                f"{RACE_SERVICE_URL}/startlists?event-id={event_id}", headers=headers
+                f"{RACE_SERVICE_URL}/startlists?eventId={event_id}", headers=headers
             ) as resp:
                 logging.debug(f"get_all_starts_by_event - got response {resp.status}")
                 if resp.status == 200:

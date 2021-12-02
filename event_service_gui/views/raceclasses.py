@@ -101,8 +101,8 @@ class Raceclasses(web.View):
                         race_class = await RaceclassesAdapter().get_raceclass(
                             user["token"], event_id, id
                         )
-                        igroup = form[f"group_{id}"]  # type: ignore
-                        iorder = form[f"order_{id}"]  # type: ignore
+                        igroup = int(form[f"group_{id}"])  # type: ignore
+                        iorder = int(form[f"order_{id}"])  # type: ignore
                         race_class["group"] = igroup
                         race_class["order"] = iorder
                         result = await RaceclassesAdapter().update_raceclass(

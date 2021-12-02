@@ -46,22 +46,15 @@ class Raceplans(web.View):
                 user["token"], event_id
             )
 
-            raceplans = await RaceplansAdapter().get_all_raceplans(
-                user["token"], event_id
-            )
-            raceplan = {}
+            races = await RaceplansAdapter().get_all_races(user["token"], event_id)
             raceplan_summary = []
-            races = []
-            if len(raceplans) > 0:
-                races = await RaceplansAdapter().get_all_races(user["token"], event_id)
-                if len(races) == 0:
-                    informasjon = f"{informasjon} Ingen kjøreplaner funnet."
-                else:
-                    raceplan = raceplans[0]
-                    raceplan_summary = get_raceplan_summary(races, raceclasses)
-                # generate text explaining qualificatoin rule (videre til)
-                for race in races:
-                    race["next_race"] = get_qualification_text(race)
+            if len(races) == 0:
+                informasjon = f"{informasjon} Ingen kjøreplaner funnet."
+            else:
+                raceplan_summary = get_raceplan_summary(races, raceclasses)
+            # generate text explaining qualificatoin rule (videre til)
+            for race in races:
+                race["next_race"] = get_qualification_text(race)
 
             event = await EventsAdapter().get_event(user["token"], event_id)
 
@@ -72,7 +65,6 @@ class Raceplans(web.View):
                     "action": action,
                     "lopsinfo": "Kjøreplan",
                     "raceclasses": raceclasses,
-                    "raceplan": raceplan,
                     "raceplan_summary": raceplan_summary,
                     "races": races,
                     "event": event,
@@ -124,7 +116,7 @@ class Raceplans(web.View):
                 )
             elif "delete_all" in form.keys():
                 resultat = await RaceplansAdapter().delete_raceplans(
-                    user["token"], str(form["id"])
+                    user["token"], str(form["event_id"])
                 )
                 informasjon = f"Kjøreplaner er slettet - {resultat}"
             elif "update_time" in form.keys():

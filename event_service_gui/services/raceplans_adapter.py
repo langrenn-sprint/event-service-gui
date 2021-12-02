@@ -16,15 +16,18 @@ RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
 class RaceplansAdapter:
     """Class representing raceplans."""
 
-    async def delete_raceplans(self, token: str, id: str) -> str:
+    async def delete_raceplans(self, token: str, event_id: str) -> str:
         """Delete all raceplans in one event function."""
+        raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)
+        raceplan = raceplans[0]
+
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
-        logging.info(f"delete raceplans, id: {id}")
+        logging.info(f"delete raceplans, id: {raceplan['id']}")
         async with ClientSession() as session:
             async with session.delete(
-                f"{RACE_SERVICE_URL}/raceplans/{id}",
+                f"{RACE_SERVICE_URL}/raceplans/{raceplan['id']}",
                 headers=headers,
             ) as resp:
                 res = resp.status
@@ -74,7 +77,7 @@ class RaceplansAdapter:
         raceplans = []
         async with ClientSession() as session:
             async with session.get(
-                f"{RACE_SERVICE_URL}/raceplans?event-id={event_id}", headers=headers
+                f"{RACE_SERVICE_URL}/raceplans?eventId={event_id}", headers=headers
             ) as resp:
                 logging.debug(f"get_all_raceplans - got response {resp.status}")
                 if resp.status == 200:
@@ -100,7 +103,7 @@ class RaceplansAdapter:
         races = []
         async with ClientSession() as session:
             async with session.get(
-                f"{RACE_SERVICE_URL}/races?event-id={event_id}", headers=headers
+                f"{RACE_SERVICE_URL}/races?eventId={event_id}", headers=headers
             ) as resp:
                 logging.debug(f"get_all_races - got response {resp.status}")
                 if resp.status == 200:

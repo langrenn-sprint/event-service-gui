@@ -89,6 +89,8 @@ class Events(web.View):
                 )
                 informasjon = f"Opprettet nytt arrangement,  event_id {event_id}"
                 action = "next_contestants"
+                info = f"action={action}&informasjon={informasjon}"
+                return web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
             elif "update" in form.keys():
                 # Update event
                 event_id = str(form["event_id"])

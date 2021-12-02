@@ -27,7 +27,7 @@
 {% endblock %}
 {% block content %}
 <div id=spacer></div>
-<br>Antall heat: <b>{{ races|length }}</b>. Totalt antall deltakere: <b>{{ raceplan.no_of_contestants }}</b>
+<br>Fant <b>{{ races|length }}</b> heat.
 <div id=spacer></div>
 {% if  action == "edit_mode" %}
     <table>
@@ -48,7 +48,6 @@
         <td>
           <form action=/raceplans method=post>
             <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="hidden" name="id" value="{{ raceplan.id }}">
             <input type="submit" name="delete_all" value="  Slett alle kjøreplaner  ">
           </form>
         </td>
