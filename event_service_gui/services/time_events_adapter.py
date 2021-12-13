@@ -17,9 +17,8 @@ RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
 class TimeEventsAdapter:
     """Class representing time_events."""
 
-    async def create_time_event(self, token: str, time_event: dict) -> str:
+    async def create_time_event(self, token: str, time_event: dict) -> int:
         """Create new time_event function."""
-        id = ""
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -35,15 +34,17 @@ class TimeEventsAdapter:
             ) as resp:
                 if resp.status == 201:
                     logging.debug(f"time-event - got response {resp}")
-                    location = resp.headers[hdrs.LOCATION]
-                    id = location.split(os.path.sep)[-1]
                 else:
-                    logging.error(f"create_time_event failed - {resp.status}")
-                    raise web.HTTPBadRequest(reason="Create time_event failed.")
+                    logging.error(
+                        f"create_time_event - {resp.status}, {resp} data: {time_event}"
+                    )
+                    raise web.HTTPBadRequest(
+                        reason=f"Create time_event failed. Input data: {time_event}"
+                    )
 
-        return id
+        return resp.status
 
-    async def delete_time_event(self, token: str, id: str) -> str:
+    async def delete_time_event(self, token: str, id: str) -> int:
         """Delete time_event function."""
         headers = MultiDict(
             [
@@ -65,9 +66,9 @@ class TimeEventsAdapter:
                 raise web.HTTPBadRequest(
                     reason=f"Delete time_event failed {response.status}."
                 )
-        return str(response.status)
+        return response.status
 
-    async def update_time_event(self, token: str, id: str, request_body: dict) -> str:
+    async def update_time_event(self, token: str, id: str, time_event: dict) -> int:
         """Update time_event function."""
         headers = MultiDict(
             [
@@ -80,17 +81,19 @@ class TimeEventsAdapter:
             async with session.put(
                 f"{RACE_SERVICE_URL}/time-events/{id}",
                 headers=headers,
-                json=request_body,
+                json=time_event,
             ) as resp:
                 if resp.status == 204:
                     logging.debug(f"update time_event - got response {resp}")
                 else:
-                    logging.error(f"update_time_event failed - {resp.status}")
+                    logging.error(
+                        f"update_time_event failed - {resp.status} input data: {time_event}"
+                    )
                     raise web.HTTPBadRequest(
-                        reason=f"Update time_event failed - {resp.status}."
+                        reason=f"Update time_event - {resp.status} data: {time_event}."
                     )
             logging.debug(f"Updated time_event: {id} - res {resp.status}")
-        return str(resp.status)
+        return resp.status
 
     async def get_time_event_by_id(self, token: str, id: str) -> dict:
         """Get one time_event - lap time or heat place function."""

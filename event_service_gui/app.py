@@ -14,7 +14,6 @@ import motor.motor_asyncio
 
 from .views import (
     Contestants,
-    Dashboard,
     Events,
     Login,
     Logout,
@@ -79,7 +78,6 @@ async def create_app() -> web.Application:
         [
             web.view("/", Main),
             web.view("/contestants", Contestants),
-            web.view("/dashboard", Dashboard),
             web.view("/events", Events),
             web.view("/login", Login),
             web.view("/logout", Logout),

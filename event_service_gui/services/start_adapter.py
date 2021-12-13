@@ -46,6 +46,61 @@ class StartAdapter:
 
         return informasjon
 
+    async def delete_start_entry(
+        self, token: str, race_id: str, start_entry_id: str
+    ) -> str:
+        """Delete one start_entry function."""
+        headers = {
+            hdrs.AUTHORIZATION: f"Bearer {token}",
+        }
+
+        async with ClientSession() as session:
+            async with session.delete(
+                f"{RACE_SERVICE_URL}/races/{race_id}/start-entries/{start_entry_id}",
+                headers=headers,
+            ) as resp:
+                res = resp.status
+                logging.debug(f"delete result - got response {resp}")
+                if res == 204:
+                    pass
+                else:
+                    servicename = "delete_start_entry"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        return str(res)
+
+    async def get_start_entries_by_race_id(self, token: str, race_id: str) -> list:
+        """Get one start_entry - lap time or heat place function."""
+        headers = MultiDict(
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
+        )
+        start_entries = []
+        async with ClientSession() as session:
+            async with session.get(
+                f"{RACE_SERVICE_URL}/races/{race_id}/start-entries",
+                headers=headers,
+            ) as resp:
+                logging.debug(
+                    f"get_start_entries_by_race_id - got response {resp.status}"
+                )
+                if resp.status == 200:
+                    start_entries = await resp.json()
+                elif resp.status == 401:
+                    raise Exception(f"Login expired: {resp}")
+                else:
+                    servicename = "get_start_entries_by_race_id"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        return start_entries
+
     async def get_start_entry_by_id(
         self, token: str, race_id: str, start_id: str
     ) -> dict:
@@ -184,7 +239,38 @@ class StartAdapter:
                 else:
                     servicename = "create_start_entry"
                     body = await resp.json()
-                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    logging.error(
+                        f"{servicename} failed - {resp.status} - {body} {new_start}"
+                    )
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        return resp.status
+
+    async def update_start_entry(self, token: str, id: str, new_start: dict) -> int:
+        """Update one start in the start_list."""
+        headers = {
+            hdrs.CONTENT_TYPE: "application/json",
+            hdrs.AUTHORIZATION: f"Bearer {token}",
+        }
+        logging.debug(f"New start: {new_start}")
+        async with ClientSession() as session:
+            async with session.put(
+                f"{RACE_SERVICE_URL}/races/{new_start['race_id']}/start-entries/{id}",
+                headers=headers,
+                json=new_start,
+            ) as resp:
+                logging.debug(f"update_start_entry - got response {resp.status}")
+                if resp.status == 201:
+                    pass
+                elif resp.status == 401:
+                    raise Exception(f"Login expired: {resp}")
+                else:
+                    servicename = "update_start_entry"
+                    body = await resp.json()
+                    logging.error(
+                        f"{servicename} failed - {resp.status} - {body} {new_start}"
+                    )
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )

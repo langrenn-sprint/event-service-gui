@@ -61,7 +61,7 @@ omit = ["*gunicorn_config.py"]
 source = ["event_service_gui"]
 
 [tool.coverage.report]
-fail_under = 19
+fail_under = 17
 show_missing = true
 
 [build-system]
