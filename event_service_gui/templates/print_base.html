@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{% block titleheader %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="../static/styles_print.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <div class="w3-row-padding">
+    {% block content %}{% endblock %}
+    <div id=footeradmin>
+        <a href="https://github.com/langrenn-sprint">langrenn-sprint</a> - utviklet av Lyn ski og Kjelsås langrenn
+    </div>
+  </div>
+  </body>
+</html>

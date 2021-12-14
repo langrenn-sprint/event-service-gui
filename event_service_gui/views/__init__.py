@@ -5,6 +5,7 @@ from .liveness import Ping, Ready
 from .login import Login
 from .logout import Logout
 from .main import Main
+from .print_contestants import PrintContestants
 from .raceclasses import Raceclasses
 from .raceplans import Raceplans
 from .settings import Settings

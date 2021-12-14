@@ -1,0 +1,163 @@
+/*****************************************
+* styles for langrenn sprint webpages    *
+* generic part for paper print           *
+*****************************************/
+
+
+body {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    background-size: cover;
+}
+
+table {
+  width: 100%;
+}
+
+tr:nth-child(even){background-color: #f2f2f2;}
+
+td {
+	padding: 3px;
+}
+
+a {
+  color: black;
+}
+
+#topborder {
+  border-left: 1px solid grey;
+}
+
+#headerprint {
+  background-color: lightgrey;
+  font-weight: bold;
+}
+
+#adminpagetitle {
+  text-align: center;
+  color: black;
+  font-size: 2.0em;
+	background-color: #white;
+}
+
+#pagebreak {
+  page-break-after: always;
+}
+
+
+#footeradmin {
+    color: grey;
+    text-align: right;
+    padding: 4px 4px 4px 4px;
+}
+
+#info {
+    color: orange;
+    font-weight: bold;
+}
+
+#green {
+    color: green;
+    font-weight: bold;
+}
+#orange {
+    color: orange;
+    font-weight: bold;
+}
+#red {
+    color: red;
+    font-weight: bold;
+}
+#black {
+    color: black;
+    font-weight: bold;
+}
+
+
+#spacer {
+  height: 4px;
+}
+
+#minispacer {
+  height: 1px;
+}
+
+#bredde {
+  vertical-align: top;
+}
+
+#subheader {
+    background-color: lightgrey;
+}
+
+#tablespacer {
+    background-color: white;
+}
+
+/**** Responsivt design ****/
+.w3-container {
+  padding:0.01em 0px;
+  background-color: white;
+}
+
+.w3-third,.w3-quart,.w3-10,.w3-80,.w3-row-padding,.w3-half {
+  padding:0.01em 2px;
+}
+.w3-container:after,.w3-container:before,.w3-row-padding:after,.w3-row-padding:before {
+  content:"";
+  display:table;
+  clear:both;
+}
+
+.w3-half {
+  float:left;width:100%;
+  width:50%;
+  background-color: white;
+}
+
+.w3-80 {
+  float:left;width:100%;
+  width:80%;
+  background-color: white;
+}
+
+.w3-third {
+  float:left;width:100%;
+  width:33.33333%;
+}
+
+.w3-quart {
+  float:left;width:100%;
+  width:25%;
+}
+
+.w3-10 {
+  float:left;width:100%;
+  width:10%;
+}
+
+/* Use a media query to add a breakpoint */
+@media screen and (max-width: 1600px) {
+  .w3-quart {
+    width: 50%; /* The width is 100%, when the viewport is x px or smaller */
+  }
+  .w3-third, .w3-half, .w3-80 {
+    width: 100%; /* The width is 100%, when the viewport is x px or smaller */
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .w3-quart {
+    width: 100%; /* The width is 100%, when the viewport is x px or smaller */
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+/* End responsive design */

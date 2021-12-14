@@ -1,0 +1,83 @@
+{% extends "print_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-10"></div>
+  <div class="w3-80">
+{% endblock %}
+
+{% block titleheader %}
+  Utskrift {{ valgt_klubb }}{{ valgt_klasse }}
+{% endblock %}
+
+{% block refresh %}0{% endblock %}
+
+{% block content %}
+  {% if action == "klubb" %}
+    {% for club in clubs %}
+      {% if not loop.first %}
+        <div id=pagebreak></div>
+      {% endif %}
+      <div id=adminpagetitle>
+          Deltakerliste {{ club }}
+      </div>
+      <div align=right>{{ event.name }}, {{ event.date_of_event }}</div>
+      <table>
+        <tr id=headerprint>
+          <td width=50>Nr</td>
+          <td>Navn</td>
+          <td>Klubb</td>
+          <td>Klasse</td>
+          <td>Team</td>
+          <td>Region</td>
+        </tr>
+        {% for loper in contestants %}
+          {% if loper.club == club %}
+            <tr>
+              <td>{{ loper.bib }}</td>
+              <td>{{ loper.first_name }} {{ loper.last_name }}</td>
+              <td>{{ loper.club }}</td>
+              <td>{{ loper.ageclass }}</td>
+              <td>{{ loper.team }}</td>
+              <td>{{ loper.region }}</td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </table>
+      <div id=spacer></div>
+    {% endfor %}
+
+  {% else %}
+    {% for raceclass in raceclasses %}
+      {% if not loop.first %}
+        <div id=pagebreak></div>
+      {% endif %}
+      <div id=adminpagetitle>
+          Deltakerliste {{ raceclass.ageclass_name }}
+      </div>
+      <div align=right>{{ event.name }}, {{ event.date_of_event }}</div>
+      <table>
+        <tr id=headerprint>
+          <td width=50>Nr</td>
+          <td>Navn</td>
+          <td>Klubb</td>
+          <td>Klasse</td>
+          <td>Team</td>
+          <td>Region</td>
+        </tr>
+        {% for loper in contestants %}
+          {% if loper.ageclass == raceclass.ageclass_name %}
+            <tr>
+              <td>{{ loper.bib }}</td>
+              <td>{{ loper.first_name }} {{ loper.last_name }}</td>
+              <td>{{ loper.club }}</td>
+              <td>{{ loper.ageclass }}</td>
+              <td>{{ loper.team }}</td>
+              <td>{{ loper.region }}</td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+        <tr align=right><td colspan=5>Totalt {{ raceclass.no_of_contestants}} deltakere</td></tr>
+      </table>
+      <div id=spacer></div>
+    {% endfor %}
+  {% endif %}
+{% endblock %}
