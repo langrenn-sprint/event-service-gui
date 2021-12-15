@@ -150,7 +150,13 @@
             <td>6. Kjøreplan: Opprett (<a id=orange href=/raceplans?event_id={{ event_id }} class=dropbtn>se/endre</a>)</td>
             {% if (task_status.done_6) %}
               <td id=green>Utført</td>
-              <td></td>
+              <td>
+                <form action={{ result_gui_url }}/print_lists method=get target=_blank>
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
+                  <input type="hidden" name="action" value="raceplan">
+                  <input type="submit" name="print" value="  Skriv ut  ">
+                </form>
+              </td>
               <td>{{ task_status.no_of_races}} heat er opprettet.</td>
             {% else %}
               <td id=red>Mangler</td>
@@ -193,8 +199,7 @@
               <form action={{ result_gui_url }}/print_lists method=get target=_blank>
                 <input type="hidden" name="event_id" value="{{ event_id }}">
                 <input type="hidden" name="action" value="print">
-                <input type="hidden" name="klasse" value="alle">
-                <input type="submit" name="print" value="  Utskrift  ">
+                <input type="submit" name="print" value="  Skriv ut  ">
               </form>
             </td>
             <td> {{ task_status.no_of_starts }} starter er opprettet.</td>
