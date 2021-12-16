@@ -1,6 +1,5 @@
 """Resource module for main view."""
 import logging
-import os
 
 from aiohttp import web
 import aiohttp_jinja2
@@ -13,11 +12,6 @@ from event_service_gui.services import (
     TimeEventsAdapter,
 )
 from .utils import check_login, get_event
-
-
-RESULT_GUI_HOST_SERVER = os.getenv("RESULT_GUI_HOST_SERVER", "localhost")
-RESULT_GUI_HOST_PORT = os.getenv("RESULT_GUI_HOST_PORT", "8090")
-RESULT_GUI_URL = f"http://{RESULT_GUI_HOST_SERVER}:{RESULT_GUI_HOST_PORT}"
 
 
 class Tasks(web.View):
@@ -48,7 +42,6 @@ class Tasks(web.View):
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,
-                    "result_gui_url": RESULT_GUI_URL,
                     "task_status": task_status,
                     "username": user["name"],
                 },

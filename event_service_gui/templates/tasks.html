@@ -1,4 +1,4 @@
-{% extends "adm_base.html" %}
+ {% extends "adm_base.html" %}
 {% block titlecontainer %}
   <div class="w3-10"></div>
   <div class="w3-80">
@@ -20,7 +20,7 @@
             <td></td>
           </tr>
           <tr>
-            <td>1. Arrangement: Opprett (<a id=orange href=/events?event_id={{ event_id }} class=dropbtn>se/endre</a>)</td>
+            <td>1. Arrangement: Opprett (<a href=/events?event_id={{ event_id }}>se/endre</a>)</td>
             <td id=green>Utført</td>
             <td></td>
             <td>Tid: {{ event.date_of_event }} kl. {{ event.time_of_event }}<br>Arrangør: {{ event.organiser }} <a href={{ event.webpage }}>Mer info</a></td>
@@ -30,7 +30,7 @@
           </tr>
           <tr>
             <td>
-              2. Deltakere: Last inn (<a id=orange href=/contestants?event_id={{ event_id }} class=dropbtn>se/endre</a>)
+              2. Deltakere: Last inn (<a href=/contestants?event_id={{ event_id }}>se/endre</a>)
             </td>
             {% if (task_status.done_2) %}
               <td id=green>Utført</td>
@@ -64,7 +64,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>3. Klasser: Opprett (<a id=orange href=/raceclasses?event_id={{ event_id }} class=dropbtn>se/endre</a>)</td>
+            <td>3. Klasser: Opprett (<a href=/raceclasses?event_id={{ event_id }}>se/endre</a>)</td>
             {% if (task_status.done_3) %}
               <td id=green>Utført</td>
               <td></td>
@@ -86,7 +86,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>4. Klasser: Startrekkefølge (<a id=orange href=/contestants?event_id={{ event_id }}&action=update_order class=dropbtn>se/endre</a>)</td>
+            <td>4. Klasser: Startrekkefølge</td>
             {% if (task_status.done_4) %}
               <td id=green>Utført</td>
               <td></td>
@@ -109,7 +109,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>5. Deltakere: Startnummer (<a id=orange href=/contestants?event_id={{ event_id }} class=dropbtn>se/endre</a>)</td>
+            <td>5. Deltakere: Startnummer</td>
             {% if (task_status.done_5) %}
               <td id=green>Utført</td>
               <td>
@@ -147,11 +147,11 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>6. Kjøreplan: Opprett (<a id=orange href=/raceplans?event_id={{ event_id }} class=dropbtn>se/endre</a>)</td>
+            <td>6. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
             {% if (task_status.done_6) %}
               <td id=green>Utført</td>
               <td>
-                <form action={{ result_gui_url }}/print_lists method=get target=_blank>
+                <form onclick="result_gui_action('myPRPl', 'print_lists')" id="myPRPl" action=/print_lists method=get target=_blank>
                   <input type="hidden" name="event_id" value="{{ event_id }}">
                   <input type="hidden" name="action" value="raceplan">
                   <input type="submit" name="print" value="  Skriv ut  ">
@@ -175,7 +175,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>7. Kjøreplan: Tilpass tidksjema (<a id=orange href=/raceplans?event_id={{ event_id }}&action=edit_time} class=dropbtn>se/endre</a>)</td>
+            <td>7. Kjøreplan: Tilpass tidksjema</td>
             <td>Manuell sjekk</td>
             <td>
               {% if (task_status.done_6) %}
@@ -192,11 +192,11 @@
           <td colspan=3 id=spacer></td>
         </tr>
         <tr>
-          <td>8. Startliste: Opprett (<a id=orange href={{ result_gui_url }}/start?event_id={{ event_id }} class=dropbtn>se/endre</a>)</td>
+          <td>8. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start?event_id={{ event_id }}')" href=>se/endre</a>)</td>
           {% if (task_status.done_8) %}
             <td id=green>Utført</td>
             <td>
-              <form action={{ result_gui_url }}/print_lists method=get target=_blank>
+              <form onclick="result_gui_action('myPS', 'print_lists')" id="myPS" action=/print_lists method=get target=_blank>
                 <input type="hidden" name="event_id" value="{{ event_id }}">
                 <input type="hidden" name="action" value="print">
                 <input type="submit" name="print" value="  Skriv ut  ">
@@ -207,7 +207,7 @@
             <td id=red>Mangler</td>
             <td>
               {% if (task_status.done_6) %}
-                <form action={{ result_gui_url }}/start method=post>
+                <form onclick="result_gui_action('myGS', 'start')" id="myGS" action=/start method=post>
                   <input type="hidden" name="event_id" value="{{ event_id }}">
                   <input type="submit" name="generate_startlist" value="  Generer startliste  ">
                 </form>
@@ -220,12 +220,12 @@
           <td colspan=3 id=spacer></td>
         </tr>
         <tr>
-          <td>9. "Videre til" oppsett: Opprett (<a id=orange href={{ result_gui_url }}/control?event_id={{ event_id }}&action=template class=dropbtn>se/endre</a>)</td>
+          <td>9. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="result_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=template')" href=>se/endre</a>)</td>
           {% if (task_status.done_9) %}
             <td id=green>Utført</td>
             <td>
               {% if (task_status.done_6) %}
-                <form action={{ result_gui_url }}/start method=post>
+                <form onclick="result_gui_action('myGPN', 'start')" id="myGPN" action=/start method=post>
                   <input type="hidden" name="event_id" value="{{ event_id }}">
                   <input type="submit" name="generate_next_race" value="  Generer på nytt  ">
                 </form>
@@ -238,7 +238,7 @@
             <td id=red>Mangler</td>
             <td>
               {% if (task_status.done_6) %}
-                <form action={{ result_gui_url }}/start method=post>
+                <form onclick="result_gui_action('myGVT', 'start')" id="myGVT" action=/start method=post>
                   <input type="hidden" name="event_id" value="{{ event_id }}">
                   <input type="submit" name="generate_next_race" value="  Generer videre til oppsett  ">
                 </form>
@@ -256,4 +256,12 @@
       </td>
     </tr>
   </table>
+  <script type="text/javascript">
+    function result_gui_action(my_element, path) {
+      document.getElementById(my_element).action = "http://" + window.location.hostname + ":8090/" + path;
+    }
+    function result_gui_href(my_element, path) {
+      document.getElementById(my_element).href = "http://" + window.location.hostname + ":8090/" + path;
+    }
+  </script>
 {% endblock %}
