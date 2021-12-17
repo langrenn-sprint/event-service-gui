@@ -46,7 +46,7 @@ class PrintContestants(web.View):
                 user["token"], event_id
             )
 
-            contestants = await ContestantsAdapter().get_all_contestants(
+            contestants = await ContestantsAdapter().get_all_contestants_by_ageclass(
                 user["token"], event_id, valgt_klasse
             )
             if len(contestants) == 0:

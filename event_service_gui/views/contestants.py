@@ -59,7 +59,7 @@ class Contestants(web.View):
 
             event = await EventsAdapter().get_event(user["token"], event_id)
 
-            contestants = await ContestantsAdapter().get_all_contestants(
+            contestants = await ContestantsAdapter().get_all_contestants_by_ageclass(
                 user["token"], event_id, valgt_klasse
             )
             logging.debug(f"Contestants: {contestants}")

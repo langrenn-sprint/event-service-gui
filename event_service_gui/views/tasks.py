@@ -10,6 +10,7 @@ from event_service_gui.services import (
     RaceplansAdapter,
     StartAdapter,
     TimeEventsAdapter,
+    TimeEventsService,
 )
 from .utils import check_login, get_event
 
@@ -50,12 +51,38 @@ class Tasks(web.View):
             logging.error(f"Error: {e}. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
+    async def post(self) -> web.Response:
+        """Post route function that updates a collection of klasses."""
+        user = await check_login(self)
+
+        informasjon = ""
+        action = ""
+        form = await self.request.post()
+        event_id = str(form["event_id"])
+        logging.debug(f"Form {form}")
+
+        try:
+            if "generate_startlist" in form.keys():
+                informasjon = await StartAdapter().generate_startlist_for_event(
+                    user["token"], event_id
+                )
+            elif "generate_next_race" in form.keys():
+                informasjon = await TimeEventsService().generate_next_race_templates(
+                    user["token"], event_id
+                )
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            informasjon = f"Det har oppstått en feil - {e.args}."
+
+        info = f"action={action}&informasjon={informasjon}"
+        return web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
+
 
 async def get_task_status(token: str, event_id: str) -> dict:
     """Generate a status of event preparation."""
     task_status = {}
     # contestants informasjon
-    contestants = await ContestantsAdapter().get_all_contestants(token, event_id, "")
+    contestants = await ContestantsAdapter().get_all_contestants(token, event_id)
     i_missing_bib = 0
     for contestant in contestants:
         if contestant["bib"] is None:
