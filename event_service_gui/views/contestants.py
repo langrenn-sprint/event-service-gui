@@ -135,7 +135,7 @@ class Contestants(web.View):
                     "email": str(form["email"]),
                     "team": str(form["team"]),
                     "minidrett_id": str(form["minidrett_id"]),
-                    "bib": str(form["bib"]),
+                    "bib": form["bib"],
                 }
                 if "create_one" in form.keys():
                     id = await ContestantsAdapter().create_contestant(
@@ -153,7 +153,10 @@ class Contestants(web.View):
                 result = await ContestantsAdapter().delete_contestant(
                     user["token"], event_id, str(form["id"])
                 )
-                informasjon = f"Deltaker er slettet - {result}"
+                informasjon = (
+                    f"Deltaker {str(form['bib'])} er slettet. Start må slettes manuelt."
+                )
+
             # delete_all
             elif "delete_all" in form.keys():
                 result = await ContestantsAdapter().delete_all_contestants(

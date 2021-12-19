@@ -36,13 +36,15 @@
               <td id=green>Utført</td>
               <td>
                 {% if (task_status.done_8) %}
-                  <form action=/tasks method=post>
+                  <form action=/contestants method=get>
                     <input type="hidden" name="event_id" value="{{ event_id }}">
-                    <input type="submit" name="add_one_contestant" value="  Etteranmelding  ">
+                    <input type="hidden" name="action" value="new_manual">
+                    <input type="submit" name="new_manual" value="  Etteranmelding  ">
                   </form>
                   <div id=minispacer></div>
-                  <form action=/tasks method=post>
+                  <form action=/contestants method=get>
                     <input type="hidden" name="event_id" value="{{ event_id }}">
+                    <input type="hidden" name="action" value="edit_mode">
                     <input type="submit" name="delete_one_contestant" value="  Melde av  ">
                   </form>
                 {% endif %}
