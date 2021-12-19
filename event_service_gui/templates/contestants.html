@@ -95,6 +95,7 @@
         <table>
           <tr id=headerblue>
             <td>Startnr</td>
+            <td colspan="2"></td>
             <td>Navn</td>
             <td>Klubb</td>
             <td>Født</td>
@@ -103,19 +104,10 @@
             <td>Team</td>
             <td>Region</td>
             <td>Idrettsnr</td>
-            <td colspan="2"></td>
           </tr>
           {% for contestant in contestants %}
             <tr>
               <td>{{ contestant.bib }}</td>
-              <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
-              <td>{{ contestant.club }}</td>
-              <td>{{ contestant.birth_date }}</td>
-              <td>{{ contestant.gender }}</td>
-              <td>{{ contestant.ageclass }}</td>
-              <td>{{ contestant.team }}</td>
-              <td>{{ contestant.region }}</td>
-              <td>{{ contestant.minidrett_id }}</td>
               <td>
                 <form action=/contestants method=get>
                   <input type="submit" name=update_one value="  Rediger  ">
@@ -128,9 +120,18 @@
                 <form action=/contestants method=post>
                   <input type="submit" name=delete_one value="  Slett  ">
                   <input type="hidden" name="id" value="{{ contestant.id }}">
+                  <input type="hidden" name="bib" value="{{ contestant.bib }}">
                   <input type="hidden" name="event_id" value="{{ event_id }}">
                 </form>
               </td>
+              <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
+              <td>{{ contestant.club }}</td>
+              <td>{{ contestant.birth_date }}</td>
+              <td>{{ contestant.gender }}</td>
+              <td>{{ contestant.ageclass }}</td>
+              <td>{{ contestant.team }}</td>
+              <td>{{ contestant.region }}</td>
+              <td>{{ contestant.minidrett_id }}</td>
             </tr>
           {% endfor %}
         </table>
@@ -166,7 +167,13 @@
             </tr>
             <tr>
               <td>Aldersklasse</td>
-              <td><input type=text name="ageclass" value=""></td>
+              <td>
+                <select name="ageclass">
+                  {% for klasse in raceclasses %}
+                    <option value="{{ klasse.ageclass_name}}">{{ klasse.ageclass_name}}</option>
+                  {% endfor %}
+                </select>
+              </td>
               <td></td>
             </tr>
             <tr>
@@ -191,7 +198,7 @@
             </tr>
             <tr>
               <td>Startnummer</td>
-              <td><input type=text name="bib" value=""></td>
+              <td><input type=number name="bib" value="" min="1" max="9999" size=4></td>
               <td></td>
             </tr>
             <tr>
