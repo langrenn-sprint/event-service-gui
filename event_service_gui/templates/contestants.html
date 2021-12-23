@@ -1,4 +1,4 @@
-{% extends "adm_base.html" %}
+{% extends "open_base.html" %}
 {% block titlecontainer %}
   <div class="w3-10"></div>
   <div class="w3-80">
@@ -18,9 +18,11 @@
       {% endfor %}
     </div>
   </li>
-  <li id=topborder>
-    <a href=/contestants?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>
-  </li>
+  {% if username != "Gjest" %}
+    <li id=topborder>
+      <a href=/contestants?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>
+    </li>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -302,24 +304,18 @@
           <td>Startnr</td>
           <td>Navn</td>
           <td>Klubb</td>
-          <td>Født</td>
-          <td></td>
           <td>Klasse</td>
           <td>Team</td>
           <td>Region</td>
-          <td>Idrettsnr</td>
         </tr>
           {% for contestant in contestants %}
             <tr>
               <td>{{ contestant.bib }}</td>
               <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
               <td>{{ contestant.club }}</td>
-              <td>{{ contestant.birth_date }}</td>
-              <td>{{ contestant.gender }}</td>
               <td>{{ contestant.ageclass }}</td>
               <td>{{ contestant.team }}</td>
               <td>{{ contestant.region }}</td>
-              <td>{{ contestant.minidrett_id }}</td>
             </tr>
             {% endfor %}
         <tr id=spacer></tr>

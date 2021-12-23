@@ -6,10 +6,9 @@ import aiohttp_jinja2
 
 from event_service_gui.services import (
     ContestantsAdapter,
-    EventsAdapter,
     RaceclassesAdapter,
 )
-from .utils import check_login, get_event
+from .utils import check_login, check_login_open, get_event
 
 
 class Contestants(web.View):
@@ -26,7 +25,7 @@ class Contestants(web.View):
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
         try:
-            user = await check_login(self)
+            user = await check_login_open(self)
             event = await get_event(user["token"], event_id)
 
             try:
@@ -56,8 +55,6 @@ class Contestants(web.View):
 
             except Exception:
                 action = ""
-
-            event = await EventsAdapter().get_event(user["token"], event_id)
 
             contestants = await ContestantsAdapter().get_all_contestants_by_ageclass(
                 user["token"], event_id, valgt_klasse

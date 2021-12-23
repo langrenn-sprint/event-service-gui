@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{% block titleheader %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="../static/styles.css">
+    {% if event.organiser[:5] == "Kjels" %}
+      <link rel="stylesheet" type="text/css" href="../static/styles_kjelsaas.css">
+    {% else %}
+      <link rel="stylesheet" type="text/css" href="../static/styles_lyn.css">
+    {% endif %}
+
+    <meta http-equiv="refresh" content="{% block refresh %}{% endblock %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript">
+      function event_gui_action(my_element, path) {
+        document.getElementById(my_element).action = "http://" + window.location.hostname + ":8080/" + path;
+      }
+      function event_gui_href(my_element, path) {
+        document.getElementById(my_element).href = "http://" + window.location.hostname + ":8080/" + path;
+      }
+      function result_gui_action(my_element, path) {
+        document.getElementById(my_element).action = "http://" + window.location.hostname + ":8090/" + path;
+      }
+      function result_gui_href(my_element, path) {
+        document.getElementById(my_element).href = "http://" + window.location.hostname + ":8090/" + path;
+      }
+    </script>
+  </head>
+  <body>
+    <div class="w3-row-padding">
+      {% block titlecontainer %}{% endblock %}
+      <div id=spacer></div>
+      <div class="w3-container" id=adminpagetitle>
+        {{ event.name }}
+      </div>
+      <div id=minispacer></div>
+      <div class="w3-container">
+        <ul>
+          <li class=dropdown>
+            <a href=javascript:void(0) class=dropbtn>...</a>
+            <div class=dropdown-content>
+              <a id="myIndex" onclick="result_gui_href('myIndex', '')" href=>Hovedside</a>
+              {% if event_id != "" %}
+                <a>{{ event.name }}</a>
+                <a id="myContestants" onclick="event_gui_href('myContestants', 'contestants?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Deltakere</a>
+                <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Startlister</a>
+                <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Live</a>
+                <a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Resultater</a>
+              {% endif %}
+            </div>
+          </li>
+          <li id=topborder class=active>
+            {% block titlemain %}{% endblock %}
+          </li>
+          {% block menuitems %}{% endblock %}
+          <li class=dropdown id=topborder style="float:right">
+            <a href=javascript:void(0) class=dropbtn>{{ username }}</a>
+            <div class=dropdown-content>
+              {% if username == "Gjest" %}
+                <a href=/login class=dropbtn>Logg inn</a>
+              {% else %}
+                <a id="myAdmin" onclick="result_gui_href('myAdmin', 'dashboard?event_id={{ event_id }}')" href= class=dropbtn>Dashboard</a>
+              {% endif %}
+            </div>
+          </li>
+        </ul>
+      </div>
+    <div id=spacer></div>
+    <div class="w3-container" id=info>{{ informasjon }}</div>
+    {% block content %}{% endblock %}
+    <p><br></p>
+    <div id=footeradmin>
+        <a href="https://github.com/langrenn-sprint">langrenn-sprint</a> - utviklet av Lyn ski og Kjelsås langrenn
+    </div>
+  </div>
+  </body>
+</html>

@@ -18,6 +18,25 @@ async def check_login(self) -> dict:
     return {"name": session["username"], "token": session["token"]}
 
 
+async def check_login_open(self) -> dict:
+    """Check loging and return user credentials."""
+    user = {}
+    session = await get_session(self.request)
+    loggedin = UserAdapter().isloggedin(session)
+    if loggedin:
+        user = {
+            "name": session["username"],
+            "loggedin": True,
+            "token": session["token"],
+        }
+    else:
+        # get temp token
+        token = await UserAdapter().login_guest()
+        user = {"name": "Gjest", "loggedin": False, "token": token}
+
+    return user
+
+
 async def get_event(token: str, event_id: str) -> dict:
     """Get event - return new if no event found."""
     event = {"id": event_id, "name": "Nytt arrangement", "organiser": "Ikke valgt"}
