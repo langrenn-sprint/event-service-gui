@@ -55,8 +55,8 @@ class TimeEventsService:
                     ] = f"{race['raceclass']}-{race['round']}{race['heat']}{race['index']}"
                     time_event["race_id"] = race["id"]
 
-                    # loop and simulate result for pos 1 to 8
-                    for x in range(1, 9):
+                    # loop and simulate result for pos 1 to 10
+                    for x in range(1, 11):
                         time_event["rank"] = x
                         next_start_entry = get_next_start_entry(
                             token, time_event, races

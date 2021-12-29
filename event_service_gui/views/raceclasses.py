@@ -77,7 +77,31 @@ class Raceclasses(web.View):
             iorder = 0
 
             # Update
-            if "update_one" in form.keys():
+            # delete_all
+            if "delete_all" in form.keys():
+                res = await RaceclassesAdapter().delete_all_raceclasses(
+                    user["token"], event_id
+                )
+                informasjon = f"Klasser er slettet - {res}"
+            # delete
+            elif "delete_one" in form.keys():
+                res = await RaceclassesAdapter().delete_raceclass(
+                    user["token"], event_id, str(form["id"])
+                )
+                informasjon = f"Klasse er slettet - {res}"
+            # Create classes from list of contestants
+            elif "generate_raceclasses" in form.keys():
+                informasjon = await EventsAdapter().generate_classes(
+                    user["token"], event_id
+                )
+                return web.HTTPSeeOther(
+                    location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
+                )
+            elif "merge_ageclasses" in form.keys():
+                informasjon = await merge_ageclasses(user, event_id, form)  # type: ignore
+            elif "refresh_no_of_contestants" in form.keys():
+                informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
+            elif "update_one" in form.keys():
                 id = str(form["id"])
                 request_body = {
                     "name": str(form["name"]),
@@ -89,7 +113,6 @@ class Raceclasses(web.View):
                     "ageclass_name": str(form["ageclass_name"]),
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }
-
                 result = await RaceclassesAdapter().update_raceclass(
                     user["token"], event_id, id, request_body
                 )
@@ -115,28 +138,6 @@ class Raceclasses(web.View):
                 return web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
-            # Create classes from list of contestants
-            elif "generate_raceclasses" in form.keys():
-                informasjon = await EventsAdapter().generate_classes(
-                    user["token"], event_id
-                )
-                return web.HTTPSeeOther(
-                    location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
-                )
-            elif "refresh_no_of_contestants" in form.keys():
-                informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
-            # delete
-            elif "delete_one" in form.keys():
-                res = await RaceclassesAdapter().delete_raceclass(
-                    user["token"], event_id, str(form["id"])
-                )
-                informasjon = f"Klasse er slettet - {res}"
-            # delete_all
-            elif "delete_all" in form.keys():
-                res = await RaceclassesAdapter().delete_all_raceclasses(
-                    user["token"], event_id
-                )
-                informasjon = f"Klasser er slettet - {res}"
 
         except Exception as e:
             logging.error(f"Error: {e}")
@@ -144,3 +145,47 @@ class Raceclasses(web.View):
 
         info = f"action={action}&informasjon={informasjon}"
         return web.HTTPSeeOther(location=f"/raceclasses?event_id={event_id}&{info}")
+
+
+async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
+    """Extract form data and perform merge ageclasses."""
+    old_raceclasses = []
+    merged_ageclasses = ""
+    no_of_contestants = 0
+    # get classes to be merged
+    for x in form.keys():
+        if x.startswith("ageclass_"):
+            klasse = await RaceclassesAdapter().get_raceclass(
+                user["token"], event_id, form[x]
+            )
+            no_of_contestants += klasse["no_of_contestants"]
+            merged_ageclasses += klasse["ageclass_name"] + " "
+            old_raceclasses.append(klasse)
+    # create new-common class based upon first one
+    if len(old_raceclasses) > 1:
+        request_body = {
+            "name": str(form["new_raceclass_name"]),
+            "distance": old_raceclasses[0]["distance"],
+            "event_id": event_id,
+            "id": old_raceclasses[0]["id"],
+            "group": None,
+            "order": None,
+            "ageclass_name": merged_ageclasses,
+            "no_of_contestants": no_of_contestants,
+        }
+        result = await RaceclassesAdapter().update_raceclass(
+            user["token"], event_id, old_raceclasses[0]["id"], request_body
+        )
+        logging.debug(f"Updated raceclass {request_body}, result {result}")
+        # delete remaining
+        for raceclass in old_raceclasses[1:]:
+            res = await RaceclassesAdapter().delete_raceclass(
+                user["token"], event_id, raceclass["id"]
+            )
+            logging.debug(f"Deleted raceclass {raceclass['id']}, result {res}")
+        informasjon = f"Slått sammen klasser {merged_ageclasses}."
+        informasjon += " Husk å sette rekkefølge på nytt."
+    else:
+        informasjon = "Slå sammen klasser - ingen endringer utført"
+
+    return informasjon
