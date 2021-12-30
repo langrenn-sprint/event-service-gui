@@ -94,6 +94,7 @@ class Raceclasses(web.View):
                 informasjon = await EventsAdapter().generate_classes(
                     user["token"], event_id
                 )
+                informasjon += " Velg funksjonen slå sammen klasser for å redigere."
                 return web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )

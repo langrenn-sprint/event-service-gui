@@ -1,4 +1,5 @@
 """Module for raceplans adapter."""
+import datetime
 import logging
 import os
 from typing import List
@@ -185,40 +186,62 @@ class RaceplansAdapter:
 
         return returncode
 
-    async def update_race_start_time(
-        self, token: str, event_id: str, order: str, new_time: str
-    ) -> str:
-        """Update race start-time function."""
-        returncode = 0
+    async def update_race(self, token: str, id: str, new_data: dict) -> int:
+        """Update one race function."""
+        returncode = 201
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        new_data = {
-            "order": order,
-            "new_time": new_time,
-        }
-        logging.info(f"New data - update time: {new_data}")
-
         async with ClientSession() as session:
             async with session.put(
-                f"{RACE_SERVICE_URL}/raceplans/update-start-time/{event_id}",
+                f"{RACE_SERVICE_URL}/races/{id}",
                 headers=headers,
                 json=new_data,
             ) as resp:
                 returncode = resp.status
-                logging.debug(f"update_race_start_time - got response {resp.status}")
+                logging.debug(f"update_race - got response {resp.status}")
                 if resp.status == 204:
                     pass
                 else:
-                    servicename = "update_race_start_time"
+                    servicename = "update_race"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
-        informasjon = f"Tidplan er oppdatert {returncode}"
+
+        return returncode
+
+    async def update_start_time(
+        self, token: str, event_id: str, order: int, new_time: str
+    ) -> str:
+        """Update race start-time function."""
+        delta_seconds = float(0)
+        races = await RaceplansAdapter().get_all_races(token, event_id)
+        for race in races:
+            old_time_obj = datetime.datetime.strptime(
+                race["start_time"], "%Y-%m-%dT%H:%M:%S"
+            )
+            if race["order"] >= order:
+                # calculate time difference, delta seconds
+                if race["order"] == order:
+                    new_time_obj = datetime.datetime.strptime(
+                        f"{race['start_time'][:11]}{new_time}", "%Y-%m-%dT%H:%M:%S"
+                    )
+                    delta_time = new_time_obj - old_time_obj
+                    delta_seconds = delta_time.total_seconds()
+
+                # calculate new time
+                x = old_time_obj + datetime.timedelta(seconds=delta_seconds)
+                new_time = x.strftime("%X")
+                logging.debug(new_time_obj)
+                race["start_time"] = f"{race['start_time'][:11]}{new_time}"
+                res = await RaceplansAdapter().update_race(token, race["id"], race)
+                logging.debug(f"Raceplan update time, result: {res}. {race}")
+
+        informasjon = f"Tidplan er oppdatert - utsettelse {delta_seconds} sekunder."
 
         return informasjon

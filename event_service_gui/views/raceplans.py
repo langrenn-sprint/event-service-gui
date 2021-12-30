@@ -121,9 +121,9 @@ class Raceplans(web.View):
                 informasjon = f"Kjøreplaner er slettet - {resultat}"
             elif "update_time" in form.keys():
                 logging.info(f"update_time - form:{form}")
-                order = str(form["order"])
+                order = int(form["order"])  # type: ignore
                 new_time = str(form["new_time"])
-                informasjon = await RaceplansAdapter().update_race_start_time(
+                informasjon = await RaceplansAdapter().update_start_time(
                     user["token"], event_id, order, new_time
                 )
                 action = "edit_time"

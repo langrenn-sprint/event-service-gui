@@ -89,7 +89,7 @@
     </table>
   {% else %}
     {% if action == "edit_time" %}
-      Tilpass tidplan - merk at kun ett tidspunkt kan endres om gangen og at alle påfølgende heat vil bli justert tilsvarende.
+      <div id=orange>Tilpass tidplan - merk at kun ett tidspunkt kan endres om gangen og at alle påfølgende heat vil bli justert tilsvarende.</div>
     {% endif %}
     <table>
        <tr id=headerblue>
@@ -100,41 +100,6 @@
         <td>Antall deltakere</td>
       </tr>
       {% for raceclass in raceplan_summary %}
-        {% if action == "edit_time" %}
-          <tr>
-              <td>{{ raceclass.name }}</td>
-              <td>
-                <form action="/raceplans" method=post>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type=hidden name=round value="timeQ">
-                  <input type=hidden name=old_time value="{{ raceclass.timeQ }}">
-                  <input type=hidden name=order value="{{ raceclass.orderQ }}">
-                  <input type=text name="new_time" value="{{ raceclass.timeQ }}" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" size=8 required>
-                  <input type="submit" name=update_time value="  Oppdater  ">
-                </form>
-              </td>
-              <td>
-                <form action="/raceplans" method=post>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type=hidden name=round value="timeS">
-                  <input type=hidden name=old_time value="{{ raceclass.timeS }}">
-                  <input type=hidden name=order value="{{ raceclass.orderS }}">
-                  <input type=text name="new_time" value="{{ raceclass.timeS }}" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" size=8 required>
-                  <input type="submit" name=update_time value="  Oppdater  ">
-                </form>
-              </td>
-              <td>
-                <form action="/raceplans" method=post>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type=hidden name=round value="timeF">
-                  <input type=hidden name=old_time value="{{ raceclass.timeF }}">
-                  <input type=hidden name=order value="{{ raceclass.orderF }}">
-                  <input type=text name="new_time" value="{{ raceclass.timeF }}" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" size=8 required>
-                  <input type="submit" name=update_time value="  Oppdater  ">
-                </form>
-              </td>
-          </tr>
-        {% elif  (valgt_klasse == "") or (valgt_klasse == raceclass.name) %}
           <tr>
             <td>{{ raceclass.name }}</td>
             <td>{{ raceclass.timeQ }}</td>
@@ -142,12 +107,14 @@
             <td>{{ raceclass.timeF }}</td>
             <td>{{ raceclass.no_of_contestants }}</td>
           </tr>
-        {% endif %}
       {% endfor %}
     </table>
     <table>
        <tr id=headerblue>
         <td>Start</td>
+        {% if action == "edit_time" %}
+          <td>Ny tid</td>
+        {% endif %}
         <td>Løpsklasse</td>
         <td>Heat</td>
         <td></td>
@@ -159,6 +126,16 @@
         {% if (valgt_klasse == "") or (valgt_klasse == race.raceclass) %}
           <tr>
             <td>{{ race.start_time[-8:] }}</td>
+            {% if action == "edit_time" %}
+              <td>
+                <form action="/raceplans" method=post>
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
+                  <input type=hidden name=order value="{{ race.order }}">
+                  <input type=text name="new_time" value="" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" size=8 required>
+                  <input type="submit" name=update_time value="  Oppdater  ">
+                </form>
+              </td>
+            {% endif %}
             <td>{{ race.raceclass }}</td>
             <td>
               {% if race.round == "Q" %}

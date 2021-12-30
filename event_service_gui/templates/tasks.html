@@ -69,7 +69,15 @@
             <td>3. Klasser: Opprett (<a href=/raceclasses?event_id={{ event_id }}>se/endre</a>)</td>
             {% if (task_status.done_3) %}
               <td id=green>Utført</td>
-              <td></td>
+              <td>
+                {% if not task_status.done_6 %}
+                  <form action=/raceclasses method=get>
+                    <input type="hidden" name="event_id" value="{{ event_id }}">
+                    <input type="hidden" name=action value="merge_ageclasses">
+                    <input type="submit" name="merge_ageclasses" value="  Slå sammen klasser  ">
+                  </form>
+                {% endif %}
+              </td>
               <td>{{ task_status.no_of_raceclasses}} klasser.</td>
             {% else %}
               <td id=red>Mangler</td>
