@@ -237,11 +237,12 @@ class RaceplansAdapter:
                 # calculate new time
                 x = old_time_obj + datetime.timedelta(seconds=delta_seconds)
                 new_time = x.strftime("%X")
-                logging.debug(new_time_obj)
                 race["start_time"] = f"{race['start_time'][:11]}{new_time}"
                 res = await RaceplansAdapter().update_race(token, race["id"], race)
                 logging.debug(f"Raceplan update time, result: {res}. {race}")
 
-        informasjon = f"Tidplan er oppdatert - utsettelse {delta_seconds} sekunder."
+        informasjon = (
+            f"Suksess! Utsettelse på {delta_seconds} sekunder fra heat {order}."
+        )
 
         return informasjon
