@@ -43,9 +43,14 @@
               {% if event_id != "" %}
                 <a>{{ event.name }}</a>
                 <a id="myContestants" onclick="event_gui_href('myContestants', 'contestants?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Deltakere</a>
+                <a id="myRaceplan" onclick="event_gui_href('myRaceplan', 'raceplans?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Kjøreplan</a>
                 <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Startlister</a>
                 <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Live</a>
                 <a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Resultater</a>
+                {% if username != "Gjest" %}
+                  <a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Admin - forberedelser</a>
+                  <a id="myAdmU" onclick="result_gui_href('myAdmU', 'dashboard?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Admin - renndagen</a>
+                {% endif %}
               {% endif %}
             </div>
           </li>
@@ -59,7 +64,9 @@
               {% if username == "Gjest" %}
                 <a href=/login class=dropbtn>Logg inn</a>
               {% else %}
-                <a id="myAdmin" onclick="result_gui_href('myAdmin', 'dashboard?event_id={{ event_id }}')" href= class=dropbtn>Dashboard</a>
+                <a id="myUsers" onclick="event_gui_href('myUsers', 'users')" href="/users">Brukere</a>
+                <a id="mySettings" onclick="event_gui_href('mySettings', 'settings')" href="/settings">Globale innstillinger</a>
+                <a href="/logout">Logg ut</a>
               {% endif %}
             </div>
           </li>

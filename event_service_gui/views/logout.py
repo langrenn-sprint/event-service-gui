@@ -19,4 +19,4 @@ class Logout(web.View):
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
 
-        return web.HTTPSeeOther(location=f"/login?new=True&informasjon={informasjon}")
+        return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

@@ -5,7 +5,7 @@ from aiohttp import web
 import aiohttp_jinja2
 
 from event_service_gui.services import EventsAdapter
-from .utils import check_login, get_event
+from .utils import check_login_open, get_event
 
 
 class Main(web.View):
@@ -19,7 +19,7 @@ class Main(web.View):
             informasjon = ""
 
         try:
-            user = await check_login(self)
+            user = await check_login_open(self)
             event = await get_event(user["token"], "")
 
             events = await EventsAdapter().get_all_events(user["token"])

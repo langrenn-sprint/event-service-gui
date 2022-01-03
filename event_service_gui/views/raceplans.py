@@ -9,7 +9,13 @@ from event_service_gui.services import (
     RaceclassesAdapter,
     RaceplansAdapter,
 )
-from .utils import check_login, get_event, get_qualification_text, get_raceplan_summary
+from .utils import (
+    check_login,
+    check_login_open,
+    get_event,
+    get_qualification_text,
+    get_raceplan_summary,
+)
 
 
 class Raceplans(web.View):
@@ -21,10 +27,11 @@ class Raceplans(web.View):
         try:
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
-            event_id = ""
+            informasjon = "Ingen event valgt."
+            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
         try:
-            user = await check_login(self)
+            user = await check_login_open(self)
             event = await get_event(user["token"], event_id)
 
             try:

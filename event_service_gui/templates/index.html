@@ -1,7 +1,7 @@
-{% extends "adm_base.html" %}
+{% extends "open_base.html" %}
 {% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
+  <div class="w3-quart"></div>
+  <div class="w3-half">
 {% endblock %}
 
 {% block titleheader %}
@@ -12,27 +12,35 @@
   {{ lopsinfo }}
 {% endblock %}
 {% block content %}
-      <div align=right>
-        <form action=/events method=get>
-          <input type="submit" name=new value="  Nytt arrangement  ">
-        </form>
-      </div>
-      <div id=spacer></div>
-    <table>
+  <div id=spacer></div>
+    <table cellpadding=4>
       <tr>
-        <td colspan=4>
+        <td colspan=5 id=headerblue>
           <b>Velg arrangement</b>
         </td>
       </tr>
-      <tr id=headerblue>
+      <tr>
         <td>Navn</td>
+        <td></td>
         <td>Dato</td>
         <td>Klubb</td>
         <td></td>
       </tr>
       {% for oneevent in events %}
       <tr>
-        <td>{{ oneevent.name }} (<a href="/tasks?event_id={{ oneevent.id }}">status</a> / <a href="/events?event_id={{ oneevent.id }}">informasjon</a>)</td>
+        <td><b>{{ oneevent.name }}</b></td>
+        <td>
+          <a id="myContestants{{ oneevent.id }}" onclick="event_gui_href('myContestants{{ oneevent.id }}', 'contestants?event_id={{ oneevent.id }}')" href=>Deltakere</a> -
+          <a id="myRaceplan{{ oneevent.id }}" onclick="event_gui_href('myRaceplan{{ oneevent.id }}', 'raceplans?event_id={{ oneevent.id }}')" href=>Kjøreplan</a> -
+          <a id="myStart{{ oneevent.id }}" onclick="result_gui_href('myStart{{ oneevent.id }}', 'start?event_id={{ oneevent.id }}')" href=>Startlister</a> -
+          <a id="myLive{{ oneevent.id }}" onclick="result_gui_href('myLive{{ oneevent.id }}', 'live?event_id={{ oneevent.id }}')" href=>Live</a> -
+          <a id="myResult{{ oneevent.id }}" onclick="result_gui_href('myResult{{ oneevent.id }}', 'resultat?event_id={{ oneevent.id }}')" href=>Resultater</a>
+          {% if username != "Gjest" %}
+            <br><b>Admin:</b>
+            <a id="myAdmF{{ oneevent.id }}" onclick="event_gui_href('myAdmF{{ oneevent.id }}', 'tasks?event_id={{ oneevent.id }}')" href=>Før Rennet</a> -
+            <a id="myAdmU{{ oneevent.id }}" onclick="result_gui_href('myAdmU{{ oneevent.id }}', 'dashboard?event_id={{ oneevent.id }}')" href=>På renndagen</a>
+          {% endif %}
+        </td>
         <td>{{ oneevent.date_of_event }}</td>
         <td>{{ oneevent.organiser }}</td>
         <td></td>

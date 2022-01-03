@@ -1,4 +1,4 @@
-{% extends "adm_base.html" %}
+{% extends "open_base.html" %}
 {% block titlecontainer %}
   <div class="w3-quart"></div>
   <div class="w3-half">
@@ -21,9 +21,11 @@
       {% endfor %}
     </div>
   </li>
+  {% if username != "Gjest" %}
   <li id=topborder>
     <a href=/raceplans?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>
   </li>
+  {% endif %}
 {% endblock %}
 {% block content %}
 <div id=spacer></div>
@@ -98,6 +100,7 @@
         <td>Antall deltakere</td>
       </tr>
       {% for raceclass in raceplan_summary %}
+        {% if (valgt_klasse == "") or (valgt_klasse == raceclass.name) %}
           <tr>
             <td>{{ raceclass.name }}</td>
             <td>{{ raceclass.timeQ }}</td>
@@ -105,6 +108,7 @@
             <td>{{ raceclass.timeF }}</td>
             <td>{{ raceclass.no_of_contestants }}</td>
           </tr>
+        {% endif %}
       {% endfor %}
     </table>
     <table>
