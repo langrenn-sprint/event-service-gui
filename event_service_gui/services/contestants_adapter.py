@@ -50,9 +50,6 @@ class ContestantsAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        if len(request_body["bib"]) > 0:
-            request_body["bib"] = int(request_body["bib"])
-
         async with ClientSession() as session:
             async with session.post(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/contestants",

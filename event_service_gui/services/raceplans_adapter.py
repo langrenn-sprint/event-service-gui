@@ -17,6 +17,29 @@ RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
 class RaceplansAdapter:
     """Class representing raceplans."""
 
+    async def delete_race(self, token: str, race_id: str) -> str:
+        """Delete one race function."""
+        headers = {
+            hdrs.AUTHORIZATION: f"Bearer {token}",
+        }
+        async with ClientSession() as session:
+            async with session.delete(
+                f"{RACE_SERVICE_URL}/races/{race_id}",
+                headers=headers,
+            ) as resp:
+                res = resp.status
+                logging.debug(f"delete_race result - got response {resp}")
+                if res == 204:
+                    pass
+                else:
+                    servicename = "delete_race"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        return str(res)
+
     async def delete_raceplans(self, token: str, event_id: str) -> str:
         """Delete all raceplans in one event function."""
         raceplans = await RaceplansAdapter().get_all_raceplans(token, event_id)

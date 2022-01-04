@@ -126,6 +126,11 @@ class Raceplans(web.View):
                     user["token"], str(form["event_id"])
                 )
                 informasjon = f"Kjøreplaner er slettet - {resultat}"
+            elif "delete_one" in form.keys():
+                resultat = await RaceplansAdapter().delete_race(
+                    user["token"], str(form["id"])
+                )
+                informasjon = f"Kjøreplaner er slettet - {resultat}"
             elif "update_time" in form.keys():
                 logging.info(f"update_time - form:{form}")
                 order = int(form["order"])  # type: ignore
