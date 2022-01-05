@@ -130,7 +130,8 @@ class Raceplans(web.View):
                 resultat = await RaceplansAdapter().delete_race(
                     user["token"], str(form["id"])
                 )
-                informasjon = f"Kjøreplaner er slettet - {resultat}"
+                informasjon = f"Heat er slettet - {resultat}"
+                action = "edit_mode"
             elif "update_time" in form.keys():
                 logging.info(f"update_time - form:{form}")
                 order = int(form["order"])  # type: ignore

@@ -82,9 +82,9 @@ class Settings(web.View):
                     "name": "Individual Sprint",
                     "starting_order": "Heat Start",
                     "start_procedure": "Draw",
-                    "time_between_groups": "00:05:00",
-                    "time_between_rounds": "00:05:00",
-                    "time_between_heats": "00:02:30",
+                    "time_between_groups": "00:15:00",
+                    "time_between_rounds": "00:03:00",
+                    "time_between_heats": "00:01:30",
                     "max_no_of_contestants": "80",
                     "datatype": "individual_sprint",
                 }

@@ -193,9 +193,20 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
         else:
             bib = str(elements[0])
             if bib.isnumeric():
+                name = elements[headers["Navn"]]
+                all_names = name.split(" ")
+                first_name = ""
+                last_name = ""
+                i = 0
+                for one_name in all_names:
+                    if i == 0:
+                        first_name = one_name
+                    else:
+                        last_name += one_name + " "
+                    i += 1
                 request_body = {
-                    "first_name": "",
-                    "last_name": elements[headers["Navn"]],
+                    "first_name": first_name,
+                    "last_name": last_name,
                     "birth_date": "",
                     "gender": "",
                     "ageclass": elements[headers["Klasse"]],
