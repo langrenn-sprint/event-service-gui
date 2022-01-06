@@ -341,9 +341,6 @@ class ContestantsAdapter:
         request_body = copy.deepcopy(contestant)
         logging.debug(f"update_contestants, got request_body {request_body}")
 
-        if len(request_body["bib"]) > 0:
-            request_body["bib"] = int(str(request_body["bib"]))
-
         url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{contestant['id']}"
         headers = MultiDict(
             [
