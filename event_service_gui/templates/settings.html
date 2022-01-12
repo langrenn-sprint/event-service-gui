@@ -34,56 +34,62 @@
               <input type=hidden name=starting_order value="{{ format.starting_order }}">
               <table>
                 <tr>
-                  <td>Navn:</td>
+                  <td>Navn</td>
                   <td><b>{{ format.name }}</b></td>
                 </tr>
                 <tr>
-                  <td>Startprosedyre:</td>
+                  <td>Startprosedyre</td>
                   <td>{{ format.start_procedure }}</td>
                 </tr>
                 <tr>
-                  <td>Startrekkefølge:</td>
+                  <td>Startrekkefølge</td>
                   <td>{{ format.starting_order }}</td>
                 </tr>
                 <tr>
-                  <td>Pause mellom grupper:</td>
+                  <td>Pause mellom grupper</td>
                   <td><input type=text name=time_between_groups value="{{ format.time_between_groups }}" required></td>
                 </tr>
             {% if format.datatype == "interval_start" %}
                 <tr>
-                  <td>Startintervall:</td>
+                  <td>Startintervall</td>
                   <td><input type=text name=intervals value="{{ format.intervals }}" required></td>
                 </tr>
-                <tr><td colspan=2>&nbsp;</td></tr>
-                <tr><td colspan=2>&nbsp;</td></tr>
+                <tr>
+                  <td colspan=2>&nbsp;</td>
+                </tr>
             {% elif format.datatype == "individual_sprint" %}
                 <tr>
-                  <td>Pause mellom runde:</td>
+                  <td>Pause mellom runde</td>
                   <td><input type=text name=time_between_rounds value="{{ format.time_between_rounds }}" required></td>
                 </tr>
                 <tr>
-                  <td>Pause mellom heat:</td>
+                  <td>Pause mellom heat</td>
                   <td><input type=text name=time_between_heats value="{{ format.time_between_heats }}" required></td>
                 </tr>
-                <tr>
-                  <td>Deltakertak pr klasse:</td>
-                  <td>
-                    {{ format.max_no_of_contestants }}
-                    <input type=hidden name=max_no_of_contestants value="{{ format.max_no_of_contestants }}">
-                  </td>
-                </tr>
             {% endif %}
-                <tr>
-                  <td></td>
-                  <td>
-                    <input type="submit" name=update value="  Oppdater  ">
-                  </td>
-                </tr>
-              </table>
-            </form>
-          </td>
-        {% endfor %}
-      </tr>
+            <tr>
+              <td>Deltakertak pr klasse</td>
+              <td>
+                <input type=number name=max_no_of_contestants_in_raceclass value="{{ format.max_no_of_contestants_in_raceclass }}" min=0 max=9999>
+              </td>
+            </tr>
+            <tr>
+              <td>Deltakertak pr heat</td>
+              <td>
+                <input type=number name=max_no_of_contestants_in_race value="{{ format.max_no_of_contestants_in_race }}" min=0 max=9999>
+              </td>
+            </tr>
+              <tr>
+                <td></td>
+                <td>
+                  <input type="submit" name=update value="  Oppdater  ">
+                </td>
+              </tr>
+            </table>
+          </form>
+        </td>
+      {% endfor %}
+    </tr>
     <tr id=spacer></tr>
   </table>
 {% endblock %}

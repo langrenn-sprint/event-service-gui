@@ -12,11 +12,13 @@
   {{ lopsinfo }}
 {% endblock %}
 {% block content %}
-  <div align=right>
-    <form action=/events method=get>
-      <input type="submit" name=new value="  Nytt arrangement  ">
-    </form>
-  </div>
+  {% if username != "Gjest" %}
+    <div align=right>
+      <form action=/events method=get>
+        <input type="submit" name=new value="  Nytt arrangement  ">
+      </form>
+    </div>
+  {% endif %}
   <div id=spacer></div>
     <table cellpadding=4>
       <tr>

@@ -73,6 +73,8 @@ class Settings(web.View):
                     "start_procedure": "Interval Start",
                     "time_between_groups": "00:05:00",
                     "intervals": "00:00:30",
+                    "max_no_of_contestants_in_raceclass": 9999,
+                    "max_no_of_contestants_in_race": 9999,
                     "datatype": "interval_start",
                 }
                 informasjon = await EventsAdapter().create_competition_format(
@@ -85,7 +87,8 @@ class Settings(web.View):
                     "time_between_groups": "00:15:00",
                     "time_between_rounds": "00:03:00",
                     "time_between_heats": "00:01:30",
-                    "max_no_of_contestants": "80",
+                    "max_no_of_contestants_in_raceclass": 80,
+                    "max_no_of_contestants_in_race": 10,
                     "datatype": "individual_sprint",
                 }
                 informasjon = await EventsAdapter().create_competition_format(
@@ -93,7 +96,6 @@ class Settings(web.View):
                 )
             elif "update" in form.keys():
                 if form["datatype"] == "individual_sprint":
-                    imax = int(form["max_no_of_contestants"])  # type: ignore
                     request_body = {
                         "id": str(form["id"]),
                         "name": str(form["name"]),
@@ -103,7 +105,12 @@ class Settings(web.View):
                         "time_between_groups": str(form["time_between_groups"]),
                         "time_between_rounds": str(form["time_between_rounds"]),
                         "time_between_heats": str(form["time_between_heats"]),
-                        "max_no_of_contestants": imax,  # type: ignore
+                        "max_no_of_contestants_in_raceclass": int(
+                            form["max_no_of_contestants_in_raceclass"]  # type: ignore
+                        ),
+                        "max_no_of_contestants_in_race": int(
+                            form["max_no_of_contestants_in_race"]  # type: ignore
+                        ),
                     }
                 else:
                     request_body = {
@@ -113,6 +120,12 @@ class Settings(web.View):
                         "start_procedure": str(form["start_procedure"]),
                         "time_between_groups": str(form["time_between_groups"]),
                         "intervals": str(form["intervals"]),
+                        "max_no_of_contestants_in_raceclass": int(
+                            form["max_no_of_contestants_in_raceclass"]  # type: ignore
+                        ),
+                        "max_no_of_contestants_in_race": int(
+                            form["max_no_of_contestants_in_race"]  # type: ignore
+                        ),
                         "datatype": str(form["datatype"]),
                     }
 
