@@ -142,7 +142,7 @@ class Raceplans(web.View):
                 action = "edit_time"
             elif "update_order" in form.keys():
                 logging.info(f"update_order - form:{form}")
-                informasjon = await update_order(user, event_id, form)
+                informasjon = await update_order(user, event_id, form)  # type: ignore
                 action = "edit_order"
         except Exception as e:
             logging.error(f"Error: {e}")

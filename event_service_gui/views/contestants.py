@@ -125,12 +125,13 @@ class Contestants(web.View):
                 bib = None
                 if len(form["bib"]) > 0:  # type: ignore
                     bib = int(form["bib"])  # type: ignore
+                ageclass = str(form["ageclass"])
                 request_body = {
                     "first_name": str(form["first_name"]),
                     "last_name": str(form["last_name"]),
                     "birth_date": str(form["birth_date"]),
                     "gender": str(form["gender"]),
-                    "ageclass": str(form["ageclass"]),
+                    "ageclass": ageclass,
                     "region": str(form["region"]),
                     "club": str(form["club"]),
                     "event_id": event_id,
@@ -143,7 +144,19 @@ class Contestants(web.View):
                     id = await ContestantsAdapter().create_contestant(
                         user["token"], event_id, request_body
                     )
-                    informasjon = f"Deltaker er opprettet - {id}"
+                    logging.debug(f"Etteranmelding {id}")
+                    informasjon = f"Deltaker med startnr {bib} er lagt til."
+                    informasjon += " Plasser løper i ønsket heat."
+                    raceclasses = await RaceclassesAdapter().get_raceclasses(
+                        user["token"], event_id
+                    )
+                    for raceclass in raceclasses:
+                        if raceclass["ageclass_name"] == ageclass:
+                            klasse = raceclass["name"]
+                            info = f"valgt_klasse={klasse}&event_id={event_id}"
+                            info += "&valgt_runde=N&informasjon={informasjon}"
+                            url = f"{form['url']}/timing_verify?{info}"  # type: ignore
+                            return web.HTTPSeeOther(location=url)
                 else:
                     request_body["id"] = str(form["id"])
                     result = await ContestantsAdapter().update_contestant(

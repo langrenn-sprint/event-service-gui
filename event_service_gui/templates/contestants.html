@@ -144,7 +144,7 @@
             <tr id=spacer></tr>
             <tr>
               <td colspan=3 id=headerblue>
-                <b>Opprett ny deltaker</b>
+                <b>Etteranmelding / Opprett ny deltaker</b>
               </td>
             </tr>
             <tr>
@@ -212,6 +212,10 @@
                 <td></td>
                 <td>
                   <input type="hidden" name="event_id" value="{{ event_id }}">
+                  <input type="hidden" id=url name=url value="">
+                  <script>
+                    document.getElementById("url").value = "http://" + window.location.hostname + ":8090";
+                  </script>
                   <input type="submit" name=create_one value="  Opprett  ">
                 </td>
                 <td></td>
