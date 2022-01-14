@@ -133,16 +133,37 @@ class Raceplans(web.View):
                 informasjon = f"Heat er slettet - {resultat}"
                 action = "edit_mode"
             elif "update_time" in form.keys():
-                logging.info(f"update_time - form:{form}")
+                logging.debug(f"update_time - form:{form}")
                 order = int(form["order"])  # type: ignore
                 new_time = str(form["new_time"])
                 informasjon = await RaceplansAdapter().update_start_time(
                     user["token"], event_id, order, new_time
                 )
                 action = "edit_time"
+            elif "update_order" in form.keys():
+                logging.info(f"update_order - form:{form}")
+                informasjon = await update_order(user, event_id, form)
+                action = "edit_order"
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         info = f"action={action}&informasjon={informasjon}"
         return web.HTTPSeeOther(location=f"/raceplans?event_id={event_id}&{info}")
+
+
+async def update_order(user: dict, event_id: str, form: dict) -> str:
+    """Extract form data and update one result and corresponding start event."""
+    informasjon = ""
+    for x in form.keys():
+        if x.startswith("new_order_"):
+            new_order = form[x]
+            if new_order != "":
+                race_id = x[10:]
+                old_order = form[f"old_order_{race_id}"]
+                if new_order != old_order:
+                    result = await RaceplansAdapter().update_order(
+                        user["token"], race_id, new_order
+                    )
+                    informasjon += f" {result}"
+    return informasjon

@@ -180,6 +180,16 @@ class RaceplansAdapter:
                 races.append(race)
         return races
 
+    async def update_order(self, token: str, race_id: str, new_order: int) -> str:
+        """Update race order function."""
+        race = await RaceplansAdapter().get_race_by_id(token, race_id)
+        race["order"] = new_order
+        res = await RaceplansAdapter().update_race(token, race["id"], race)
+        logging.debug(f"Raceplan update order, result: {res}. {race}")
+        informasjon = f"Oppdatert heat {new_order}."
+
+        return informasjon
+
     async def update_raceplan(self, token: str, id: str, new_data: dict) -> int:
         """Update klasser function."""
         returncode = 201
