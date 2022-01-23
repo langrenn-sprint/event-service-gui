@@ -164,13 +164,15 @@ class Contestants(web.View):
                     )
                     informasjon = f"Informasjon er oppdatert - {result}"
             # delete
-            elif "delete_one" in form.keys():
-                result = await ContestantsAdapter().delete_contestant(
-                    user["token"], event_id, str(form["id"])
-                )
-                informasjon = (
-                    f"Deltaker {str(form['bib'])} er slettet. Start må slettes manuelt."
-                )
+            elif "delete_select" in form.keys():
+                informasjon = "Sletting utført: "
+                for key in form.keys():
+                    if key.startswith("slett_"):
+                        customer_id = form[key]
+                        result = await ContestantsAdapter().delete_contestant(
+                            user["token"], event_id, customer_id
+                        )
+                        informasjon += f"{key} "
 
             # delete_all
             elif "delete_all" in form.keys():

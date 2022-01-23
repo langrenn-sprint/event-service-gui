@@ -39,7 +39,7 @@ async def check_login_open(self) -> dict:
 
 async def get_event(token: str, event_id: str) -> dict:
     """Get event - return new if no event found."""
-    event = {"id": event_id, "name": "Nytt arrangement", "organiser": "Ikke valgt"}
+    event = {"id": event_id, "name": "Langrenn-sprint", "organiser": "Ikke valgt"}
     if event_id != "":
         logging.debug(f"get_event {event_id}")
         event = await EventsAdapter().get_event(token, event_id)

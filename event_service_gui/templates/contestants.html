@@ -62,7 +62,6 @@
       </table>
     </form>
     {% elif  action == "edit_mode" %}
-      <div id=spacer></div>
         <table>
           <tr id=headerblue align=right>
             <td>
@@ -86,6 +85,13 @@
               </form>
             </td>
             <td>
+              <form action=/contestants method=get>
+                <input type="hidden" name=event_id value="{{ event_id }}">
+                <input type="hidden" name=action value="delete_select">
+                <input type="submit" name=delete_select value="  Slett deltakere  ">
+              </form>
+            </td>
+            <td>
               <form action=/contestants method=post>
                 <input type="hidden" name="event_id" value="{{ event_id }}">
                 <input type="submit" name=delete_all value="  Slett alle deltakere  ">
@@ -93,11 +99,21 @@
             </td>
           </tr>
         </table>
-        <div id=spacer></div>
+
+    {% endif %}
+    {% if  action == "edit_mode" or action == "delete_select" %}
+        <div id=spacer>&nbsp;</div>
+        {% if action == "delete_select" %}
+          <form action=/contestants method=post>
+          <div>
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
+          </div>
+          <div id=spacer>&nbsp;</div>
+        {% endif %}
         <table>
           <tr id=headerblue>
             <td>Startnr</td>
-            <td colspan="2"></td>
+            <td></td>
             <td>Navn</td>
             <td>Klubb</td>
             <td>Født</td>
@@ -110,22 +126,20 @@
           {% for contestant in contestants %}
             <tr>
               <td>{{ contestant.bib }}</td>
-              <td>
-                <form action=/contestants method=get>
-                  <input type="submit" name=update_one value="  Rediger  ">
-                  <input type="hidden" name=action value="update_one">
-                  <input type="hidden" name="id" value="{{ contestant.id }}">
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                </form>
-              </td>
-              <td>
-                <form action=/contestants method=post>
-                  <input type="submit" name=delete_one value="  Slett  ">
-                  <input type="hidden" name="id" value="{{ contestant.id }}">
-                  <input type="hidden" name="bib" value="{{ contestant.bib }}">
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                </form>
-              </td>
+              {% if  action == "edit_mode"%}
+                <td>
+                  <form action=/contestants method=get>
+                    <input type="submit" name=update_one value="  Rediger  ">
+                    <input type="hidden" name=action value="update_one">
+                    <input type="hidden" name="id" value="{{ contestant.id }}">
+                    <input type="hidden" name="event_id" value="{{ event_id }}">
+                  </form>
+                </td>
+              {% else %}
+                <td>
+                  <input type="checkbox" name="slett_{{ contestant.bib }}" value="{{ contestant.id }}">
+                </td>
+              {% endif %}
               <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
               <td>{{ contestant.club }}</td>
               <td>{{ contestant.birth_date }}</td>
@@ -136,7 +150,15 @@
               <td>{{ contestant.minidrett_id }}</td>
             </tr>
           {% endfor %}
-        </table>
+      </table>
+      {% if action == "delete_select" %}
+        <div>
+          &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
+          <input type="hidden" name=action value="delete select">
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+        </div>
+        </form>
+      {% endif %}
       {% elif action == "new_manual" %}
         <div id=spacer></div>
         <form action=/contestants method=post>
