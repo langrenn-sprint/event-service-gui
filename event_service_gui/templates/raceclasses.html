@@ -65,7 +65,11 @@
         </tr>
         {% for klasse in raceclasses %}
             <tr>
-              <td>{{ klasse.ageclass_name }}</td>
+              <td>
+                {% for ac_name in klasse.ageclasses %}
+                  {{ ac_name }}<br>
+                {% endfor %}
+              </td>
               <td>{{ klasse.distance }}</td>
               <td>{{ klasse.name }}</td>
               <td>{{ klasse.group }}</td>
@@ -106,7 +110,11 @@
             </tr>
             {% for klasse in raceclasses %}
                 <tr>
-                  <td>{{ klasse.ageclass_name }}</td>
+                  <td>
+                    {% for ac_name in klasse.ageclasses %}
+                      {{ ac_name }}<br>
+                    {% endfor %}
+                  </td>
                   <td>{{ klasse.distance }}</td>
                   <td>{{ klasse.name }}</td>
                   <td>
@@ -143,7 +151,11 @@
               {% for klasse in raceclasses %}
                   <tr>
                     <td><input type="checkbox" name=ageclass_{{ klasse.name }} value="{{ klasse.id }}"></td>
-                    <td>{{ klasse.ageclass_name }}</td>
+                    <td>
+                      {% for ac_name in klasse.ageclasses %}
+                        {{ ac_name }}<br>
+                      {% endfor %}
+                    </td>
                     <td>{{ klasse.distance }}</td>
                     <td>{{ klasse.name }}</td>
                     <td>{{ klasse.group }}</td>
@@ -171,7 +183,15 @@
             </tr>
             <tr>
               <td width=150>Klasse</td>
-              <td><input type=text name="ageclass_name" value="{{ klasse.ageclass_name }}"></td>
+              <td>
+                {% for ac_name in klasse.ageclasses %}
+                  {% if loop.index == 1 %}
+                    <input type=text name="ageclass" value="{{ ac_name }}"><br>
+                  {% else %}
+                    {{ ac_name }}<br>
+                  {% endif %}
+                {% endfor %}
+              </td>
               <td></td>
             </tr>
             <tr>
@@ -224,7 +244,11 @@
       </tr>
       {% for klasse in raceclasses %}
           <tr>
-            <td>{{ klasse.ageclass_name }}</td>
+            <td>
+              {% for ac_name in klasse.ageclasses %}
+                {{ ac_name }}<br>
+              {% endfor %}
+            </td>
             <td>{{ klasse.distance }}</td>
             <td>{{ klasse.name }}</td>
             <td>{{ klasse.group }}</td>

@@ -214,7 +214,7 @@ class ContestantsAdapter:
         raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
         for raceclass in raceclasses:
             if raceclass["name"] == raceclass_name:
-                ageclasses.append(raceclass["ageclass_name"])
+                ageclasses.append(raceclass["ageclasses"])
 
         headers = MultiDict(
             [

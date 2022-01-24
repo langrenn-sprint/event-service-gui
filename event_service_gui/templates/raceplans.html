@@ -17,7 +17,9 @@
     <div class=dropdown-content>
       <a href=raceplans?event_id={{ event_id }}>Alle</a>
       {% for klasse in raceclasses %}
-        <a href=raceplans?klasse={{ klasse.name }}&event_id={{ event_id }}>{{ klasse.ageclass_name }}</a>
+        {% for ac_name in klasse.ageclasses %}
+          <a href=raceplans?klasse={{ klasse.name }}&event_id={{ event_id }}>{{ ac_name }}</a>
+        {% endfor %}
       {% endfor %}
     </div>
   </li>

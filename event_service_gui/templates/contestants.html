@@ -14,7 +14,9 @@
     <div class=dropdown-content>
       <a href=/contestants?event_id={{ event_id }}&action={{ action }}>Alle</a>
       {% for klasse in raceclasses %}
-        <a href=/contestants?event_id={{ event_id }}&klasse={{ klasse.ageclass_web }}&action={{ action }}>{{ klasse.ageclass_name }}</a>
+        {% for web_name in klasse.ageclass_web %}
+          <a href=/contestants?event_id={{ event_id }}&klasse={{ web_name }}&action={{ action }}>{{ klasse.ageclasses[loop.index0] }}</a>
+        {% endfor %}
       {% endfor %}
     </div>
   </li>
@@ -194,7 +196,9 @@
               <td>
                 <select name="ageclass">
                   {% for klasse in raceclasses %}
-                    <option value="{{ klasse.ageclass_name}}">{{ klasse.ageclass_name}}</option>
+                    {% for ac_name in klasse.ageclasses %}
+                      <option value="{{ ac_name }}">{{ ac_name }}</option>
+                    {% endfor %}
                   {% endfor %}
                 </select>
               </td>
@@ -280,7 +284,9 @@
                 <td>
                   <select name="ageclass">
                     {% for klasse in raceclasses %}
-                      <option value="{{ klasse.ageclass_name}}" {% if klasse.ageclass_name == contestant.ageclass %}selected{% endif %}>{{ klasse.ageclass_name}}</option>
+                      {% for ac_name in klasse.ageclasses %}
+                        <option value="{{ ac_name }}" {% if ac_name == contestant.ageclass %}selected{% endif %}>{{ ac_name }}</option>
+                      {% endfor %}
                     {% endfor %}
                   </select>
                 </td>

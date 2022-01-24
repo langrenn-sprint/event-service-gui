@@ -111,7 +111,7 @@ class Raceclasses(web.View):
                     "id": id,
                     "group": int(form["group"]),  # type: ignore
                     "order": int(form["order"]),  # type: ignore
-                    "ageclass_name": str(form["ageclass_name"]),
+                    "ageclass": [str(form["ageclass"])],
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }
                 result = await RaceclassesAdapter().update_raceclass(
@@ -151,7 +151,7 @@ class Raceclasses(web.View):
 async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
     """Extract form data and perform merge ageclasses."""
     old_raceclasses = []
-    merged_ageclasses = ""
+    merged_ageclasses = []
     no_of_contestants = 0
     # get classes to be merged
     for x in form.keys():
@@ -160,7 +160,8 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
                 user["token"], event_id, form[x]
             )
             no_of_contestants += klasse["no_of_contestants"]
-            merged_ageclasses += klasse["ageclass_name"] + " "
+            for ageclass in klasse["ageclasses"]:
+                merged_ageclasses.append(ageclass)
             old_raceclasses.append(klasse)
     # create new-common class based upon first one
     if len(old_raceclasses) > 1:
@@ -171,9 +172,10 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
             "id": old_raceclasses[0]["id"],
             "group": None,
             "order": None,
-            "ageclass_name": merged_ageclasses,
+            "ageclasses": merged_ageclasses,
             "no_of_contestants": no_of_contestants,
         }
+        breakpoint()
         result = await RaceclassesAdapter().update_raceclass(
             user["token"], event_id, old_raceclasses[0]["id"], request_body
         )

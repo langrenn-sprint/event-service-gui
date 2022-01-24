@@ -42,7 +42,10 @@ class Contestants(web.View):
                 user["token"], event_id
             )
             for klasse in raceclasses:
-                klasse["ageclass_web"] = klasse["ageclass_name"].replace(" ", "%20")
+                mylist = []
+                for ac_name in klasse["ageclasses"]:
+                    mylist.append(ac_name.replace(" ", "%20"))
+                klasse["ageclass_web"] = mylist
 
             contestant = {}
             try:
@@ -122,36 +125,21 @@ class Contestants(web.View):
                 )
 
             elif "create_one" in form.keys() or "update_one" in form.keys():
-                bib = None
-                if len(form["bib"]) > 0:  # type: ignore
-                    bib = int(form["bib"])  # type: ignore
-                ageclass = str(form["ageclass"])
-                request_body = {
-                    "first_name": str(form["first_name"]),
-                    "last_name": str(form["last_name"]),
-                    "birth_date": str(form["birth_date"]),
-                    "gender": str(form["gender"]),
-                    "ageclass": ageclass,
-                    "region": str(form["region"]),
-                    "club": str(form["club"]),
-                    "event_id": event_id,
-                    "email": str(form["email"]),
-                    "team": str(form["team"]),
-                    "minidrett_id": str(form["minidrett_id"]),
-                    "bib": bib,
-                }
+                request_body = get_contestant_from_form(form)  # type: ignore
                 if "create_one" in form.keys():
                     id = await ContestantsAdapter().create_contestant(
                         user["token"], event_id, request_body
                     )
                     logging.debug(f"Etteranmelding {id}")
-                    informasjon = f"Deltaker med startnr {bib} er lagt til."
+                    informasjon = (
+                        f"Deltaker med startnr {request_body['bib']} er lagt til."
+                    )
                     informasjon += " Plasser løper i ønsket heat."
                     raceclasses = await RaceclassesAdapter().get_raceclasses(
                         user["token"], event_id
                     )
                     for raceclass in raceclasses:
-                        if raceclass["ageclass_name"] == ageclass:
+                        if request_body["ageclass"] in raceclass["ageclasses"]:
                             klasse = raceclass["name"]
                             info = f"valgt_klasse={klasse}&event_id={event_id}"
                             info += "&valgt_runde=N&informasjon={informasjon}"
@@ -168,7 +156,7 @@ class Contestants(web.View):
                 informasjon = "Sletting utført: "
                 for key in form.keys():
                     if key.startswith("slett_"):
-                        customer_id = form[key]
+                        customer_id = str(form[key])
                         result = await ContestantsAdapter().delete_contestant(
                             user["token"], event_id, customer_id
                         )
@@ -188,8 +176,31 @@ class Contestants(web.View):
         return web.HTTPSeeOther(location=f"/contestants?event_id={event_id}&{info}")
 
 
+def get_contestant_from_form(event_id: str, form: dict) -> dict:
+    """Load contestants from form."""
+    bib = None
+    if len(form["bib"]) > 0:  # type: ignore
+        bib = int(form["bib"])  # type: ignore
+    ageclass = str(form["ageclass"])
+    contestant = {
+        "first_name": str(form["first_name"]),
+        "last_name": str(form["last_name"]),
+        "birth_date": str(form["birth_date"]),
+        "gender": str(form["gender"]),
+        "ageclass": ageclass,
+        "region": str(form["region"]),
+        "club": str(form["club"]),
+        "event_id": event_id,
+        "email": str(form["email"]),
+        "team": str(form["team"]),
+        "minidrett_id": str(form["minidrett_id"]),
+        "bib": bib,
+    }
+    return contestant
+
+
 async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
-    """Get load contestants."""
+    """Load contestants from excel-file."""
     informasjon = ""
     index_row = 0
     headers = {}

@@ -19,7 +19,7 @@
       <div id=adminpagetitle>
           Deltakerliste {{ club }}
       </div>
-      <div align=right>{{ event.name }}, {{ event.date_of_event }}</div>
+      <div align=right>{{ event.name }}, {{ event.date_of_event }} </div>
       <table>
         <tr id=headerprint>
           <td width=50>Nr</td>
@@ -51,7 +51,7 @@
         <div id=pagebreak></div>
       {% endif %}
       <div id=adminpagetitle>
-          Deltakerliste {{ raceclass.ageclass_name }}
+        Deltakerliste {{ raceclass.name }}
       </div>
       <div align=right>{{ event.name }}, {{ event.date_of_event }}</div>
       <table>
@@ -64,7 +64,7 @@
           <td>Region</td>
         </tr>
         {% for loper in contestants %}
-          {% if loper.ageclass == raceclass.ageclass_name %}
+          {% if loper.ageclass in raceclass.ageclasses %}
             <tr>
               <td>{{ loper.bib }}</td>
               <td>{{ loper.first_name }} {{ loper.last_name }}</td>
