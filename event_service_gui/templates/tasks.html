@@ -202,13 +202,13 @@
           <td colspan=3 id=spacer></td>
         </tr>
         <tr>
-          <td>8. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start?event_id={{ event_id }}')" href=>se/endre</a>)</td>
+          <td>8. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
           {% if (task_status.done_8) %}
             <td id=green>Utført</td>
             <td>
               <form onclick="result_gui_action('myPStart', 'print_lists')" id="myPStart" action=/print_lists method=get target=_blank>
                 <input type="hidden" name="event_id" value="{{ event_id }}">
-                <input type="hidden" name="action" value="print">
+                <input type="hidden" name="action" value="start">
                 <input type="submit" name="print" value="  Skriv ut  ">
               </form>
             </td>

@@ -48,6 +48,7 @@
                 <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Live</a>
                 <a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Resultater</a>
                 {% if username != "Gjest" %}
+                  <a id="myRaceclass" onclick="event_gui_href('myRaceclass', 'raceclasses?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Klasser</a>
                   <a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Admin - forberedelser</a>
                   <a id="myAdmU" onclick="result_gui_href('myAdmU', 'dashboard?event_id={{ event_id }}')" href=>&nbsp;&nbsp;&nbsp;Admin - renndagen</a>
                 {% endif %}
