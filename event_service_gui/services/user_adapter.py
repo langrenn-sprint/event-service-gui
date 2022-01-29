@@ -123,30 +123,6 @@ class UserAdapter:
                     cookiestorage["loggedin"] = True
         return result
 
-    async def login_guest(self) -> str:
-        """Perform one time login function for a guest - return token."""
-        result = 0
-        request_body = {
-            "username": os.getenv("ADMIN_USERNAME"),
-            "password": os.getenv("ADMIN_PASSWORD"),
-        }
-        headers = MultiDict(
-            [
-                (hdrs.CONTENT_TYPE, "application/json"),
-            ]
-        )
-        async with ClientSession() as session:
-            async with session.post(
-                f"{USER_SERVICE_URL}/login", headers=headers, json=request_body
-            ) as resp:
-                result = resp.status
-                logging.info(f"do login - got response {result}")
-                if result == 200:
-                    body = await resp.json()
-                    token = body["token"]
-
-        return token
-
     def isloggedin(self, cookiestorage: Session) -> bool:
         """Check if user is logged in function."""
         try:

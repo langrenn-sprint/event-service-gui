@@ -30,9 +30,7 @@ async def check_login_open(self) -> dict:
             "token": session["token"],
         }
     else:
-        # get temp token
-        token = await UserAdapter().login_guest()
-        user = {"name": "Gjest", "loggedin": False, "token": token}
+        user = {"name": "Gjest", "loggedin": False, "token": ""}
 
     return user
 
