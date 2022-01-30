@@ -3,12 +3,11 @@ import copy
 import logging
 import os
 from typing import List
+from urllib.parse import quote
 
 from aiohttp import ClientSession
 from aiohttp import hdrs, web
 from multidict import MultiDict
-
-from .raceclasses_adapter import RaceclassesAdapter
 
 EVENTS_HOST_SERVER = os.getenv("EVENTS_HOST_SERVER", "localhost")
 EVENTS_HOST_PORT = os.getenv("EVENTS_HOST_PORT", "8082")
@@ -181,9 +180,11 @@ class ContestantsAdapter:
             ]
         )
         contestants = []
+        query_param = f"ageclass={quote(ageclass_name)}"
         async with ClientSession() as session:
             async with session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants", headers=headers
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?{query_param}",
+                headers=headers,
             ) as resp:
                 logging.debug(f"get_all_contestants - got response {resp.status}")
                 if resp.status == 200:
@@ -195,27 +196,12 @@ class ContestantsAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
-
-        # TODO: Bør flyttes til backend
-        if ageclass_name != "":
-            tmp_contestants = []
-            for x in contestants:
-                if x["ageclass"] == ageclass_name:
-                    tmp_contestants.append(x)
-            contestants = tmp_contestants
         return contestants
 
     async def get_all_contestants_by_raceclass(
         self, token: str, event_id: str, raceclass_name: str
     ) -> List:
-        """Get all contestants / by class function."""
-        ageclasses = []
-
-        raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
-        for raceclass in raceclasses:
-            if raceclass["name"] == raceclass_name:
-                ageclasses.append(raceclass["ageclasses"])
-
+        """Get all contestants / by raceclass function."""
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -225,7 +211,8 @@ class ContestantsAdapter:
         contestants = []
         async with ClientSession() as session:
             async with session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants", headers=headers
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_name}",
+                headers=headers,
             ) as resp:
                 logging.debug(f"get_all_contestants - got response {resp.status}")
                 if resp.status == 200:
@@ -237,13 +224,6 @@ class ContestantsAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
-
-        # TODO: Bør flyttes til backend
-        tmp_contestants = []
-        for x in contestants:
-            if x["ageclass"] in ageclasses:
-                tmp_contestants.append(x)
-        contestants = tmp_contestants
         return contestants
 
     async def get_contestant_by_bib(self, token: str, event_id: str, bib: str) -> dict:

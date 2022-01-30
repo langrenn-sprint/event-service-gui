@@ -125,7 +125,7 @@ class Contestants(web.View):
                 )
 
             elif "create_one" in form.keys() or "update_one" in form.keys():
-                request_body = get_contestant_from_form(form)  # type: ignore
+                request_body = get_contestant_from_form(event_id, form)  # type: ignore
                 if "create_one" in form.keys():
                     id = await ContestantsAdapter().create_contestant(
                         user["token"], event_id, request_body
@@ -141,9 +141,9 @@ class Contestants(web.View):
                     for raceclass in raceclasses:
                         if request_body["ageclass"] in raceclass["ageclasses"]:
                             klasse = raceclass["name"]
-                            info = f"valgt_klasse={klasse}&event_id={event_id}"
-                            info += "&valgt_runde=N&informasjon={informasjon}"
-                            url = f"{form['url']}/timing_verify?{info}"  # type: ignore
+                            info = f"klasse={klasse}&event_id={event_id}"
+                            info += f"&informasjon={informasjon}"
+                            url = f"{form['url']}/start_edit?{info}"  # type: ignore
                             return web.HTTPSeeOther(location=url)
                 else:
                     request_body["id"] = str(form["id"])
