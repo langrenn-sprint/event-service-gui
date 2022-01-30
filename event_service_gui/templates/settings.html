@@ -15,7 +15,7 @@
             </form>
     </div>
     <div id=spacer></div>
-    <table cellpadding=4>
+    <table>
       <tr>
         <td colspan="{{ competition_formats|length }}" id=headerblue>
           Competition_formats
@@ -90,6 +90,26 @@
         </td>
       {% endfor %}
     </tr>
-    <tr id=spacer></tr>
   </table>
+  <form action=/settings method=post>
+    <table>
+      <tr>
+        <td colspan=3 id=headerblue>Andre innstillinger</td>
+      </tr>
+      <tr>
+        <td>Time_zone_offset</td>
+        <td>
+          <input type="number" name=time_zone_offset value={{ other_settings.time_zone_offset }} min=-9 max=9>
+        </td>
+        <td>Lokal tid er: <b>{{ local_time }}</b>. Justere lokal tid dersom tidssone på server og konkurransested er ulikt</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>
+          <input type="submit" name=update_other value="  Oppdater  ">
+        </td>
+        <td></td>
+      </tr>
+    </table>
+  </form>
 {% endblock %}

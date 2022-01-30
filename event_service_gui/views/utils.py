@@ -1,4 +1,5 @@
 """Utilities module for gui services."""
+import datetime
 import logging
 
 from aiohttp import web
@@ -43,6 +44,18 @@ async def get_event(token: str, event_id: str) -> dict:
         event = await EventsAdapter().get_event(token, event_id)
 
     return event
+
+
+def get_local_time(format: str, time_zone_offset: int) -> str:
+    """Return local time, time zone adjusted from global setting."""
+    delta_seconds = time_zone_offset * 3600
+    local_time_obj = datetime.datetime.now() + datetime.timedelta(seconds=delta_seconds)
+    local_time = ""
+    if format == "HH:MM":
+        local_time = f"{local_time_obj.strftime('%H')}:{local_time_obj.strftime('%M')}"
+    else:
+        local_time = local_time_obj.strftime("%X")
+    return local_time
 
 
 def get_qualification_text(race: dict) -> str:

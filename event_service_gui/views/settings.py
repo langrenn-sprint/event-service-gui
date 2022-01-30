@@ -1,11 +1,12 @@
 """Resource module for main view."""
 import logging
+import os
 
 from aiohttp import web
 import aiohttp_jinja2
 
 from event_service_gui.services import EventsAdapter
-from .utils import check_login, get_event
+from .utils import check_login, get_event, get_local_time
 
 
 class Settings(web.View):
@@ -26,6 +27,7 @@ class Settings(web.View):
             competition_formats = await EventsAdapter().get_competition_formats(
                 user["token"]
             )
+            other_settings = get_other_settings()
             logging.debug(f"Format: {competition_formats}")
 
             return await aiohttp_jinja2.render_template_async(
@@ -37,6 +39,10 @@ class Settings(web.View):
                     "event_id": "",
                     "informasjon": informasjon,
                     "lopsinfo": "Globale innstillinger",
+                    "local_time": get_local_time(
+                        "HH:MM", other_settings["time_zone_offset"]
+                    ),
+                    "other_settings": other_settings,
                     "username": user["name"],
                 },
             )
@@ -137,3 +143,10 @@ class Settings(web.View):
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(location=f"/settings?informasjon={informasjon}")
+
+
+def get_other_settings() -> dict:
+    """Check loging and return user credentials."""
+    other_settings = {}
+    other_settings["time_zone_offset"] = int(os.getenv("TIME_ZONE_OFFSET", 1))
+    return other_settings
