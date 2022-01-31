@@ -108,15 +108,15 @@ class Contestants(web.View):
                 file = form["file"]
                 text_file = file.file  # type: ignore
                 # handle file - csv supported
-                if "excel" in file.filename:  # type: ignore
+                allowed_filetypes = ["text/csv", "application/vnd.ms-excel"]
+                if "excel_manual" in file.filename:  # type: ignore
                     informasjon = await create_contestants_from_excel(
                         user["token"], event_id, text_file
                     )
-                elif file.content_type == "text/csv":  # type: ignore
+                elif file.content_type in allowed_filetypes:  # type: ignore
                     resp = await ContestantsAdapter().create_contestants(
                         user["token"], event_id, text_file
                     )
-                    logging.debug(f"Created contestants: {resp}")
                     informasjon = f"Opprettet deltakere: {resp}"
                 else:
                     raise Exception(f"Ugyldig filtype {file.content_type}")  # type: ignore
