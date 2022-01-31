@@ -59,10 +59,16 @@ class Contestants(web.View):
             except Exception:
                 action = ""
 
-            contestants = await ContestantsAdapter().get_all_contestants_by_ageclass(
-                user["token"], event_id, valgt_klasse
-            )
-            logging.debug(f"Contestants: {contestants}")
+            if valgt_klasse == "":
+                contestants = await ContestantsAdapter().get_all_contestants(
+                    user["token"], event_id
+                )
+            else:
+                contestants = (
+                    await ContestantsAdapter().get_all_contestants_by_ageclass(
+                        user["token"], event_id, valgt_klasse
+                    )
+                )
             return await aiohttp_jinja2.render_template_async(
                 "contestants.html",
                 self.request,
