@@ -75,8 +75,6 @@ class Raceclasses(web.View):
             event_id = str(form["event_id"])
             igroup = 0
             iorder = 0
-
-            # Update
             # delete_all
             if "delete_all" in form.keys():
                 res = await RaceclassesAdapter().delete_all_raceclasses(

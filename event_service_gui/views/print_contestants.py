@@ -32,7 +32,6 @@ class PrintContestants(web.View):
         try:
             user = await check_login(self)
             event = await get_event(user["token"], event_id)
-
             try:
                 valgt_klasse = self.request.rel_url.query["klasse"]
             except Exception:
@@ -46,9 +45,16 @@ class PrintContestants(web.View):
                 user["token"], event_id
             )
 
-            contestants = await ContestantsAdapter().get_all_contestants_by_ageclass(
-                user["token"], event_id, valgt_klasse
-            )
+            if valgt_klasse == "":
+                contestants = await ContestantsAdapter().get_all_contestants(
+                    user["token"], event_id
+                )
+            else:
+                contestants = (
+                    await ContestantsAdapter().get_all_contestants_by_ageclass(
+                        user["token"], event_id, valgt_klasse
+                    )
+                )
             if len(contestants) == 0:
                 informasjon = "Ingen deltakere funnet."
 
@@ -58,7 +64,6 @@ class PrintContestants(web.View):
                 for contestant in contestants:
                     if contestant["club"] not in clubs:
                         clubs.append(contestant["club"])
-
             """Get route function."""
             return await aiohttp_jinja2.render_template_async(
                 "print_contestants.html",

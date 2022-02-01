@@ -72,7 +72,6 @@ class Events(web.View):
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
-
             # Create new event
             if "create_manual" in form.keys():
                 request_body = {
@@ -83,6 +82,8 @@ class Events(web.View):
                     "organiser": form["organiser"],
                     "webpage": form["webpage"],
                     "information": form["information"],
+                    "time_between_heats": form["time_between_heats"],
+                    "time_between_rounds": form["time_between_rounds"],
                 }
                 event_id = await EventsAdapter().create_event(
                     user["token"], request_body

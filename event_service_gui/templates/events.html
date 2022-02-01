@@ -92,6 +92,16 @@
           <td>Kort tekst med nøkkelinformasjon</td>
         </tr>
         <tr>
+          <td width=150>Tid mellom heat</td>
+          <td><input type=text name=time_between_rounds value=""></td>
+          <td>Tid i sekunder.</td>
+        </tr>
+        <tr>
+          <td>Tid mellom runder</td>
+          <td><input type=text name=time_between_heats value=""></td>
+          <td>Sekunder. Standard tid mellom siste start i en runde og første i påfølgende.</td>
+        </tr>
+        <tr>
             <td></td>
             <td>
               <input type="submit" name=create_manual value="  Opprett  ">
@@ -163,12 +173,12 @@
                 {% elif event.competition_format == "Individual Sprint" %}
                   <tr>
                     <td width=150>Tid mellom heat</td>
-                    <td><input type=text name= value="{{ event.time_between_rounds }}"></td>
+                    <td><input type=text name=time_between_rounds value="{{ event.time_between_rounds }}"></td>
                     <td>Tid i sekunder.</td>
                   </tr>
                   <tr>
                     <td>Tid mellom runder</td>
-                    <td><input type=text name= value="{{ event.time_between_heats }}"></td>
+                    <td><input type=text name=time_between_heats value="{{ event.time_between_heats }}"></td>
                     <td>Sekunder. Standard tid mellom siste start i en runde og første i påfølgende.</td>
                   </tr>
                 {% endif %}

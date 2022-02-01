@@ -110,14 +110,15 @@
   </div>
   <table>
      <tr id=headerblue>
-      <td>Løpsklasse</td>
-      <td>Runde</td>
       <td>Start</td>
       {% if action == "edit_time" %}
         <td>Ny tid</td>
       {% endif %}
-      <td>Antall deltakere</td>
-      <td>Rekkefølge</td>
+      <td>Løpsklasse</td>
+      <td>Runde</td>
+      <td>Ant løpere</td>
+      <td>Videre til</td>
+      <td>Heat</td>
       <td>
         {% if action == "edit_order" %}
           Endre til
@@ -127,16 +128,6 @@
     {% for race in races %}
       {% if (valgt_klasse == "") or (valgt_klasse == race.raceclass) %}
         <tr>
-          <td>{{ race.raceclass }}</td>
-          <td>
-            {% if race.round == "Q" %}
-              Kvartfinale - heat {{ race.heat }}
-            {% elif race.round == "S" %}
-              Semifinale {{ race.index }} - heat {{ race.heat }}
-            {% elif race.round == "F" %}
-              Finale {{ race.index }}
-            {% endif %}
-          </td>
           <td>{{ race.start_time[-8:] }}</td>
           {% if action == "edit_time" %}
             <td>
@@ -148,7 +139,18 @@
               </form>
             </td>
           {% endif %}
+          <td>{{ race.raceclass }}</td>
+          <td>
+            {% if race.round == "Q" %}
+              Kvartfinale {{ race.heat }}
+            {% elif race.round == "S" %}
+              Semifinale {{ race.index }}{{ race.heat }}
+            {% elif race.round == "F" %}
+              Finale {{ race.index }}
+            {% endif %}
+          </td>
           <td>{{ race.no_of_contestants }}</td>
+          <td>{{ race.next_race }}</td>
           <td>{{ race.order }}</td>
           <td>
             {% if  action == "edit_mode" %}
