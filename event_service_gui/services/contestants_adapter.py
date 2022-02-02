@@ -19,6 +19,7 @@ class ContestantsAdapter:
 
     async def assign_bibs(self, token: str, event_id: str) -> str:
         """Generate bibs based upon registrations."""
+        servicename = "assign_bibs"
         headers = MultiDict([(hdrs.AUTHORIZATION, f"Bearer {token}")])
 
         url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/assign-bibs"
@@ -28,8 +29,9 @@ class ContestantsAdapter:
                 logging.debug(f"assign_bibs result - got response {resp}")
                 if res == 201:
                     pass
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "assign_bibs"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -42,6 +44,7 @@ class ContestantsAdapter:
         self, token: str, event_id: str, request_body: dict
     ) -> str:
         """Create new contestant function."""
+        servicename = "create_contestant"
         id = ""
         headers = MultiDict(
             [
@@ -59,8 +62,9 @@ class ContestantsAdapter:
                     logging.debug(f"result - got response {resp}")
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "create_contestant"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -70,6 +74,7 @@ class ContestantsAdapter:
 
     async def create_contestants(self, token: str, event_id: str, inputfile) -> str:
         """Create new contestants function."""
+        servicename = "create_contestants"
         headers = {
             hdrs.CONTENT_TYPE: "text/csv",
             hdrs.AUTHORIZATION: f"Bearer {token}",
@@ -85,8 +90,9 @@ class ContestantsAdapter:
                 logging.info(f"result - got response {res} - {resp}")
                 if res == 200:
                     res = await resp.json()
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "create_contestants"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -96,6 +102,7 @@ class ContestantsAdapter:
 
     async def delete_all_contestants(self, token: str, event_id: str) -> str:
         """Delete all contestants in one event function."""
+        servicename = "delete_all_contestants"
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
@@ -109,8 +116,9 @@ class ContestantsAdapter:
                 logging.debug(f"delete all result - got response {resp}")
                 if res == 204:
                     pass
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "delete_all_contestants"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -122,6 +130,7 @@ class ContestantsAdapter:
         self, token: str, event_id: str, contestant_id: str
     ) -> str:
         """Delete one contestant function."""
+        servicename = "delete_contestant"
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
@@ -135,8 +144,9 @@ class ContestantsAdapter:
                 logging.debug(f"delete result - got response {resp}")
                 if res == 204:
                     pass
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "delete_contestant"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -318,6 +328,7 @@ class ContestantsAdapter:
         self, token: str, event_id: str, contestant: dict
     ) -> str:
         """Create new contestants function."""
+        servicename = "update_contestant"
         request_body = copy.deepcopy(contestant)
         logging.debug(f"update_contestants, got request_body {request_body}")
 
@@ -334,8 +345,9 @@ class ContestantsAdapter:
                 res = resp.status
                 if res == 204:
                     logging.debug(f"result - got response {resp}")
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "update_contestant"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(

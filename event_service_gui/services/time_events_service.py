@@ -42,6 +42,7 @@ class TimeEventsService:
         )
         for template in current_templates:
             id = await TimeEventsAdapter().delete_time_event(token, template["id"])
+            logging.debug(f"Deleted template time_event id {id}")
 
         # 2. get list of all races and loop, except finals.
         races = await RaceplansAdapter().get_all_races(token, event_id)
@@ -52,7 +53,7 @@ class TimeEventsService:
                 if race["round"] != "F":
                     time_event[
                         "race"
-                    ] = f"{race['raceclass']}-{race['round']}{race['heat']}{race['index']}"
+                    ] = f"{race['raceclass']}-{race['round']}{race['index']}{race['heat']}"
                     time_event["race_id"] = race["id"]
 
                     # loop and simulate result for pos 1 to 10
@@ -69,10 +70,10 @@ class TimeEventsService:
                             time_event["next_race_position"] = next_start_entry[
                                 "starting_position"
                             ]
-                            id = await TimeEventsAdapter().create_time_event(
+                            new_t_e = await TimeEventsAdapter().create_time_event(
                                 token, time_event
                             )
-                            logging.debug(f"Created template: {id}")
+                            logging.debug(f"Created template: {new_t_e['status']}")
                             i += 1
         informasjon = f"Suksess! Opprettet {i} templates. "
         return informasjon
@@ -103,8 +104,8 @@ class TimeEventsService:
             )
             informasjon += f" Updated time event {id}. "
         else:
-            id = await TimeEventsAdapter().create_time_event(token, time_event)
-            informasjon += f" Created time event {id}. "
+            new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
+            informasjon += f" Bib {new_t_e['bib']}, result: {new_t_e['status']}. "
 
         return informasjon
 
@@ -126,7 +127,7 @@ class TimeEventsService:
                 entry["rank"] == time_event["rank"]
             ):
                 next_start_template = entry
-        # 4. Create or update time event
+        # Create or update time event
         if len(next_start_template) > 0:
             time_event["next_race"] = next_start_template["next_race"]
             time_event["next_race_id"] = next_start_template["next_race_id"]
@@ -157,19 +158,24 @@ class TimeEventsService:
         # add name and club to time_event
         time_event["name"] = f"{contestant['first_name']} {contestant['last_name']}"
         time_event["club"] = contestant["club"]
-
+        result_ok = False
         if len(time_event["id"]) > 0:
             # update existing time event
             id = await TimeEventsAdapter().update_time_event(
                 token, time_event["id"], time_event
             )
+            result_ok = True
             informasjon += f" Updated time event {id}. "
         else:
-            id = await TimeEventsAdapter().create_time_event(token, time_event)
-            informasjon += f" Created time event {id}. "
-        if time_event["next_race"] != "Ute":
+            new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
+            informasjon += f" Bib {new_t_e['bib']}, result: {new_t_e['status']}. "
+            if new_t_e["status"] == "OK":
+                result_ok = True
+            else:
+                informasjon += f" Error details: {new_t_e['changelog']}"
+        if time_event["next_race"] != "Ute" and result_ok:
             id = await StartAdapter().create_start_entry(token, next_start_entry)
-            informasjon += f" Created start event {id}. "
+            informasjon += f" Start OK {id}. "
 
         return informasjon
 

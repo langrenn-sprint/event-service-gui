@@ -17,8 +17,10 @@ RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
 class TimeEventsAdapter:
     """Class representing time_events."""
 
-    async def create_time_event(self, token: str, time_event: dict) -> int:
-        """Create new time_event function."""
+    async def create_time_event(self, token: str, time_event: dict) -> dict:
+        """Create new time_event function, return new time event."""
+        servicename = "create_time_event"
+        new_time_event = {}
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -32,20 +34,23 @@ class TimeEventsAdapter:
             async with session.post(
                 f"{RACE_SERVICE_URL}/time-events", headers=headers, json=request_body
             ) as resp:
-                if resp.status == 201:
-                    logging.debug(f"time-event - got response {resp}")
+                if resp.status == 200:
+                    new_time_event = await resp.json()
+                    logging.debug(f"time-event - got response {resp}, {new_time_event}")
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
                     logging.error(
-                        f"create_time_event - {resp.status}, {resp} data: {time_event}"
+                        f"create_time_event failed - {resp.status}, {resp} input data: {time_event}"
                     )
                     raise web.HTTPBadRequest(
-                        reason=f"Create time_event failed. Input data: {time_event}"
+                        reason=f"Create time_event failed Error: {resp}. Input data: {time_event}"
                     )
-
-        return resp.status
+        return new_time_event
 
     async def delete_time_event(self, token: str, id: str) -> int:
         """Delete time_event function."""
+        servicename = "delete_time_event"
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -54,22 +59,23 @@ class TimeEventsAdapter:
         )
         url = f"{RACE_SERVICE_URL}/time-events/{id}"
         async with ClientSession() as session:
-            async with session.delete(url, headers=headers) as response:
+            async with session.delete(url, headers=headers) as resp:
                 pass
-            logging.debug(f"Delete time_event: {id} - res {response.status}")
-            if response.status == 204:
-                logging.debug(f"result - got response {response}")
+            logging.debug(f"Delete time_event: {id} - res {resp.status}")
+            if resp.status == 204:
+                logging.debug(f"result - got response {resp}")
+            elif resp.status == 401:
+                raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
             else:
-                logging.error(
-                    f"delete_time_event failed - {response.status}, {response}"
-                )
+                logging.error(f"delete_time_event failed - {resp.status}, {resp}")
                 raise web.HTTPBadRequest(
-                    reason=f"Delete time_event failed {response.status}."
+                    reason=f"Delete time_event failed {resp.status}."
                 )
-        return response.status
+        return resp.status
 
     async def update_time_event(self, token: str, id: str, time_event: dict) -> int:
         """Update time_event function."""
+        servicename = "update_time_event"
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -85,12 +91,14 @@ class TimeEventsAdapter:
             ) as resp:
                 if resp.status == 204:
                     logging.debug(f"update time_event - got response {resp}")
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
                     logging.error(
                         f"update_time_event failed - {resp.status} input data: {time_event}"
                     )
                     raise web.HTTPBadRequest(
-                        reason=f"Update time_event - {resp.status} data: {time_event}."
+                        reason=f"Update time_event failed - {resp.status} input data: {time_event}."
                     )
             logging.debug(f"Updated time_event: {id} - res {resp.status}")
         return resp.status

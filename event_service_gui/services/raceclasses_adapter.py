@@ -20,6 +20,7 @@ class RaceclassesAdapter:
         self, token: str, event_id: str, request_body: dict
     ) -> str:
         """Create new raceclass function."""
+        servicename = "create_raceclass"
         id = ""
         headers = MultiDict(
             [
@@ -38,8 +39,9 @@ class RaceclassesAdapter:
                     logging.debug(f"create raceclass - got response {resp}")
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "create_raceclass"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -50,6 +52,7 @@ class RaceclassesAdapter:
 
     async def delete_all_raceclasses(self, token: str, event_id: str) -> str:
         """Delete all raceclasses in one event function."""
+        servicename = "delete_all_raceclasses"
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
@@ -63,8 +66,9 @@ class RaceclassesAdapter:
                 logging.debug(f"delete all result - got response {resp}")
                 if res == 204:
                     pass
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "delete_all_raceclasses"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -76,6 +80,7 @@ class RaceclassesAdapter:
         self, token: str, event_id: str, raceclass_id: str
     ) -> str:
         """Delete one raceclass function."""
+        servicename = "delete_raceclass"
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
@@ -89,8 +94,9 @@ class RaceclassesAdapter:
                 logging.debug(f"delete result - got response {resp}")
                 if res == 204:
                     pass
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "delete_raceclass"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -161,6 +167,7 @@ class RaceclassesAdapter:
         self, token: str, event_id: str, id: str, new_data: dict
     ) -> int:
         """Update klasser function."""
+        servicename = "update_raceclass"
         returncode = 201
         headers = MultiDict(
             [
@@ -178,8 +185,9 @@ class RaceclassesAdapter:
                 logging.debug(f"update_raceclass - got response {resp.status}")
                 if resp.status == 204:
                     pass
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "update_raceclass"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(

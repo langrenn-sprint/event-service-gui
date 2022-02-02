@@ -18,6 +18,7 @@ class StartAdapter:
 
     async def generate_startlist_for_event(self, token: str, event_id: str) -> str:
         """Generate new start_list function."""
+        servicename = "generate_startlist_for_event"
         informasjon = ""
         headers = MultiDict(
             [
@@ -36,6 +37,8 @@ class StartAdapter:
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
                     informasjon = f"Suksess! Opprettet startlister. Id: {id}"
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
                     logging.error(
                         f"generate_startlist_for_event failed - {resp.status}"
@@ -50,6 +53,7 @@ class StartAdapter:
         self, token: str, race_id: str, start_entry_id: str
     ) -> str:
         """Delete one start_entry function."""
+        servicename = "delete_start_entry"
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
@@ -63,8 +67,9 @@ class StartAdapter:
                 logging.debug(f"delete result - got response {resp}")
                 if res == 204:
                     pass
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "delete_start_entry"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -220,6 +225,7 @@ class StartAdapter:
 
     async def create_start_entry(self, token: str, new_start: dict) -> int:
         """Add one start to the start_list."""
+        servicename = "create_start_entry"
         headers = {
             hdrs.CONTENT_TYPE: "application/json",
             hdrs.AUTHORIZATION: f"Bearer {token}",
@@ -235,9 +241,8 @@ class StartAdapter:
                 if resp.status == 201:
                     pass
                 elif resp.status == 401:
-                    raise Exception(f"Login expired: {resp}")
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "create_start_entry"
                     body = await resp.json()
                     logging.error(
                         f"{servicename} failed - {resp.status} - {body} {new_start}"
@@ -249,6 +254,7 @@ class StartAdapter:
 
     async def update_start_entry(self, token: str, id: str, new_start: dict) -> int:
         """Update one start in the start_list."""
+        servicename = "update_start_entry"
         headers = {
             hdrs.CONTENT_TYPE: "application/json",
             hdrs.AUTHORIZATION: f"Bearer {token}",
@@ -264,9 +270,8 @@ class StartAdapter:
                 if resp.status == 201:
                     pass
                 elif resp.status == 401:
-                    raise Exception(f"Login expired: {resp}")
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    servicename = "update_start_entry"
                     body = await resp.json()
                     logging.error(
                         f"{servicename} failed - {resp.status} - {body} {new_start}"

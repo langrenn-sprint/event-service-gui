@@ -24,6 +24,7 @@ class UserAdapter:
         cookiestorage: Session,
     ) -> str:
         """Create user function."""
+        servicename = "create_user"
         id = ""
         request_body = {
             "role": role,
@@ -44,6 +45,8 @@ class UserAdapter:
                     logging.debug(f"create user - got response {resp}")
                     location = resp.headers[hdrs.LOCATION]
                     id = location.split(os.path.sep)[-1]
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
                     logging.error(f"create_user failed - {resp.status}")
                     raise web.HTTPBadRequest(reason="Create user failed.")
@@ -52,6 +55,7 @@ class UserAdapter:
 
     async def delete_user(self, token: str, id: str) -> int:
         """Delete user function."""
+        servicename = "delete_user"
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -60,15 +64,17 @@ class UserAdapter:
         )
         url = f"{USER_SERVICE_URL}/users/{id}"
         async with ClientSession() as session:
-            async with session.delete(url, headers=headers) as response:
+            async with session.delete(url, headers=headers) as resp:
                 pass
-            logging.info(f"Delete user: {id} - res {response.status}")
-            if response.status == 204:
-                logging.debug(f"result - got response {response}")
+            logging.info(f"Delete user: {id} - res {resp.status}")
+            if resp.status == 204:
+                logging.debug(f"result - got response {resp}")
+            elif resp.status == 401:
+                raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
             else:
-                logging.error(f"delete_user failed - {response.status}, {response}")
+                logging.error(f"delete_user failed - {resp.status}, {resp}")
                 raise web.HTTPBadRequest(reason="Delete user failed.")
-        return response.status
+        return resp.status
 
     async def get_all_users(self, token: str) -> List:
         """Get all users function."""
@@ -88,8 +94,6 @@ class UserAdapter:
                 if resp.status == 200:
                     users = await resp.json()
                     logging.debug(f"users - got response {users}")
-                elif resp.status == 401:
-                    raise Exception(f"Login expired: {resp}")
                 else:
                     logging.error(f"Error {resp.status} getting users: {resp} ")
         return users
