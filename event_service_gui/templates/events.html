@@ -92,16 +92,6 @@
           <td>Kort tekst med nøkkelinformasjon</td>
         </tr>
         <tr>
-          <td width=150>Tid mellom heat</td>
-          <td><input type=text name=time_between_rounds value=""></td>
-          <td>Tid i sekunder.</td>
-        </tr>
-        <tr>
-          <td>Tid mellom runder</td>
-          <td><input type=text name=time_between_heats value=""></td>
-          <td>Sekunder. Standard tid mellom siste start i en runde og første i påfølgende.</td>
-        </tr>
-        <tr>
             <td></td>
             <td>
               <input type="submit" name=create_manual value="  Opprett  ">
@@ -180,6 +170,11 @@
                     <td>Tid mellom runder</td>
                     <td><input type=text name=time_between_heats value="{{ event.time_between_heats }}"></td>
                     <td>Sekunder. Standard tid mellom siste start i en runde og første i påfølgende.</td>
+                  </tr>
+                  <tr>
+                    <td>Løpere pr heat</td>
+                    <td><input type=text name=max_no_of_contestants_in_race value="{{ event.max_no_of_contestants_in_race }}"></td>
+                    <td>Maksimalt antall løpere pr heat.</td>
                   </tr>
                 {% endif %}
               </table>

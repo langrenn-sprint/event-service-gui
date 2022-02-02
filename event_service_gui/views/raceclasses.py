@@ -178,7 +178,6 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
             "ageclasses": merged_ageclasses,
             "no_of_contestants": no_of_contestants,
         }
-        breakpoint()
         result = await RaceclassesAdapter().update_raceclass(
             user["token"], event_id, old_raceclasses[0]["id"], request_body
         )

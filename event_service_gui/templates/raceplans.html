@@ -31,6 +31,24 @@
 {% endblock %}
 {% block content %}
   <div id=spacer></div>
+  <table>
+    <tr>
+      <td></td>
+      <td width=150 align=center>
+        <ul>
+          <li class=dropdown>
+            <a href=javascript:void(0) class=dropbtn>Utskrift</a>
+            <div class=dropdown-content>
+                <a id="myPrint" target=_new onclick="result_gui_href('myPrint', 'print_lists?event_id={{ event_id }}&action=raceplan')" href=>Alle</a>
+              {% for klasse in raceclasses %}
+                  <a id="myPrint{{ klasse.name}}" target=_new onclick="result_gui_href('myPrint{{ klasse.name}}', 'print_lists?klasse={{ klasse.name }}&event_id={{ event_id }}&action=raceplan')" href=>{{ klasse.name}}</a>
+              {% endfor %}
+            </div>
+          </li>
+        </ul>
+      </td>
+    </tr>
+  </table>
 
   <! --- Edit menu --->
   {% if  action == "edit_mode" %}

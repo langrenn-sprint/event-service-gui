@@ -195,7 +195,9 @@ class EventsAdapter:
                     event["time_between_groups"] = format["time_between_groups"]
                     event["time_between_rounds"] = format["time_between_rounds"]
                     event["time_between_heats"] = format["time_between_heats"]
-                    event["max_no_of_contestants"] = format["max_no_of_contestants"]
+                    event["max_no_of_contestants_in_race"] = format[
+                        "max_no_of_contestants_in_race"
+                    ]
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),

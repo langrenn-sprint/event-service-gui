@@ -82,8 +82,6 @@ class Events(web.View):
                     "organiser": form["organiser"],
                     "webpage": form["webpage"],
                     "information": form["information"],
-                    "time_between_heats": form["time_between_heats"],
-                    "time_between_rounds": form["time_between_rounds"],
                 }
                 event_id = await EventsAdapter().create_event(
                     user["token"], request_body
@@ -105,6 +103,9 @@ class Events(web.View):
                     "information": form["information"],
                     "time_between_heats": form["time_between_heats"],
                     "time_between_rounds": form["time_between_rounds"],
+                    "max_no_of_contestants_in_race": form[
+                        "max_no_of_contestants_in_race"
+                    ],
                     "id": event_id,
                 }
                 res = await EventsAdapter().update_event(
