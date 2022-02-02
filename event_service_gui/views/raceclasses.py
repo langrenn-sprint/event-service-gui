@@ -111,7 +111,7 @@ class Raceclasses(web.View):
                     "id": id,
                     "group": int(form["group"]),  # type: ignore
                     "order": int(form["order"]),  # type: ignore
-                    "ageclass": [str(form["ageclass"])],
+                    "ageclasses": [str(form["ageclass"])],
                     "no_of_contestants": str(form["no_of_contestants"]),
                 }
                 result = await RaceclassesAdapter().update_raceclass(
