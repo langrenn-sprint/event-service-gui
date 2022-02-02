@@ -68,7 +68,7 @@ class Raceclasses(web.View):
         user = await check_login(self)
 
         informasjon = ""
-        action = ""
+        action = "edit_mode"
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
@@ -92,9 +92,11 @@ class Raceclasses(web.View):
                 informasjon = await EventsAdapter().generate_classes(
                     user["token"], event_id
                 )
-                informasjon += " Velg funksjonen slå sammen klasser for å redigere."
+                informasjon += (
+                    " Neste steg: Velg slå sammen klasser eller bestem statrekkefølge."
+                )
                 return web.HTTPSeeOther(
-                    location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
+                    location=f"/raceclasses?event_id={event_id}&action=edit_mode&informasjon={informasjon}"
                 )
             elif "merge_ageclasses" in form.keys():
                 informasjon = await merge_ageclasses(user, event_id, form)  # type: ignore
@@ -133,7 +135,7 @@ class Raceclasses(web.View):
                         logging.info(
                             f"New race_class: {race_class}- update result {result}"
                         )
-                informasjon = "Rekkefølgen er oppdatert."
+                informasjon = "Rekkefølgen er oppdatert. Neste steg: Startnummer."
                 return web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
