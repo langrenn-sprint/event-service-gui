@@ -112,7 +112,7 @@ class Raceclasses(web.View):
                     "group": int(form["group"]),  # type: ignore
                     "order": int(form["order"]),  # type: ignore
                     "ageclasses": [str(form["ageclass"])],
-                    "no_of_contestants": str(form["no_of_contestants"]),
+                    "no_of_contestants": int(form["no_of_contestants"]),
                 }
                 result = await RaceclassesAdapter().update_raceclass(
                     user["token"], event_id, id, request_body
@@ -158,6 +158,7 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
     old_raceclasses = []
     merged_ageclasses = []
     no_of_contestants = 0
+    breakpoint()
     # get classes to be merged
     for x in form.keys():
         if x.startswith("ageclass_"):

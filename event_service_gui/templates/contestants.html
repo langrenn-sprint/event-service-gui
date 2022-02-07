@@ -121,7 +121,6 @@
             <td>Født</td>
             <td></td>
             <td>Klasse</td>
-            <td>Team</td>
             <td>Region</td>
             <td>Idrettsnr</td>
           </tr>
@@ -143,11 +142,10 @@
                 </td>
               {% endif %}
               <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
-              <td>{{ contestant.club }}</td>
+              <td>{{ contestant.club }}{% if contestant.team %} / {{ contestant.team }}{% endif %}</td>
               <td>{{ contestant.birth_date }}</td>
               <td>{{ contestant.gender }}</td>
               <td>{{ contestant.ageclass }}</td>
-              <td>{{ contestant.team }}</td>
               <td>{{ contestant.region }}</td>
               <td>{{ contestant.minidrett_id }}</td>
             </tr>
@@ -343,16 +341,14 @@
           <td>Navn</td>
           <td>Klubb</td>
           <td>Klasse</td>
-          <td>Team</td>
           <td>Region</td>
         </tr>
           {% for contestant in contestants %}
             <tr>
               <td>{{ contestant.bib }}</td>
               <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
-              <td>{{ contestant.club }}</td>
+              <td>{{ contestant.club }}{% if contestant.team %} / {{ contestant.team }}{% endif %}</td>
               <td>{{ contestant.ageclass }}</td>
-              <td>{{ contestant.team }}</td>
               <td>{{ contestant.region }}</td>
             </tr>
             {% endfor %}

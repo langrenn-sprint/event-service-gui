@@ -26,7 +26,6 @@
           <td>Navn</td>
           <td>Klubb</td>
           <td>Klasse</td>
-          <td>Team</td>
           <td>Region</td>
         </tr>
         {% for loper in contestants %}
@@ -34,9 +33,8 @@
             <tr>
               <td>{{ loper.bib }}</td>
               <td>{{ loper.first_name }} {{ loper.last_name }}</td>
-              <td>{{ loper.club }}</td>
+              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
               <td>{{ loper.ageclass }}</td>
-              <td>{{ loper.team }}</td>
               <td>{{ loper.region }}</td>
             </tr>
           {% endif %}
@@ -60,7 +58,6 @@
           <td>Navn</td>
           <td>Klubb</td>
           <td>Klasse</td>
-          <td>Team</td>
           <td>Region</td>
         </tr>
         {% for loper in contestants %}
@@ -68,9 +65,8 @@
             <tr>
               <td>{{ loper.bib }}</td>
               <td>{{ loper.first_name }} {{ loper.last_name }}</td>
-              <td>{{ loper.club }}</td>
+              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
               <td>{{ loper.ageclass }}</td>
-              <td>{{ loper.team }}</td>
               <td>{{ loper.region }}</td>
             </tr>
           {% endif %}
