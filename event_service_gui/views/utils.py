@@ -61,7 +61,11 @@ def get_local_time(format: str, time_zone_offset: int) -> str:
 def get_qualification_text(race: dict) -> str:
     """Generate a text with info about qualification rules."""
     text = ""
-    if race["datatype"] == "individual_sprint":
+    if race["round"] == "R1":
+        text = "Alle til runde 2"
+    elif race["round"] == "R2":
+        text = ""
+    else:
         for key, value in race["rule"].items():
             if key == "S":
                 for x, y in value.items():
@@ -81,6 +85,9 @@ def get_qualification_text(race: dict) -> str:
                         text += "Resten til finale C. "
                     elif x == "C":
                         text += f"{y} til finale C. "
+                if text.count("Resten") == 0:
+                    text += "Resten er ute. "
+    logging.debug(f"Regel hele: {text}")
     return text
 
 

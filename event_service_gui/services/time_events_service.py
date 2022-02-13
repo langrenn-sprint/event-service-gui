@@ -50,7 +50,7 @@ class TimeEventsService:
             informasjon = f"{informasjon} Ingen kjøreplaner funnet."
         else:
             for race in races:
-                if race["round"] != "F":
+                if race["round"] in ["Q", "S"]:
                     time_event[
                         "race"
                     ] = f"{race['raceclass']}-{race['round']}{race['index']}{race['heat']}"
