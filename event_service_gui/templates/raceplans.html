@@ -165,6 +165,10 @@
               Semifinale {{ race.index }}{{ race.heat }}
             {% elif race.round == "F" %}
               Finale {{ race.index }}
+            {% elif race.round == "R1" %}
+              Runde 1
+            {% elif race.round == "R2" %}
+              Runde 2
             {% endif %}
           </td>
           <td>{{ race.no_of_contestants }}</td>

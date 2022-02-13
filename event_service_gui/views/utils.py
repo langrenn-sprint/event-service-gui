@@ -96,10 +96,10 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
         for race in reversed(races):
             if race["raceclass"] == raceclass["name"]:
                 if race["datatype"] == "individual_sprint":
-                    if race["round"] == "Q":
+                    if race["round"] in ["Q", "R1"]:
                         class_summary["timeQ"] = race["start_time"][-8:]
                         class_summary["orderQ"] = race["order"]
-                    elif race["round"] == "S":
+                    elif race["round"] in ["S", "R2"]:
                         class_summary["timeS"] = race["start_time"][-8:]
                         class_summary["orderS"] = race["order"]
                     elif race["round"] == "F":
