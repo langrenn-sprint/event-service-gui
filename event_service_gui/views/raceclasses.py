@@ -143,9 +143,9 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
             "distance": old_raceclasses[0]["distance"],
             "event_id": event_id,
             "id": old_raceclasses[0]["id"],
-            "group": None,
-            "order": None,
-            "avoid_results": False,
+            "group": old_raceclasses[0]["group"],
+            "order": old_raceclasses[0]["order"],
+            "ranking": old_raceclasses[0]["ranking"],
             "ageclasses": merged_ageclasses,
             "no_of_contestants": no_of_contestants,
         }
@@ -171,10 +171,10 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
     """Extract form data and perform update ageclass."""
     id = str(form["id"])
     try:
-        if form["avoid_results"] == "on":
-            avoid_results = True
+        if form["ranking"] == "on":
+            ranking = True
     except Exception:
-        avoid_results = False
+        ranking = False
     request_body = {
         "name": str(form["name"]),
         "distance": str(form["distance"]),
@@ -182,7 +182,7 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
         "id": id,
         "group": int(form["group"]),  # type: ignore
         "order": int(form["order"]),  # type: ignore
-        "avoid_results": avoid_results,
+        "ranking": ranking,
         "ageclasses": [str(form["ageclass"])],
         "no_of_contestants": int(form["no_of_contestants"]),  # type: ignore
     }
@@ -206,10 +206,10 @@ async def update_order(user: dict, event_id: str, form: dict) -> str:
             race_class["group"] = igroup
             race_class["order"] = iorder
             try:
-                if form[f"avoid_results_{id}"] == "on":
-                    race_class["avoid_results"] = True
+                if form[f"ranking_{id}"] == "on":
+                    race_class["ranking"] = True
             except Exception:
-                race_class["avoid_results"] = False
+                race_class["ranking"] = False
             result = await RaceclassesAdapter().update_raceclass(
                 user["token"], event_id, id, race_class
             )

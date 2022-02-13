@@ -59,7 +59,7 @@
           <td>Løpsklasse</td>
           <td>Startgruppe</td>
           <td>Startrekkefølge</td>
-          <td>Uten resultater</td>
+          <td>Rangering</td>
           <td>Deltakere</td>
           <td></td>
           <td></td>
@@ -75,7 +75,7 @@
               <td>{{ klasse.name }}</td>
               <td>{{ klasse.group }}</td>
               <td>{{ klasse.order }}</td>
-              <td>{{ klasse.avoid_results }}</td>
+              <td>{{ klasse.ranking }}</td>
               <td>{{ klasse.no_of_contestants }}</td>
               <td>
                 <form action=/raceclasses method=get>
@@ -108,7 +108,7 @@
               <td>Løpsklasse</td>
               <td>Startgruppe</td>
               <td>Startrekkefølge</td>
-              <td>Uten resultater</td>
+              <td>Rangering</td>
               <td>Deltakere</td>
             </tr>
             {% for klasse in raceclasses %}
@@ -127,7 +127,7 @@
                     <input type=number name="order_{{ klasse.id }}" value="{{ klasse.order }}" min="1" max="99" size=5>
                     <input type="hidden" name="id_{{ klasse.id }}" value="{{ klasse.id }}">
                   </td>
-                  <td><input type=checkbox name="avoid_results_{{ klasse.id }}" {% if klasse.avoid_results %}checked{% endif %}></td>
+                  <td><input type=checkbox name="ranking_{{ klasse.id }}" {% if klasse.ranking %}checked{% endif %}></td>
                   <td>{{ klasse.no_of_contestants }}</td>
                 </tr>
             {% endfor %}
@@ -150,7 +150,7 @@
                 <td>Løpsklasse</td>
                 <td>Startgruppe</td>
                 <td>Startrekkefølge</td>
-                <td>Uten resultater</td>
+                <td>Rangering</td>
                 <td>Deltakere</td>
               </tr>
               {% for klasse in raceclasses %}
@@ -165,7 +165,7 @@
                     <td>{{ klasse.name }}</td>
                     <td>{{ klasse.group }}</td>
                     <td>{{ klasse.order }}</td>
-                    <td>{{ klasse.avoid_results }}</td>
+                    <td>{{ klasse.ranking }}</td>
                     <td>{{ klasse.no_of_contestants }}</td>
                   </tr>
               {% endfor %}
@@ -221,8 +221,8 @@
               <td></td>
             </tr>
             <tr>
-              <td>Uten resultater</td>
-              <td><input type=checkbox name="avoid_results" {% if klasse.avoid_results %}checked{% endif %}></td>
+              <td>Rangering</td>
+              <td><input type=checkbox name="ranking" {% if klasse.ranking %}checked{% endif %}></td>
               <td></td>
             </tr>
             <tr>
@@ -251,7 +251,7 @@
         <td>Løpsklasse</td>
         <td>Startgruppe</td>
         <td>Startrekkefølge</td>
-        <td>Uten resultater</td>
+        <td>Rangering</td>
         <td>Deltakere</td>
       </tr>
       {% for klasse in raceclasses %}
@@ -265,7 +265,7 @@
             <td>{{ klasse.name }}</td>
             <td>{{ klasse.group }}</td>
             <td>{{ klasse.order }}</td>
-            <td>{{ klasse.avoid_results }}</td>
+            <td>{{ klasse.ranking }}</td>
             <td>{{ klasse.no_of_contestants }}</td>
           </tr>
       {% endfor %}
