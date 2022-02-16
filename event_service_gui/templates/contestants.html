@@ -54,10 +54,14 @@
         </tr>
         <tr>
           <td colspan=2>
-            To typer filer aksepteres:<br>
-            1. Deltakerliste Excel lastes ned fra Sportsadmin og lagres som kommaseparert (csv) fil.<br>
-            2. Fra "gammelt excel-skjema", krever 'excel_manual' i filnavnet. Lagre som csv fil og importer<br>
-            Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.
+            Filetyper som aksepteres:<br>
+            <b>1. Deltakerliste Excel</b> lastes ned fra Sportsadmin og lagres som kommaseparert (csv) fil.<br>
+            &nbsp;&nbsp;&nbsp;Tips: Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.<br>
+            <b>2. Fra "gammelt excel-skjema"</b>, krever 'excel_manual' i filnavnet. Lagre som csv fil og importer<br>
+            &nbsp;&nbsp;&nbsp;Tips: Headere i filen som støttes er Startnr, Navn, Klasse, Krets, Klubb, Seedet<br>
+            <b>3. Seeding</b> - fra csv fil med "seeding_manual" i filnavnet<br>
+            &nbsp;&nbsp;&nbsp;Nøkkel er idretts_id og ranking er et tall der lave nummer er det beste. Løpere uten seeding informasjon rangeres sist. Merk at dette krever at deltakeren allerede er opprettet.<br>
+            &nbsp;&nbsp;&nbsp;Tips: Headere i filen som støttes er Idrettnr og Seedet <br>
           </td>
         </tr>
         <tr id=spacer></tr>
@@ -89,6 +93,13 @@
             <td>
               <form action=/contestants method=get>
                 <input type="hidden" name=event_id value="{{ event_id }}">
+                <input type="hidden" name=action value="seeding">
+                <input type="submit" name=seeding value="  Seeding  ">
+              </form>
+            </td>
+            <td>
+              <form action=/contestants method=get>
+                <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="delete_select">
                 <input type="submit" name=delete_select value="  Slett deltakere  ">
               </form>
@@ -103,7 +114,7 @@
         </table>
 
     {% endif %}
-    {% if  action == "edit_mode" or action == "delete_select" %}
+    {% if  action in ["edit_mode", "seeding", "delete_select"] %}
         <div id=spacer>&nbsp;</div>
         {% if action == "delete_select" %}
           <form action=/contestants method=post>
@@ -111,10 +122,17 @@
             &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
           </div>
           <div id=spacer>&nbsp;</div>
+        {% elif action == "seeding" %}
+          <form action=/contestants method=post>
+          <div>
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Oppdater  ">
+          </div>
+          <div id=spacer>&nbsp;</div>
         {% endif %}
         <table>
           <tr id=headerblue>
             <td>Startnr</td>
+            <td>Seeding</td>
             <td></td>
             <td>Navn</td>
             <td>Klubb</td>
@@ -126,8 +144,9 @@
           </tr>
           {% for contestant in contestants %}
             <tr>
-              <td>{{ contestant.bib }}</td>
               {% if  action == "edit_mode"%}
+                <td>{{ contestant.bib }}</td>
+                <td>{{ contestant.seeding_points }}</td>
                 <td>
                   <form action=/contestants method=get>
                     <input type="submit" name=update_one value="  Rediger  ">
@@ -136,7 +155,20 @@
                     <input type="hidden" name="event_id" value="{{ event_id }}">
                   </form>
                 </td>
+              {% elif  action == "seeding"%}
+                <td>
+                  <input type=number name="bib_{{ contestant.id }}" value="{{ contestant.bib }}" min="1" max="9999" size=4>
+                  <input type="hidden" name="id_{{ contestant.id }}" value="{{ contestant.id }}">
+                  <input type="hidden" name="old_bib_{{ contestant.id }}" value="{{ contestant.bib }}">
+                </td>
+                <td>
+                  <input type=number name="seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4>
+                  <input type="hidden" name="old_seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}">
+                </td>
+                <td></td>
               {% else %}
+                <td>{{ contestant.bib }}</td>
+                <td>{{ contestant.seeding_points }}</td>
                 <td>
                   <input type="checkbox" name="slett_{{ contestant.bib }}" value="{{ contestant.id }}">
                 </td>
@@ -150,15 +182,22 @@
               <td>{{ contestant.minidrett_id }}</td>
             </tr>
           {% endfor %}
-      </table>
-      {% if action == "delete_select" %}
-        <div>
-          &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
-          <input type="hidden" name=action value="delete select">
-          <input type="hidden" name="event_id" value="{{ event_id }}">
-        </div>
-        </form>
-      {% endif %}
+        </table>
+        {% if action == "delete_select" %}
+          <div>
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
+            <input type="hidden" name=action value="delete select">
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+          </div>
+          </form>
+        {% elif action == "seeding" %}
+          <div>
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Oppdater  ">
+            <input type="hidden" name=action value="seeding">
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+          </div>
+          </form>
+        {% endif %}
       {% elif action == "new_manual" %}
         <div id=spacer></div>
         <form action=/contestants method=post>
@@ -225,6 +264,11 @@
             <tr>
               <td>Startnummer</td>
               <td><input type=number name="bib" value="" min="1" max="9999" size=4></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Seeding</td>
+              <td><input type=number name="seeding_points" value="" min="1" max="9999" size=4></td>
               <td></td>
             </tr>
             <tr>
@@ -313,6 +357,11 @@
               <tr>
                 <td>Startnummer</td>
                 <td><input type=text name="bib" value="{{ contestant.bib }}"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Seeding</td>
+                <td><input type=number name="seeding_points" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4></td>
                 <td></td>
               </tr>
               <tr>

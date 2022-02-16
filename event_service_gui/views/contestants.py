@@ -119,6 +119,10 @@ class Contestants(web.View):
                     informasjon = await create_contestants_from_excel(
                         user["token"], event_id, text_file
                     )
+                elif "seeding_manual" in file.filename:  # type: ignore
+                    informasjon = await add_seeding_from_excel(
+                        user["token"], event_id, text_file
+                    )
                 elif file.content_type in allowed_filetypes:  # type: ignore
                     resp = await ContestantsAdapter().create_contestants(
                         user["token"], event_id, text_file
@@ -129,51 +133,32 @@ class Contestants(web.View):
                 return web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
-
-            elif "create_one" in form.keys() or "update_one" in form.keys():
+            elif "create_one" in form.keys():
+                informasjon = await create_one_contestant(user["token"], event_id, form)  # type: ignore
+            elif "update_one" in form.keys():
                 request_body = get_contestant_from_form(event_id, form)  # type: ignore
-                if "create_one" in form.keys():
-                    id = await ContestantsAdapter().create_contestant(
-                        user["token"], event_id, request_body
-                    )
-                    logging.debug(f"Etteranmelding {id}")
-                    informasjon = (
-                        f"Deltaker med startnr {request_body['bib']} er lagt til."
-                    )
-                    informasjon += " Plasser løper i ønsket heat."
-                    raceclasses = await RaceclassesAdapter().get_raceclasses(
-                        user["token"], event_id
-                    )
-                    for raceclass in raceclasses:
-                        if request_body["ageclass"] in raceclass["ageclasses"]:
-                            klasse = raceclass["name"]
-                            info = f"klasse={klasse}&event_id={event_id}"
-                            info += f"&informasjon={informasjon}"
-                            url = f"{form['url']}/start_edit?{info}"  # type: ignore
-                            return web.HTTPSeeOther(location=url)
-                else:
-                    request_body["id"] = str(form["id"])
-                    result = await ContestantsAdapter().update_contestant(
-                        user["token"], event_id, request_body
-                    )
-                    informasjon = f"Informasjon er oppdatert - {result}"
-            # delete
+                request_body["id"] = str(form["id"])
+                result = await ContestantsAdapter().update_contestant(
+                    user["token"], event_id, request_body
+                )
+                informasjon = f"Informasjon er oppdatert - {result}"
             elif "delete_select" in form.keys():
                 informasjon = "Sletting utført: "
                 for key in form.keys():
                     if key.startswith("slett_"):
-                        customer_id = str(form[key])
+                        contestant_id = str(form[key])
                         result = await ContestantsAdapter().delete_contestant(
-                            user["token"], event_id, customer_id
+                            user["token"], event_id, contestant_id
                         )
                         informasjon += f"{key} "
-
-            # delete_all
             elif "delete_all" in form.keys():
                 result = await ContestantsAdapter().delete_all_contestants(
                     user["token"], event_id
                 )
                 informasjon = f"Deltakerne er slettet - {result}"
+            elif "seeding" in form.keys():
+                informasjon = await add_seeding_from_form(user["token"], event_id, form)  # type: ignore
+
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
@@ -185,6 +170,26 @@ class Contestants(web.View):
 
         info = f"action={action}&informasjon={informasjon}"
         return web.HTTPSeeOther(location=f"/contestants?event_id={event_id}&{info}")
+
+
+async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
+    """Load contestants from form."""
+    informasjon = ""
+    request_body = get_contestant_from_form(event_id, form)  # type: ignore
+    if "create_one" in form.keys():
+        id = await ContestantsAdapter().create_contestant(token, event_id, request_body)
+        logging.debug(f"Etteranmelding {id}")
+        informasjon = f"Deltaker med startnr {request_body['bib']} er lagt til."
+        informasjon += " Plasser løper i ønsket heat."
+        raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
+        for raceclass in raceclasses:
+            if request_body["ageclass"] in raceclass["ageclasses"]:
+                klasse = raceclass["name"]
+                info = f"klasse={klasse}&event_id={event_id}"
+                info += f"&informasjon={informasjon}"
+                url = f"{form['url']}/start_edit?{info}"  # type: ignore
+                return web.HTTPSeeOther(location=url)  # type: ignore
+    return informasjon
 
 
 def get_contestant_from_form(event_id: str, form: dict) -> dict:
@@ -210,6 +215,70 @@ def get_contestant_from_form(event_id: str, form: dict) -> dict:
     return contestant
 
 
+async def add_seeding_from_form(token: str, event_id: str, form: dict) -> str:
+    """Load seeding info from form."""
+    informasjon = "Seeding oppdatert: "
+    for key in form.keys():
+        if key.startswith("id_"):
+            contestant_id = str(form[key])
+            contestant = await ContestantsAdapter().get_contestant(
+                token, event_id, contestant_id
+            )
+            info_changed = False
+            bib = form[f"bib_{contestant_id}"]
+            old_bib = form[f"old_bib_{contestant_id}"]
+            if bib.isnumeric() and old_bib != bib:
+                contestant["bib"] = int(bib)
+                info_changed = True
+            seeding = form[f"seeding_points_{contestant_id}"]
+            old_seeding = form[f"old_seeding_points_{contestant_id}"]
+            if seeding.isnumeric() and old_seeding != seeding:
+                contestant["seeding_points"] = int(seeding)
+                info_changed = True
+            if info_changed:
+                result = await ContestantsAdapter().update_contestant(
+                    token, event_id, contestant
+                )
+                informasjon += f"{result} "
+    return informasjon
+
+
+async def add_seeding_from_excel(token: str, event_id: str, file) -> str:
+    """Load seeding info from excel-file."""
+    informasjon = ""
+    index_row = 0
+    headers = {}
+    i_contestants = 0
+    contestants = await ContestantsAdapter().get_all_contestants(token, event_id)
+    for oneline in file.readlines():
+        index_row += 1
+        str_oneline = str(oneline)
+        str_oneline = str_oneline.replace("b'", "")
+        elements = str_oneline.split(";")
+        # identify headers
+        if index_row == 1:
+            index_column = 0
+            for element in elements:
+                headers[element] = index_column
+                index_column += 1
+        else:
+            minidrett_id = elements[headers["Idrettnr"]]
+            if minidrett_id and len(minidrett_id) > 0:
+                for contestant in contestants:
+                    if contestant["minidrett_id"] == minidrett_id:
+                        contestant["seeding_points"] = elements[headers["Seedet"]]
+                        result = await ContestantsAdapter().update_contestant(
+                            token, event_id, contestant
+                        )
+                        logging.debug(
+                            f"Added seeding for contestant {contestant['id']} - {result}"
+                        )
+                        i_contestants += 1
+                        break
+        informasjon = f"Deltakere er opprettet - {i_contestants} totalt"
+    return informasjon
+
+
 async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
     """Load contestants from excel-file."""
     informasjon = ""
@@ -228,7 +297,7 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
                 headers[element] = index_column
                 index_column += 1
         else:
-            bib = str(elements[0])
+            bib = elements[headers["Startnr"]]
             if bib.isnumeric():
                 name = elements[headers["Navn"]]
                 all_names = name.split(" ")
@@ -251,6 +320,7 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
                     "club": elements[headers["Klubb"]],
                     "event_id": event_id,
                     "email": "",
+                    "seeding_points": elements[headers["Seedet"]],
                     "team": "",
                     "minidrett_id": "",
                     "bib": int(bib),
