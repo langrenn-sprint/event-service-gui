@@ -119,7 +119,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>5. Deltakere: Startnummer</td>
+            <td>5a. Deltakere: Startnummer</td>
             {% if (task_status.done_5) %}
               <td id=green>Utført</td>
               <td>
@@ -152,6 +152,21 @@
                   <td>{{ task_status.bib_missing}} deltakere mangler startnummer. </td>
                 {% endif %}
             {% endif %}
+          </tr>
+          <tr>
+            <td colspan=3 id=spacer></td>
+          </tr>
+          <tr>
+            <td>5b. Deltakere: Seeding</td>
+              <td>Manuell sjekk</td>
+              <td>
+                <form action=/contestants method=get>
+                  <input type="hidden" name=event_id value="{{ event_id }}">
+                  <input type="hidden" name=action value="seeding">
+                  <input type="submit" name=seeding value="  Utfør seeding  ">
+                </form>
+              </td>
+              <td></td>
           </tr>
           <tr>
             <td colspan=3 id=spacer></td>

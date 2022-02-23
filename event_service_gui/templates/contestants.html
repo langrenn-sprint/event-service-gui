@@ -14,15 +14,15 @@
     <div class=dropdown-content>
       <a href=/contestants?event_id={{ event_id }}&action={{ action }}>Alle</a>
       {% for klasse in raceclasses %}
-        {% for web_name in klasse.ageclass_web %}
-          <a href=/contestants?event_id={{ event_id }}&klasse={{ web_name }}&action={{ action }}>{{ klasse.ageclasses[loop.index0] }}</a>
+        {% for ageclass_name in klasse.ageclasses %}
+          <a href=/contestants?event_id={{ event_id }}&klasse={{ klasse.name }}&action={{ action }}>{{ ageclass_name }}</a>
         {% endfor %}
       {% endfor %}
     </div>
   </li>
   {% if username != "Gjest" %}
     <li id=topborder>
-      <a href=/contestants?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>
+      <a href=/contestants?event_id={{ event_id }}&action=edit_mode&klasse={{ valgt_klasse }} class=dropbtn>Rediger</a>
     </li>
   {% endif %}
 {% endblock %}
@@ -94,6 +94,7 @@
               <form action=/contestants method=get>
                 <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="seeding">
+                <input type="hidden" name=klasse value={{ valgt_klasse }}>
                 <input type="submit" name=seeding value="  Seeding  ">
               </form>
             </td>
@@ -120,12 +121,15 @@
           <form action=/contestants method=post>
           <div>
             &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
+            <input type="hidden" name=action value={{ action }}>
           </div>
           <div id=spacer>&nbsp;</div>
         {% elif action == "seeding" %}
+          <div class="w3-container" id=info>Seeding utføres manuelt ved å "bytte" startnummer. Løpere som er gruppert sammen vil bli satt opp i samme heat når startlister generes.</div>
           <form action=/contestants method=post>
           <div>
             &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Oppdater  ">
+            <input type="hidden" name=klasse value={{ valgt_klasse }}>
           </div>
           <div id=spacer>&nbsp;</div>
         {% endif %}
@@ -181,6 +185,11 @@
               <td>{{ contestant.region }}</td>
               <td>{{ contestant.minidrett_id }}</td>
             </tr>
+            {% if loop.index in heat_separators %}
+              <tr>
+                <td colspan=10>&nbsp;</td>
+              </tr>
+            {% endif %}
           {% endfor %}
         </table>
         {% if action == "delete_select" %}

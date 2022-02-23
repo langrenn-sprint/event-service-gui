@@ -7,6 +7,7 @@ import aiohttp_jinja2
 from event_service_gui.services import (
     ContestantsAdapter,
     RaceclassesAdapter,
+    RaceplansAdapter,
 )
 from .utils import check_login, check_login_open, get_event
 
@@ -16,6 +17,7 @@ class Contestants(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
+        heat_separators = []
         try:
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
@@ -41,11 +43,6 @@ class Contestants(web.View):
             raceclasses = await RaceclassesAdapter().get_raceclasses(
                 user["token"], event_id
             )
-            for klasse in raceclasses:
-                mylist = []
-                for ac_name in klasse["ageclasses"]:
-                    mylist.append(ac_name.replace(" ", "%20"))
-                klasse["ageclass_web"] = mylist
 
             contestant = {}
             try:
@@ -65,10 +62,14 @@ class Contestants(web.View):
                 )
             else:
                 contestants = (
-                    await ContestantsAdapter().get_all_contestants_by_ageclass(
+                    await ContestantsAdapter().get_all_contestants_by_raceclass(
                         user["token"], event_id, valgt_klasse
                     )
                 )
+                heat_separators = await get_heat_separators(
+                    user["token"], event_id, valgt_klasse
+                )
+
             return await aiohttp_jinja2.render_template_async(
                 "contestants.html",
                 self.request,
@@ -78,6 +79,7 @@ class Contestants(web.View):
                     "contestant": contestant,
                     "event": event,
                     "event_id": event_id,
+                    "heat_separators": heat_separators,
                     "informasjon": informasjon,
                     "raceclasses": raceclasses,
                     "valgt_klasse": valgt_klasse,
@@ -95,11 +97,12 @@ class Contestants(web.View):
         user = await check_login(self)
 
         informasjon = ""
-        action = ""
+        valgt_klasse = ""
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
             event_id = str(form["event_id"])
+            action = str(form["action"])
 
             # Create new deltakere
             if "assign_bibs" in form.keys():
@@ -158,7 +161,7 @@ class Contestants(web.View):
                 informasjon = f"Deltakerne er slettet - {result}"
             elif "seeding" in form.keys():
                 informasjon = await add_seeding_from_form(user["token"], event_id, form)  # type: ignore
-
+                valgt_klasse = str(form["klasse"])
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
@@ -168,7 +171,7 @@ class Contestants(web.View):
                     location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
                 )
 
-        info = f"action={action}&informasjon={informasjon}"
+        info = f"action={action}&informasjon={informasjon}&klasse={valgt_klasse}"
         return web.HTTPSeeOther(location=f"/contestants?event_id={event_id}&{info}")
 
 
@@ -213,6 +216,18 @@ def get_contestant_from_form(event_id: str, form: dict) -> dict:
         "bib": bib,
     }
     return contestant
+
+
+async def get_heat_separators(token: str, event_id: str, raceclass: str) -> list:
+    """Indicate how many racers that will be placed in same heat."""
+    heat_separators = []
+    races = await RaceplansAdapter().get_races_by_racesclass(token, event_id, raceclass)
+    count = 0
+    for race in races:
+        if race["round"] == "Q":
+            count += race["no_of_contestants"]
+            heat_separators.append(count)
+    return heat_separators
 
 
 async def add_seeding_from_form(token: str, event_id: str, form: dict) -> str:
