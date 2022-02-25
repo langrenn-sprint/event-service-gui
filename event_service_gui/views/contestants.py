@@ -17,6 +17,7 @@ class Contestants(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
+        action = ""
         heat_separators = []
         try:
             event_id = self.request.rel_url.query["event_id"]
@@ -102,7 +103,10 @@ class Contestants(web.View):
             form = await self.request.post()
             logging.debug(f"Form {form}")
             event_id = str(form["event_id"])
-            action = str(form["action"])
+            try:
+                action = str(form["action"])
+            except Exception:
+                action = ""  # noqa: F841
 
             # Create new deltakere
             if "assign_bibs" in form.keys():
