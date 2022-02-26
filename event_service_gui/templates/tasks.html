@@ -119,60 +119,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>5a. Deltakere: Startnummer</td>
-            {% if (task_status.done_5) %}
-              <td id=green>Utført</td>
-              <td>
-                <form action=/print_contestants method=get target=_blank>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="submit" name="print" value=" Skriv ut - pr klasse ">
-                </form>
-                <form action=/print_contestants method=get target=_blank>
-                  <input type="hidden" name="action" value="klubb">
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="submit" name="print" value="  Skriv ut - pr klubb  ">
-                </form>
-              </td>
-              <td>{{ task_status.bib_missing}} deltakere mangler startnummer.</td>
-            {% else %}
-                {% if (task_status.no_of_contestants == task_status.bib_missing) %}
-                  <td id=red>Mangler</td>
-                  <td>
-                    {% if (task_status.done_2) %}
-                      <form action=/contestants method=post>
-                        <input type="hidden" name=event_id value="{{ event_id }}">
-                        <input type="submit" name=assign_bibs value="  Tildel startnummer  ">
-                      </form>
-                    {% endif %}
-                  </td>
-                  <td></td>
-                {% else %}
-                  <td id=orange>Delvis</td>
-                  <td></td>
-                  <td>{{ task_status.bib_missing}} deltakere mangler startnummer. </td>
-                {% endif %}
-            {% endif %}
-          </tr>
-          <tr>
-            <td colspan=3 id=spacer></td>
-          </tr>
-          <tr>
-            <td>5b. Deltakere: Seeding</td>
-              <td>Manuell sjekk</td>
-              <td>
-                <form action=/contestants method=get>
-                  <input type="hidden" name=event_id value="{{ event_id }}">
-                  <input type="hidden" name=action value="seeding">
-                  <input type="submit" name=seeding value="  Utfør seeding  ">
-                </form>
-              </td>
-              <td></td>
-          </tr>
-          <tr>
-            <td colspan=3 id=spacer></td>
-          </tr>
-          <tr>
-            <td>6. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
+            <td>5a. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
             {% if (task_status.done_6) %}
               <td id=green>Utført</td>
               <td>
@@ -200,7 +147,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>7. Kjøreplan: Tilpass tidksjema</td>
+            <td>5b. Kjøreplan: Tilpass tidksjema</td>
             <td>Manuell sjekk</td>
             <td>
               {% if (task_status.done_6) %}
@@ -217,7 +164,60 @@
           <td colspan=3 id=spacer></td>
         </tr>
         <tr>
-          <td>8. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
+          <td>6a. Deltakere: Startnummer</td>
+          {% if (task_status.done_5) %}
+            <td id=green>Utført</td>
+            <td>
+              <form action=/print_contestants method=get target=_blank>
+                <input type="hidden" name="event_id" value="{{ event_id }}">
+                <input type="submit" name="print" value=" Skriv ut - pr klasse ">
+              </form>
+              <form action=/print_contestants method=get target=_blank>
+                <input type="hidden" name="action" value="klubb">
+                <input type="hidden" name="event_id" value="{{ event_id }}">
+                <input type="submit" name="print" value="  Skriv ut - pr klubb  ">
+              </form>
+            </td>
+            <td>{{ task_status.bib_missing}} deltakere mangler startnummer.</td>
+          {% else %}
+              {% if (task_status.no_of_contestants == task_status.bib_missing) %}
+                <td id=red>Mangler</td>
+                <td>
+                  {% if (task_status.done_2) %}
+                    <form action=/contestants method=post>
+                      <input type="hidden" name=event_id value="{{ event_id }}">
+                      <input type="submit" name=assign_bibs value="  Tildel startnummer  ">
+                    </form>
+                  {% endif %}
+                </td>
+                <td></td>
+              {% else %}
+                <td id=orange>Delvis</td>
+                <td></td>
+                <td>{{ task_status.bib_missing}} deltakere mangler startnummer. </td>
+              {% endif %}
+            {% endif %}
+          </tr>
+          <tr>
+            <td colspan=3 id=spacer></td>
+          </tr>
+          <tr>
+            <td>6b. Deltakere: Seeding</td>
+              <td>Manuell sjekk</td>
+              <td>
+                <form action=/contestants method=get>
+                  <input type="hidden" name=event_id value="{{ event_id }}">
+                  <input type="hidden" name=action value="seeding">
+                  <input type="submit" name=seeding value="  Utfør seeding  ">
+                </form>
+              </td>
+              <td></td>
+          </tr>
+          <tr>
+            <td colspan=3 id=spacer></td>
+          </tr>
+        <tr>
+          <td>7a. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
           {% if (task_status.done_8) %}
             <td id=green>Utført</td>
             <td>
@@ -245,7 +245,7 @@
           <td colspan=3 id=spacer></td>
         </tr>
         <tr>
-          <td>9. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="result_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=template')" href=>se/endre</a>)</td>
+          <td>7b. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="result_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=template')" href=>se/endre</a>)</td>
           {% if (task_status.done_9) %}
             <td id=green>Utført</td>
             <td>

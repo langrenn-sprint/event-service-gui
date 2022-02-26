@@ -46,6 +46,7 @@ class Contestants(web.View):
             )
 
             contestant = {}
+            contestants = []
             try:
                 action = self.request.rel_url.query["action"]
                 if action == "update_one":
@@ -58,9 +59,12 @@ class Contestants(web.View):
                 action = ""
 
             if valgt_klasse == "":
-                contestants = await ContestantsAdapter().get_all_contestants(
-                    user["token"], event_id
-                )
+                if action == "":
+                    contestants = await ContestantsAdapter().get_all_contestants(
+                        user["token"], event_id
+                    )
+                else:
+                    informasjon = "Velg klasse for å redigere."
             else:
                 contestants = (
                     await ContestantsAdapter().get_all_contestants_by_raceclass(
@@ -239,27 +243,21 @@ async def add_seeding_from_form(token: str, event_id: str, form: dict) -> str:
     """Load seeding info from form."""
     informasjon = "Seeding oppdatert: "
     for key in form.keys():
-        if key.startswith("id_"):
-            contestant_id = str(form[key])
-            contestant = await ContestantsAdapter().get_contestant(
-                token, event_id, contestant_id
-            )
-            info_changed = False
-            bib = form[f"bib_{contestant_id}"]
-            old_bib = form[f"old_bib_{contestant_id}"]
-            if bib.isnumeric() and old_bib != bib:
-                contestant["bib"] = int(bib)
-                info_changed = True
-            seeding = form[f"seeding_points_{contestant_id}"]
-            old_seeding = form[f"old_seeding_points_{contestant_id}"]
-            if seeding.isnumeric() and old_seeding != seeding:
-                contestant["seeding_points"] = int(seeding)
-                info_changed = True
-            if info_changed:
+        if key.startswith("bib_"):
+            new_bib = form[key]
+            if new_bib.isnumeric():
+                contestant_id = key[4:]
+                contestant = await ContestantsAdapter().get_contestant(
+                    token, event_id, contestant_id
+                )
+                contestant["bib"] = int(new_bib)
                 result = await ContestantsAdapter().update_contestant(
                     token, event_id, contestant
                 )
-                informasjon += f"{result} "
+                logging.debug(result)
+                informasjon += (
+                    f"Oppdatert: {contestant['bib']} {contestant['last_name']}. "
+                )
     return informasjon
 
 
