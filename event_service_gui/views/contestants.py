@@ -141,7 +141,8 @@ class Contestants(web.View):
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
             elif "create_one" in form.keys():
-                informasjon = await create_one_contestant(user["token"], event_id, form)  # type: ignore
+                url = await create_one_contestant(user["token"], event_id, form)  # type: ignore
+                return web.HTTPSeeOther(location=url)  # type: ignore
             elif "update_one" in form.keys():
                 request_body = get_contestant_from_form(event_id, form)  # type: ignore
                 request_body["id"] = str(form["id"])
@@ -181,6 +182,7 @@ class Contestants(web.View):
 
 async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
     """Load contestants from form."""
+    url = ""
     informasjon = ""
     request_body = get_contestant_from_form(event_id, form)  # type: ignore
     if "create_one" in form.keys():
@@ -195,8 +197,7 @@ async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
                 info = f"klasse={klasse}&event_id={event_id}"
                 info += f"&informasjon={informasjon}"
                 url = f"{form['url']}/start_edit?{info}"  # type: ignore
-                return web.HTTPSeeOther(location=url)  # type: ignore
-    return informasjon
+    return url
 
 
 def get_contestant_from_form(event_id: str, form: dict) -> dict:
