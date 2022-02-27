@@ -147,7 +147,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>4b. Kjøreplan: Tilpass tidksjema</td>
+            <td>4b. Kjøreplan: Tilpass tidksjema (<a href=/raceplans?event_id={{ event_id }}&action=edit_time>se/endre</a>)</td>
             <td>Manuell sjekk</td>
             <td>
               {% if (task_status.done_6) %}
@@ -164,7 +164,7 @@
           <td colspan=3 id=spacer></td>
         </tr>
         <tr>
-          <td>5a. Deltakere: Startnummer</td>
+          <td>5a. Deltakere: Startnummer (<a href=/contestants?event_id={{ event_id }}&action=edit_mode>se/endre</a>)</td>
           {% if (task_status.done_5) %}
             <td id=green>Utført</td>
             <td>

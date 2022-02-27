@@ -142,7 +142,7 @@ class Contestants(web.View):
                 else:
                     raise Exception(f"Ugyldig filtype {file.content_type}")  # type: ignore
                 return web.HTTPSeeOther(
-                    location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
+                    location=f"/contestants?event_id={event_id}&informasjon={informasjon}"
                 )
             elif "create_one" in form.keys():
                 url = await create_one_contestant(user["token"], event_id, form)  # type: ignore
@@ -315,38 +315,44 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
                 headers[element] = index_column
                 index_column += 1
         else:
-            bib = elements[headers["Startnr"]]
-            if bib.isnumeric():
-                name = elements[headers["Navn"]]
-                all_names = name.split(" ")
-                first_name = ""
-                last_name = ""
-                i = 0
-                for one_name in all_names:
-                    if i == 0:
-                        first_name = one_name
-                    else:
-                        last_name += one_name + " "
-                    i += 1
-                request_body = {
-                    "first_name": first_name,
-                    "last_name": last_name,
-                    "birth_date": "",
-                    "gender": "",
-                    "ageclass": elements[headers["Klasse"]],
-                    "region": elements[headers["Krets"]],
-                    "club": elements[headers["Klubb"]],
-                    "event_id": event_id,
-                    "email": "",
-                    "seeding_points": elements[headers["Seedet"]],
-                    "team": "",
-                    "minidrett_id": "",
-                    "bib": int(bib),
-                }
-                id = await ContestantsAdapter().create_contestant(
-                    token, event_id, request_body
-                )
-                logging.debug(f"Created contestant {id}")
-                i_contestants += 1
+            name = elements[headers["Navn"]]
+            all_names = name.split(" ")
+            first_name = ""
+            last_name = ""
+            i = 0
+            for one_name in all_names:
+                if i == 0:
+                    first_name = one_name
+                else:
+                    last_name += one_name + " "
+                i += 1
+            request_body = {
+                "first_name": first_name,
+                "last_name": last_name,
+                "birth_date": "",
+                "gender": "",
+                "ageclass": elements[headers["Klasse"]],
+                "club": elements[headers["Klubb"]],
+                "region": elements[headers["Krets"]],
+                "event_id": event_id,
+                "email": "",
+                "team": "",
+                "minidrett_id": "",
+            }
+            try:
+                bib = elements[headers["Startnr"]]
+                if bib.isnumeric():
+                    request_body["bib"] = bib
+            except Exception:
+                logging.debug("Startnr ignored")
+            try:
+                request_body["seeding_points"] = elements[headers["Seedet"]]
+            except Exception:
+                logging.debug("Seeding ignored")
+            id = await ContestantsAdapter().create_contestant(
+                token, event_id, request_body
+            )
+            logging.debug(f"Created contestant {id}")
+            i_contestants += 1
         informasjon = f"Deltakere er opprettet - {i_contestants} totalt"
     return informasjon
