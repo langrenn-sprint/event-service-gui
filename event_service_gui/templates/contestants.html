@@ -28,6 +28,26 @@
 {% endblock %}
 
 {% block content %}
+  <script>
+    function green_bg(my_element) {
+      try {
+        old_element = my_element.oldvalue;
+        document.getElementById(old_element).style.backgroundColor = "";
+      }
+      catch(err) {
+      }
+      try {
+        new_element = my_element.value;
+        document.getElementById(new_element).style.backgroundColor = "green";
+        my_element.style.backgroundColor = "";
+      }
+      catch(err) {
+        if (my_element.value != "") {
+            my_element.style.backgroundColor = "red";
+        }
+      }
+    }
+  </script>
   <table>
     <tr>
       <td>
@@ -171,9 +191,9 @@
                   </form>
                 </td>
               {% elif  action == "seeding"%}
-                <td>{{ contestant.bib }}</td>
+                <td id={{ contestant.bib }}>{{ contestant.bib }}</td>
                 <td>
-                  <input type=number name="bib_{{ contestant.id }}" value="" min="1" max="9999" size=4>
+                  <input type=number name="bib_{{ contestant.id }}" value="" min="1" max="9999" size=4 onfocus="this.oldvalue = this.value;" onchange="green_bg(this)">
                   <input type="hidden" name="id_{{ contestant.id }}" value="{{ contestant.id }}">
                   <input type="hidden" name="old_bib_{{ contestant.id }}" value="{{ contestant.bib }}">
                   <input type=hidden name="seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4>
