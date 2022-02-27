@@ -33,7 +33,12 @@
   <div id=spacer></div>
   <table>
     <tr>
-      <td></td>
+      <td>
+        <form action=/tasks method=get target=new>
+          <input type="hidden" name=event_id value="{{ event_id }}">
+          <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
+        </form>
+      </td>
       <td width=150 align=center>
         <ul>
           <li class=dropdown>
@@ -196,5 +201,14 @@
       </form>
     {% endif %}
   </div>
-
+  <table>
+    <tr>
+      <td>
+        <form action=/tasks method=get target=new>
+          <input type="hidden" name=event_id value="{{ event_id }}">
+          <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
+        </form>
+      </td>
+    </tr>
+  </table>
 {% endblock %}

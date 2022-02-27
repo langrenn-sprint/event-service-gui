@@ -91,7 +91,7 @@ class Raceclasses(web.View):
                     user["token"], event_id
                 )
                 informasjon += (
-                    " Neste steg: Velg slå sammen klasser eller bestem statrekkefølge."
+                    " Neste steg: Velg slå sammen klasser eller rediger statrekkefølge."
                 )
                 return web.HTTPSeeOther(
                     location=f"/raceclasses?event_id={event_id}&action=edit_mode&informasjon={informasjon}"
@@ -99,7 +99,7 @@ class Raceclasses(web.View):
             elif "merge_ageclasses" in form.keys():
                 informasjon = await merge_ageclasses(user, event_id, form)  # type: ignore
             elif "refresh_no_of_contestants" in form.keys():
-                informasjon = "TODO: Antall deltakere pr. klasse er oppdatert."
+                informasjon = "Ikke implementert. Rediger manuelt pr klasse."
             elif "update_one" in form.keys():
                 informasjon = await update_one(user, event_id, form)  # type: ignore
             elif "update_order" in form.keys():

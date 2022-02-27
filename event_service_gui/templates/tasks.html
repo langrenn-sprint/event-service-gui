@@ -66,7 +66,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>3. Klasser: Opprett (<a href=/raceclasses?event_id={{ event_id }}>se/endre</a>)</td>
+            <td>3a. Klasser: Opprett (<a href=/raceclasses?event_id={{ event_id }}>se/endre</a>)</td>
             {% if (task_status.done_3) %}
               <td id=green>Utført</td>
               <td>
@@ -96,7 +96,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>4. Klasser: Startrekkefølge</td>
+            <td>3b. Klasser: Startrekkefølge</td>
             {% if (task_status.done_4) %}
               <td id=green>Utført</td>
               <td></td>
@@ -119,7 +119,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>5a. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
+            <td>4a. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
             {% if (task_status.done_6) %}
               <td id=green>Utført</td>
               <td>
@@ -147,7 +147,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>5b. Kjøreplan: Tilpass tidksjema</td>
+            <td>4b. Kjøreplan: Tilpass tidksjema</td>
             <td>Manuell sjekk</td>
             <td>
               {% if (task_status.done_6) %}
@@ -164,7 +164,7 @@
           <td colspan=3 id=spacer></td>
         </tr>
         <tr>
-          <td>6a. Deltakere: Startnummer</td>
+          <td>5a. Deltakere: Startnummer</td>
           {% if (task_status.done_5) %}
             <td id=green>Utført</td>
             <td>
@@ -202,7 +202,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
           <tr>
-            <td>6b. Deltakere: Seeding</td>
+            <td>5b. Deltakere: Seeding</td>
               <td>Manuell sjekk</td>
               <td>
                 <form action=/contestants method=get>
@@ -217,7 +217,7 @@
             <td colspan=3 id=spacer></td>
           </tr>
         <tr>
-          <td>7a. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
+          <td>6a. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
           {% if (task_status.done_8) %}
             <td id=green>Utført</td>
             <td>
@@ -245,7 +245,7 @@
           <td colspan=3 id=spacer></td>
         </tr>
         <tr>
-          <td>7b. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="result_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=template')" href=>se/endre</a>)</td>
+          <td>6b. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="result_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=template')" href=>se/endre</a>)</td>
           {% if (task_status.done_9) %}
             <td id=green>Utført</td>
             <td>
