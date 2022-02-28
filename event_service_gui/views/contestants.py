@@ -342,7 +342,7 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
             try:
                 bib = elements[headers["Startnr"]]
                 if bib.isnumeric():
-                    request_body["bib"] = int(bib)
+                    request_body["bib"] = int(bib)  # type: ignore
             except Exception:
                 logging.debug("Startnr ignored")
             try:
