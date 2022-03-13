@@ -51,10 +51,12 @@
   <table>
     <tr>
       <td>
-        <form action=/tasks method=get target=new>
-          <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
-        </form>
+        {% if username != "Gjest" %}
+          <form action=/tasks method=get target=new>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
+          </form>
+        {% endif %}
       </td>
       <td>Antall deltakere: {{ contestants|length }}</td>
     </tr>
@@ -446,10 +448,12 @@
     <table>
       <tr>
         <td>
-          <form action=/tasks method=get target=new>
-            <input type="hidden" name=event_id value="{{ event_id }}">
-            <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
-          </form>
+          {% if username != "Gjest" %}
+            <form action=/tasks method=get target=new>
+              <input type="hidden" name=event_id value="{{ event_id }}">
+              <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
+            </form>
+          {% endif %}
         </td>
         <td>Antall deltakere: {{ contestants|length }}</td>
       </tr>

@@ -141,8 +141,9 @@ class Contestants(web.View):
                     informasjon = f"Opprettet deltakere: {resp}"
                 else:
                     raise Exception(f"Ugyldig filtype {file.content_type}")  # type: ignore
+                info = f"informasjon={informasjon}"
                 return web.HTTPSeeOther(
-                    location=f"/contestants?event_id={event_id}&informasjon={informasjon}"
+                    location=f"/contestants?event_id={event_id}&{info}"
                 )
             elif "create_one" in form.keys():
                 url = await create_one_contestant(user["token"], event_id, form)  # type: ignore
@@ -198,6 +199,13 @@ async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
         for raceclass in raceclasses:
             if request_body["ageclass"] in raceclass["ageclasses"]:
                 klasse = raceclass["name"]
+                # update number of contestants in raceclass
+                raceclass["no_of_contestants"] += 1
+                result = await RaceclassesAdapter().update_raceclass(
+                    token, event_id, raceclass["id"], raceclass
+                )
+                logging.debug(f"Participant count updated: {result}")
+                # redirect user to correct page to add start entry
                 info = f"klasse={klasse}&event_id={event_id}"
                 info += f"&informasjon={informasjon}"
                 url = f"{form['url']}/start_edit?{info}"  # type: ignore
@@ -305,8 +313,9 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
     i_contestants = 0
     for oneline in file.readlines():
         index_row += 1
-        str_oneline = str(oneline)
+        str_oneline = oneline.decode("latin1")
         str_oneline = str_oneline.replace("b'", "")
+        str_oneline = str_oneline.replace("\r\n", "")
         elements = str_oneline.split(";")
         # identify headers
         if index_row == 1:
