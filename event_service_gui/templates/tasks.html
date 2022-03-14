@@ -42,10 +42,10 @@
                     <input type="submit" name="new_manual" value="  Etteranmelding  ">
                   </form>
                   <div id=minispacer></div>
-                  <form action=/contestants method=get>
+                  <form onclick="result_gui_action('myAvmeld', 'start_edit')" id="myAvmeld" action=/start_edit method=get>
                     <input type="hidden" name="event_id" value="{{ event_id }}">
                     <input type="hidden" name="action" value="edit_mode">
-                    <input type="submit" name="delete_one_contestant" value="  Melde av  ">
+                    <input type="submit" name="remove_start" value="  Melde av (fjerne fra startliste) ">
                   </form>
                 {% endif %}
               </td>
