@@ -43,6 +43,31 @@
       <div id=spacer></div>
     {% endfor %}
 
+  {% elif action == "alfabetisk" %}
+      <div id=adminpagetitle>
+          Deltakerliste {{ action }}
+      </div>
+      <div align=right>{{ event.name }}, {{ event.date_of_event }} </div>
+      <table>
+        <tr id=headerprint>
+          <td width=50>Nr</td>
+          <td>Navn</td>
+          <td>Klubb</td>
+          <td>Klasse</td>
+          <td>Region</td>
+        </tr>
+        {% for loper in contestants %}
+            <tr>
+              <td>{{ loper.bib }}</td>
+              <td>{{ loper.first_name }} {{ loper.last_name }}</td>
+              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
+              <td>{{ loper.ageclass }}</td>
+              <td>{{ loper.region }}</td>
+            </tr>
+        {% endfor %}
+      </table>
+      <div id=spacer></div>
+
   {% else %}
     {% for raceclass in raceclasses %}
       {% if not loop.first %}

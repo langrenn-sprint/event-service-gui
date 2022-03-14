@@ -1,5 +1,6 @@
 """Resource module for live resources."""
 import logging
+from operator import itemgetter
 
 from aiohttp import web
 import aiohttp_jinja2
@@ -64,6 +65,9 @@ class PrintContestants(web.View):
                 for contestant in contestants:
                     if contestant["club"] not in clubs:
                         clubs.append(contestant["club"])
+            elif action == "alfabetisk":
+                contestants = sorted(contestants, key=itemgetter("first_name"))
+
             """Get route function."""
             return await aiohttp_jinja2.render_template_async(
                 "print_contestants.html",
