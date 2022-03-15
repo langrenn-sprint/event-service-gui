@@ -72,8 +72,8 @@ class Tasks(web.View):
                 )
             elif "delete_time_events" in form.keys():
                 informasjon = await delete_time_events(user["token"], event_id)
-            elif "delete_start_entries" in form.keys():
-                informasjon = await delete_start_entries(user["token"], event_id)
+            elif "delete_start_lists" in form.keys():
+                informasjon = await delete_start_lists(user["token"], event_id)
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
@@ -87,22 +87,16 @@ class Tasks(web.View):
         return web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
 
 
-async def delete_start_entries(token: str, event_id: str) -> str:
-    """Delete all start entries on event."""
+async def delete_start_lists(token: str, event_id: str) -> str:
+    """Delete all start lists on event."""
     informasjon = ""
-    # get all races and delete all start entries in all races
-    all_races = await RaceplansAdapter().get_all_races(token, event_id)
+    startlists = await StartAdapter().get_all_starts_by_event(token, event_id)
     i = 0
-    for race in all_races:
-        if race["start_entries"]:
-            for start_entry_id in race["start_entries"]:
-                id = await StartAdapter().delete_start_entry(
-                    token, race["id"], start_entry_id
-                )
-                logging.debug(f"Slettet start {start_entry_id}. Resultat: {id}")
-                i += 1
-    informasjon = f"Slettet {i} start entries."
-
+    for startlist in startlists:
+        id = await StartAdapter().delete_start_list(token, startlist["id"])
+        logging.debug(f"Slettet startliste {startlist['id']} - resultat {id}")
+        i += 1
+    informasjon = f"Slettet {i} start lister."
     return informasjon
 
 

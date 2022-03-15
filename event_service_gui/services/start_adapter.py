@@ -77,6 +77,31 @@ class StartAdapter:
                     )
         return str(res)
 
+    async def delete_start_list(self, token: str, start_list_id: str) -> str:
+        """Delete one start_list function."""
+        servicename = "delete_start_list"
+        headers = {
+            hdrs.AUTHORIZATION: f"Bearer {token}",
+        }
+        async with ClientSession() as session:
+            async with session.delete(
+                f"{RACE_SERVICE_URL}/startlists/{start_list_id}",
+                headers=headers,
+            ) as resp:
+                res = resp.status
+                logging.debug(f"delete result - got response {resp}")
+                if res == 204:
+                    pass
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+                else:
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        return str(res)
+
     async def get_start_entries_by_race_id(self, token: str, race_id: str) -> list:
         """Get one start_entry - lap time or heat place function."""
         headers = MultiDict(
