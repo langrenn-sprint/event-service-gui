@@ -143,7 +143,7 @@
               </form>
             </td>
             <td>
-              <form action=/contestants method=post>
+              <form action=/contestants method=post onsubmit="return confirm_delete();">
                 <input type="hidden" name="event_id" value="{{ event_id }}">
                 <input type="submit" name=delete_all value="  Slett alle deltakere  ">
               </form>

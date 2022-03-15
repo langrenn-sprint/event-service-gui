@@ -282,6 +282,26 @@
         <tr>
           <td colspan=3 id=spacer></td>
         </tr>
+        <tr>
+          <td>7. Opprydding</td>
+            <td>Manuell operasjon</td>
+            <td>
+                <form action=/tasks method=post onsubmit="return confirm_delete();">
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
+                  <input type="submit" name="delete_start_entries" value="  Slett alle starter  ">
+                </form>
+                <div id=minispacer></div>
+                <form action=/tasks method=post onsubmit="return confirm_delete();">
+                  <input type="hidden" name="event_id" value="{{ event_id }}">
+                  <input type="submit" name="delete_time_events" value="  Slett alle passeringer  ">
+                </form>
+            </td>
+            <td>Mulighet til å slette alle startlister og passeringer.
+            </td>
+        </tr>
+        <tr>
+          <td colspan=3 id=spacer></td>
+        </tr>
         </table>
       </td>
       <td valign=top>

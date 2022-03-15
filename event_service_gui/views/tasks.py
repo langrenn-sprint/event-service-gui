@@ -70,6 +70,10 @@ class Tasks(web.View):
                 informasjon = await TimeEventsService().generate_next_race_templates(
                     user["token"], event_id
                 )
+            elif "delete_time_events" in form.keys():
+                informasjon = await delete_time_events(user["token"], event_id)
+            elif "delete_start_entries" in form.keys():
+                informasjon = await delete_start_entries(user["token"], event_id)
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
@@ -81,6 +85,43 @@ class Tasks(web.View):
 
         info = f"action={action}&informasjon={informasjon}"
         return web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
+
+
+async def delete_start_entries(token: str, event_id: str) -> str:
+    """Delete all start entries on event."""
+    informasjon = ""
+    # get all races and delete all start entries in all races
+    all_races = await RaceplansAdapter().get_all_races(token, event_id)
+    i = 0
+    for race in all_races:
+        if race["start_entries"]:
+            for start_entry_id in race["start_entries"]:
+                id = await StartAdapter().delete_start_entry(
+                    token, race["id"], start_entry_id
+                )
+                logging.debug(f"Slettet start {start_entry_id}. Resultat: {id}")
+                i += 1
+    informasjon = f"Slettet {i} start entries."
+
+    return informasjon
+
+
+async def delete_time_events(token: str, event_id: str) -> str:
+    """Delete all time_events on event."""
+    informasjon = ""
+    # delete all existing Template time events
+    all_time_events = await TimeEventsAdapter().get_time_events_by_event_id(
+        token,
+        event_id,
+    )
+    i = 0
+    for time_event in all_time_events:
+        id = await TimeEventsAdapter().delete_time_event(token, time_event["id"])
+        logging.debug(f"Deleted time_event id {id}")
+        i += 1
+    informasjon = f"Slettet {i} time_events."
+
+    return informasjon
 
 
 async def get_task_status(token: str, event_id: str) -> dict:

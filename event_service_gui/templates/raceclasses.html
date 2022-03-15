@@ -55,7 +55,7 @@
             </form>
           </td>
           <td>
-            <form action=/raceclasses method=post>
+            <form action=/raceclasses method=post onsubmit="return confirm_delete();">
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="submit" name="delete_all" value="  Slett alle klasser  ">
             </form>
