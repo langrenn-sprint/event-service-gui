@@ -94,6 +94,60 @@
   <form action=/settings method=post>
     <table>
       <tr>
+        <td colspan=4 id=headerblue>Sprint oppsett</td>
+      </tr>
+      <tr>
+        <td id=subheader>Maks deltakere</td>
+        <td id=subheader>Kvartfinaler (antall / regel)</td>
+        <td id=subheader>Semifinaler (antall / regel)</td>
+        <td id=subheader>Finaler (antall)</td>
+      </tr>
+      {% for one_setting in sprint_race_matrix %}
+      <tr>
+        <td>{{ one_setting.max_no_of_contestants }}</td>
+        <td>
+          {{ one_setting.no_of_heat.Q }} heat. Videre regel:
+          {% for key in one_setting.rule.Q %}
+            {{ key }}: {{ one_setting.rule.Q[key] }},
+          {% endfor %}
+        </td>
+        <td>
+          {% if one_setting.no_of_heat.SA %}
+            A semi: {{ one_setting.no_of_heat.SA }} heat. Videre regel:
+            {% for key in one_setting.rule.SA %}
+              {{ key }}: {{ one_setting.rule.SA[key] }},
+            {% endfor %}<br>
+          {% endif %}
+          {% if one_setting.no_of_heat.SC %}
+            C semi: {{ one_setting.no_of_heat.SC }} heat. Videre regel:
+            {% for key in one_setting.rule.SC %}
+              {{ key }}: {{ one_setting.rule.SC[key] }},
+            {% endfor %}<br>
+          {% endif %}
+        </td>
+        <td>
+          {% for key in one_setting.no_of_heat %}
+            {% if key[0] == "F" %}
+              {{ key }}: {{ one_setting.no_of_heat[key] }} heat<br>
+            {% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td></td>
+        <td>
+          <input type="submit" name=update_sprint_config value="  Oppdater  ">
+        </td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+  </form>
+  <br>
+  <form action=/settings method=post>
+    <table>
+      <tr>
         <td colspan=3 id=headerblue>Andre innstillinger</td>
       </tr>
       <tr>

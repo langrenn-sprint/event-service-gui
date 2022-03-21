@@ -43,6 +43,7 @@ class Settings(web.View):
                         "HH:MM", other_settings["time_zone_offset"]
                     ),
                     "other_settings": other_settings,
+                    "sprint_race_matrix": get_sprint_race_matrix(),
                     "username": user["name"],
                 },
             )
@@ -100,6 +101,8 @@ class Settings(web.View):
                 informasjon = await EventsAdapter().create_competition_format(
                     user["token"], request_body
                 )
+            elif "update_sprint_config" in form.keys():
+                informasjon = "TODO - tjenesten er ikke implementert ennå"
             elif "update" in form.keys():
                 if form["datatype"] == "individual_sprint":
                     request_body = {
@@ -150,8 +153,48 @@ class Settings(web.View):
         return web.HTTPSeeOther(location=f"/settings?informasjon={informasjon}")
 
 
+def get_sprint_race_matrix() -> list:
+    """Get settings for sprint competition set-up."""
+    race_settings = [
+        {
+            "max_no_of_contestants": 8,
+            "no_of_heat": {"Q": 1, "FA": 1},
+            "rule": {"Q": {"FA": float("inf")}},
+        },
+        {
+            "max_no_of_contestants": 16,
+            "no_of_heat": {"Q": 2, "FA": 1, "FB": 1},
+            "rule": {"Q": {"FA": 4, "FB": float("inf")}},
+        },
+        {
+            "max_no_of_contestants": 24,
+            "no_of_heat": {"Q": 3, "SA": 2, "FA": 1, "FB": 1, "FC": 1},
+            "rule": {"Q": {"SA": 5, "FC": float("inf")}, "SA": {"FA": 4, "FB": 4}},
+        },
+        {
+            "max_no_of_contestants": 32,
+            "no_of_heat": {"Q": 4, "SA": 2, "SC": 2, "FA": 1, "FB": 1, "FC": 1},
+            "rule": {
+                "Q": {"SA": 4, "SC": float("inf")},
+                "SA": {"FA": 4, "FB": 4},
+                "SC": {"FC": 4},
+            },
+        },
+        {
+            "max_no_of_contestants": 80,
+            "no_of_heat": {"Q": 8, "SA": 4, "SC": 4, "FA": 1, "FB": 1, "FC": 1},
+            "rule": {
+                "Q": {"SA": 4, "SC": float("inf")},
+                "SA": {"FA": 2, "FB": 2},
+                "SC": {"FC": 2},
+            },
+        },
+    ]
+    return race_settings
+
+
 def get_other_settings() -> dict:
-    """Check loging and return user credentials."""
+    """Get other global settings."""
     other_settings = {}
     other_settings["time_zone_offset"] = int(os.getenv("TIME_ZONE_OFFSET", 1))
     return other_settings
