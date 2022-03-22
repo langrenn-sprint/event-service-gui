@@ -43,7 +43,7 @@ class Settings(web.View):
                         "HH:MM", other_settings["time_zone_offset"]
                     ),
                     "other_settings": other_settings,
-                    "sprint_race_matrix": get_sprint_race_matrix(),
+                    "sprint_race_matrix": default_sprint_matrix(),
                     "username": user["name"],
                 },
             )
@@ -102,7 +102,8 @@ class Settings(web.View):
                     user["token"], request_body
                 )
             elif "update_sprint_config" in form.keys():
-                informasjon = "TODO - tjenesten er ikke implementert ennå"
+                new_config = get_sprint_matrix_from_form(form)  # type: ignore
+                informasjon = f"TODO - tjenesten er ikke implementert ennå {new_config}"
             elif "update" in form.keys():
                 if form["datatype"] == "individual_sprint":
                     request_body = {
@@ -153,7 +154,7 @@ class Settings(web.View):
         return web.HTTPSeeOther(location=f"/settings?informasjon={informasjon}")
 
 
-def get_sprint_race_matrix() -> list:
+def default_sprint_matrix() -> list:
     """Get settings for sprint competition set-up."""
     race_settings = [
         {
@@ -181,6 +182,33 @@ def get_sprint_race_matrix() -> list:
             },
         },
         {
+            "max_no_of_contestants": 40,
+            "no_of_heat": {"Q": 6, "SA": 4, "SC": 2, "FA": 1, "FB": 1, "FC": 1},
+            "rule": {
+                "Q": {"SA": 4, "SC": float("inf")},
+                "SA": {"FA": 2, "FB": 2},
+                "SC": {"FC": 4},
+            },
+        },
+        {
+            "max_no_of_contestants": 48,
+            "no_of_heat": {"Q": 6, "SA": 4, "SC": 4, "FA": 1, "FB": 1, "FC": 1},
+            "rule": {
+                "Q": {"SA": 4, "SC": float("inf")},
+                "SA": {"FA": 2, "FB": 2},
+                "SC": {"FC": 2},
+            },
+        },
+        {
+            "max_no_of_contestants": 56,
+            "no_of_heat": {"Q": 7, "SA": 4, "SC": 4, "FA": 1, "FB": 1, "FC": 1},
+            "rule": {
+                "Q": {"SA": 4, "SC": float("inf")},
+                "SA": {"FA": 2, "FB": 2},
+                "SC": {"FC": 2},
+            },
+        },
+        {
             "max_no_of_contestants": 80,
             "no_of_heat": {"Q": 8, "SA": 4, "SC": 4, "FA": 1, "FB": 1, "FC": 1},
             "rule": {
@@ -190,6 +218,40 @@ def get_sprint_race_matrix() -> list:
             },
         },
     ]
+    return race_settings
+
+
+def get_sprint_matrix_from_form(form: dict) -> list:
+    """Get settings for sprint competition set-up."""
+    race_settings = []
+    for i in range(50):
+        if f"max_no_of_contestants_{i}" in form.keys():
+            new_no_of_heat = {}
+            new_rule = {}
+            new_set = {
+                "max_no_of_contestants": int(form[f"max_no_of_contestants_{i}"]),
+            }
+            new_no_of_heat["Q"] = int(form[f"no_of_heat_Q_{i}"])
+            if len(form[f"no_of_heat_SC_{i}"]) > 0:
+                new_no_of_heat["SC"] = int(form[f"no_of_heat_SC_{i}"])
+            if len(form[f"no_of_heat_SA_{i}"]) > 0:
+                new_no_of_heat["SA"] = int(form[f"no_of_heat_SA_{i}"])
+            if len(form[f"no_of_heat_FC_{i}"]) > 0:
+                new_no_of_heat["FC"] = int(form[f"no_of_heat_FC_{i}"])
+            if len(form[f"no_of_heat_FB_{i}"]) > 0:
+                new_no_of_heat["FB"] = int(form[f"no_of_heat_FB_{i}"])
+            new_no_of_heat["FA"] = int(form[f"no_of_heat_FA_{i}"])
+
+            new_rule["Q"] = str(form[f"rule_Q_{i}"])
+            if len(form[f"rule_SC_{i}"]) > 0:
+                new_rule["SC"] = str(form[f"rule_SC_{i}"])  # type: ignore
+            if len(form[f"rule_SA_{i}"]) > 0:
+                new_rule["SA"] = str(form[f"rule_SA_{i}"])  # type: ignore
+
+            new_set["no_of_heat"] = new_no_of_heat  # type: ignore
+            new_set["rule"] = new_rule  # type: ignore
+
+            race_settings.append(new_set)
     return race_settings
 
 

@@ -98,39 +98,30 @@
       </tr>
       <tr>
         <td id=subheader>Maks deltakere</td>
-        <td id=subheader>Kvartfinaler (antall / regel)</td>
-        <td id=subheader>Semifinaler (antall / regel)</td>
+        <td id=subheader>Kvartfinaler (ant heat / regel)</td>
+        <td id=subheader>Semifinaler (ant heat / regel)</td>
         <td id=subheader>Finaler (antall)</td>
       </tr>
       {% for one_setting in sprint_race_matrix %}
       <tr>
-        <td>{{ one_setting.max_no_of_contestants }}</td>
-        <td>
-          {{ one_setting.no_of_heat.Q }} heat. Videre regel:
-          {% for key in one_setting.rule.Q %}
-            {{ key }}: {{ one_setting.rule.Q[key] }},
-          {% endfor %}
+        <td align=center>
+          <input type=number name=max_no_of_contestants_{{ loop.index }} value="{{ one_setting.max_no_of_contestants }}" min=0 max=999>
         </td>
         <td>
-          {% if one_setting.no_of_heat.SA %}
-            A semi: {{ one_setting.no_of_heat.SA }} heat. Videre regel:
-            {% for key in one_setting.rule.SA %}
-              {{ key }}: {{ one_setting.rule.SA[key] }},
-            {% endfor %}<br>
-          {% endif %}
-          {% if one_setting.no_of_heat.SC %}
-            C semi: {{ one_setting.no_of_heat.SC }} heat. Videre regel:
-            {% for key in one_setting.rule.SC %}
-              {{ key }}: {{ one_setting.rule.SC[key] }},
-            {% endfor %}<br>
-          {% endif %}
+          <input type=number name=no_of_heat_Q_{{ loop.index }} value="{{ one_setting.no_of_heat.Q }}" min=0 max=99>
+          <input type=text name=rule_Q_{{ loop.index }} value="{{ one_setting.rule.Q }}">
         </td>
         <td>
-          {% for key in one_setting.no_of_heat %}
-            {% if key[0] == "F" %}
-              {{ key }}: {{ one_setting.no_of_heat[key] }} heat<br>
-            {% endif %}
-          {% endfor %}
+          SC: <input type=number name=no_of_heat_SC_{{ loop.index }} value="{{ one_setting.no_of_heat.SC }}" min=0 max=9>
+          <input type=text name=rule_SC_{{ loop.index }} value="{{ one_setting.rule.SC }}">
+          <br>
+          SA: <input type=number name=no_of_heat_SA_{{ loop.index }} value="{{ one_setting.no_of_heat.SA }}" min=0 max=9>
+          <input type=text name=rule_SA_{{ loop.index }} value="{{ one_setting.rule.SA }}">
+        </td>
+        <td>
+          FC: <input type=number name=no_of_heat_FC_{{ loop.index }} value="{{ one_setting.no_of_heat.FC }}" min=0 max=9><br>
+          FB: <input type=number name=no_of_heat_FB_{{ loop.index }} value="{{ one_setting.no_of_heat.FB }}" min=0 max=9><br>
+          FA: <input type=number name=no_of_heat_FA_{{ loop.index }} value="{{ one_setting.no_of_heat.FA }}" min=0 max=9>
         </td>
       </tr>
       {% endfor %}
