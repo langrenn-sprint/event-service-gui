@@ -9,7 +9,7 @@ from event_service_gui.services import (
     RaceclassesAdapter,
     RaceplansAdapter,
 )
-from .utils import check_login, check_login_open, get_event
+from .utils import check_login, check_login_open, get_club_logos, get_event
 
 
 class Contestants(web.View):
@@ -74,6 +74,7 @@ class Contestants(web.View):
                 heat_separators = await get_heat_separators(
                     user["token"], event_id, valgt_klasse
                 )
+            contestants = get_club_logos(contestants)
 
             return await aiohttp_jinja2.render_template_async(
                 "contestants.html",

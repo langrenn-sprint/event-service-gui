@@ -115,3 +115,49 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
         summary.append(class_summary)
     logging.debug(summary)
     return summary
+
+
+def get_club_logos(contestants: list) -> list:
+    """Add link to image with club logo in list."""
+    club_logos = {
+        "Aske": "https://harnaes.no/sprint/web/asker_logo.png",
+        "Bækk": "https://harnaes.no/sprint/web/bsk_logo.png",
+        "Bæru": "https://harnaes.no/sprint/web/barums_logo.png",
+        "Drøb": "https://harnaes.no/sprint/web/dfi_logo.png",
+        "Eids": "https://harnaes.no/sprint/web/eidsvold_logo.png",
+        "Fet ": "https://harnaes.no/sprint/web/fet_logo.png",
+        "Foss": "https://harnaes.no/sprint/web/fossum_logo.png",
+        "Gjel": "https://harnaes.no/sprint/web/gjellerasen_logo.png",
+        "Gui ": "https://harnaes.no/sprint/web/gui_logo.png",
+        "Haka": "https://harnaes.no/sprint/web/hakadal_logo.png",
+        "Hasl": "https://harnaes.no/sprint/web/haslum_logo.png",
+        "Hemi": "https://harnaes.no/sprint/web/heming_logo.png",
+        "Holm": "https://harnaes.no/sprint/web/holmen_logo.png",
+        "Høyb": "https://harnaes.no/sprint/web/hsil_logo.png",
+        "Jutu": "https://harnaes.no/sprint/web/jutul_logo.png",
+        "Kjel": "https://harnaes.no/sprint/web/kjelsaas_logo.png",
+        "Koll": "https://harnaes.no/sprint/web/koll_log.png",
+        "Lill": "https://harnaes.no/sprint/web/lillomarka_logo.png",
+        "Lyn ": "https://harnaes.no/sprint/web/lyn_ski_logo.png",
+        "Nes ": "https://harnaes.no/sprint/web/nes_logo.png",
+        "Neso": "https://harnaes.no/sprint/web/nesodden_logo.png",
+        "Nitt": "https://harnaes.no/sprint/web/nittedal_logo.png",
+        "Njår": "https://harnaes.no/sprint/web/njard_logo.png",
+        "Oppe": "https://harnaes.no/sprint/web/oppegard_logo.png",
+        "Rust": "https://harnaes.no/sprint/web/rustad_logo.png",
+        "Røa ": "https://harnaes.no/sprint/web/roa_logo.png",
+        "Ræli": "https://harnaes.no/sprint/web/ralingen_logo.png",
+        "Spyd": "https://harnaes.no/sprint/web/spydeberg_logo.png",
+        "Sørk": "https://harnaes.no/sprint/web/sif_logo.png",
+        "Tist": "https://harnaes.no/sprint/web/tistedalen_logo.png",
+        "Tros": "https://harnaes.no/sprint/web/trosken_logo.png",
+        "Idre": "https://harnaes.no/sprint/web/try_logo.png",
+        "Årvo": "https://harnaes.no/sprint/web/arvoll_logo.png",
+    }
+    for contestant in contestants:
+        try:
+            contestant["club_logo"] = club_logos[contestant["club"][:4]]
+        except Exception:
+            logging.error(f"Unknown club - {contestant}")
+
+    return contestants
