@@ -163,13 +163,13 @@ def get_club_logos(contestants: list) -> list:
         "Idre": "https://harnaes.no/sprint/web/try_logo.png",
         "Vest": "https://harnaes.no/sprint/web/vestreaker_logo.png",
         "Ørsk": "https://harnaes.no/sprint/web/orskog_logo.png",
-        "Øvre": "https://harnaes.no/sprint/web/overvoll_logo.png",
+        "Øvre": "https://harnaes.no/sprint/web/ovrevoll_logo.png",
         "Årvo": "https://harnaes.no/sprint/web/arvoll_logo.png",
     }
     for contestant in contestants:
         try:
             contestant["club_logo"] = club_logos[contestant["club"][:4]]
         except Exception:
-            logging.error(f"Unknown club - {contestant}")
+            logging.error(f"Club logo not found - {contestant}")
 
     return contestants
