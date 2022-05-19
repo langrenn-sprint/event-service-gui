@@ -131,7 +131,7 @@
                 <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="seeding">
                 <input type="hidden" name=klasse value={{ valgt_klasse }}>
-                <input type="submit" name=seeding value="  Seeding  ">
+                <input type="submit" name=seeding value="  Manuell seeding  ">
               </form>
             </td>
             <td>
@@ -173,7 +173,8 @@
         <table>
           <tr id=headerblue>
             <td>Startnr</td>
-            <td>Endre til</td>
+            <td>Nytt startnr</td>
+            <td>Seeding</td>
             <td></td>
             <td>Navn</td>
             <td>Klubb</td>
@@ -187,6 +188,7 @@
             <tr>
               {% if  action == "edit_mode"%}
                 <td>{{ contestant.bib }}</td>
+                <td></td>
                 <td>{{ contestant.seeding_points }}</td>
                 <td>
                   <form action=/contestants method=get>
@@ -205,9 +207,11 @@
                   <input type=hidden name="seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4>
                   <input type="hidden" name="old_seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}">
                 </td>
+                <td>{{ contestant.seeding_points }}</td>
                 <td></td>
               {% else %}
                 <td>{{ contestant.bib }}</td>
+                <td></td>
                 <td>{{ contestant.seeding_points }}</td>
                 <td>
                   <input type="checkbox" name="slett_{{ contestant.bib }}" value="{{ contestant.id }}">
@@ -223,7 +227,7 @@
             </tr>
             {% if loop.index in heat_separators %}
               <tr>
-                <td colspan=10>&nbsp;</td>
+                <td colspan=11>&nbsp;</td>
               </tr>
             {% endif %}
           {% endfor %}

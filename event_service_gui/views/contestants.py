@@ -215,21 +215,28 @@ async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
 
 def get_contestant_from_form(event_id: str, form: dict) -> dict:
     """Load contestants from form."""
-    bib = None
-    if len(form["bib"]) > 0:  # type: ignore
-        bib = int(form["bib"])  # type: ignore
-    ageclass = str(form["ageclass"])
+    try:
+        if len(form["bib"]) > 0:  # type: ignore
+            bib = int(form["bib"])  # type: ignore
+    except Exception:
+        bib = None
+    try:
+        if len(form["seeding_points"]) > 0:  # type: ignore
+            seeding_points = int(form["seeding_points"])  # type: ignore
+    except Exception:
+        seeding_points = None
     contestant = {
         "first_name": str(form["first_name"]),
         "last_name": str(form["last_name"]),
         "birth_date": str(form["birth_date"]),
         "gender": str(form["gender"]),
-        "ageclass": ageclass,
+        "ageclass": str(form["ageclass"]),
         "region": str(form["region"]),
         "club": str(form["club"]),
         "event_id": event_id,
         "email": str(form["email"]),
         "team": str(form["team"]),
+        "seeding_points": seeding_points,
         "minidrett_id": str(form["minidrett_id"]),
         "bib": bib,
     }
