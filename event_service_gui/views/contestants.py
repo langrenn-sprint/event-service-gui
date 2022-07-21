@@ -321,7 +321,7 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
     i_contestants = 0
     for oneline in file.readlines():
         index_row += 1
-        str_oneline = oneline.decode("latin1")
+        str_oneline = oneline.decode("utf-8")
         str_oneline = str_oneline.replace("b'", "")
         str_oneline = str_oneline.replace("\r\n", "")
         elements = str_oneline.split(";")

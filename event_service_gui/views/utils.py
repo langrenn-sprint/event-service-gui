@@ -9,24 +9,35 @@ from event_service_gui.services import EventsAdapter, UserAdapter
 
 
 async def check_login(self) -> dict:
-    """Check loging and return user credentials."""
+    """Check login and return user credentials."""
     session = await get_session(self.request)
     loggedin = UserAdapter().isloggedin(session)
     if not loggedin:
         informasjon = "Logg inn for å se denne siden"
-        return web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")  # type: ignore
+        raise web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")  # type: ignore
 
-    return {"name": session["username"], "token": session["token"]}
+    return {
+        "name": session["name"],
+        "loggedin": True,
+        "token": session["token"],
+        "g_loggedin": session["g_loggedin"],
+        "g_name": session["g_name"],
+        "g_jwt": session["g_jwt"],
+        "g_auth_photos": session["g_auth_photos"],
+        "g_scope": session["g_scope"],
+        "g_client_id": session["g_client_id"],
+        "g_photos_token": session["g_photos_token"],
+    }
 
 
 async def check_login_open(self) -> dict:
-    """Check loging and return user credentials."""
+    """Check login and return credentials."""
     user = {}
     session = await get_session(self.request)
     loggedin = UserAdapter().isloggedin(session)
     if loggedin:
         user = {
-            "name": session["username"],
+            "name": session["name"],
             "loggedin": True,
             "token": session["token"],
         }

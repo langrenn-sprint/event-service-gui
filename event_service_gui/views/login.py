@@ -7,6 +7,7 @@ from aiohttp_session import get_session
 from aiohttp_session import new_session
 
 from event_service_gui.services import UserAdapter
+from .utils import check_login
 
 
 class Login(web.View):
@@ -23,19 +24,16 @@ class Login(web.View):
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
             event_id = ""
-
         try:
-            create_new = False
-            new = self.request.rel_url.query["new"]
-            if new != "":
-                session = await get_session(self.request)
-                loggedin = UserAdapter().isloggedin(session)
-                if loggedin:
-                    create_new = True
-                    username = str(session["username"])
-
+            action = self.request.rel_url.query["action"]
         except Exception:
-            create_new = False
+            action = ""
+
+        if action == "create_new":
+            session = await get_session(self.request)
+            loggedin = UserAdapter().isloggedin(session)
+            if loggedin:
+                username = session["username"]
 
         event = {"name": "Administrasjon", "organiser": "Ikke valgt"}
 
@@ -43,12 +41,12 @@ class Login(web.View):
             "login.html",
             self.request,
             {
+                "action": action,
                 "lopsinfo": "Login",
                 "event": event,
                 "event_id": event_id,
                 "informasjon": informasjon,
                 "username": username,
-                "create_new": create_new,
             },
         )
 
@@ -65,6 +63,10 @@ class Login(web.View):
                 logging.debug(f"Event: {event_id}")
             except Exception:
                 event_id = ""
+            try:
+                action = self.request.rel_url.query["action"]
+            except Exception:
+                action = ""
 
             # Create new event
             if "create" in form.keys():
@@ -78,17 +80,26 @@ class Login(web.View):
                     session,
                 )
                 informasjon = f"Ny bruker opprettet med id {id}"
-                return web.HTTPSeeOther(
-                    location=f"/login?new=True&informasjon={informasjon}"
-                )
-
-            else:
-                # Perform login
+                result = 201
+            # Perform login
+            elif action == "login":
                 session = await new_session(self.request)
                 result = await UserAdapter().login(
                     str(form["username"]), str(form["password"]), session
                 )
-                if result != 200:
+                if result == 200:
+                    informasjon = "Innlogget!"
+                else:
+                    informasjon = f"Innlogging feilet - {result}"
+            elif action == "g_login":
+                user = await check_login(self)
+                g_jwt = str(form["g_jwt"])
+                # get public key from google and store in session
+                session = await new_session(self.request)
+                result = UserAdapter().login_google(g_jwt, user, session)
+                if result == 200:
+                    informasjon = "Innlogget Google!"
+                else:
                     informasjon = f"Innlogging feilet - {result}"
 
         except Exception as e:
@@ -96,8 +107,8 @@ class Login(web.View):
             informasjon = f"Det har oppstått en feil - {e.args}."
             result = 400
 
+        event = {"name": "Langrenn", "organiser": "Ikke valgt"}
         if result != 200:
-            event = {"name": "Administrasjon", "organiser": "Ikke valgt"}
             return await aiohttp_jinja2.render_template_async(
                 "login.html",
                 self.request,
@@ -107,10 +118,6 @@ class Login(web.View):
                     "event_id": event_id,
                     "informasjon": informasjon,
                 },
-            )
-        elif event_id != "":
-            return web.HTTPSeeOther(
-                location=f"/events?event={event_id}&informasjon={informasjon}"
             )
         else:
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

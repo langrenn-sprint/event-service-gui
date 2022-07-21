@@ -122,9 +122,15 @@ class UserAdapter:
 
                     # store token to session variable
                     cookiestorage["token"] = token
-                    cookiestorage["username"] = username
-                    cookiestorage["password"] = password
+                    cookiestorage["name"] = username
                     cookiestorage["loggedin"] = True
+                    cookiestorage["g_jwt"] = ""
+                    cookiestorage["g_name"] = ""
+                    cookiestorage["g_loggedin"] = False
+                    cookiestorage["g_auth_photos"] = False
+                    cookiestorage["g_scope"] = ""
+                    cookiestorage["g_client_id"] = ""
+                    cookiestorage["g_photos_token"] = USER_SERVICE_URL  # type: ignore
         return result
 
     def isloggedin(self, cookiestorage: Session) -> bool:
