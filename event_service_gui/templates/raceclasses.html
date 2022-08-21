@@ -7,7 +7,8 @@
   {{ lopsinfo }}
 {% endblock %}
 {% block refresh %}{% endblock %}
-{% block titlemain %}{{ lopsinfo }}{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_live.png"> {{ lopsinfo }}{% endblock %}
+{% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_live.png"> {% endblock %}
 {% block menuitems %}
   <li id=topborder>
     <a href=/raceclasses?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>

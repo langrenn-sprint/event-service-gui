@@ -8,9 +8,8 @@
   {{ lopsinfo }}
 {% endblock %}
 {% block refresh %}{% endblock %}
-{% block titlemain %}
-  {{ lopsinfo }}
-{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_user.png"> {{ lopsinfo }}{% endblock %}
+{% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_user.png"> {% endblock %}
 {% block menuitems %}
   <li id=topborder>
     <a href=/users?event_id={{ event_id }}&new=true class=dropbtn>Ny bruker</a>

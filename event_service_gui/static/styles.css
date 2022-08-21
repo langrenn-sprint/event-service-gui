@@ -81,12 +81,14 @@ table {
 	border-spacing: 0;
 }
 
-tr:nth-child(even){background-color: #f2f2f2;}
-
-td {
-  padding: 5px;
+tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
 
+td {
+  border-bottom: 1px solid #ddd;
+  padding: 4px 4px 4px 4px;
+}
 
 #footeradmin {
     color: grey;
@@ -120,6 +122,10 @@ td {
     background-color: white;
 }
 
+#smalltext {
+  font-size: 0.7em;
+}
+
 .timetitle {
   text-align: center;
   font-size: 2.0em;
@@ -142,6 +148,22 @@ td {
     background-color: lightgrey;
 }
 
+#table_header_red {
+    background-color: red;
+    font-weight: bold;
+}
+
+#table_header_orange {
+    background-color: orange;
+    font-weight: bold;
+}
+
+#table_header_green {
+    background-color: green;
+    font-weight: bold;
+    color: white;
+}
+
 #tablespacer {
     background-color: white;
 }
@@ -150,8 +172,14 @@ td {
   border-left: 1px solid black;
 }
 
-#resultheader {
+#resultheaderfirst {
   border-left: 4px solid white;
+  padding-left: 4px;
+  color: white;
+  background-color: grey;
+}
+
+#resultheader {
   padding-left: 4px;
   color: white;
   background-color: grey;
@@ -159,6 +187,23 @@ td {
 
 #resultborder {
   border-left: 4px solid white;
+}
+
+#frontpage_icon{
+  width:100px;
+  height:100px;
+}
+
+#header_icon{
+  width:40px;
+  height:40px;
+  vertical-align: bottom;
+}
+
+#menu_icon{
+  width:16px;
+  height:16px;
+  vertical-align: bottom;
 }
 
 function naviger(id) {
@@ -280,8 +325,31 @@ async function savefile(inp)
   width:auto;
 }
 
-#tooltipimage{
+#tooltip_photo{
   width:900px;
   height:600px;
+}
+/* END: Tooltip - to show image - END */
+
+/* START: Tooltip - to show image - start */
+.tooltip_photo {
+  position:relative;
+}
+
+.tooltip_photo span {
+  display:none;
+}
+
+.tooltip_photo span img {
+  float:left;
+}
+
+.tooltip_photo:hover span {
+  display:block;
+  position:absolute;
+  top:-1000%;
+  left:-1000%;
+  z-index:1000;
+  width:auto;
 }
 /* END: Tooltip - to show image - END */

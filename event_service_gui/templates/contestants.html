@@ -1,13 +1,12 @@
 {% extends "open_base.html" %}
 {% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
+  <div class="w3-quart"></div>
+  <div class="w3-half">
 {% endblock %}
-{% block titleheader %}
-  {{ lopsinfo }}
-{% endblock %}
+{% block titleheader %}{{ lopsinfo }}{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_new.png"> {{ lopsinfo }}{% endblock %}
+{% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_new.png"> {% endblock %}
 {% block refresh %}{% endblock %}
-{% block titlemain %}{{ lopsinfo }}{% endblock %}
 {% block menuitems %}
   <li class=dropdown id=topborder>
     <a href=javascript:void(0) class=dropbtn>Velg klasse</a>

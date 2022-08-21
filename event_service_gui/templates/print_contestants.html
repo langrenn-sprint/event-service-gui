@@ -17,7 +17,7 @@
         <div id=pagebreak></div>
       {% endif %}
       <div id=adminpagetitle>
-          Deltakerliste {{ club }}
+          Deltakerliste {{ club }} <img id=header_icon src="../static/icon_new.png">
       </div>
       <div align=right>{{ event.name }}, {{ event.date_of_event }} </div>
       <table>
@@ -45,7 +45,7 @@
 
   {% elif action == "alfabetisk" %}
       <div id=adminpagetitle>
-          Deltakerliste {{ action }}
+          Deltakerliste {{ action }} <img id=header_icon src="../static/icon_new.png">
       </div>
       <div align=right>{{ event.name }}, {{ event.date_of_event }} </div>
       <table>
@@ -74,7 +74,7 @@
         <div id=pagebreak></div>
       {% endif %}
       <div id=adminpagetitle>
-        Deltakerliste {{ raceclass.name }}
+        Deltakerliste {{ raceclass.name }} <img id=header_icon src="../static/icon_new.png">
       </div>
       <div align=right>{{ event.name }}, {{ event.date_of_event }}</div>
       <table>

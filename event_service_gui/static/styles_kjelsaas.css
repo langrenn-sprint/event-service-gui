@@ -25,6 +25,12 @@ li:hover, .dropdown:hover, .dropbtn:hover {
   background-color: #00247d;
 }
 
+.visible_link {
+	background-color: #94b5e0;
+	text-decoration: none;
+	color: white;
+}
+
 #topborder {
   border-left: 1px solid white;
 }
@@ -38,6 +44,14 @@ li:hover, .dropdown:hover, .dropbtn:hover {
     color: black;
     background-color: #ffb549;
 }
+
+#headercollapse {
+		text-align: center;
+		font-size: 1.5em;
+    color: white;
+    background-color: #94b5e0;
+}
+
 
 #adminpagetitle {
   text-align: center;

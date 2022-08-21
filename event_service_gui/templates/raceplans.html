@@ -8,9 +8,8 @@
   {{ lopsinfo }}
 {% endblock %}
 {% block refresh %}{% endblock %}
-{% block titlemain %}
-  {{ lopsinfo }}
-{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_timing.png"> {{ lopsinfo }}{% endblock %}
+{% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_timing.png"> {% endblock %}
 {% block menuitems %}
   <li class=dropdown id=topborder>
     <a href=javascript:void(0) class=dropbtn>Velg klasse</a>

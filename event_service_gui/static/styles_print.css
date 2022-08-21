@@ -93,6 +93,12 @@ a {
     background-color: white;
 }
 
+#header_icon{
+  width:60px;
+  height:60px;
+  vertical-align: bottom;
+}
+
 /**** Responsivt design ****/
 .w3-container {
   padding:0.01em 0px;
