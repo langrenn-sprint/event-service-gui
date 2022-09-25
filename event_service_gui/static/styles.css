@@ -6,8 +6,7 @@
 
 body {
     font-family: Verdana, Arial, Helvetica, sans-serif;
-    background-image: url('https://www.harnaes.no/sprint/web/SprintBG3.jpg');
-    background-size: cover;
+    background-color: #ddd;
 }
 
 ul {
@@ -90,6 +89,19 @@ td {
   padding: 4px 4px 4px 4px;
 }
 
+#table_border {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+}
+
+#table_border_l {
+  border-left: 1px solid #ddd;
+}
+
+#table_border_r {
+  border-right: 1px solid #ddd;
+}
+
 #footeradmin {
     color: grey;
     text-align: right;
@@ -120,6 +132,7 @@ td {
 
 #white {
     background-color: white;
+    border-bottom: 0px;
 }
 
 #smalltext {
@@ -146,6 +159,11 @@ td {
 
 #subheader {
     background-color: lightgrey;
+}
+#subheaderbold {
+    background-color: lightgrey;
+    font-weight: bold;
+    text-align: center;
 }
 
 #table_header_red {
@@ -228,8 +246,16 @@ async function savefile(inp)
 
 /**** Responsivt design ****/
 .w3-container {
-  padding:0.01em 0px;
   background-color: white;
+  padding:0.01em 0px;
+}
+
+.w3-container-sticky {
+  background-color: white;
+  padding: 0.01em 0px;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
 }
 
 .w3-third,.w3-twothird,.w3-quart,.w3-10,.w3-80,.w3-row-padding,.w3-half {

@@ -63,7 +63,7 @@ class Contestants(web.View):
                     contestants = await ContestantsAdapter().get_all_contestants(
                         user["token"], event_id
                     )
-                else:
+                elif action != "new_manual":
                     informasjon = "Velg klasse for å redigere."
             else:
                 contestants = (

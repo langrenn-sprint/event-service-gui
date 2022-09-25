@@ -176,6 +176,7 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
             ranking = True
     except Exception:
         ranking = False
+    try:
         if form["seeding"] == "on":
             seeding = True
     except Exception:

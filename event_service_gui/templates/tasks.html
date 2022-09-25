@@ -9,304 +9,292 @@
 {% block refresh %}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_settings.png"> {{ lopsinfo }}{% endblock %}
 {% block content %}
-  <div id=spacer></div>
-  <table cellpadding=4>
-    <tr>
-      <td valign=top>
-        <table>
-          <tr id=subheader id=black>
-            <td id=black>Arbeidsflyt - før rennet</td>
-            <td width=150>Status</td>
-            <td>Funksjoner</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1. Arrangement: Opprett (<a href=/events?event_id={{ event_id }}>se/endre</a>)</td>
-            <td id=green>Utført</td>
-            <td></td>
-            <td>Tid: {{ event.date_of_event }} kl. {{ event.time_of_event }}<br>Arrangør: {{ event.organiser }} <a href=http://{{ event.webpage }}>Mer info</a></td>
-          </tr>
-          <tr>
-            <td colspan=3 id=spacer></td>
-          </tr>
-          <tr>
-            <td>
-              2. Deltakere: Last inn (<a href=/contestants?event_id={{ event_id }}>se/endre</a>)
-            </td>
-            {% if (task_status.done_2) %}
-              <td id=green>Utført</td>
-              <td>
-                {% if (task_status.done_8) %}
-                  <form action=/contestants method=get>
-                    <input type="hidden" name="event_id" value="{{ event_id }}">
-                    <input type="hidden" name="action" value="new_manual">
-                    <input type="submit" name="new_manual" value="  Etteranmelding  ">
-                  </form>
-                  <div id=minispacer></div>
-                  <form onclick="result_gui_action('myAvmeld', 'start_edit')" id="myAvmeld" action=/start_edit method=get>
-                    <input type="hidden" name="event_id" value="{{ event_id }}">
-                    <input type="hidden" name="action" value="edit_mode">
-                    <input type="submit" name="remove_start" value="  Melde av (fjerne fra startliste) ">
-                  </form>
-                {% endif %}
-              </td>
-              <td>{{ task_status.no_of_contestants}} deltakere.</td>
-            {% else %}
-              <td id=red>Mangler</td>
-              <td>
-                  <form action=/contestants method=get>
-                    <input type="hidden" name=event_id value="{{ event_id }}">
-                    <input type="hidden" name=action value="new_from_file">
-                    <input type="submit" name=new_from_file value="  Last inn deltakere fra fil  ">
-                  </form>
-              </td>
-              <td></td>
-            {% endif %}
-          </tr>
-          <tr>
-            <td colspan=3 id=spacer></td>
-          </tr>
-          <tr>
-            <td>3a. Klasser: Opprett (<a href=/raceclasses?event_id={{ event_id }}>se/endre</a>)</td>
-            {% if (task_status.done_3) %}
-              <td id=green>Utført</td>
-              <td>
-                {% if not task_status.done_6 %}
-                  <form action=/raceclasses method=get>
-                    <input type="hidden" name="event_id" value="{{ event_id }}">
-                    <input type="hidden" name=action value="merge_ageclasses">
-                    <input type="submit" name="merge_ageclasses" value="  Slå sammen klasser  ">
-                  </form>
-                {% endif %}
-              </td>
-              <td>{{ task_status.no_of_raceclasses}} klasser.</td>
-            {% else %}
-              <td id=red>Mangler</td>
-              <td>
-                {% if (task_status.done_2) %}
-                  <form action=/raceclasses method=post>
-                    <input type="hidden" name="event_id" value="{{ event_id }}">
-                    <input type="submit" name="generate_raceclasses" value="  Generer klasser  ">
-                  </form>
-                {% endif %}
-              </td>
-              <td></td>
-            {% endif %}
-          </tr>
-          <tr>
-            <td colspan=3 id=spacer></td>
-          </tr>
-          <tr>
-            <td>3b. Klasser: Startrekkefølge</td>
-            {% if (task_status.done_4) %}
-              <td id=green>Utført</td>
-              <td></td>
-              <td></td>
-            {% else %}
-              <td id=red>Mangler</td>
-              <td>
-                {% if (task_status.done_3) %}
-                  <form action=/raceclasses method=get>
-                    <input type="hidden" name="event_id" value="{{ event_id }}">
-                    <input type="hidden" name=action value="update_order">
-                    <input type="submit" name="generate_raceclasses" value="  Rediger startrekkefølge  ">
-                  </form>
-                {% endif %}
-              </td>
-              <td></td>
-            {% endif %}
-          </tr>
-          <tr>
-            <td colspan=3 id=spacer></td>
-          </tr>
-          <tr>
-            <td>4a. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
-            {% if (task_status.done_6) %}
-              <td id=green>Utført</td>
-              <td>
-                <form onclick="result_gui_action('myPRPl', 'print_lists')" id="myPRPl" action=/print_lists method=get target=_blank>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="hidden" name="action" value="raceplan">
-                  <input type="submit" name="print" value="  Skriv ut - kjøreplan ">
-                </form>
-              </td>
-              <td>{{ task_status.no_of_races}} heat er opprettet.</td>
-            {% else %}
-              <td id=red>Mangler</td>
-              <td>
-                {% if (task_status.done_4) %}
-                  <form action=/raceplans method=post>
-                    <input type="hidden" name="event_id" value="{{ event_id }}">
-                    <input type="submit" name="generate_raceplan" value="  Generer kjøreplan  ">
-                  </form>
-                {% endif %}
-              </td>
-              <td></td>
-            {% endif %}
-          </tr>
-          <tr>
-            <td colspan=3 id=spacer></td>
-          </tr>
-          <tr>
-            <td>4b. Kjøreplan: Tilpass tidksjema (<a href=/raceplans?event_id={{ event_id }}&action=edit_time>se/endre</a>)</td>
-            <td>Manuell sjekk</td>
-            <td>
-              {% if (task_status.done_6) %}
-                <form action=/raceplans method=get>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="hidden" name=action value="edit_time">
-                  <input type="submit" name="edit_time" value="  Tilpass tidskjema  ">
-                </form>
-              {% endif %}
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-          <td colspan=3 id=spacer></td>
-        </tr>
-        <tr>
-          <td>5a. Deltakere: Startnummer (<a href=/contestants?event_id={{ event_id }}&action=edit_mode>se/endre</a>)</td>
-          {% if (task_status.done_5) %}
-            <td id=green>Utført</td>
-            <td>
-              <form action=/print_contestants method=get target=_blank>
-                <input type="hidden" name="event_id" value="{{ event_id }}">
-                <input type="submit" name="print" value=" Skriv ut - pr klasse ">
-              </form>
-              <div id=minispacer></div>
-              <form action=/print_contestants method=get target=_blank>
-                <input type="hidden" name="action" value="klubb">
-                <input type="hidden" name="event_id" value="{{ event_id }}">
-                <input type="submit" name="print" value="  Skriv ut - pr klubb  ">
-              </form>
-              <div id=minispacer></div>
-              <form action=/print_contestants method=get target=_blank>
-                <input type="hidden" name="action" value="alfabetisk">
-                <input type="hidden" name="event_id" value="{{ event_id }}">
-                <input type="submit" name="print" value="  Skriv ut - alfabetisk  ">
-              </form>
-            </td>
-            <td>{{ task_status.bib_missing}} deltakere mangler startnummer.</td>
-          {% else %}
-              {% if (task_status.no_of_contestants == task_status.bib_missing) %}
-                <td id=red>Mangler</td>
-                <td>
-                  {% if (task_status.done_2) %}
-                    <form action=/contestants method=post>
-                      <input type="hidden" name=event_id value="{{ event_id }}">
-                      <input type="submit" name=assign_bibs value="  Tildel startnummer  ">
-                    </form>
-                  {% endif %}
-                </td>
-                <td></td>
-              {% else %}
-                <td id=orange>Delvis</td>
-                <td></td>
-                <td>{{ task_status.bib_missing}} deltakere mangler startnummer. </td>
-              {% endif %}
-            {% endif %}
-          </tr>
-          <tr>
-            <td colspan=3 id=spacer></td>
-          </tr>
-          <tr>
-            <td>5b. Deltakere: Seeding</td>
-              <td>Manuell sjekk</td>
-              <td>
-                <form action=/contestants method=get>
-                  <input type="hidden" name=event_id value="{{ event_id }}">
-                  <input type="hidden" name=action value="seeding">
-                  <input type="submit" name=seeding value="  Utfør seeding  ">
-                </form>
-              </td>
-              <td></td>
-          </tr>
-          <tr>
-            <td colspan=3 id=spacer></td>
-          </tr>
-        <tr>
-          <td>6a. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
-          {% if (task_status.done_8) %}
-            <td id=green>Utført</td>
-            <td>
-              <form onclick="result_gui_action('myPStart', 'print_lists')" id="myPStart" action=/print_lists method=get target=_blank>
-                <input type="hidden" name="event_id" value="{{ event_id }}">
-                <input type="hidden" name="action" value="start">
-                <input type="submit" name="print" value="  Skriv ut  ">
-              </form>
-            </td>
-            <td> {{ task_status.no_of_starts }} starter er opprettet.</td>
-          {% else %}
-            <td id=red>Mangler</td>
-            <td>
-              {% if (task_status.done_6) %}
-                <form action=/tasks method=post>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="submit" name="generate_startlist" value="  Generer startliste  ">
-                </form>
-              {% endif %}
-            </td>
-            <td></td>
-          {% endif %}
-        </tr>
-        <tr>
-          <td colspan=3 id=spacer></td>
-        </tr>
-        <tr>
-          <td>6b. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="result_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=template')" href=>se/endre</a>)</td>
-          {% if (task_status.done_9) %}
-            <td id=green>Utført</td>
-            <td>
-              {% if (task_status.done_6) %}
-                <form action=/tasks method=post>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="submit" name="generate_next_race" value="  Generer på nytt  ">
-                </form>
-              {% endif %}
-            </td>
-            <td>
-              {{ task_status.no_of_next_race }} <i>videre til</i> semi og finaler er opprettet.
-            </td>
-          {% else %}
-            <td id=red>Mangler</td>
-            <td>
-              {% if (task_status.done_6) %}
-                <form action=/tasks method=post>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="submit" name="generate_next_race" value="  Generer videre til oppsett  ">
-                </form>
-              {% endif %}
-            </td>
-            <td></td>
-          {% endif %}
-        </tr>
-        <tr>
-          <td colspan=3 id=spacer></td>
-        </tr>
-        <tr>
-          <td>7. Opprydding</td>
-            <td>Manuell operasjon</td>
-            <td>
-                <form action=/tasks method=post onsubmit="return confirm_delete();">
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="submit" name="delete_start_lists" value="  Slett alle startlister  ">
-                </form>
-                <div id=minispacer></div>
-                <form action=/tasks method=post onsubmit="return confirm_delete();">
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="submit" name="delete_time_events" value="  Slett alle passeringer  ">
-                </form>
-            </td>
-            <td>Mulighet til å slette alle startlister og passeringer, inkludert videre til oppsett.
-            </td>
-        </tr>
-        <tr>
-          <td colspan=3 id=spacer></td>
-        </tr>
-        </table>
-      </td>
-      <td valign=top>
-      </td>
+  <table>
+    <tr id=subheader id=black>
+      <td id=black>Arbeidsflyt - før rennet</td>
+      <td width=150>Status</td>
+      <td>Funksjoner</td>
+      <td></td>
     </tr>
+    <tr>
+      <td>1. Arrangement: Opprett (<a href=/events?event_id={{ event_id }}>se/endre</a>)</td>
+      <td id=green>Utført</td>
+      <td></td>
+      <td>Tid: {{ event.date_of_event }} kl. {{ event.time_of_event }}<br>Arrangør: {{ event.organiser }} <a href=http://{{ event.webpage }}>Mer info</a></td>
+    </tr>
+    <tr>
+      <td colspan=4 id=spacer></td>
+    </tr>
+    <tr>
+      <td>
+        2. Deltakere: Last inn (<a href=/contestants?event_id={{ event_id }}>se/endre</a>)
+      </td>
+      {% if (task_status.done_2) %}
+        <td id=green>Utført</td>
+        <td>
+          {% if (task_status.done_8) %}
+            <form action=/contestants method=get>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="hidden" name="action" value="new_manual">
+              <input type="submit" name="new_manual" value="  Etteranmelding  ">
+            </form>
+            <div id=minispacer></div>
+            <form onclick="result_gui_action('myAvmeld', 'start_edit')" id="myAvmeld" action=/start_edit method=get>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="hidden" name="action" value="edit_mode">
+              <input type="submit" name="remove_start" value="  Melde av (fjerne fra startliste) ">
+            </form>
+          {% endif %}
+        </td>
+        <td>{{ task_status.no_of_contestants}} deltakere.</td>
+      {% else %}
+        <td id=red>Mangler</td>
+        <td>
+            <form action=/contestants method=get>
+              <input type="hidden" name=event_id value="{{ event_id }}">
+              <input type="hidden" name=action value="new_from_file">
+              <input type="submit" name=new_from_file value="  Last inn deltakere fra fil  ">
+            </form>
+        </td>
+        <td></td>
+      {% endif %}
+    </tr>
+    <tr>
+      <td colspan=4 id=spacer></td>
+    </tr>
+    <tr>
+      <td>3a. Klasser: Opprett (<a href=/raceclasses?event_id={{ event_id }}>se/endre</a>)</td>
+      {% if (task_status.done_3) %}
+        <td id=green>Utført</td>
+        <td>
+          {% if not task_status.done_6 %}
+            <form action=/raceclasses method=get>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="hidden" name=action value="merge_ageclasses">
+              <input type="submit" name="merge_ageclasses" value="  Slå sammen klasser  ">
+            </form>
+          {% endif %}
+        </td>
+        <td>{{ task_status.no_of_raceclasses}} klasser.</td>
+      {% else %}
+        <td id=red>Mangler</td>
+        <td>
+          {% if (task_status.done_2) %}
+            <form action=/raceclasses method=post>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="submit" name="generate_raceclasses" value="  Generer klasser  ">
+            </form>
+          {% endif %}
+        </td>
+        <td></td>
+      {% endif %}
+    </tr>
+    <tr>
+      <td colspan=4 id=spacer></td>
+    </tr>
+    <tr>
+      <td>3b. Klasser: Startrekkefølge</td>
+      {% if (task_status.done_4) %}
+        <td id=green>Utført</td>
+        <td></td>
+        <td></td>
+      {% else %}
+        <td id=red>Mangler</td>
+        <td>
+          {% if (task_status.done_3) %}
+            <form action=/raceclasses method=get>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="hidden" name=action value="update_order">
+              <input type="submit" name="generate_raceclasses" value="  Rediger startrekkefølge  ">
+            </form>
+          {% endif %}
+        </td>
+        <td></td>
+      {% endif %}
+    </tr>
+    <tr>
+      <td colspan=4 id=spacer></td>
+    </tr>
+    <tr>
+      <td>4a. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
+      {% if (task_status.done_6) %}
+        <td id=green>Utført</td>
+        <td>
+          <form onclick="result_gui_action('myPRPl', 'print_lists')" id="myPRPl" action=/print_lists method=get target=_blank>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name="action" value="raceplan">
+            <input type="submit" name="print" value="  Skriv ut - kjøreplan ">
+          </form>
+        </td>
+        <td>{{ task_status.no_of_races}} heat er opprettet.</td>
+      {% else %}
+        <td id=red>Mangler</td>
+        <td>
+          {% if (task_status.done_4) %}
+            <form action=/raceplans method=post>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="submit" name="generate_raceplan" value="  Generer kjøreplan  ">
+            </form>
+          {% endif %}
+        </td>
+        <td></td>
+      {% endif %}
+    </tr>
+    <tr>
+      <td colspan=4 id=spacer></td>
+    </tr>
+    <tr>
+      <td>4b. Kjøreplan: Tilpass tidksjema (<a href=/raceplans?event_id={{ event_id }}&action=edit_time>se/endre</a>)</td>
+      <td>Manuell sjekk</td>
+      <td>
+        {% if (task_status.done_6) %}
+          <form action=/raceplans method=get>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name=action value="edit_time">
+            <input type="submit" name="edit_time" value="  Tilpass tidskjema  ">
+          </form>
+        {% endif %}
+      </td>
+      <td></td>
+  </tr>
+  <tr>
+    <td colspan=4 id=spacer></td>
+  </tr>
+  <tr>
+    <td>5a. Deltakere: Startnummer (<a href=/contestants?event_id={{ event_id }}&action=edit_mode>se/endre</a>)</td>
+    {% if (task_status.done_5) %}
+      <td id=green>Utført</td>
+      <td>
+        <form action=/print_contestants method=get target=_blank>
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="submit" name="print" value=" Skriv ut - pr klasse ">
+        </form>
+        <div id=minispacer></div>
+        <form action=/print_contestants method=get target=_blank>
+          <input type="hidden" name="action" value="klubb">
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="submit" name="print" value="  Skriv ut - pr klubb  ">
+        </form>
+        <div id=minispacer></div>
+        <form action=/print_contestants method=get target=_blank>
+          <input type="hidden" name="action" value="alfabetisk">
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="submit" name="print" value="  Skriv ut - alfabetisk  ">
+        </form>
+      </td>
+      <td>{{ task_status.bib_missing}} deltakere mangler startnummer.</td>
+    {% else %}
+        {% if (task_status.no_of_contestants == task_status.bib_missing) %}
+          <td id=red>Mangler</td>
+          <td>
+            {% if (task_status.done_2) %}
+              <form action=/contestants method=post>
+                <input type="hidden" name=event_id value="{{ event_id }}">
+                <input type="submit" name=assign_bibs value="  Tildel startnummer  ">
+              </form>
+            {% endif %}
+          </td>
+          <td></td>
+        {% else %}
+          <td id=orange>Delvis</td>
+          <td></td>
+          <td>{{ task_status.bib_missing}} deltakere mangler startnummer. </td>
+        {% endif %}
+      {% endif %}
+    </tr>
+    <tr>
+      <td colspan=4 id=spacer></td>
+    </tr>
+    <tr>
+      <td>5b. Deltakere: Seeding</td>
+        <td>Manuell sjekk</td>
+        <td>
+          <form action=/contestants method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="hidden" name=action value="seeding">
+            <input type="submit" name=seeding value="  Utfør seeding  ">
+          </form>
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+      <td colspan=4 id=spacer></td>
+    </tr>
+  <tr>
+    <td>6a. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
+    {% if (task_status.done_8) %}
+      <td id=green>Utført</td>
+      <td>
+        <form onclick="result_gui_action('myPStart', 'print_lists')" id="myPStart" action=/print_lists method=get target=_blank>
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="hidden" name="action" value="start">
+          <input type="submit" name="print" value="  Skriv ut  ">
+        </form>
+      </td>
+      <td> {{ task_status.no_of_starts }} starter er opprettet.</td>
+    {% else %}
+      <td id=red>Mangler</td>
+      <td>
+        {% if (task_status.done_6) %}
+          <form action=/tasks method=post>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="generate_startlist" value="  Generer startliste  ">
+          </form>
+        {% endif %}
+      </td>
+      <td></td>
+    {% endif %}
+  </tr>
+  <tr>
+    <td colspan=4 id=spacer></td>
+  </tr>
+  <tr>
+    <td>6b. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="result_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=template')" href=>se/endre</a>)</td>
+    {% if (task_status.done_9) %}
+      <td id=green>Utført</td>
+      <td>
+        {% if (task_status.done_6) %}
+          <form action=/tasks method=post>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="generate_next_race" value="  Generer på nytt  ">
+          </form>
+        {% endif %}
+      </td>
+      <td>
+        {{ task_status.no_of_next_race }} <i>videre til</i> semi og finaler er opprettet.
+      </td>
+    {% else %}
+      <td id=red>Mangler</td>
+      <td>
+        {% if (task_status.done_6) %}
+          <form action=/tasks method=post>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="generate_next_race" value="  Generer videre til oppsett  ">
+          </form>
+        {% endif %}
+      </td>
+      <td></td>
+    {% endif %}
+  </tr>
+  <tr>
+    <td colspan=4 id=spacer></td>
+  </tr>
+  <tr>
+    <td>7. Opprydding</td>
+      <td>Manuell operasjon</td>
+      <td>
+          <form action=/tasks method=post onsubmit="return confirm_delete();">
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="delete_start_lists" value="  Slett alle startlister  ">
+          </form>
+          <div id=minispacer></div>
+          <form action=/tasks method=post onsubmit="return confirm_delete();">
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="delete_time_events" value="  Slett alle passeringer  ">
+          </form>
+      </td>
+      <td>Mulighet til å slette alle startlister og passeringer, inkludert videre til oppsett.
+      </td>
+  </tr>
   </table>
 {% endblock %}

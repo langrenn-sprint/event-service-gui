@@ -17,7 +17,7 @@ nox.options.sessions = (
 )
 
 
-@session(python=["3.7", "3.9"])
+@session
 def integration_tests(session: Session) -> None:
     """Run the integration test suite."""
     args = session.posargs or ["--cov"]
@@ -40,7 +40,7 @@ def integration_tests(session: Session) -> None:
     )
 
 
-@session(python=["3.7", "3.9"])
+@session
 def contract_tests(session: Session) -> None:
     """Run the contract test suite."""
     args = session.posargs
@@ -61,7 +61,7 @@ def contract_tests(session: Session) -> None:
     )
 
 
-@session(python=["3.7", "3.9"])
+@session
 def black(session: Session) -> None:
     """Run black code formatter."""
     args = session.posargs or locations
@@ -69,7 +69,7 @@ def black(session: Session) -> None:
     session.run("black", *args)
 
 
-@session(python=["3.7", "3.9"])
+@session
 def lint(session: Session) -> None:
     """Lint using flake8."""
     args = session.posargs or locations
@@ -88,7 +88,7 @@ def lint(session: Session) -> None:
     session.run("flake8", *args)
 
 
-@session(python=["3.7", "3.9"])
+@session(python=["3.10"])
 def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     with tempfile.NamedTemporaryFile() as requirements:
@@ -105,7 +105,7 @@ def safety(session: Session) -> None:
         session.run("safety", "check", f"--file={requirements.name}", "--full-report")
 
 
-@session(python=["3.7", "3.9"])
+@session
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
     pass
@@ -114,7 +114,7 @@ def mypy(session: Session) -> None:
     session.run("mypy", *args)
 
 
-@session(python="3.7")
+@session
 def pytype(session: Session) -> None:
     """Run the static type checker using pytype."""
     args = session.posargs or ["--disable=import-error", *locations]
@@ -122,7 +122,7 @@ def pytype(session: Session) -> None:
     session.run("pytype", *args)
 
 
-@session(python=["3.7", "3.9"])
+@session
 def coverage(session: Session) -> None:
     """Upload coverage data."""
     session.install("coverage[toml]", "codecov")

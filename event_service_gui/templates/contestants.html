@@ -51,19 +51,19 @@
       return true;
     }
   </script>
-  <table>
-    <tr>
-      <td>
-        {% if username != "Gjest" %}
+  {% if username != "Gjest" and action != "new_manual" %}
+    <table>
+      <tr>
+        <td>
           <form action=/tasks method=get target=new>
             <input type="hidden" name=event_id value="{{ event_id }}">
             <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
           </form>
-        {% endif %}
-      </td>
-      <td>Antall deltakere: {{ contestants|length }}</td>
-    </tr>
-  </table>
+        </td>
+        <td>Antall deltakere: {{ contestants|length }}</td>
+      </tr>
+    </table>
+  {% endif %}
     {% if action == "new_from_file" %}
     <form action=/contestants method=post enctype="multipart/form-data" >
       <table cellpadding=4>
@@ -116,7 +116,7 @@
               <form action=/contestants method=get>
                 <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="new_manual">
-                <input type="submit" name=new_manual value="  Legg til deltaker mauelt  ">
+                <input type="submit" name=new_manual value="  Legg til deltaker  ">
               </form>
             </td>
             <td>
@@ -455,17 +455,17 @@
         <tr id=spacer></tr>
       </table>
     {% endif %}
-    <table>
-      <tr>
-        <td>
-          {% if username != "Gjest" %}
+    {% if username != "Gjest" and action != "new_manual" %}
+      <table>
+        <tr>
+          <td>
             <form action=/tasks method=get target=new>
               <input type="hidden" name=event_id value="{{ event_id }}">
               <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
             </form>
-          {% endif %}
-        </td>
-        <td>Antall deltakere: {{ contestants|length }}</td>
-      </tr>
-    </table>
+          </td>
+          <td>Antall deltakere: {{ contestants|length }}</td>
+        </tr>
+      </table>
+    {% endif %}
   {% endblock %}
