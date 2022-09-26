@@ -6,7 +6,12 @@ from aiohttp import web
 import aiohttp_jinja2
 
 from event_service_gui.services import EventsAdapter
-from .utils import check_login, get_event, get_local_time
+from .utils import (
+    check_login,
+    create_default_competition_format,
+    get_event,
+    get_local_time,
+)
 
 
 class Settings(web.View):
@@ -72,35 +77,7 @@ class Settings(web.View):
                     informasjon = await EventsAdapter().delete_competition_format(
                         user["token"], format["id"]
                     )
-
-                # then create new with default values
-                request_body = {
-                    "name": "Interval Start",
-                    "starting_order": "Draw",
-                    "start_procedure": "Interval Start",
-                    "time_between_groups": "00:05:00",
-                    "intervals": "00:00:30",
-                    "max_no_of_contestants_in_raceclass": 9999,
-                    "max_no_of_contestants_in_race": 9999,
-                    "datatype": "interval_start",
-                }
-                informasjon = await EventsAdapter().create_competition_format(
-                    user["token"], request_body
-                )
-                request_body = {
-                    "name": "Individual Sprint",
-                    "starting_order": "Heat Start",
-                    "start_procedure": "Draw",
-                    "time_between_groups": "00:15:00",
-                    "time_between_rounds": "00:03:00",
-                    "time_between_heats": "00:01:30",
-                    "max_no_of_contestants_in_raceclass": 80,
-                    "max_no_of_contestants_in_race": 10,
-                    "datatype": "individual_sprint",
-                }
-                informasjon = await EventsAdapter().create_competition_format(
-                    user["token"], request_body
-                )
+                informasjon = await create_default_competition_format(user["token"])
             elif "update_sprint_config" in form.keys():
                 new_config = get_sprint_matrix_from_form(form)  # type: ignore
                 informasjon = f"TODO - tjenesten er ikke implementert ennå {new_config}"

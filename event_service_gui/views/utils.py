@@ -47,6 +47,34 @@ async def check_login_open(self) -> dict:
     return user
 
 
+async def create_default_competition_format(token: str) -> str:
+    """Create default competition formats."""
+    request_body = {
+        "name": "Interval Start",
+        "starting_order": "Draw",
+        "start_procedure": "Interval Start",
+        "time_between_groups": "00:05:00",
+        "intervals": "00:00:30",
+        "max_no_of_contestants_in_raceclass": 9999,
+        "max_no_of_contestants_in_race": 9999,
+        "datatype": "interval_start",
+    }
+    informasjon = await EventsAdapter().create_competition_format(token, request_body)
+    request_body = {
+        "name": "Individual Sprint",
+        "starting_order": "Heat Start",
+        "start_procedure": "Draw",
+        "time_between_groups": "00:15:00",
+        "time_between_rounds": "00:03:00",
+        "time_between_heats": "00:01:30",
+        "max_no_of_contestants_in_raceclass": 80,
+        "max_no_of_contestants_in_race": 10,
+        "datatype": "individual_sprint",
+    }
+    informasjon += await EventsAdapter().create_competition_format(token, request_body)
+    return informasjon
+
+
 async def get_event(token: str, event_id: str) -> dict:
     """Get event - return new if no event found."""
     event = {"id": event_id, "name": "Langrenn-sprint", "organiser": "Ikke valgt"}

@@ -5,7 +5,7 @@ from aiohttp import web
 import aiohttp_jinja2
 
 from event_service_gui.services import EventsAdapter
-from .utils import check_login, get_event
+from .utils import check_login, create_default_competition_format, get_event
 
 
 class Events(web.View):
@@ -38,10 +38,7 @@ class Events(web.View):
             except Exception:
                 create_new = False
 
-            competition_formats = await EventsAdapter().get_competition_formats(
-                user["token"]
-            )
-            logging.debug(f"Format: {competition_formats}")
+            competition_formats = await get_competition_formats(user["token"])
 
             return await aiohttp_jinja2.render_template_async(
                 "events.html",
@@ -128,3 +125,13 @@ class Events(web.View):
 
         info = f"action={action}&informasjon={informasjon}"
         return web.HTTPSeeOther(location=f"/events?event_id={event_id}&{info}")
+
+
+async def get_competition_formats(token: str) -> list:
+    """Get valid competation formats. Created default if none exist."""
+    competition_formats = await EventsAdapter().get_competition_formats(token)
+    if len(competition_formats) == 0:
+        breakpoint()
+        await create_default_competition_format(token)
+        competition_formats = await EventsAdapter().get_competition_formats(token)
+    return competition_formats
