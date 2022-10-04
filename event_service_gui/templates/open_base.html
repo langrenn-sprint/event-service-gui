@@ -44,18 +44,23 @@
           <li class=dropdown>
             <a href=javascript:void(0) class=dropbtn>...</a>
             <div class=dropdown-content>
-              <a id="myIndex" onclick="result_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>
-              {% if event_id != "" %}
-                <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a>
-                <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a>
-                <a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater</a>
-                {% if username != "Gjest" %}
-                  <a id="myNewContestant" onclick="event_gui_href('myNewContestant', 'contestants?event_id={{ event_id }}&action=new_manual')" href=><img id=menu_icon src="../static/icon_new.png"> Etteranmelding</a>
-                  <a id="myTiming" onclick="result_gui_href('myTiming', 'resultat_edit?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Tidtaker</a>
-                  <a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_settings.png"> Arrangement</a>
-                  <a id="myAdmU" onclick="result_gui_href('myAdmU', 'dashboard?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_event.png"> Renn admin</a>
+              <table><tr><td>
+                <a id="myIndex" onclick="result_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>
+                {% if event_id %}
+                  <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a>
+                  <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a>
+                  <a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater</a>
+                  <a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a>
+                  {% if username != "Gjest" %}
+                  </td><td>
+                      <span id=black>Admin funksjoner</span><br>
+                      <a id="myNewContestant" onclick="event_gui_href('myNewContestant', 'contestants?event_id={{ event_id }}&action=new_manual')" href=><img id=menu_icon src="../static/icon_new.png"> Etteranmelding</a>
+                      <a id="myTiming" onclick="result_gui_href('myTiming', 'resultat_edit?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Tidtaker</a>
+                      <a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_settings.png"> Arrangement</a>
+                      <a id="myAdmU" onclick="result_gui_href('myAdmU', 'dashboard?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_event.png"> Renn admin</a>
+                  {% endif %}
                 {% endif %}
-              {% endif %}
+              </tr></table>
             </div>
           </li>
           <li id=topborder class=active>
