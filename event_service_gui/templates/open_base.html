@@ -32,55 +32,54 @@
     </script>
   </head>
   <body>
+    <div class="w3-container" id=adminpagetitle>
+      {% block headercontainer %}{% endblock %}{{ event.name }}
+    </div>
+    <div id=minispacer></div>
+    <div class="w3-container-sticky">
+      <ul>
+        <li class=dropdown>
+          <a href=javascript:void(0) class=dropbtn>...</a>
+          <div class=dropdown-content>
+            <table><tr><td>
+              <a id="myIndex" onclick="result_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>
+              {% if event_id %}
+                <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a>
+                <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a>
+                <a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater</a>
+                <a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a>
+                {% if username != "Gjest" %}
+                </td><td>
+                    <a id="myNewContestant" onclick="event_gui_href('myNewContestant', 'contestants?event_id={{ event_id }}&action=new_manual')" href=><img id=menu_icon src="../static/icon_new.png"> Etteranmelding</a>
+                    <a id="myTiming" onclick="result_gui_href('myTiming', 'resultat_edit?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Tidtaker</a>
+                    <a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_event.png"> Arrangement</a>
+                    <a id="myAdmB" onclick="result_gui_href('myAdmB', 'photos_adm?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Foto admin</a>
+                    <a id="myAdmU" onclick="result_gui_href('myAdmU', 'dashboard?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_settings.png"> Renn admin</a>
+                {% endif %}
+              {% endif %}
+            </td></tr></table>
+          </div>
+        </li>
+        <li id=topborder class=active>
+          {% block titlemain %}{% endblock %}
+        </li>
+        {% block menuitems %}{% endblock %}
+        <li class=dropdown id=topborder style="float:right">
+          <a href=javascript:void(0) class=dropbtn><img id=menu_icon src="../static/icon_user.png">&nbsp;{{ username }}&nbsp;&nbsp;&nbsp;&nbsp;</a>
+          <div class=dropdown-content>
+            {% if username == "Gjest" %}
+              <a href=/login class=dropbtn>Logg inn</a>
+            {% else %}
+              <a id="myUsers" onclick="event_gui_href('myUsers', 'users')" href="/users">Brukere</a>
+              <a id="mySettings" onclick="event_gui_href('mySettings', 'settings')" href="/settings">Globale innstillinger</a>
+              <a href="/logout">Logg ut</a>
+            {% endif %}
+          </div>
+        </li>
+      </ul>
+    </div>
     <div class="w3-row-padding">
       {% block titlecontainer %}{% endblock %}
-      <div id=spacer></div>
-      <div class="w3-container" id=adminpagetitle>
-        {% block headercontainer %}{% endblock %}{{ event.name }}
-      </div>
-      <div id=minispacer></div>
-      <div class="w3-container-sticky">
-        <ul>
-          <li class=dropdown>
-            <a href=javascript:void(0) class=dropbtn>...</a>
-            <div class=dropdown-content>
-              <table><tr><td>
-                <a id="myIndex" onclick="result_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>
-                {% if event_id %}
-                  <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a>
-                  <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a>
-                  <a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater</a>
-                  <a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a>
-                  {% if username != "Gjest" %}
-                  </td><td>
-                      <a id="myNewContestant" onclick="event_gui_href('myNewContestant', 'contestants?event_id={{ event_id }}&action=new_manual')" href=><img id=menu_icon src="../static/icon_new.png"> Etteranmelding</a>
-                      <a id="myTiming" onclick="result_gui_href('myTiming', 'resultat_edit?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Tidtaker</a>
-                      <a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_event.png"> Arrangement</a>
-                      <a id="myAdmB" onclick="result_gui_href('myAdmB', 'photos_adm?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Foto admin</a>
-                      <a id="myAdmU" onclick="result_gui_href('myAdmU', 'dashboard?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_settings.png"> Renn admin</a>
-                  {% endif %}
-                {% endif %}
-              </td></tr></table>
-            </div>
-          </li>
-          <li id=topborder class=active>
-            {% block titlemain %}{% endblock %}
-          </li>
-          {% block menuitems %}{% endblock %}
-          <li class=dropdown id=topborder style="float:right">
-            <a href=javascript:void(0) class=dropbtn><img id=menu_icon src="../static/icon_user.png">&nbsp;{{ username }}&nbsp;&nbsp;&nbsp;&nbsp;</a>
-            <div class=dropdown-content>
-              {% if username == "Gjest" %}
-                <a href=/login class=dropbtn>Logg inn</a>
-              {% else %}
-                <a id="myUsers" onclick="event_gui_href('myUsers', 'users')" href="/users">Brukere</a>
-                <a id="mySettings" onclick="event_gui_href('mySettings', 'settings')" href="/settings">Globale innstillinger</a>
-                <a href="/logout">Logg ut</a>
-              {% endif %}
-            </div>
-          </li>
-        </ul>
-      </div>
       <div id=spacer></div>
       <div class="w3-container" id=info>{{ informasjon }}</div>
     {% block content %}{% endblock %}
@@ -88,6 +87,7 @@
     <div id=footeradmin>
         <a href="https://github.com/langrenn-sprint">langrenn-sprint</a> - utviklet av Lyn ski og Kjelsås langrenn
     </div>
+    <div id=bigspacer></div>
   </div>
   </body>
 </html>
