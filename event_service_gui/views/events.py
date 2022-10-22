@@ -131,7 +131,6 @@ async def get_competition_formats(token: str) -> list:
     """Get valid competation formats. Created default if none exist."""
     competition_formats = await EventsAdapter().get_competition_formats(token)
     if len(competition_formats) == 0:
-        breakpoint()
         await create_default_competition_format(token)
         competition_formats = await EventsAdapter().get_competition_formats(token)
     return competition_formats
