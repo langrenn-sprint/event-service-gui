@@ -1,4 +1,5 @@
 """Conftest module."""
+import os
 from os import environ as env
 import time
 from typing import Any
@@ -31,3 +32,23 @@ def is_responsive(url: Any) -> Any:
             return True
     except ConnectionError:
         return False
+
+
+@pytest.mark.contract
+@pytest.fixture(scope="session")
+def http_service(docker_ip: Any, docker_services: Any) -> Any:
+    """Ensure that HTTP service is up and responsive."""
+    # `port_for` takes a container port and returns the corresponding host port
+    port = docker_services.port_for("event-service", HOST_PORT)
+    url = "http://{}:{}".format(docker_ip, port)
+    docker_services.wait_until_responsive(
+        timeout=30.0, pause=0.1, check=lambda: is_responsive(url)
+    )
+    return url
+
+
+@pytest.mark.contract
+@pytest.fixture(scope="session")
+def docker_compose_file(pytestconfig: Any) -> Any:
+    """Override default location of docker-compose.yml file."""
+    return os.path.join(str(pytestconfig.rootdir), "./", "docker-compose.yml")

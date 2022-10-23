@@ -17,7 +17,7 @@ nox.options.sessions = (
 )
 
 
-@session
+@session(python="3.10")
 def integration_tests(session: Session) -> None:
     """Run the integration test suite."""
     args = session.posargs or ["--cov"]
@@ -40,7 +40,7 @@ def integration_tests(session: Session) -> None:
     )
 
 
-@session
+@session(python="3.10")
 def contract_tests(session: Session) -> None:
     """Run the contract test suite."""
     args = session.posargs
@@ -57,11 +57,23 @@ def contract_tests(session: Session) -> None:
         "-m contract",
         "-rA",
         *args,
-        env={},
+        env={
+            "CONFIG": "test",
+            "ADMIN_USERNAME": "admin",
+            "ADMIN_PASSWORD": "password",
+            "EVENTS_HOST_SERVER": "localhost",
+            "EVENTS_HOST_PORT": "8080",
+            "USERS_HOST_SERVER": "localhost",
+            "USERS_HOST_PORT": "8081",
+            "JWT_EXP_DELTA_SECONDS": "60",
+            "DB_USER": "event-service",
+            "DB_PASSWORD": "password",
+            "LOGGING_LEVEL": "INFO",
+        },
     )
 
 
-@session
+@session(python="3.10")
 def black(session: Session) -> None:
     """Run black code formatter."""
     args = session.posargs or locations
@@ -69,7 +81,7 @@ def black(session: Session) -> None:
     session.run("black", *args)
 
 
-@session
+@session(python="3.10")
 def lint(session: Session) -> None:
     """Lint using flake8."""
     args = session.posargs or locations
@@ -105,7 +117,7 @@ def safety(session: Session) -> None:
         session.run("safety", "check", f"--file={requirements.name}", "--full-report")
 
 
-@session
+@session(python="3.10")
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
     pass
@@ -122,7 +134,7 @@ def pytype(session: Session) -> None:
     session.run("pytype", *args)
 
 
-@session
+@session(python="3.10")
 def coverage(session: Session) -> None:
     """Upload coverage data."""
     session.install("coverage[toml]", "codecov")
