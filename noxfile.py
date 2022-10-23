@@ -57,7 +57,19 @@ def contract_tests(session: Session) -> None:
         "-m contract",
         "-rA",
         *args,
-        env={},
+        env={
+            "CONFIG": "test",
+            "ADMIN_USERNAME": "admin",
+            "ADMIN_PASSWORD": "password",
+            "EVENTS_HOST_SERVER": "localhost",
+            "EVENTS_HOST_PORT": "8080",
+            "USERS_HOST_SERVER": "localhost",
+            "USERS_HOST_PORT": "8081",
+            "JWT_EXP_DELTA_SECONDS": "60",
+            "DB_USER": "event-service",
+            "DB_PASSWORD": "password",
+            "LOGGING_LEVEL": "INFO",
+        },
     )
 
 
