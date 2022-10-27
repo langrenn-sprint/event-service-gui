@@ -107,7 +107,7 @@ def safety(session: Session) -> None:
         session.run(
             "poetry",
             "export",
-            "--dev",
+            "--with dev",
             "--format=requirements.txt",
             "--without-hashes",
             f"--output={requirements.name}",

@@ -4,7 +4,7 @@ RUN mkdir -p /usr/app
 WORKDIR /usr/app
 
 RUN pip install --upgrade pip
-RUN pip install "poetry==1.1.6"
+RUN pip install "poetry==1.2.2"
 COPY poetry.lock pyproject.toml /usr/app/
 
 # Project initialization:
