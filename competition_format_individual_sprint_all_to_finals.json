@@ -246,7 +246,7 @@
             "max_no_of_contestants": 48,
             "rounds": ["Q", "S", "F"],
             "no_of_heats": {"Q": {"A": 6}, "S": {"A": 4, "C": 4}, "F": {"A": 1, "B": 3, "C": 2}},
-            "from_to": {"Q": {"A": {"S": {"A": 4, "C": "REST"}}}, "S": {"A": {"F": {"A": 2, "B1": 2, "B2": 2, "B3": "REST"}}, "C": {"F": {"C1": 4, "C2": "REST"}}}}
+            "from_to": {"Q": {"A": {"S": {"A": 4, "C": "REST"}}}, "S": {"A": {"F": {"A": 2, "B1": 2, "B2": 2, "B3": "REST"}}, "C": {"F": {"C1": 2, "C2": "REST"}}}}
         },
         {
             "max_no_of_contestants": 56,
