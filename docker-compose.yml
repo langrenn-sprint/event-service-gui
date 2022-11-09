@@ -14,8 +14,8 @@ services:
       - EVENTS_HOST_PORT=8080
       - RACE_HOST_SERVER=race-service
       - RACE_HOST_PORT=8080
-      - RESULT_GUI_HOST_SERVER=localhost
-      - RESULT_GUI_HOST_PORT=8090
+      - COMPETITION_FORMAT_HOST_SERVER=competition-format-service
+      - COMPETITION_FORMAT_HOST_PORT=8080
       - USERS_HOST_SERVER=user-service
       - USERS_HOST_PORT=8080
     depends_on:
@@ -28,6 +28,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - COMPETITION_FORMAT_HOST_SERVER=competition-format-service
+      - COMPETITION_FORMAT_HOST_PORT=8080
       - USERS_HOST_SERVER=user-service
       - USERS_HOST_PORT=8080
       - LOGGING_LEVEL=${LOGGING_LEVEL}
@@ -45,6 +47,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - COMPETITION_FORMAT_HOST_SERVER=competition-format-service
+      - COMPETITION_FORMAT_HOST_PORT=8080
       - EVENTS_HOST_SERVER=event-service
       - EVENTS_HOST_PORT=8080
       - USERS_HOST_SERVER=user-service
@@ -56,6 +60,23 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
     depends_on:
       - "mongodb"
+  competition-format-service:
+    image: ghcr.io/langrenn-sprint/competition-format-service:latest
+    ports:
+      - 8094:8080
+    environment:
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - USERS_HOST_SERVER=user-service
+      - USERS_HOST_PORT=8080
+      - DB_HOST=mongodb
+      - DB_PORT=27017
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - LOGGING_LEVEL=${LOGGING_LEVEL}
+    depends_on:
+      - user-service
+      - mongodb
   user-service:
     image: ghcr.io/langrenn-sprint/user-service:latest
     ports:

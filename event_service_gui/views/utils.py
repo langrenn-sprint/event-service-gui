@@ -5,7 +5,11 @@ import logging
 from aiohttp import web
 from aiohttp_session import get_session
 
-from event_service_gui.services import EventsAdapter, UserAdapter
+from event_service_gui.services import (
+    CompetitionFormatAdapter,
+    EventsAdapter,
+    UserAdapter,
+)
 
 
 async def check_login(self) -> dict:
@@ -47,31 +51,14 @@ async def check_login_open(self) -> dict:
     return user
 
 
-async def create_default_competition_format(token: str) -> str:
+async def create_default_competition_format(token: str, format_name: str) -> str:
     """Create default competition formats."""
-    request_body = {
-        "name": "Interval Start",
-        "starting_order": "Draw",
-        "start_procedure": "Interval Start",
-        "time_between_groups": "00:05:00",
-        "intervals": "00:00:30",
-        "max_no_of_contestants_in_raceclass": 9999,
-        "max_no_of_contestants_in_race": 9999,
-        "datatype": "interval_start",
-    }
-    informasjon = await EventsAdapter().create_competition_format(token, request_body)
-    request_body = {
-        "name": "Individual Sprint",
-        "starting_order": "Heat Start",
-        "start_procedure": "Draw",
-        "time_between_groups": "00:15:00",
-        "time_between_rounds": "00:03:00",
-        "time_between_heats": "00:01:30",
-        "max_no_of_contestants_in_raceclass": 80,
-        "max_no_of_contestants_in_race": 10,
-        "datatype": "individual_sprint",
-    }
-    informasjon += await EventsAdapter().create_competition_format(token, request_body)
+    request_body = CompetitionFormatAdapter().get_default_competition_format(
+        format_name
+    )
+    informasjon = await CompetitionFormatAdapter().create_competition_format(
+        token, request_body
+    )
     return informasjon
 
 
@@ -108,24 +95,18 @@ def get_qualification_text(race: dict) -> str:
         for key, value in race["rule"].items():
             if key == "S":
                 for x, y in value.items():
-                    if x == "A" and y > 0:
-                        text += f"{y} til semi A. "
-                    elif x == "C" and y > 0:
-                        text += "Resten til semi C. "
+                    if y == "REST":
+                        text += f"Resten til semi {x}. "
+                    elif y > 0:
+                        text += f"{y} til semi {x}. "
             elif key == "F":
                 for x, y in value.items():
-                    if x == "A":
-                        text += f"{y} til finale A. "
-                    elif x == "B" and y > 8:
-                        text += "Resten til finale B. "
-                    elif x == "B":
-                        text += f"{y} til finale B. "
-                    elif x == "C" and y > 8:
-                        text += "Resten til finale C. "
-                    elif x == "C":
-                        text += f"{y} til finale C. "
-                if text.count("Resten") == 0:
-                    text += "Resten er ute. "
+                    if y == "ALL":
+                        text += f"Alle til finale {x}. "
+                    elif y == "REST":
+                        text += f"Resten til finale {x}. "
+                    elif y > 0:
+                        text += f"{y} til finale {x}. "
     logging.debug(f"Regel hele: {text}")
     return text
 

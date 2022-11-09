@@ -4,7 +4,7 @@ import logging
 from aiohttp import web
 import aiohttp_jinja2
 
-from event_service_gui.services import EventsAdapter
+from event_service_gui.services import CompetitionFormatAdapter, EventsAdapter
 from .utils import check_login, create_default_competition_format, get_event
 
 
@@ -129,8 +129,12 @@ class Events(web.View):
 
 async def get_competition_formats(token: str) -> list:
     """Get valid competation formats. Created default if none exist."""
-    competition_formats = await EventsAdapter().get_competition_formats(token)
+    competition_formats = await CompetitionFormatAdapter().get_competition_formats(
+        token
+    )
     if len(competition_formats) == 0:
-        await create_default_competition_format(token)
-        competition_formats = await EventsAdapter().get_competition_formats(token)
+        await create_default_competition_format(token, "default_individual_sprint")
+        competition_formats = await CompetitionFormatAdapter().get_competition_formats(
+            token
+        )
     return competition_formats

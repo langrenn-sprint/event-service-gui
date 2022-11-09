@@ -191,9 +191,9 @@ def get_next_start_entry(token: str, time_event: dict, races: list) -> dict:
             for key, value in race["rule"].items():
                 if key == "S":
                     for x, y in value.items():
-                        if x == "A" and y > 0:
+                        if x == "A":
                             next_race[0]["qualified"] = y
-                        elif x == "C" and y > 0:
+                        elif x == "C":
                             next_race[1]["qualified"] = y
                 elif key == "F":
                     for x, y in value.items():
@@ -208,8 +208,12 @@ def get_next_start_entry(token: str, time_event: dict, races: list) -> dict:
     ilimitplace = 0
     ilimitcurrent = 0
     for race_item in next_race:
-        ilimitcurrent = race_item["qualified"]
-        limit_rank = ilimitcurrent + ilimitplace
+        try:
+            ilimitcurrent = race_item["qualified"]
+            limit_rank = ilimitcurrent + ilimitplace
+        except Exception:
+            # if error assume all remaining racers are qualified
+            limit_rank = 99
         if time_event["rank"] <= limit_rank:
             race_item["current_contestant_qualified"] = True
             # now we have next round - get race id
