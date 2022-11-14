@@ -183,40 +183,9 @@ class TimeEventsService:
 def get_next_start_entry(token: str, time_event: dict, races: list) -> dict:
     """Generate start_entry - empty result if not qualified."""
     start_entry = {}
-    next_race = next_race_template()
 
     # find relevant race and get next race rule
-    for race in races:
-        if race["id"] == time_event["race_id"]:
-            for key, value in race["rule"].items():
-                if key == "S":
-                    for x, y in value.items():
-                        if x == "A":
-                            next_race[0]["qualified"] = y
-                        elif x == "C":
-                            next_race[1]["qualified"] = y
-                elif key == "F":
-                    for x, y in value.items():
-                        if x == "A":
-                            next_race[2]["qualified"] = y
-                        elif x == "B":
-                            next_race[3]["qualified"] = y
-                        elif x == "B1":
-                            next_race[4]["qualified"] = y
-                        elif x == "B2":
-                            next_race[5]["qualified"] = y
-                        elif x == "B3":
-                            next_race[6]["qualified"] = y
-                        elif x == "C":
-                            next_race[7]["qualified"] = y
-                        elif x == "C1":
-                            next_race[8]["qualified"] = y
-                        elif x == "C2":
-                            next_race[9]["qualified"] = y
-                        elif x == "C3":
-                            next_race[10]["qualified"] = y
-                        elif x == "C4":
-                            next_race[11]["qualified"] = y
+    next_race = populate_next_race(time_event, races, next_race_template())
 
     # interpret rule part 2 - find next round and get race id
     ilimitplace = 0
@@ -322,6 +291,42 @@ async def find_race_id_from_time_event(token: str, time_event: dict) -> str:
 
     # validate registration time_for confirmation
     return race_id
+
+
+def populate_next_race(time_event: dict, races: list, next_race: list) -> list:
+    """Return rules matrix for next race."""
+    for race in races:
+        if race["id"] == time_event["race_id"]:
+            for key, value in race["rule"].items():
+                if key == "S":
+                    for x, y in value.items():
+                        if x == "A":
+                            next_race[0]["qualified"] = y
+                        elif x == "C":
+                            next_race[1]["qualified"] = y
+                elif key == "F":
+                    for x, y in value.items():
+                        if x == "A":
+                            next_race[2]["qualified"] = y
+                        elif x == "B":
+                            next_race[3]["qualified"] = y
+                        elif x == "B1":
+                            next_race[4]["qualified"] = y
+                        elif x == "B2":
+                            next_race[5]["qualified"] = y
+                        elif x == "B3":
+                            next_race[6]["qualified"] = y
+                        elif x == "C":
+                            next_race[7]["qualified"] = y
+                        elif x == "C1":
+                            next_race[8]["qualified"] = y
+                        elif x == "C2":
+                            next_race[9]["qualified"] = y
+                        elif x == "C3":
+                            next_race[10]["qualified"] = y
+                        elif x == "C4":
+                            next_race[11]["qualified"] = y
+    return next_race
 
 
 def next_race_template() -> list:
