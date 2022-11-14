@@ -201,8 +201,22 @@ def get_next_start_entry(token: str, time_event: dict, races: list) -> dict:
                             next_race[2]["qualified"] = y
                         elif x == "B":
                             next_race[3]["qualified"] = y
-                        elif x == "C":
+                        elif x == "B1":
                             next_race[4]["qualified"] = y
+                        elif x == "B2":
+                            next_race[5]["qualified"] = y
+                        elif x == "B3":
+                            next_race[6]["qualified"] = y
+                        elif x == "C":
+                            next_race[7]["qualified"] = y
+                        elif x == "C1":
+                            next_race[8]["qualified"] = y
+                        elif x == "C2":
+                            next_race[9]["qualified"] = y
+                        elif x == "C3":
+                            next_race[10]["qualified"] = y
+                        elif x == "C4":
+                            next_race[11]["qualified"] = y
 
     # interpret rule part 2 - find next round and get race id
     ilimitplace = 0
@@ -282,9 +296,14 @@ def calculate_next_start_entry(
                 logging.debug(f"Found next race: {race}")
                 start_entry["race_id"] = race.get("id")
                 start_entry["scheduled_start_time"] = race.get("start_time")
-                start_entry[
-                    "race_round"
-                ] = f"{race.get('round')}{race.get('index')}{race.get('heat')}"
+                if race.get("round") == "F":
+                    start_entry[
+                        "race_round"
+                    ] = f"{race.get('round')}{race.get('index')}"
+                else:
+                    start_entry[
+                        "race_round"
+                    ] = f"{race.get('round')}{race.get('index')}{race.get('heat')}"
         start_entry["starting_position"] = next_race_position
 
         logging.debug(
@@ -329,7 +348,42 @@ def next_race_template() -> list:
             "current_contestant_qualified": False,
         },
         {
+            "round": "FB1",
+            "qualified": 0,
+            "current_contestant_qualified": False,
+        },
+        {
+            "round": "FB2",
+            "qualified": 0,
+            "current_contestant_qualified": False,
+        },
+        {
+            "round": "FB3",
+            "qualified": 0,
+            "current_contestant_qualified": False,
+        },
+        {
             "round": "FC",
+            "qualified": 0,
+            "current_contestant_qualified": False,
+        },
+        {
+            "round": "FC1",
+            "qualified": 0,
+            "current_contestant_qualified": False,
+        },
+        {
+            "round": "FC2",
+            "qualified": 0,
+            "current_contestant_qualified": False,
+        },
+        {
+            "round": "FC3",
+            "qualified": 0,
+            "current_contestant_qualified": False,
+        },
+        {
+            "round": "FC4",
             "qualified": 0,
             "current_contestant_qualified": False,
         },
