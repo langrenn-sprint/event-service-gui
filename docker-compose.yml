@@ -18,8 +18,13 @@ services:
       - COMPETITION_FORMAT_HOST_PORT=8080
       - USERS_HOST_SERVER=user-service
       - USERS_HOST_PORT=8080
+    volumes:
+      - .:/app
     depends_on:
       - "event-service"
+      - "competition-format-service"
+      - "race-service"
+      - "user-service"
   event-service:
     image: ghcr.io/langrenn-sprint/event-service:latest
     ports:

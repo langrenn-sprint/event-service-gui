@@ -59,7 +59,9 @@ async def create_app() -> web.Application:
     app.router.add_get("/secret", handler)
 
     # Set up logging
-    logging.basicConfig(level=LOGGING_LEVEL)
+    logging.basicConfig(
+        level=LOGGING_LEVEL, filename="event-service-gui.log", encoding="utf-8"
+    )
     # Set up template path
     template_path = os.path.join(PROJECT_ROOT, "templates")
     aiohttp_jinja2.setup(
