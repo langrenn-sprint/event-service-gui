@@ -60,7 +60,7 @@ async def create_app() -> web.Application:
 
     # Set up logging
     logging.basicConfig(
-        level=LOGGING_LEVEL, filename="event-service-gui.log", encoding="utf-8"
+        level=LOGGING_LEVEL, filename="event-service-gui.log"
     )
     # Set up template path
     template_path = os.path.join(PROJECT_ROOT, "templates")
