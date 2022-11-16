@@ -5,7 +5,6 @@ import os
 import time
 
 from aiohttp import web
-import aiohttp_cors
 import aiohttp_jinja2
 from aiohttp_session import get_session, setup
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
@@ -91,18 +90,6 @@ async def create_app() -> web.Application:
             web.view("/users", Users),
         ]
     )
-
-    cors = aiohttp_cors.setup(
-        app,
-        defaults={
-            "*": aiohttp_cors.ResourceOptions(
-                allow_credentials=True, expose_headers="*", allow_headers="*"
-            )
-        },
-    )
-
-    for route in list(app.router.routes()):
-        cors.add(route)
 
     # Set up static path
     static_dir = os.path.join(PROJECT_ROOT, "static")
