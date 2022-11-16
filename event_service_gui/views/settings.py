@@ -87,32 +87,38 @@ class Settings(web.View):
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
+            logging.info("TEST0")
 
             # Create default settings
             if (
                 "default_individual_sprint" in form.keys()
                 or "default_sprint_all_to_finals" in form.keys()
             ):
+                logging.info("TEST1")
                 # delete all old information
                 competition_formats = (
                     await CompetitionFormatAdapter().get_competition_formats(
                         user["token"]
                     )
                 )
+                logging.info("TEST2")
                 for format in competition_formats:
                     informasjon = (
                         await CompetitionFormatAdapter().delete_competition_format(
                             user["token"], format["id"]
                         )
                     )
+                logging.info("TEST3")
                 # create new - for individual sprint and interval start
                 for format in form.keys():
                     informasjon += await create_default_competition_format(
                         user["token"], format
                     )
+                logging.info("TEST4")
                 informasjon += await create_default_competition_format(
                     user["token"], "default_interval_start"
                 )
+                logging.info("TEST5")
             elif "update" in form.keys():
 
                 if form["datatype"] == "individual_sprint":

@@ -32,6 +32,7 @@ flake8-bugbear = "^22.10.1"
 nox = "^2022.8.7"
 nox-poetry = "^1.0.1"
 setuptools = "^65.5.0"
+aiohttp_cors = "^0.7.0"
 
 [tool.poetry.dev-dependencies]
 aiohttp-devtools = "^1"
