@@ -170,7 +170,7 @@ class Settings(web.View):
                 )
         except Exception as e:
             logging.error(f"Error: {e}")
-            informasjon = f"Det har oppstått en feil - {e.args}."
+            informasjon = f"Det har oppstått en feil - {e}."
             error_reason = str(e)
             if error_reason.startswith("401"):
                 return web.HTTPSeeOther(
