@@ -109,11 +109,15 @@ class CompetitionFormatAdapter:
     def get_default_competition_format(self, format_type: str) -> dict:
         """Get default settings from config file."""
         if format_type == "default_individual_sprint":
-            config_file_name = "competition_format_individual_sprint.json"
+            config_file_name = (
+                f"{os.getcwd()}/competition_format_individual_sprint.json"
+            )
         elif format_type == "default_sprint_all_to_finals":
-            config_file_name = "competition_format_individual_sprint_all_to_finals.json"
+            config_file_name = (
+                f"{os.getcwd()}/competition_format_individual_sprint_all_to_finals.json"
+            )
         elif format_type == "default_interval_start":
-            config_file_name = "competition_format_interval_start.json"
+            config_file_name = f"{os.getcwd()}/competition_format_interval_start.json"
         try:
             with open(config_file_name) as json_file:
                 default_format = json.load(json_file)

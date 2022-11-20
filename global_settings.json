@@ -1,0 +1,17 @@
+{
+  "SPORTS_CLUBS": "Bækkelaget;Heming;Kjelsås;Koll;Lillomarka;Lyn;Njård;Rustad;Røa;Try;Årvoll",
+  "TIME_ZONE_OFFSET": 0,
+  "TIME_ZONE_OFFSET_G_PHOTOS": 2,
+  "CONFIDENCE_LIMIT": "0.7",
+  "CSV_FILE_DIR": "result_service_gui/files",
+  "PHOTO_THUMB_SIZE": "240",
+  "PHOTO_THUMB_WIDTH": "240",
+  "PHOTO_THUMB_HEIGTH": "160",
+  "PHOTO_OUTPUT_MAXSIZE": "4000",
+  "PHOTO_WATERMARK_TEXT": "Ragdesprinten",
+  "AZURE_THUMB_SERVICE": "True",
+  "AZURE_VISION_TEXT_SERVICE": "False",
+  "GOOGLE_PHOTO_CREDENTIALS_FILE": "/home/heming/github/secrets/photo_api_credentials.json",
+  "GOOGLE_PHOTO_SERVER": "https://photoslibrary.googleapis.com/v1",
+  "GOOGLE_PHOTO_SCOPE": "https://www.googleapis.com/auth/photoslibrary.readonly"
+}
