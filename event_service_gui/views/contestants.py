@@ -58,13 +58,10 @@ class Contestants(web.View):
             except Exception:
                 action = ""
 
-            if valgt_klasse == "":
-                if action == "":
-                    contestants = await ContestantsAdapter().get_all_contestants(
-                        user["token"], event_id
-                    )
-                elif action != "new_manual":
-                    informasjon = "Velg klasse for å redigere."
+            if (valgt_klasse == "") and (action != "new_manual"):
+                contestants = await ContestantsAdapter().get_all_contestants(
+                    user["token"], event_id
+                )
             else:
                 contestants = (
                     await ContestantsAdapter().get_all_contestants_by_raceclass(
