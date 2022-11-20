@@ -1,17 +1,17 @@
 FROM python:3.10
 
-RUN mkdir -p /usr/app
-WORKDIR /usr/app
+RUN mkdir -p /app
+WORKDIR /app
 
 RUN pip install --upgrade pip
 RUN pip install "poetry==1.2.2"
-COPY poetry.lock pyproject.toml /usr/app/
+COPY poetry.lock pyproject.toml /app/
 
 # Project initialization:
 RUN poetry config virtualenvs.create false \
   && poetry install --no-dev --no-interaction --no-ansi
 
-ADD event_service_gui /usr/app/event_service_gui
+ADD event_service_gui /app/event_service_gui
 
 EXPOSE 8080
 
