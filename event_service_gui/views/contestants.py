@@ -215,11 +215,15 @@ def get_contestant_from_form(event_id: str, form: dict) -> dict:
     try:
         if len(form["bib"]) > 0:  # type: ignore
             bib = int(form["bib"])  # type: ignore
+        else:
+            bib = None
     except Exception:
         bib = None
     try:
         if len(form["seeding_points"]) > 0:  # type: ignore
             seeding_points = int(form["seeding_points"])  # type: ignore
+        else:
+            seeding_points = None
     except Exception:
         seeding_points = None
     contestant = {
