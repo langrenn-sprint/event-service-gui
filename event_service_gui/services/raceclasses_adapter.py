@@ -130,6 +130,34 @@ class RaceclassesAdapter:
                     )
         return raceclass
 
+    async def get_raceclass_by_ageclass(
+        self, token: str, event_id: str, ageclass: str
+    ) -> dict:
+        """Get all raceclass function."""
+        headers = MultiDict(
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
+        )
+        raceclass = {}
+        async with ClientSession() as session:
+            async with session.get(
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses?ageclass-name={ageclass}",
+                headers=headers,
+            ) as resp:
+                logging.debug(f"get_raceclass_by_ageclass - got response {resp.status}")
+                if resp.status == 200:
+                    raceclass = await resp.json()
+                else:
+                    servicename = "get_raceclass_by_ageclass"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        return raceclass[0]
+
     async def get_raceclasses(self, token: str, event_id: str) -> List:
         """Get all raceclasses function."""
         raceclasses = []

@@ -9,6 +9,10 @@ from aiohttp import ClientSession
 from aiohttp import hdrs, web
 from multidict import MultiDict
 
+from .raceclasses_adapter import (
+    RaceclassesAdapter,
+)
+
 EVENTS_HOST_SERVER = os.getenv("EVENTS_HOST_SERVER", "localhost")
 EVENTS_HOST_PORT = os.getenv("EVENTS_HOST_PORT", "8082")
 EVENT_SERVICE_URL = f"http://{EVENTS_HOST_SERVER}:{EVENTS_HOST_PORT}"
@@ -70,6 +74,21 @@ class ContestantsAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
+        # update number of contestants in raceclass
+        try:
+            klasse = await RaceclassesAdapter().get_raceclass_by_ageclass(
+                token, event_id, request_body["ageclass"]
+            )
+            if klasse:
+                klasse["no_of_contestants"] = klasse["no_of_contestants"] + 1
+            result = await RaceclassesAdapter().update_raceclass(
+                token, event_id, klasse["id"], klasse
+            )
+            logging.debug(f"No_of_contestants updated - {result}")
+        except Exception as e:
+            logging.error(
+                f"{servicename} failed on update no of contestants in raceclass {e} - {request_body}"
+            )
         return id
 
     async def create_contestants(self, token: str, event_id: str, inputfile) -> str:
@@ -155,7 +174,7 @@ class ContestantsAdapter:
         return str(res)
 
     async def get_all_contestants(self, token: str, event_id: str) -> List:
-        """Get all contestants / by class (optional) function."""
+        """Get all contestants function."""
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -171,7 +190,7 @@ class ContestantsAdapter:
                 if resp.status == 200:
                     contestants = await resp.json()
                 else:
-                    servicename = "get_all_contestants_by_ageclass"
+                    servicename = "get_all_contestants"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
@@ -182,7 +201,7 @@ class ContestantsAdapter:
     async def get_all_contestants_by_ageclass(
         self, token: str, event_id: str, ageclass_name: str
     ) -> List:
-        """Get all contestants / by class (optional) function."""
+        """Get all contestants by ageclass function."""
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -224,13 +243,17 @@ class ContestantsAdapter:
                 f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_name}",
                 headers=headers,
             ) as resp:
-                logging.debug(f"get_all_contestants - got response {resp.status}")
+                logging.debug(
+                    f"get_all_contestants_by_raceclass ({raceclass_name}) - got response {resp.status}"
+                )
                 if resp.status == 200:
                     contestants = await resp.json()
                 else:
-                    servicename = "get_all_contestants_by_ageclass"
+                    servicename = "get_all_contestants_by_raceclass"
                     body = await resp.json()
-                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    logging.error(
+                        f"{servicename} ({raceclass_name}) failed - {resp.status} - {body}"
+                    )
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
