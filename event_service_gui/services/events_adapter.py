@@ -101,22 +101,24 @@ class EventsAdapter:
 
     def get_global_setting(self, param_name: str) -> str:
         """Get global settings from .env file."""
+        config_files_directory = os.getenv("CONFIG_FILES_DIRECTORY", "config")
         try:
-            with open(f"{os.getcwd()}/global_settings.json") as json_file:
+            with open(f"{config_files_directory}/global_settings.json") as json_file:
                 settings = json.load(json_file)
                 global_setting = settings[param_name]
         except Exception as e:
             logging.error(
-                f"Global setting {param_name} not found. File path {os.getcwd()} - {e}"
+                f"Global setting {param_name} not found. File path {config_files_directory} - {e}"
             )
             raise Exception from e
         return global_setting
 
     def get_club_logo_url(self, club_name: str) -> str:
         """Get url to club logo - input is 4 first chars of club name."""
+        config_files_directory = os.getenv("CONFIG_FILES_DIRECTORY", "config")
         try:
             club_name_short = club_name[:4]
-            with open(f"{os.getcwd()}/sports_clubs.json") as json_file:
+            with open(f"{config_files_directory}/sports_clubs.json") as json_file:
                 logo_urls = json.load(json_file)
             logo_url = logo_urls[club_name_short]
         except Exception as e:

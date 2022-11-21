@@ -108,22 +108,23 @@ class CompetitionFormatAdapter:
 
     def get_default_competition_format(self, format_type: str) -> dict:
         """Get default settings from config file."""
+        config_files_directory = os.getenv("CONFIG_FILES_DIRECTORY", "config")
         if format_type == "default_individual_sprint":
             config_file_name = (
-                f"{os.getcwd()}/competition_format_individual_sprint.json"
+                f"{config_files_directory}/competition_format_individual_sprint.json"
             )
         elif format_type == "default_sprint_all_to_finals":
-            config_file_name = (
-                f"{os.getcwd()}/competition_format_individual_sprint_all_to_finals.json"
-            )
+            config_file_name = f"{config_files_directory}/competition_format_individual_sprint_all_to_finals.json"
         elif format_type == "default_interval_start":
-            config_file_name = f"{os.getcwd()}/competition_format_interval_start.json"
+            config_file_name = (
+                f"{config_files_directory}/competition_format_interval_start.json"
+            )
         try:
             with open(config_file_name) as json_file:
                 default_format = json.load(json_file)
         except Exception as e:
             logging.error(
-                f"Default competition format for {format_type} not found. File path {os.getcwd()} - {e}"
+                f"Default competition format for {format_type} not found. File path {config_files_directory} - {e}"
             )
             raise Exception from e
         return default_format
