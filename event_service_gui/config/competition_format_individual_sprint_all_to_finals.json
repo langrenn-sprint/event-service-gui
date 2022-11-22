@@ -15,7 +15,7 @@
       "R2"
     ],
     "max_no_of_contestants_in_raceclass": 80,
-    "max_no_of_contestants_in_race": 10,
+    "max_no_of_contestants_in_race": 12,
     "datatype": "individual_sprint",
     "race_config_non_ranked": [
       {
@@ -239,8 +239,8 @@
         {
             "max_no_of_contestants": 40,
             "rounds": ["Q", "S", "F"],
-            "no_of_heats": {"Q": {"A": 6}, "S": {"A": 4, "C": 2}, "F": {"A": 1, "B1": 1, "B2": 1, "B3": 1, "C1": 1, "C2": 1}},
-            "from_to": {"Q": {"A": {"S": {"A": 4, "C": "REST"}}}, "S": {"A": {"F": {"A": 2, "B1": 2, "B2": 2, "B3": "REST"}}, "C": {"F": {"C1": 3, "C2": "REST"}}}}
+            "no_of_heats": {"Q": {"A": 6}, "S": {"A": 4, "C": 2}, "F": {"A": 1, "B1": 1, "B2": 1, "C1": 1, "C2": 1}},
+            "from_to": {"Q": {"A": {"S": {"A": 4, "C": "REST"}}}, "S": {"A": {"F": {"A": 2, "B1": 2, "B2": "REST"}}, "C": {"F": {"C1": 4, "C2": "REST"}}}}
         },
         {
             "max_no_of_contestants": 48,
