@@ -126,7 +126,7 @@ class CompetitionFormatAdapter:
             error_text = f"Default competition format for {format_type} not found. File path {config_files_directory} - {e}"
             logging.error(error_text)
             logging.error(f"Current directory {os.getcwd()} - content {os.listdir()}")
-            raise Exception(error_text)
+            raise Exception(error_text) from e
         return default_format
 
     async def update_competition_format(self, token: str, request_body: dict) -> str:

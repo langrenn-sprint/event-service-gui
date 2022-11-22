@@ -259,7 +259,7 @@ class ContestantsAdapter:
                     )
         return contestants
 
-    async def get_contestant_by_bib(self, token: str, event_id: str, bib: str) -> dict:
+    async def get_contestant_by_bib(self, token: str, event_id: str, bib: int) -> dict:
         """Get contestant by bib function."""
         headers = MultiDict(
             [
