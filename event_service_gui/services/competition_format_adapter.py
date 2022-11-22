@@ -108,7 +108,7 @@ class CompetitionFormatAdapter:
 
     def get_default_competition_format(self, format_type: str) -> dict:
         """Get default settings from config file."""
-        config_files_directory = os.getenv("CONFIG_FILES_DIRECTORY", "config")
+        config_files_directory = f"{os.getcwd()}/event_service_gui/config"
         if format_type == "default_individual_sprint":
             config_file_name = (
                 f"{config_files_directory}/competition_format_individual_sprint.json"
@@ -123,13 +123,10 @@ class CompetitionFormatAdapter:
             with open(config_file_name) as json_file:
                 default_format = json.load(json_file)
         except Exception as e:
-            logging.error(
-                f"Default competition format for {format_type} not found. File path {config_files_directory} - {e}"
-            )
-            logging.error(
-                f"Current directory {os.getcwd()} - content {os.listdir()}"
-            )
-            raise Exception from e
+            error_text = f"Default competition format for {format_type} not found. File path {config_files_directory} - {e}"
+            logging.error(error_text)
+            logging.error(f"Current directory {os.getcwd()} - content {os.listdir()}")
+            raise Exception(error_text)
         return default_format
 
     async def update_competition_format(self, token: str, request_body: dict) -> str:

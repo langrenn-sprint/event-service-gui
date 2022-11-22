@@ -101,7 +101,7 @@ class EventsAdapter:
 
     def get_global_setting(self, param_name: str) -> str:
         """Get global settings from .env file."""
-        config_files_directory = os.getenv("CONFIG_FILES_DIRECTORY", "config")
+        config_files_directory = f"{os.getcwd()}/event_service_gui/config"
         try:
             with open(f"{config_files_directory}/global_settings.json") as json_file:
                 settings = json.load(json_file)
@@ -115,7 +115,7 @@ class EventsAdapter:
 
     def get_club_logo_url(self, club_name: str) -> str:
         """Get url to club logo - input is 4 first chars of club name."""
-        config_files_directory = os.getenv("CONFIG_FILES_DIRECTORY", "config")
+        config_files_directory = f"{os.getcwd()}/event_service_gui/config"
         try:
             club_name_short = club_name[:4]
             with open(f"{config_files_directory}/sports_clubs.json") as json_file:
