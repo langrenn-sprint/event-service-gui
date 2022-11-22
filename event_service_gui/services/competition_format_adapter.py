@@ -126,6 +126,9 @@ class CompetitionFormatAdapter:
             logging.error(
                 f"Default competition format for {format_type} not found. File path {config_files_directory} - {e}"
             )
+            logging.error(
+                f"Current directory {os.getcwd()} - content {os.listdir()}"
+            )
             raise Exception from e
         return default_format
 

@@ -110,9 +110,6 @@ class EventsAdapter:
             logging.error(
                 f"Global setting {param_name} not found. File path {config_files_directory} - {e}"
             )
-            logging.error(
-                f"Current directory {os.getcwd()} - content {os.listdir()}"
-            )
             raise Exception from e
         return global_setting
 
