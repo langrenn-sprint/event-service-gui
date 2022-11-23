@@ -146,17 +146,16 @@ class ContestantsAdapter:
         return str(res)
 
     async def delete_contestant(
-        self, token: str, event_id: str, contestant_id: str
+        self, token: str, event_id: str, contestant: dict
     ) -> str:
         """Delete one contestant function."""
         servicename = "delete_contestant"
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
-
         async with ClientSession() as session:
             async with session.delete(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{contestant_id}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{contestant['id']}",
                 headers=headers,
             ) as resp:
                 res = resp.status
@@ -171,6 +170,21 @@ class ContestantsAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
+        # update number of contestants in raceclass
+        try:
+            klasse = await RaceclassesAdapter().get_raceclass_by_ageclass(
+                token, event_id, contestant["ageclass"]
+            )
+            if klasse:
+                klasse["no_of_contestants"] = klasse["no_of_contestants"] - 1
+            result = await RaceclassesAdapter().update_raceclass(
+                token, event_id, klasse["id"], klasse
+            )
+            logging.debug(f"No_of_contestants updated - {result}")
+        except Exception as e:
+            logging.error(
+                f"{servicename} failed on update no of contestants in raceclass {e} - {contestant['ageclass']}"
+            )
         return str(res)
 
     async def get_all_contestants(self, token: str, event_id: str) -> List:

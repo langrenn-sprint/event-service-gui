@@ -159,8 +159,9 @@ class Contestants(web.View):
                 for key in form.keys():
                     if key.startswith("slett_"):
                         contestant_id = str(form[key])
+                        contestant = await ContestantsAdapter().get_contestant(user["token"], event_id, contestant_id)
                         result = await ContestantsAdapter().delete_contestant(
-                            user["token"], event_id, contestant_id
+                            user["token"], event_id, contestant
                         )
                         informasjon += f"{key} "
             elif "delete_all" in form.keys():
