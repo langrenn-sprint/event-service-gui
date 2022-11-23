@@ -42,7 +42,7 @@
           <a href=javascript:void(0) class=dropbtn>...</a>
           <div class=dropdown-content>
             <table><tr><td>
-              <a id="myIndex" onclick="result_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>
+              <a id="myIndex" onclick="event_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>
               {% if event_id %}
                 <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a>
                 <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a>
