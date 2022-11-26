@@ -144,14 +144,14 @@
       <td colspan=4 id=spacer></td>
     </tr>
     <tr>
-      <td>4b. Kjøreplan: Tilpass tidksjema (<a href=/raceplans?event_id={{ event_id }}&action=edit_time>se/endre</a>)</td>
+      <td>4b. Kjøreplan: Tilpass tidsskjema (<a href=/raceplans?event_id={{ event_id }}&action=edit_time>se/endre</a>)</td>
       <td>Manuell sjekk</td>
       <td>
         {% if (task_status.done_6) %}
           <form action=/raceplans method=get>
             <input type="hidden" name="event_id" value="{{ event_id }}">
             <input type="hidden" name=action value="edit_time">
-            <input type="submit" name="edit_time" value="  Tilpass tidskjema  ">
+            <input type="submit" name="edit_time" value="  Rediger starttid  ">
           </form>
         {% endif %}
       </td>

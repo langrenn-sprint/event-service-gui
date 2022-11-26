@@ -29,6 +29,7 @@
   {% if  action == "edit_mode" %}
       <table>
         <tr id=headerblue align=right>
+        {% if raceclasses %}
           <td>
             <form action=/raceclasses method=post>
               <input type="hidden" name="event_id" value="{{ event_id }}">
@@ -50,17 +51,19 @@
             </form>
           </td>
           <td>
-            <form action=/raceclasses method=post>
-              <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="submit" name="generate_raceclasses" value="  Generer klasser  ">
-            </form>
-          </td>
-          <td>
             <form action=/raceclasses method=post onsubmit="return confirm_delete();">
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="submit" name="delete_all" value="  Slett alle klasser  ">
             </form>
           </td>
+        {% else %}
+            <td>
+            <form action=/raceclasses method=post>
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="submit" name="generate_raceclasses" value="  Generer klasser  ">
+            </form>
+          </td>
+        {% endif %}
       </table>
     <div id=spacer></div>
       <table>
