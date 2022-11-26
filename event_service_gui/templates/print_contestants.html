@@ -26,16 +26,14 @@
           <td>Navn</td>
           <td>Klubb</td>
           <td>Klasse</td>
-          <td>Region</td>
         </tr>
         {% for loper in contestants %}
           {% if loper.club == club %}
             <tr>
               <td>{{ loper.bib }}</td>
               <td>{{ loper.first_name }} {{ loper.last_name }}</td>
-              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
+              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}{% if loper.region %} / {{ loper.region }}{% endif %}</td>
               <td>{{ loper.ageclass }}</td>
-              <td>{{ loper.region }}</td>
             </tr>
           {% endif %}
         {% endfor %}
@@ -54,15 +52,13 @@
           <td>Navn</td>
           <td>Klubb</td>
           <td>Klasse</td>
-          <td>Region</td>
         </tr>
         {% for loper in contestants %}
             <tr>
               <td>{{ loper.bib }}</td>
               <td>{{ loper.first_name }} {{ loper.last_name }}</td>
-              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
-              <td>{{ loper.ageclass }}</td>
-              <td>{{ loper.region }}</td>
+              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}{% if loper.region %} / {{ loper.region }}{% endif %}</td>
+              <td><nobr>{{ loper.ageclass }}</nobr></td>
             </tr>
         {% endfor %}
       </table>
@@ -83,16 +79,14 @@
           <td>Navn</td>
           <td>Klubb</td>
           <td>Klasse</td>
-          <td>Region</td>
         </tr>
         {% for loper in contestants %}
           {% if loper.ageclass in raceclass.ageclasses %}
             <tr>
               <td>{{ loper.bib }}</td>
               <td>{{ loper.first_name }} {{ loper.last_name }}</td>
-              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
+              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}{% if loper.region %} / {{ loper.region }}{% endif %}</td>
               <td>{{ loper.ageclass }}</td>
-              <td>{{ loper.region }}</td>
             </tr>
           {% endif %}
         {% endfor %}
