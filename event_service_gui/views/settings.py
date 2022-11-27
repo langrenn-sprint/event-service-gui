@@ -1,12 +1,11 @@
 """Resource module for main view."""
 import json
 import logging
-import os
 
 from aiohttp import web
 import aiohttp_jinja2
 
-from event_service_gui.services import CompetitionFormatAdapter
+from event_service_gui.services import CompetitionFormatAdapter, EventsAdapter
 from .utils import (
     check_login,
     create_default_competition_format,
@@ -55,9 +54,6 @@ class Settings(web.View):
                         except Exception as e:
                             logging.debug(e)
 
-            other_settings = get_other_settings()
-            logging.debug(f"Format: {competition_formats}")
-
             return await aiohttp_jinja2.render_template_async(
                 "settings.html",
                 self.request,
@@ -67,10 +63,10 @@ class Settings(web.View):
                     "event_id": "",
                     "informasjon": informasjon,
                     "lopsinfo": "Globale innstillinger",
-                    "local_time": get_local_time(
-                        "HH:MM", other_settings["time_zone_offset"]
+                    "local_time": get_local_time("HH:MM"),
+                    "time_zone_offset": EventsAdapter().get_global_setting(
+                        "TIME_ZONE_OFFSET"
                     ),
-                    "other_settings": other_settings,
                     "username": user["name"],
                 },
             )
@@ -212,10 +208,3 @@ def get_config_from_form(form: dict, rank_type: str) -> list:
         }
         race_settings.append(new_set)
     return race_settings
-
-
-def get_other_settings() -> dict:
-    """Get other global settings."""
-    other_settings = {}
-    other_settings["time_zone_offset"] = int(os.getenv("TIME_ZONE_OFFSET", 1))
-    return other_settings

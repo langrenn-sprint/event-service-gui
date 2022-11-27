@@ -40,7 +40,7 @@ class StartEdit(web.View):
         try:
             user = await check_login(self)
             event_id = self.request.rel_url.query["event_id"]
-            event = await get_event(user, event_id)
+            event = await get_event(user["token"], event_id)
             raceclasses = await RaceclassesAdapter().get_raceclasses(
                 user["token"], event_id
             )

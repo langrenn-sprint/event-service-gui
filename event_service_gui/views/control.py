@@ -41,7 +41,7 @@ class Control(web.View):
 
         try:
             user = await check_login(self)
-            event = await get_event(user, event_id)
+            event = await get_event(user["token"], event_id)
 
             raceclasses = await RaceclassesAdapter().get_raceclasses(
                 user["token"], event_id
