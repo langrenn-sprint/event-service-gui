@@ -126,7 +126,7 @@
             <input type="submit" name="print" value="  Skriv ut - kjøreplan ">
           </form>
         </td>
-        <td>{{ task_status.no_of_races}} heat er opprettet.</td>
+        <td>{{ task_status.no_of_races}} heat er opprettet. <a target=new href=/csv?event_id={{ event_id }}&action=raceplan>CSV fil</a></td>
       {% else %}
         <td id=red>Mangler</td>
         <td>
@@ -231,7 +231,7 @@
           <input type="submit" name="print" value="  Skriv ut  ">
         </form>
       </td>
-      <td> {{ task_status.no_of_starts }} starter er opprettet.</td>
+      <td> {{ task_status.no_of_starts }} starter er opprettet. <a target=new href=/csv?event_id={{ event_id }}&action=startlist>CSV fil</a></td>
     {% else %}
       <td id=red>Mangler</td>
       <td>

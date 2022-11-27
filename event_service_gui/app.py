@@ -13,6 +13,7 @@ import jinja2
 import motor.motor_asyncio
 
 from .views import (
+    Csv,
     Contestants,
     Events,
     Login,
@@ -77,6 +78,7 @@ async def create_app() -> web.Application:
     app.add_routes(
         [
             web.view("/", Main),
+            web.view("/csv", Csv),
             web.view("/contestants", Contestants),
             web.view("/events", Events),
             web.view("/login", Login),
