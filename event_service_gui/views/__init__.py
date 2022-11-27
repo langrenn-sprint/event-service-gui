@@ -1,5 +1,6 @@
 """Package for all views."""
 from .contestants import Contestants
+from .control import Control
 from .csv import Csv
 from .events import Events
 from .liveness import Ping, Ready
@@ -10,5 +11,6 @@ from .print_contestants import PrintContestants
 from .raceclasses import Raceclasses
 from .raceplans import Raceplans
 from .settings import Settings
+from .start_edit import StartEdit
 from .tasks import Tasks
 from .users import Users

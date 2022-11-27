@@ -3,11 +3,13 @@ import datetime
 import logging
 
 from aiohttp import web
-from aiohttp_session import get_session
+from aiohttp_session import get_session, new_session
 
 from event_service_gui.services import (
     CompetitionFormatAdapter,
     EventsAdapter,
+    RaceplansAdapter,
+    TimeEventsAdapter,
     UserAdapter,
 )
 
@@ -62,19 +64,80 @@ async def create_default_competition_format(token: str, format_name: str) -> str
     return informasjon
 
 
+def get_display_style(start_time: str) -> str:
+    """Calculate time remaining to start and return table header style."""
+    start_time_obj = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%S")
+    delta_time = start_time_obj - datetime.datetime.now()
+    delta_seconds = delta_time.total_seconds()
+    display_style = ""
+    if delta_seconds < 240:
+        display_style = "table_header_red"
+    elif delta_seconds < 480:
+        display_style = "table_header_orange"
+    else:
+        display_style = "table_header_green"
+
+    return display_style
+
+
+async def get_enrichced_startlist(user: dict, race: dict) -> list:
+    """Enrich startlist information - including info if race result is registered."""
+    startlist = []
+    i = 0
+    # get time-events registered
+    next_race_time_events = await TimeEventsAdapter().get_time_events_by_race_id(
+        user["token"], race["id"]
+    )
+    new_start_entries = race["start_entries"]
+    if len(new_start_entries) > 0:
+        for start_entry in new_start_entries:
+            start_entry["club_logo"] = EventsAdapter().get_club_logo_url(
+                start_entry["club"]
+            )
+            i += 1
+            for time_event in next_race_time_events:
+                # get next race info
+                if time_event["timing_point"] == "Template":
+                    logging.debug(f"Time_event with error - {time_event}")
+                elif time_event["timing_point"] == "Template":
+                    if i == time_event["rank"]:
+                        if time_event["next_race"].startswith("Ute"):
+                            start_entry["next_race"] = "Ute"
+                        else:
+                            start_entry["next_race"] = time_event["next_race"]
+                # check if start or DNS is registered
+                elif time_event["timing_point"] == "Start":
+                    if time_event["bib"] == start_entry["bib"]:
+                        start_entry["start_status"] = "Started"
+                        start_entry[
+                            "info"
+                        ] = f"Started registered at {time_event['registration_time']}"
+                elif time_event["timing_point"] == "DNS":
+                    if time_event["bib"] == start_entry["bib"]:
+                        start_entry["start_status"] = "DNS"
+                        start_entry[
+                            "info"
+                        ] = f"DNS registered at {time_event['registration_time']}"
+            startlist.append(start_entry)
+
+    return startlist
+
+
 async def get_event(token: str, event_id: str) -> dict:
     """Get event - return new if no event found."""
     event = {"id": event_id, "name": "Langrenn-sprint", "organiser": "Ikke valgt"}
-    if event_id != "":
+    if event_id:
         logging.debug(f"get_event {event_id}")
         event = await EventsAdapter().get_event(token, event_id)
 
     return event
 
 
-def get_local_time(format: str, time_zone_offset: int) -> str:
-    """Return local time, time zone adjusted from global setting."""
-    delta_seconds = time_zone_offset * 3600
+def get_local_time(format: str) -> str:
+    """Return local time, time zone adjusted from settings file."""
+    TIME_ZONE_OFFSET = EventsAdapter().get_global_setting("TIME_ZONE_OFFSET")
+    # calculate new time
+    delta_seconds = int(TIME_ZONE_OFFSET) * 3600  # type: ignore
     local_time_obj = datetime.datetime.now() + datetime.timedelta(seconds=delta_seconds)
     local_time = ""
     if format == "HH:MM":
@@ -82,6 +145,74 @@ def get_local_time(format: str, time_zone_offset: int) -> str:
     else:
         local_time = local_time_obj.strftime("%X")
     return local_time
+
+
+def get_next_race_info(next_race_time_events: list, race_id: str) -> list:
+    """Enrich start list with next race info."""
+    startlist = []
+    # get videre til information - loop and simulate result for pos 1 to 8
+    for x in range(1, 9):
+        for template in next_race_time_events:
+            start_entry = {}
+            _rank = template["rank"]
+            if template["timing_point"] == "Template":
+                if _rank == x:
+                    start_entry["race_id"] = race_id
+                    start_entry["starting_position"] = x  # type: ignore
+                    if template["next_race"].startswith("Ute"):
+                        start_entry["next_race"] = "Ute"
+                    else:
+                        start_entry["next_race"] = template["next_race"]
+                    startlist.append(start_entry)
+    return startlist
+
+
+async def get_passeringer(
+    token: str, event_id: str, action: str, valgt_klasse: str
+) -> list:
+    """Return list of passeringer for selected action."""
+    passeringer = []
+    tmp_passeringer = await TimeEventsAdapter().get_time_events_by_event_id(
+        token, event_id
+    )
+    if action == "control":
+        for passering in reversed(tmp_passeringer):
+            if not valgt_klasse or valgt_klasse in passering["race"]:
+                if (
+                    passering["status"] == "Error"
+                    and passering["timing_point"] != "Template"
+                ):
+                    passeringer.append(passering)
+    elif action in [
+        "Template",
+    ]:
+        for passering in tmp_passeringer:
+            if valgt_klasse in passering["race"]:
+                if passering["timing_point"] == "Template":
+                    passeringer.append(passering)
+    else:
+        for passering in tmp_passeringer:
+            if passering["timing_point"] not in [
+                "Template",
+                "Error",
+            ]:
+                passeringer.append(passering)
+
+    # indentify last passering in race
+    i = 0
+    last_race = ""
+    for passering in passeringer:
+        if i == 0:
+            passering["first_in_heat"] = True
+        elif last_race != passering["race"]:
+            passeringer[i - 1]["last_in_heat"] = True
+            passering["first_in_heat"] = True
+        i += 1
+        if i == len(passeringer):
+            passering["last_in_heat"] = True
+        last_race = passering["race"]
+
+    return passeringer
 
 
 def get_qualification_text(race: dict) -> str:
@@ -111,6 +242,20 @@ def get_qualification_text(race: dict) -> str:
     return text
 
 
+async def get_race_id_by_name(
+    user: dict, event_id: str, next_race: str, raceclass: str
+) -> str:
+    """Get race_id for a given race."""
+    race_id = ""
+    races = await RaceplansAdapter().get_all_races(user["token"], event_id)
+    for race in races:
+        if race["raceclass"] == raceclass:
+            tmp_next_race = f"{race['round']}{race['index']}{race['heat']}"
+            if next_race == tmp_next_race:
+                return race["id"]
+    return race_id
+
+
 def get_raceplan_summary(races: list, raceclasses: list) -> list:
     """Generate a summary with key timing for the raceplan."""
     summary = []
@@ -119,6 +264,7 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
     for raceclass in raceclasses:
         class_summary = {"name": raceclass["name"]}
         class_summary["no_of_contestants"] = raceclass["no_of_contestants"]
+        class_summary["ranking"] = raceclass["ranking"]
         # loop through races - update start time pr round pr class
         for race in reversed(races):
             if race["raceclass"] == raceclass["name"]:
@@ -137,59 +283,97 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
     return summary
 
 
-def get_club_logos(contestants: list) -> list:
-    """Add link to image with club logo in list."""
-    club_logos = {
-        "Aske": "https://harnaes.no/sprint/web/asker_logo.png",
-        "Bækk": "https://harnaes.no/sprint/web/bsk_logo.png",
-        "Bæru": "https://harnaes.no/sprint/web/barums_logo.png",
-        "Dike": "https://harnaes.no/sprint/web/dikemark_logo.png",
-        "Drøb": "https://harnaes.no/sprint/web/dfi_logo.png",
-        "Eids": "https://harnaes.no/sprint/web/eidsvold_logo.png",
-        "Fet ": "https://harnaes.no/sprint/web/fet_logo.png",
-        "Frog": "https://harnaes.no/sprint/web/frogner_logo.png",
-        "Foss": "https://harnaes.no/sprint/web/fossum_logo.png",
-        "Gjel": "https://harnaes.no/sprint/web/gjellerasen_logo.png",
-        "Gjer": "https://harnaes.no/sprint/web/gjerdrum_logo.png",
-        "Gui ": "https://harnaes.no/sprint/web/gui_logo.png",
-        "Haka": "https://harnaes.no/sprint/web/hakadal_logo.png",
-        "Hasl": "https://harnaes.no/sprint/web/haslum_logo.png",
-        "Hemi": "https://harnaes.no/sprint/web/heming_logo.png",
-        "Holm": "https://harnaes.no/sprint/web/holmen_logo.png",
-        "Høyb": "https://harnaes.no/sprint/web/hsil_logo.png",
-        "IL J": "https://harnaes.no/sprint/web/jardar_logo.png",
-        "Jutu": "https://harnaes.no/sprint/web/jutul_logo.png",
-        "Kjel": "https://harnaes.no/sprint/web/kjelsaas_logo.png",
-        "Koll": "https://harnaes.no/sprint/web/koll_log.png",
-        "Lill": "https://harnaes.no/sprint/web/lillomarka_logo.png",
-        "Lomm": "https://harnaes.no/sprint/web/lommedalens_logo.png",
-        "Lyn ": "https://harnaes.no/sprint/web/lyn_ski_logo.png",
-        "Løre": "https://harnaes.no/sprint/web/lorenskog_ski_logo.png",
-        "Moss": "https://harnaes.no/sprint/web/moss_logo.png",
-        "Nes ": "https://harnaes.no/sprint/web/nes_logo.png",
-        "Neso": "https://harnaes.no/sprint/web/nesodden_logo.png",
-        "Nitt": "https://harnaes.no/sprint/web/nittedal_logo.png",
-        "Njår": "https://harnaes.no/sprint/web/njard_logo.png",
-        "Oppe": "https://harnaes.no/sprint/web/oppegard_logo.png",
-        "Rust": "https://harnaes.no/sprint/web/rustad_logo.png",
-        "Røa ": "https://harnaes.no/sprint/web/roa_logo.png",
-        "Ræli": "https://harnaes.no/sprint/web/ralingen_logo.png",
-        "Sked": "https://harnaes.no/sprint/web/skedsmo_logo.png",
-        "Spyd": "https://harnaes.no/sprint/web/spydeberg_logo.png",
-        "Stra": "https://harnaes.no/sprint/web/strandbygda_logo.png",
-        "Sørk": "https://harnaes.no/sprint/web/sif_logo.png",
-        "Tist": "https://harnaes.no/sprint/web/tistedalen_logo.png",
-        "Trøs": "https://harnaes.no/sprint/web/trosken_logo.png",
-        "Idre": "https://harnaes.no/sprint/web/try_logo.png",
-        "Vest": "https://harnaes.no/sprint/web/vestreaker_logo.png",
-        "Ørsk": "https://harnaes.no/sprint/web/orskog_logo.png",
-        "Øvre": "https://harnaes.no/sprint/web/ovrevoll_logo.png",
-        "Årvo": "https://harnaes.no/sprint/web/arvoll_logo.png",
-    }
-    for contestant in contestants:
-        try:
-            contestant["club_logo"] = club_logos[contestant["club"][:4]]
-        except Exception:
-            logging.error(f"Club logo not found - {contestant}")
+def get_races_for_live_view(races, valgt_heat: int, number_of_races: int) -> list:
+    """Return races to display in live view."""
+    filtered_racelist = []
+    time_now = get_local_time("HH:MM:SS")
+    i = 0
+    # find next race on start
+    if valgt_heat == 0:
+        for race in races:
+            if time_now < race["start_time"][-8:]:
+                valgt_heat = race["order"]
+                break
 
-    return contestants
+    for race in races:
+        # from heat number (order) if selected
+        if (race["order"] >= valgt_heat) and (i < number_of_races):
+            race["next_race"] = get_qualification_text(race)
+            race["display_color"] = get_display_style(race["start_time"])
+            race["start_time"] = race["start_time"][-8:]
+            filtered_racelist.append(race)
+            i += 1
+
+    return filtered_racelist
+
+
+async def get_races_for_print(
+    user: dict, _tmp_races: list, raceclasses: list, valgt_klasse: str, action: str
+) -> list:
+    """Get races with lists - formatted for print."""
+    races = []
+    for raceclass in raceclasses:
+        first_in_class = True
+        for race in _tmp_races:
+            if race["raceclass"] == raceclass["name"]:
+                if (race["raceclass"] == valgt_klasse) or ("" == valgt_klasse):
+                    race = await RaceplansAdapter().get_race_by_id(
+                        user["token"], race["id"]
+                    )
+                    race["first_in_class"] = first_in_class
+                    race["next_race"] = get_qualification_text(race)
+                    race["start_time"] = race["start_time"][-8:]
+                    # get start list details
+                    if (
+                        action == "start" or len(race["results"]) == 0
+                    ) and action != "result":
+                        race["list_type"] = "start"
+                        race["startliste"] = await get_enrichced_startlist(user, race)
+                    else:
+                        race["list_type"] = action
+                    if first_in_class:
+                        first_in_class = False
+                    races.append(race)
+    return races
+
+
+async def update_time_event(user: dict, form: dict) -> str:
+    """Register time event - return information."""
+    informasjon = ""
+    time_now = datetime.datetime.now()
+    time_stamp_now = f"{time_now.strftime('%Y')}-{time_now.strftime('%m')}-{time_now.strftime('%d')}T{time_now.strftime('%X')}"
+    request_body = await TimeEventsAdapter().get_time_event_by_id(
+        user["token"], form["id"]
+    )
+    if "update" in form.keys():
+        request_body["changelog"] = [
+            {
+                "timestamp": time_stamp_now,
+                "user_id": user["name"],
+                "comment": f"Oppdatering - tidligere informasjon: {request_body}. ",
+            }
+        ]
+        request_body["timing_point"] = form["timing_point"]
+        request_body["registration_time"] = form["registration_time"]
+        request_body["rank"] = form["rank"]
+    elif "update_template" in form.keys():
+        request_body["changelog"] = [
+            {
+                "timestamp": time_stamp_now,
+                "user_id": user["name"],
+                "comment": f"Oppdatering - old info, next_race {request_body['next_race']}-{request_body['next_race_position']}. ",
+            }
+        ]
+        request_body["next_race_position"] = form["next_race_position"]
+        raceclass = form["race"].split("-")
+        request_body["next_race_id"] = await get_race_id_by_name(
+            user, form["event_id"], form["next_race"], raceclass[0]
+        )
+        request_body["next_race"] = form["next_race"]
+    elif "delete" in form.keys():
+        response = await TimeEventsAdapter().delete_time_event(
+            user["token"], form["id"]
+        )
+    logging.debug(f"Control result: {response}")
+    informasjon = f"Oppdatert - {response}  "
+    return informasjon

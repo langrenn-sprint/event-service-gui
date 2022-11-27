@@ -6,10 +6,11 @@ import aiohttp_jinja2
 
 from event_service_gui.services import (
     ContestantsAdapter,
+    EventsAdapter,
     RaceclassesAdapter,
     RaceplansAdapter,
 )
-from .utils import check_login, check_login_open, get_club_logos, get_event
+from .utils import check_login, check_login_open, get_event
 
 
 class Contestants(web.View):
@@ -72,7 +73,10 @@ class Contestants(web.View):
                 heat_separators = await get_heat_separators(
                     user["token"], event_id, valgt_klasse
                 )
-            contestants = get_club_logos(contestants)
+            for tmp_contestant in contestants:
+                tmp_contestant["club_logo"] = EventsAdapter().get_club_logo_url(
+                    tmp_contestant["club"]
+                )
 
             return await aiohttp_jinja2.render_template_async(
                 "contestants.html",

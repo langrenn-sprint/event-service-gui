@@ -14,6 +14,7 @@ import motor.motor_asyncio
 
 from .views import (
     Contestants,
+    Control,
     Csv,
     Events,
     Login,
@@ -24,6 +25,7 @@ from .views import (
     Raceclasses,
     Raceplans,
     Settings,
+    StartEdit,
     Tasks,
     Users,
 )
@@ -80,6 +82,7 @@ async def create_app() -> web.Application:
             web.view("/", Main),
             web.view("/csv", Csv),
             web.view("/contestants", Contestants),
+            web.view("/control", Control),
             web.view("/events", Events),
             web.view("/login", Login),
             web.view("/logout", Logout),
@@ -88,6 +91,7 @@ async def create_app() -> web.Application:
             web.view("/raceclasses", Raceclasses),
             web.view("/raceplans", Raceplans),
             web.view("/settings", Settings),
+            web.view("/start_edit", StartEdit),
             web.view("/tasks", Tasks),
             web.view("/users", Users),
         ]

@@ -1,0 +1,102 @@
+{% extends "open_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-10"></div>
+  <div class="w3-80">
+{% endblock %}
+
+{% block titleheader %}
+  Passeringer {{ valgt_klasse }}
+{% endblock %}
+
+{% block headercontainer %}Passeringer {{ valgt_klasse }} <img id=header_icon src="../static/icon_timing.png"> {% endblock %}
+
+{% block refresh %}{% endblock %}
+
+{% block titlemain %}
+  <img id=menu_icon src="../static/icon_timing.png"> Tidtaker funksjoner {{ action }}
+{% endblock %}
+
+{% block menuitems %}
+    <li class=dropdown id=topborder>
+      <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
+      <div class=dropdown-content>
+        <a href=control?&event_id={{ event_id }}&action={{ action }}>Alle</a>
+        {% for klasse in raceclasses %}
+          {% if klasse.ranking %}
+            <a href=control?valgt_klasse={{ klasse.name }}&event_id={{ event_id }}&action={{ action }}>{{ klasse.name }}</a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </li>
+    <li class=dropdown id=topborder>
+      <a href=javascript:void(0) class=dropbtn>Velg heat</a>
+      <div class=dropdown-content>
+        <a href=control?&event_id={{ event_id }}&valgt_klasse={{ valgt_klasse }}&action={{ action }}>Alle</a>
+        {% for heat in heatlist %}
+            <a href=control?valgt_klasse={{ valgt_klasse }}&event_id={{ event_id }}&action={{ action }}&heat={{ heat }}>{{ heat }}</a>
+        {% endfor %}
+      </div>
+    </li>
+{% endblock %}
+{% block content %}
+  <div id=spacer></div>
+  {% if action != "c" %}
+    <div class="w3-container" id=info>Funnet {{ passeringer|length }} events med error. (Pro tip: Hvis du vil se alle passeringer, klikk <a href="control?event_id={{ event_id }}&action=c">her</a>)</div>
+  {% endif %}
+  <div id=spacer></div>
+    <table>
+      <form action=/control method=post>
+        <tr>
+          <td id=spacer colspan=9>
+            <input type="hidden" name="action" value="{{ action }}">
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
+            <input type="submit" name=resolve_error value=" Slett valgte ">
+          </td>
+        </tr>
+        <tr id=headerblue>
+          <td></td>
+          <td>Startnr</td>
+          <td>Heat</td>
+          <td>Passeringspunkt</td>
+          <td>Tid</td>
+          <td>Plass</td>
+          <td>Videre til</td>
+          <td>Status</td>
+          <td>Changelog</td>
+        </tr>
+        {% for passering in passeringer %}
+          {% if not valgt_heat or passering.race == valgt_heat %}
+            <tr>
+              <td>
+                <input type="checkbox" name="resolved_{{ loop.index }}" value="{{ passering.id }}">
+              </td>
+              <td align=center>{{ passering.bib }}</td>
+              <td>{{ passering.race }}</td>
+              <td>{{ passering.timing_point }}</td>
+              <td>{{ passering.registration_time }}</td>
+              <td>{{ passering.rank }}</td>
+              <td>{{ passering.next_race }}-{{ passering.next_race_position }}</td>
+              <td>{{ passering.status }}</td>
+              <td>
+                {% for log_entry in passering.changelog %}
+                  {{ log_entry.timestamp }}: {{ log_entry.comment }} ({{ log_entry.user_id }})<br>
+                {% endfor %}
+              </td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+        <tr>
+          <td id=spacer colspan=9>
+            <input type="hidden" name="action" value="{{ action }}">
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
+            <input type="submit" name=resolve_error value=" Slett valgte ">
+          </td>
+        </tr>
+      </form>
+      <tr>
+        <td id=spacer colspan=9>&nbsp; </td>
+      </tr>
+    </table>
+{% endblock %}

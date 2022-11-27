@@ -28,7 +28,6 @@ class Tasks(web.View):
             informasjon = self.request.rel_url.query["informasjon"]
         except Exception:
             informasjon = ""
-
         try:
             user = await check_login(self)
             event = await get_event(user["token"], event_id)

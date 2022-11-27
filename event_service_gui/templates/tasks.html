@@ -221,7 +221,7 @@
       <td colspan=4 id=spacer></td>
     </tr>
   <tr>
-    <td>6a. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
+    <td>6a. Startliste: Opprett (<a id="mySeeStart" onclick="event_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
     {% if (task_status.done_8) %}
       <td id=green>Utført</td>
       <td>
@@ -249,7 +249,7 @@
     <td colspan=4 id=spacer></td>
   </tr>
   <tr>
-    <td>6b. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="result_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=Template')" href=>se/endre</a>)</td>
+    <td>6b. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="event_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=Template')" href=>se/endre</a>)</td>
     {% if (task_status.done_9) %}
       <td id=green>Utført</td>
       <td>
