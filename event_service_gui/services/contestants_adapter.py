@@ -9,9 +9,8 @@ from aiohttp import ClientSession
 from aiohttp import hdrs, web
 from multidict import MultiDict
 
-from .raceclasses_adapter import (
-    RaceclassesAdapter,
-)
+from .raceclasses_adapter import (RaceclassesAdapter)
+from .start_adapter import (StartAdapter)
 
 EVENTS_HOST_SERVER = os.getenv("EVENTS_HOST_SERVER", "localhost")
 EVENTS_HOST_PORT = os.getenv("EVENTS_HOST_PORT", "8082")
@@ -150,6 +149,16 @@ class ContestantsAdapter:
     ) -> str:
         """Delete one contestant function."""
         servicename = "delete_contestant"
+
+        # validation - if racer is in start-list, deletion not allowed
+        current_contestant = await ContestantsAdapter().get_contestant(
+            token, event_id, contestant["id"]
+        )
+        start_entries = await StartAdapter().get_start_entries_by_bib(token, event_id, current_contestant["bib"])
+        if start_entries:
+            raise web.HTTPBadRequest(reason=f"Startnr {current_contestant['bib']} kan ikke slettes fordi løper er i startliste.")
+    
+
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
@@ -369,6 +378,14 @@ class ContestantsAdapter:
         request_body = copy.deepcopy(contestant)
         logging.debug(f"update_contestants, got request_body {request_body}")
 
+        # validation - if racer is in start-list, no changes are allowed
+        current_contestant = await ContestantsAdapter().get_contestant(
+            token, event_id, contestant["id"]
+        )
+        start_entries = await StartAdapter().get_start_entries_by_bib(token, event_id, current_contestant["bib"])
+        if start_entries:
+            raise web.HTTPBadRequest(reason=f"Startnr {current_contestant['bib']} kan ikke endres fordi løper er i startliste.")
+    
         url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{contestant['id']}"
         headers = MultiDict(
             [
