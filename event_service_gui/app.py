@@ -13,8 +13,8 @@ import jinja2
 import motor.motor_asyncio
 
 from .views import (
-    Csv,
     Contestants,
+    Csv,
     Events,
     Login,
     Logout,

@@ -1,15 +1,14 @@
 """Resource module for csv export."""
 import csv
 import io
-import logging
-import os
 
 from aiohttp import web
 
 from event_service_gui.services import (
-    StartAdapter,
     RaceplansAdapter,
+    StartAdapter,
 )
+
 
 class Csv(web.View):
     """Class representing csv file export resource."""
@@ -26,19 +25,35 @@ class Csv(web.View):
 
         if action == "raceplan":
             csvdata = await RaceplansAdapter().get_all_races("", event_id)
-            fields = ['raceclass','order','start_time','no_of_contestants','round','index','heat','rule'] 
+            fields = [
+                "raceclass",
+                "order",
+                "start_time",
+                "no_of_contestants",
+                "round",
+                "index",
+                "heat",
+                "rule",
+            ]
         elif action == "startlist":
             startlist = await StartAdapter().get_all_starts_by_event("", event_id)
-            csvdata = startlist[0]['start_entries']
-            fields = ['bib','starting_position','scheduled_start_time','name','club']
-            #fields = csvdata[0].keys()
-        
+            csvdata = startlist[0]["start_entries"]
+            fields = [
+                "bib",
+                "starting_position",
+                "scheduled_start_time",
+                "name",
+                "club",
+            ]
+            # fields = csvdata[0].keys()
+
         # convert to csv format
         output = io.StringIO()
-        writer = csv.DictWriter(output, fieldnames=fields, delimiter=';',extrasaction='ignore')
+        writer = csv.DictWriter(
+            output, fieldnames=fields, delimiter=";", extrasaction="ignore"
+        )
         writer.writeheader()
         writer.writerows(csvdata)
         informasjon = output.getvalue()
-
 
         return web.Response(text=informasjon)
