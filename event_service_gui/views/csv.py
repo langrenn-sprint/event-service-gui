@@ -5,6 +5,7 @@ import io
 from aiohttp import web
 
 from event_service_gui.services import (
+    ContestantsAdapter,
     RaceplansAdapter,
     StartAdapter,
 )
@@ -44,6 +45,23 @@ class Csv(web.View):
                 "scheduled_start_time",
                 "name",
                 "club",
+            ]
+        elif action == "contestants":
+            csvdata = await ContestantsAdapter().get_all_contestants("", event_id)
+            fields = [
+                "bib",
+                "first_name",
+                "last_name",
+                "birth_date",
+                "gender",
+                "ageclass",
+                "club",
+                "team",
+                "region",
+                "email",
+                "minidrett_id",
+                "id",
+                "seeding_points",
             ]
             # fields = csvdata[0].keys()
 

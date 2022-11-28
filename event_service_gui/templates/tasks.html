@@ -46,7 +46,7 @@
             </form>
           {% endif %}
         </td>
-        <td>{{ task_status.no_of_contestants}} deltakere.</td>
+        <td>{{ task_status.no_of_contestants}} deltakere. <a target=new href=/csv?event_id={{ event_id }}&action=contestants>CSV fil</a></td>
       {% else %}
         <td id=red>Mangler</td>
         <td>
