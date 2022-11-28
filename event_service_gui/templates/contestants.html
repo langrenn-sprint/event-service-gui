@@ -51,6 +51,9 @@
       return true;
     }
   </script>
+  {% for info in info_list %}
+    <div class="w3-container" id=info>{{ info }}</div>
+  {% endfor %}
   {% if username != "Gjest" and action != "new_manual" %}
     <table>
       <tr>

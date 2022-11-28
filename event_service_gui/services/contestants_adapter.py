@@ -116,6 +116,21 @@ class ContestantsAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
+        # trying to parse result - skip if it fails
+        try:
+            informasjon = f"Opprettet {res['created']} av {res['total']} deltakere."
+            if res["updated"]:
+                informasjon += f"<br><br>Duplikater ({len(res['updated'])}):"
+                for update in res["updated"]:
+                    informasjon += f"<br>- {update}"
+            if res["failures"]:
+                informasjon += f"<br><br>Error ({len(res['failures'])}):"
+                for failure in res["failures"]:
+                    informasjon += f"<br>- {failure}"
+            res = informasjon
+        except Exception:
+            logging.error(f"Error parsing result {res}")
+
         return str(res)
 
     async def delete_all_contestants(self, token: str, event_id: str) -> str:

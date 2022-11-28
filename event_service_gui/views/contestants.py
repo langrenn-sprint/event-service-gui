@@ -34,8 +34,11 @@ class Contestants(web.View):
 
             try:
                 informasjon = self.request.rel_url.query["informasjon"]
+                info_list = informasjon.split("<br>")
+                informasjon = ""
             except Exception:
                 informasjon = ""
+                info_list = []
 
             try:
                 valgt_klasse = self.request.rel_url.query["klasse"]
@@ -55,7 +58,6 @@ class Contestants(web.View):
                     contestant = await ContestantsAdapter().get_contestant(
                         user["token"], event_id, id
                     )
-
             except Exception:
                 action = ""
 
@@ -88,6 +90,7 @@ class Contestants(web.View):
                     "event": event,
                     "event_id": event_id,
                     "heat_separators": heat_separators,
+                    "info_list": info_list,
                     "informasjon": informasjon,
                     "raceclasses": raceclasses,
                     "valgt_klasse": valgt_klasse,
@@ -138,15 +141,13 @@ class Contestants(web.View):
                         user["token"], event_id, text_file
                     )
                 elif file.content_type in allowed_filetypes:  # type: ignore
-                    resp = await ContestantsAdapter().create_contestants(
+                    informasjon = await ContestantsAdapter().create_contestants(
                         user["token"], event_id, text_file
                     )
-                    informasjon = f"Opprettet deltakere: {resp}"
                 else:
                     raise Exception(f"Ugyldig filtype {file.content_type}")  # type: ignore
-                info = f"informasjon={informasjon}"
                 return web.HTTPSeeOther(
-                    location=f"/contestants?event_id={event_id}&{info}"
+                    location=f"/contestants?event_id={event_id}&informasjon={informasjon}"
                 )
             elif "create_one" in form.keys():
                 url = await create_one_contestant(user["token"], event_id, form)  # type: ignore
