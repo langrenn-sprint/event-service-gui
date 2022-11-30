@@ -34,7 +34,7 @@
           <td colspan=5>&nbsp;</td>
         </tr>
         <tr>
-          <td colspan=3><b>{{ race.raceclass }} {{ race.round }}{{ race.index }}{{ race.heat }}</b></td>
+          <td colspan=3><b>{{ race.raceclass }} {{ race.round }}{{ race.index }}{% if race.round != "F" %}{{ race.heat }}{% endif %}</b></td>
           <td colspan=2><b>{{ race.start_time[-8:] }}</b> (heat {{ race.order }})</td>
         </tr>
         {% if action == "Template" %}
