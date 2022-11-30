@@ -19,6 +19,7 @@ class Contestants(web.View):
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
         action = ""
+        available_bib = 0
         heat_separators = []
         try:
             event_id = self.request.rel_url.query["event_id"]
@@ -62,7 +63,9 @@ class Contestants(web.View):
                 action = ""
 
             if valgt_klasse == "":
-                if action != "new_manual":
+                if action == "new_manual":
+                    available_bib = await get_available_bib(user['token'], event_id)
+                else:
                     contestants = await ContestantsAdapter().get_all_contestants(
                         user["token"], event_id
                     )
@@ -89,6 +92,7 @@ class Contestants(web.View):
                     "contestant": contestant,
                     "event": event,
                     "event_id": event_id,
+                    "available_bib": available_bib,
                     "heat_separators": heat_separators,
                     "info_list": info_list,
                     "informasjon": informasjon,
@@ -322,6 +326,16 @@ async def add_seeding_from_excel(token: str, event_id: str, file) -> str:
         informasjon = f"Deltakere er opprettet - {i_contestants} totalt"
     return informasjon
 
+async def get_available_bib(token: str, event_id: str) -> int:
+    """Find available bib, one above higest assigned."""
+    contestants = await ContestantsAdapter().get_all_contestants(token, event_id)
+    highest_bib = 0
+    for contestant in contestants:
+        if contestant['bib']:
+            if contestant['bib'] > highest_bib:
+                highest_bib = contestant['bib']
+    available_bib = highest_bib + 1
+    return available_bib
 
 async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
     """Load contestants from excel-file."""

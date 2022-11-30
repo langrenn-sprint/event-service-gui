@@ -260,6 +260,11 @@
               </td>
             </tr>
             <tr>
+              <td>Startnummer</td>
+              <td><input type=number name="bib" value="" min="1" max="9999" size=4 {% if available_bib > 1 %}required{% endif %}></td>
+              <td>{% if available_bib > 1 %}Tips: Nr {{ available_bib }} er ledig (en over det høyeste som er tildelt){% else %}Tips: Optional - startnummer er ikke tildelt ennå.{% endif %}</td>
+            </tr>
+            <tr>
               <td width=150>Fornavn *</td>
               <td><input type=text name="first_name" value="" required></td>
               <td></td>
@@ -289,11 +294,6 @@
               <td></td>
             </tr>
             <tr>
-              <td>Region</td>
-              <td><input type=text name="region" value=""></td>
-              <td></td>
-            </tr>
-            <tr>
               <td>Klubb *</td>
               <td><input type=text name="club" value="" required></td>
               <td></td>
@@ -304,13 +304,13 @@
               <td></td>
             </tr>
             <tr>
-              <td>Epost</td>
-              <td><input type=text name="email" value=""></td>
+              <td>Region</td>
+              <td><input type=text name="region" value=""></td>
               <td></td>
             </tr>
             <tr>
-              <td>Startnummer</td>
-              <td><input type=number name="bib" value="" min="1" max="9999" size=4></td>
+              <td>Epost</td>
+              <td><input type=text name="email" value=""></td>
               <td></td>
             </tr>
             <tr>
