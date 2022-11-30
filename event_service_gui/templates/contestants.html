@@ -260,23 +260,18 @@
               </td>
             </tr>
             <tr>
-              <td width=150>Fornavn</td>
-              <td><input type=text name="first_name" value=""></td>
+              <td width=150>Fornavn *</td>
+              <td><input type=text name="first_name" value="" required></td>
               <td></td>
             </tr>
             <tr>
-              <td>Etternavn</td>
-              <td><input type=text name="last_name" value=""></td>
+              <td>Etternavn *</td>
+              <td><input type=text name="last_name" value="" required></td>
               <td></td>
             </tr>
             <tr>
               <td>Fødseldato</td>
-              <td><input type=text name="birth_date" value=""></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>Kjønn</td>
-              <td><input type=text name="gender" value=""></td>
+              <td><input type=text name="birth_date" value="" placeholder="01.01.2001" pattern="[0-9]{2}.[0-9]{2}.[0-9]{4}"></td>
               <td></td>
             </tr>
             <tr>
@@ -289,6 +284,7 @@
                     {% endfor %}
                   {% endfor %}
                 </select>
+                <input type=hidden name="gender" value="">
               </td>
               <td></td>
             </tr>
@@ -298,8 +294,8 @@
               <td></td>
             </tr>
             <tr>
-              <td>Klubb</td>
-              <td><input type=text name="club" value=""></td>
+              <td>Klubb *</td>
+              <td><input type=text name="club" value="" required></td>
               <td></td>
             </tr>
             <tr>

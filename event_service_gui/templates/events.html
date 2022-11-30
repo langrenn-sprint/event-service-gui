@@ -19,22 +19,22 @@
           </td>
         </tr>
         <tr>
-          <td width=150>Navn</td>
+          <td width=150>Navn *</td>
           <td><input type=text name="name" value="" required></td>
           <td></td>
         </tr>
         <tr>
-          <td>Dato</td>
-          <td><input type=text name=date_of_event value="" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required></td>
-          <td>Event dato, eksempel: 2021-10-26</td>
+          <td>Dato *</td>
+          <td><input type=text name=date_of_event value="" placeholder="2021-01-01" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required></td>
+          <td></td>
         </tr>
         <tr>
-          <td>Tid</td>
-          <td><input type=text name=time_of_event value="" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" required></td>
-          <td>Klokkeslett for første start, ex: 14:00:00</td>
+          <td>Tid *</td>
+          <td><input type=text name=time_of_event value="" placeholder="09:00:30" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" required></td>
+          <td>Klokkeslett første start</td>
         </tr>
         <tr>
-          <td>Format</td>
+          <td>Rennformat</td>
           <td>
             <select name="competition_format" required>
               {% for format in competition_formats %}
