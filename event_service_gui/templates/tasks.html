@@ -165,28 +165,17 @@
     {% if (task_status.done_5) %}
       <td id=green>Utført</td>
       <td>
-        <form action=/print_contestants method=get target=_blank>
-          <input type="hidden" name="event_id" value="{{ event_id }}">
-          <input type="submit" name="print" value=" Skriv ut - pr klasse ">
-        </form>
-        <div id=minispacer></div>
-        <form action=/print_contestants method=get target=_blank>
-          <input type="hidden" name="action" value="klubb">
-          <input type="hidden" name="event_id" value="{{ event_id }}">
-          <input type="submit" name="print" value="  Skriv ut - pr klubb  ">
-        </form>
-        <div id=minispacer></div>
-        <form action=/print_contestants method=get target=_blank>
-          <input type="hidden" name="action" value="alfabetisk_fornavn">
-          <input type="hidden" name="event_id" value="{{ event_id }}">
-          <input type="submit" name="print" value="  Skriv ut - sorter på fornavn  ">
-        </form>
-        <div id=minispacer></div>
-        <form action=/print_contestants method=get target=_blank>
-          <input type="hidden" name="action" value="alfabetisk_etternavn">
-          <input type="hidden" name="event_id" value="{{ event_id }}">
-          <input type="submit" name="print" value="  Skriv ut - sorter på etternavn  ">
-        </form>
+        <ul>
+          <li class=dropdown>
+            <a href=javascript:void(0) class=dropbtn>Skriv ut deltakerlister</a>
+            <div class=dropdown-content>
+              <a target=_blank href=print_contestants?event_id={{ event_id }}>Pr klasse</a>
+              <a target=_blank href=print_contestants?event_id={{ event_id }}&action=klubb>Pr klubb</a>
+              <a target=_blank href=print_contestants?event_id={{ event_id }}&action=alfabetisk_fornavn>Sortert på fornavn</a>
+              <a target=_blank href=print_contestants?event_id={{ event_id }}&action=alfabetisk_etternavn>Sortert på etternavn</a>
+            </div>
+          </li>
+        </ul>
       </td>
       <td>{{ task_status.bib_missing}} deltakere mangler startnummer.</td>
     {% else %}
@@ -231,11 +220,11 @@
     {% if (task_status.done_8) %}
       <td id=green>Utført</td>
       <td>
-        <form onclick="result_gui_action('myPStart', 'print_lists')" id="myPStart" action=/print_lists method=get target=_blank>
-          <input type="hidden" name="event_id" value="{{ event_id }}">
-          <input type="hidden" name="action" value="start">
-          <input type="submit" name="print" value="  Skriv ut  ">
-        </form>
+        <ul>
+          <li class=dropdown>
+            <a target="_blank" onclick="result_gui_href('myPStart', 'print_lists?event_id={{ event_id }}&action=start')" id="myPStart" class=dropbtn>Skriv ut startlister</a>
+          </li>
+        </ul>
       </td>
       <td> {{ task_status.no_of_starts }} starter er opprettet. <a target=_blank href=/csv?event_id={{ event_id }}&action=startlist>CSV fil</a></td>
     {% else %}

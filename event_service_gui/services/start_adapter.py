@@ -8,8 +8,6 @@ from aiohttp import hdrs
 from aiohttp import web
 from multidict import MultiDict
 
-from .raceplans_adapter import RaceplansAdapter
-
 RACE_HOST_SERVER = os.getenv("RACE_HOST_SERVER", "localhost")
 RACE_HOST_PORT = os.getenv("RACE_HOST_PORT", "8088")
 RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
@@ -167,7 +165,6 @@ class StartAdapter:
     ) -> List:
         """Get all start_entries by bib function."""
         start_entries = []
-        # all_races = await RaceplansAdapter().get_all_races(token, event_id)
         all_starts = await StartAdapter().get_all_starts_by_event(token, event_id)
         if all_starts:
             for start in all_starts[0]["start_entries"]:
