@@ -8,6 +8,8 @@ from aiohttp import hdrs
 from aiohttp import web
 from multidict import MultiDict
 
+from .raceplans_adapter import RaceplansAdapter
+
 RACE_HOST_SERVER = os.getenv("RACE_HOST_SERVER", "localhost")
 RACE_HOST_PORT = os.getenv("RACE_HOST_PORT", "8088")
 RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
@@ -164,30 +166,13 @@ class StartAdapter:
         self, token: str, event_id: str, bib: int
     ) -> List:
         """Get all start_entries by bib function."""
-        headers = MultiDict(
-            [
-                (hdrs.AUTHORIZATION, f"Bearer {token}"),
-            ]
-        )
         start_entries = []
-        async with ClientSession() as session:
-            async with session.get(
-                f"{RACE_SERVICE_URL}/races/all/start-entries?bib={bib}", headers=headers
-            ) as resp:
-                logging.debug(
-                    f"get_start_entries_by_bib - got response {resp.status}, bib {bib}"
-                )
-                if resp.status == 200:
-                    start_entries = await resp.json()
-                elif resp.status == 401:
-                    raise Exception(f"Login expired: {resp}")
-                else:
-                    servicename = "get_start_entries_by_bib"
-                    body = await resp.json()
-                    logging.error(f"{servicename} failed - {resp.status} - {body}")
-                    raise web.HTTPBadRequest(
-                        reason=f"Error - {resp.status}: {body['detail']}."
-                    )
+        # all_races = await RaceplansAdapter().get_all_races(token, event_id)
+        all_starts = await StartAdapter().get_all_starts_by_event(token, event_id)
+        if all_starts:
+            for start in all_starts[0]["start_entries"]:
+                if start["bib"] == bib:
+                    start_entries.append(start)
         return start_entries
 
     async def get_all_starts_by_event(self, token: str, event_id: str) -> List:

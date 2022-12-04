@@ -32,7 +32,7 @@
             <tr>
               <td>{{ loper.bib }}</td>
               <td>{{ loper.first_name }} {{ loper.last_name }}</td>
-              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}{% if loper.region %} / {{ loper.region }}{% endif %}</td>
+              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
               <td>{{ loper.ageclass }}</td>
             </tr>
           {% endif %}
@@ -41,7 +41,7 @@
       <div id=spacer></div>
     {% endfor %}
 
-  {% elif action == "alfabetisk" %}
+  {% elif action == "alfabetisk_fornavn" or action == "alfabetisk_etternavn" %}
       <div id=adminpagetitle>
           Deltakerliste {{ action }} <img id=header_icon src="../static/icon_new.png">
       </div>
@@ -56,8 +56,14 @@
         {% for loper in contestants %}
             <tr>
               <td>{{ loper.bib }}</td>
-              <td>{{ loper.first_name }} {{ loper.last_name }}</td>
-              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}{% if loper.region %} / {{ loper.region }}{% endif %}</td>
+              <td>
+                {% if action == "alfabetisk_etternavn" %}
+                {{ loper.last_name }}, {{ loper.first_name }}
+                {% else %}
+                  {{ loper.first_name }} {{ loper.last_name }}
+                {% endif %}
+              </td>
+              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
               <td><nobr>{{ loper.ageclass }}</nobr></td>
             </tr>
         {% endfor %}
@@ -85,7 +91,7 @@
             <tr>
               <td>{{ loper.bib }}</td>
               <td>{{ loper.first_name }} {{ loper.last_name }}</td>
-              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}{% if loper.region %} / {{ loper.region }}{% endif %}</td>
+              <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
               <td>{{ loper.ageclass }}</td>
             </tr>
           {% endif %}

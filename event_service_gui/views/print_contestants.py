@@ -65,8 +65,10 @@ class PrintContestants(web.View):
                 for contestant in contestants:
                     if contestant["club"] not in clubs:
                         clubs.append(contestant["club"])
-            elif action == "alfabetisk":
+            elif action == "alfabetisk_fornavn":
                 contestants = sorted(contestants, key=itemgetter("first_name"))
+            elif action == "alfabetisk_etternavn":
+                contestants = sorted(contestants, key=itemgetter("last_name"))
 
             """Get route function."""
             return await aiohttp_jinja2.render_template_async(
