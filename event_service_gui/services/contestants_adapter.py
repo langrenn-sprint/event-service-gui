@@ -107,7 +107,7 @@ class ContestantsAdapter:
                 res = resp.status
                 logging.info(f"result - got response {res} - {resp}")
                 if res == 200:
-                    res = await resp.json()
+                    body = await resp.json()
                 elif resp.status == 401:
                     raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
@@ -117,21 +117,21 @@ class ContestantsAdapter:
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
         # trying to parse result - skip if it fails
+        informasjon = ""
         try:
-            informasjon = f"Opprettet {res['created']} av {res['total']} deltakere."
-            if res["updated"]:
-                informasjon += f"<br><br>Duplikater ({len(res['updated'])}):"
-                for update in res["updated"]:
+            informasjon = f"Opprettet {body['created']} av {body['total']} deltakere."
+            if body["updated"]:
+                informasjon += f"<br><br>Duplikater ({len(body['updated'])}):"
+                for update in body["updated"]:
                     informasjon += f"<br>- {update}"
-            if res["failures"]:
-                informasjon += f"<br><br>Error ({len(res['failures'])}):"
-                for failure in res["failures"]:
+            if body["failures"]:
+                informasjon += f"<br><br>Error ({len(body['failures'])}):"
+                for failure in body["failures"]:
                     informasjon += f"<br>- {failure}"
-            res = informasjon
         except Exception:
-            logging.error(f"Error parsing result {res}")
+            logging.error(f"Error parsing result {body}")
 
-        return str(res)
+        return informasjon
 
     async def delete_all_contestants(self, token: str, event_id: str) -> str:
         """Delete all contestants in one event function."""

@@ -1,7 +1,7 @@
 """Package for all views."""
 from .contestants import Contestants
 from .control import Control
-from .csv import Csv
+from .csv_list import CsvList
 from .events import Events
 from .liveness import Ping, Ready
 from .login import Login

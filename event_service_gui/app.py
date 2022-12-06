@@ -15,7 +15,7 @@ import motor.motor_asyncio
 from .views import (
     Contestants,
     Control,
-    Csv,
+    CsvList,
     Events,
     Login,
     Logout,
@@ -80,7 +80,7 @@ async def create_app() -> web.Application:
     app.add_routes(
         [
             web.view("/", Main),
-            web.view("/csv", Csv),
+            web.view("/csv", CsvList),
             web.view("/contestants", Contestants),
             web.view("/control", Control),
             web.view("/events", Events),

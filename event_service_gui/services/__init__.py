@@ -2,6 +2,7 @@
 from .competition_format_adapter import CompetitionFormatAdapter
 from .contestants_adapter import ContestantsAdapter
 from .events_adapter import EventsAdapter
+from .raceclass_result_adapter import RaceclassResultsAdapter
 from .raceclasses_adapter import RaceclassesAdapter
 from .raceplans_adapter import RaceplansAdapter
 from .start_adapter import StartAdapter
