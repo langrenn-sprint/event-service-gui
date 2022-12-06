@@ -46,7 +46,7 @@
             </form>
           {% endif %}
         </td>
-        <td>{{ task_status.no_of_contestants}} deltakere. <a target=_blank href=/csv?event_id={{ event_id }}&action=contestants>CSV fil</a></td>
+        <td>{{ task_status.no_of_contestants}} deltakere.</td>
       {% else %}
         <td id=red>Mangler</td>
         <td>
@@ -120,13 +120,13 @@
       {% if (task_status.done_6) %}
         <td id=green>Utført</td>
         <td>
-          <form onclick="result_gui_action('myPRPl', 'print_lists')" id="myPRPl" action=/print_lists method=get target=_blank>
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="hidden" name="action" value="raceplan">
-            <input type="submit" name="print" value="  Skriv ut - kjøreplan ">
-          </form>
+          <ul>
+            <li class=dropdown>
+              <a href= target="_blank" onclick="result_gui_href('myPPlan', 'print_lists?event_id={{ event_id }}&action=raceplan')" id="myPPlan" class=dropbtn>Skriv ut kjøreplan</a>
+            </li>
+          </ul>
         </td>
-        <td>{{ task_status.no_of_races}} heat er opprettet. <a target=_blank href=/csv?event_id={{ event_id }}&action=raceplan>CSV fil</a></td>
+        <td>{{ task_status.no_of_races}} heat er opprettet.</td>
       {% else %}
         <td id=red>Mangler</td>
         <td>
@@ -222,11 +222,11 @@
       <td>
         <ul>
           <li class=dropdown>
-            <a target="_blank" onclick="result_gui_href('myPStart', 'print_lists?event_id={{ event_id }}&action=start')" id="myPStart" class=dropbtn>Skriv ut startlister</a>
+            <a href= target="_blank" onclick="result_gui_href('myPStart', 'print_lists?event_id={{ event_id }}&action=start')" id="myPStart" class=dropbtn>Skriv ut startlister</a>
           </li>
         </ul>
       </td>
-      <td> {{ task_status.no_of_starts }} starter er opprettet. <a target=_blank href=/csv?event_id={{ event_id }}&action=startlist>CSV fil</a></td>
+      <td> {{ task_status.no_of_starts }} starter er opprettet.</td>
     {% else %}
       <td id=red>Mangler</td>
       <td>
@@ -289,6 +289,24 @@
           </form>
       </td>
       <td>Mulighet til å slette alle startlister og passeringer, inkludert videre til oppsett.
+      </td>
+  </tr>
+  <tr>
+    <td>8. Eksporter data</td>
+      <td>Manuell operasjon</td>
+      <td>
+        <ul>
+          <li class=dropdown>
+            <a href=javascript:void(0) class=dropbtn>CSV filer</a>
+            <div class=dropdown-content>
+              <a target=_blank href=/csv?event_id={{ event_id }}&action=contestants>Deltakere</a>
+              <a target=_blank href=/csv?event_id={{ event_id }}&action=raceplan>Kjøreplan</a>
+              <a target=_blank href=/csv?event_id={{ event_id }}&action=startlist>Startlister</a>
+            </div>
+          </li>
+        </ul>
+      </td>
+      <td>Mulighet til å eksportere lister på csv format.
       </td>
   </tr>
   </table>
