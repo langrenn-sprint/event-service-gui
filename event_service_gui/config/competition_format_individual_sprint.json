@@ -19,7 +19,7 @@
   "datatype": "individual_sprint",
   "race_config_non_ranked": [
     {
-      "max_no_of_contestants": 7,
+      "max_no_of_contestants": 8,
       "rounds": [
         "R1",
         "R2"
@@ -213,7 +213,7 @@
   ],
   "race_config_ranked": [
     {
-      "max_no_of_contestants": 7,
+      "max_no_of_contestants": 8,
       "rounds": [
         "Q",
         "F"

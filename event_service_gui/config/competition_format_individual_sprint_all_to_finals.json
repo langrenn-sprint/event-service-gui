@@ -19,7 +19,7 @@
     "datatype": "individual_sprint",
     "race_config_non_ranked": [
       {
-        "max_no_of_contestants": 7,
+        "max_no_of_contestants": 8,
         "rounds": [
           "R1",
           "R2"
@@ -213,7 +213,7 @@
     ],
     "race_config_ranked": [
         {
-            "max_no_of_contestants": 7,
+            "max_no_of_contestants": 8,
             "rounds": ["Q", "F"],
             "no_of_heats": {"Q": {"A": 1}, "F": {"A": 1, "B": 0, "C": 0}},
             "from_to": {"Q": {"A": {"F": {"A": "ALL", "B": 0}}, "C": {"F": {"C": 0}}}}
