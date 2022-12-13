@@ -333,7 +333,7 @@ class RaceplansAdapter:
     async def validate_raceplan(self, token: str, raceplan_id: str) -> dict:
         """Validate raceplan function."""
         servicename = "validate_raceplan"
-        validation_result = []
+        validation_result = {}
         headers = MultiDict(
             [
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
