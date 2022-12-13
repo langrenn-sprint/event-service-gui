@@ -118,7 +118,11 @@
     <tr>
       <td>4a. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
       {% if (task_status.done_6) %}
-        <td id=green>Utført</td>
+        {% if (task_status.raceplan_validation) %}
+          <td id=orange>Valideringsfeil</td>
+        {% else %}
+          <td id=green>Utført</td>
+        {% endif %}
         <td>
           <ul>
             <li class=dropdown>
@@ -126,8 +130,17 @@
             </li>
           </ul>
         </td>
-        <td>{{ task_status.no_of_races}} heat er opprettet.</td>
-      {% else %}
+        <td>
+          {% if (task_status.raceplan_validation) %}
+            {% for key, value in task_status.raceplan_validation.items() %}
+              {{ key }}: {% for element in value %}{{ element }}{% endfor %}<br>
+            {% endfor %}
+          {% else %}
+            {{ task_status.no_of_races}} heat er opprettet.
+          {% endif %}
+        </td>
+        </tr>
+       {% else %}
         <td id=red>Mangler</td>
         <td>
           {% if (task_status.done_4) %}

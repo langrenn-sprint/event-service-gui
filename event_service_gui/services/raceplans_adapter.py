@@ -329,3 +329,31 @@ class RaceplansAdapter:
         )
 
         return informasjon
+
+    async def validate_raceplan(self, token: str, raceplan_id: str) -> dict:
+        """Validate raceplan function."""
+        servicename = "validate_raceplan"
+        validation_result = []
+        headers = MultiDict(
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
+        )
+        async with ClientSession() as session:
+            async with session.post(
+                f"{RACE_SERVICE_URL}/raceplans/{raceplan_id}/validate",
+                headers=headers,
+            ) as resp:
+                logging.debug(f"{servicename} - got response {resp.status}")
+                if resp.status == 200:
+                    validation_result = await resp.json()
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+                else:
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+
+        return validation_result
