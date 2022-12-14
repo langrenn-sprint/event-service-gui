@@ -167,7 +167,7 @@
           <div class="w3-container" id=info>Seeding utføres manuelt ved å "bytte" startnummer. Løpere som er gruppert sammen vil bli satt opp i samme heat når startlister generes.</div>
           <form action=/contestants method=post>
           <div>
-            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Oppdater  ">
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  ">
             <input type="hidden" name=klasse value={{ valgt_klasse }}>
           </div>
           <div id=spacer>&nbsp;</div>
@@ -243,7 +243,7 @@
           </form>
         {% elif action == "seeding" %}
           <div>
-            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Oppdater  ">
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  ">
             <input type="hidden" name=action value="seeding">
             <input type="hidden" name="event_id" value="{{ event_id }}">
           </div>
@@ -345,7 +345,7 @@
               <tr id=spacer></tr>
               <tr>
                 <td colspan=3 id=headerblue>
-                  <b>Oppdater deltaker</b>
+                  <b>Endre deltaker</b>
                 </td>
               </tr>
               <tr>
@@ -421,7 +421,7 @@
                   <td>
                     <input type="hidden" name="event_id" value="{{ event_id }}">
                     <input type="hidden" name="id" value="{{ contestant.id }}">
-                    <input type="submit" name=update_one value="  Oppdater  ">
+                    <input type="submit" name=update_one value="  Lagre  ">
                   </td>
                   <td></td>
               </tr>

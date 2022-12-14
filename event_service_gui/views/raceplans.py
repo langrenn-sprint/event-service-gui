@@ -11,7 +11,6 @@ from event_service_gui.services import (
 )
 from .utils import (
     check_login,
-    check_login_open,
     get_event,
     get_qualification_text,
     get_raceplan_summary,
@@ -31,7 +30,7 @@ class Raceplans(web.View):
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
         try:
-            user = await check_login_open(self)
+            user = await check_login(self)
             event = await get_event(user["token"], event_id)
 
             try:
@@ -63,6 +62,19 @@ class Raceplans(web.View):
             for race in races:
                 race["next_race"] = get_qualification_text(race)
 
+            # get validation results
+            raceplans = await RaceplansAdapter().get_all_raceplans(
+                user["token"], event_id
+            )
+            if len(raceplans) == 1:
+                raceplan_validation = await RaceplansAdapter().validate_raceplan(
+                    user["token"], raceplans[0]["id"]
+                )  # type: ignore
+                for race in races:
+                    for x, y in raceplan_validation.items():
+                        if x == race["order"]:
+                            race["validation"] = y
+
             event = await EventsAdapter().get_event(user["token"], event_id)
 
             return await aiohttp_jinja2.render_template_async(
@@ -73,6 +85,7 @@ class Raceplans(web.View):
                     "lopsinfo": "Kjøreplan",
                     "raceclasses": raceclasses,
                     "raceplan_summary": raceplan_summary,
+                    "raceplan_validation": raceplan_validation,
                     "races": races,
                     "event": event,
                     "event_id": event_id,
