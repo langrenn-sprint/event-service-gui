@@ -62,6 +62,12 @@
                   </td>
                 </tr>
                 <tr>
+                  <td>Tidssone</td>
+                  <td>
+                    <input type=text name=timezone value="{{ format.timezone }}">
+                  </td>
+                </tr>
+                <tr>
                   <td>Pause mellom grupper</td>
                   <td><input type=text name=time_between_groups value="{{ format.time_between_groups }}" required></td>
                 </tr>
@@ -187,9 +193,9 @@
       <tr>
         <td>Time_zone_offset</td>
         <td>
-          <input type="number" name=time_zone_offset value={{ time_zone_offset }} min=-9 max=9>
+          {{ time_zone_offset }}
         </td>
-        <td>Lokal tid er: <b>{{ local_time }}</b>. Justere lokal tid dersom tidssone på server og konkurransested er ulikt</td>
+        <td>Lokal tid er: <b>{{ local_time }}</b>. Justere lokal tid dersom tidssone på server (i global_settings.json) og konkurransested er ulikt</td>
       </tr>
       <tr>
         <td></td>

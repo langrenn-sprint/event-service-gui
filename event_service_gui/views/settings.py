@@ -29,7 +29,6 @@ class Settings(web.View):
             user = await check_login(self)
             event = await get_event(user["token"], "")
             event["name"] = "Globale innstillinger"
-
             competition_formats = (
                 await CompetitionFormatAdapter().get_competition_formats(user["token"])
             )
@@ -124,6 +123,7 @@ class Settings(web.View):
                         "starting_order": str(form["starting_order"]),
                         "start_procedure": str(form["start_procedure"]),
                         "datatype": str(form["datatype"]),
+                        "timezone": str(form["timezone"]),
                         "time_between_groups": str(form["time_between_groups"]),
                         "time_between_rounds": str(form["time_between_rounds"]),
                         "time_between_heats": str(form["time_between_heats"]),
@@ -157,6 +157,7 @@ class Settings(web.View):
                             form["max_no_of_contestants_in_race"]  # type: ignore
                         ),
                         "datatype": str(form["datatype"]),
+                        "timezone": str(form["timezone"]),
                     }
                 logging.info(request_body["race_config_ranked"])
                 informasjon = (
