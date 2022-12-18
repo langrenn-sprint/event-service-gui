@@ -40,8 +40,9 @@ class StartAdapter:
                 elif resp.status == 401:
                     raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
+                    error_msg = await resp.json()
                     logging.error(
-                        f"generate_startlist_for_event failed - {resp.status}"
+                        f"generate_startlist_for_event failed: {resp.status} - {error_msg}"
                     )
                     raise web.HTTPBadRequest(
                         reason="Generate_startlist_for_event failed."

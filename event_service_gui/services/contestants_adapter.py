@@ -3,7 +3,7 @@ import copy
 import logging
 import os
 from typing import List
-from urllib.parse import quote
+import urllib.parse
 
 from aiohttp import ClientSession
 from aiohttp import hdrs, web
@@ -250,7 +250,8 @@ class ContestantsAdapter:
             ]
         )
         contestants = []
-        query_param = f"ageclass={quote(ageclass_name)}"
+        ageclass_name_url = urllib.parse.quote(ageclass_name, safe='')
+        query_param = f"ageclass={ageclass_name_url}"
         async with ClientSession() as session:
             async with session.get(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?{query_param}",
@@ -279,9 +280,10 @@ class ContestantsAdapter:
             ]
         )
         contestants = []
+        raceclass_name_url = urllib.parse.quote(raceclass_name, safe='')
         async with ClientSession() as session:
             async with session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_name}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_name_url}",
                 headers=headers,
             ) as resp:
                 logging.debug(
@@ -341,9 +343,10 @@ class ContestantsAdapter:
             ]
         )
         contestants = []
+        raceclass_url = urllib.parse.quote(raceclass, safe='')
         async with ClientSession() as session:
             async with session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_url}",
                 headers=headers,
             ) as resp:
                 logging.debug(

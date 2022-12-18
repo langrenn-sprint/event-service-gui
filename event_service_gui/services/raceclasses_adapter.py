@@ -2,6 +2,7 @@
 import logging
 import os
 from typing import List
+import urllib.parse
 
 from aiohttp import ClientSession
 from aiohttp import hdrs
@@ -141,9 +142,10 @@ class RaceclassesAdapter:
             ]
         )
         raceclass = {}
+        ageclass_url = urllib.parse.quote(ageclass, safe='')
         async with ClientSession() as session:
             async with session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses?ageclass-name={ageclass}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses?ageclass-name={ageclass_url}",
                 headers=headers,
             ) as resp:
                 logging.debug(f"get_raceclass_by_ageclass - got response {resp.status}")
