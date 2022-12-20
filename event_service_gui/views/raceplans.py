@@ -66,6 +66,7 @@ class Raceplans(web.View):
             raceplans = await RaceplansAdapter().get_all_raceplans(
                 user["token"], event_id
             )
+            raceplan_validation = {}
             if len(raceplans) == 1:
                 raceplan_validation = await RaceplansAdapter().validate_raceplan(
                     user["token"], raceplans[0]["id"]
