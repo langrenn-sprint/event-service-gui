@@ -82,7 +82,6 @@ class Contestants(web.View):
                 tmp_contestant["club_logo"] = EventsAdapter().get_club_logo_url(
                     tmp_contestant["club"]
                 )
-
             return await aiohttp_jinja2.render_template_async(
                 "contestants.html",
                 self.request,

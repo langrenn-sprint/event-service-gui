@@ -146,7 +146,7 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
             "group": old_raceclasses[0]["group"],
             "order": old_raceclasses[0]["order"],
             "ranking": old_raceclasses[0]["ranking"],
-            "seeding": old_raceclasses[0]["seeding"],
+            "seeding": False,
             "ageclasses": merged_ageclasses,
             "no_of_contestants": no_of_contestants,
         }
@@ -176,11 +176,6 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
             ranking = True
     except Exception:
         ranking = False
-    try:
-        if form["seeding"] == "on":
-            seeding = True
-    except Exception:
-        seeding = False
     request_body = {
         "name": str(form["name"]),
         "distance": str(form["distance"]),
@@ -189,7 +184,7 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
         "group": int(form["group"]),  # type: ignore
         "order": int(form["order"]),  # type: ignore
         "ranking": ranking,
-        "seeding": seeding,
+        "seeding": False,
         "ageclasses": [str(form["ageclass"])],
         "no_of_contestants": int(form["no_of_contestants"]),  # type: ignore
     }
@@ -217,14 +212,10 @@ async def update_order(user: dict, event_id: str, form: dict) -> str:
                     race_class["ranking"] = True
             except Exception:
                 race_class["ranking"] = False
-            try:
-                if form[f"seeding_{id}"] == "on":
-                    race_class["seeding"] = True
-            except Exception:
-                race_class["seeding"] = False
+            race_class["seeding"] = False
             result = await RaceclassesAdapter().update_raceclass(
                 user["token"], event_id, id, race_class
             )
             logging.debug(f"New race_class: {race_class}- update result {result}")
-    informasjon = "Rekkefølgen er oppdatert. Neste steg: Startnummer."
+    informasjon = "Rekkefølgen er oppdatert. Neste steg: Kjøreplan."
     return informasjon

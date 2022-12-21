@@ -9,17 +9,13 @@
 {% block refresh %}{% endblock %}
 {% block content %}
   <div id=spacer></div>
-    <div align=right>
+    <div align="right">
       <form action=/settings method=post>
-        <ul>
-          <li class=dropdown>
-            <a href=javascript:void(0) class=dropbtn>Generer default innstillinger</a>
-            <div class=dropdown-content>
-              <input type="submit" name="default_individual_sprint" value="  Standard sprint oppsett  "><br>
-              <input type="submit" name="default_sprint_all_to_finals" value="  Sprint med alle til finale  ">
-            </div>
-          </li>
-        </ul>
+        <nobr>
+          Tilbakestill: 
+          <input type="submit" name="default_individual_sprint" value="  Standard sprint oppsett  ">
+          <input type="submit" name="default_sprint_all_to_finals" value="  Sprint med alle til finale  ">
+        </nobr>
       </form>
     </div>
     <div id=spacer></div>
