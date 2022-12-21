@@ -25,6 +25,9 @@ class Events(web.View):
         try:
             user = await check_login(self)
             event = await get_event(user["token"], event_id)
+            local_time_now = ""
+            if (event):
+                local_time_now = await EventsAdapter().get_local_time(user["token"], event_id, "HH:MM")
 
             try:
                 action = self.request.rel_url.query["action"]
@@ -47,6 +50,7 @@ class Events(web.View):
                     "action": action,
                     "competition_formats": competition_formats,
                     "create_new": create_new,
+                    "local_time_now": local_time_now,
                     "lopsinfo": "Informasjon",
                     "event": event,
                     "event_id": event_id,
@@ -75,6 +79,7 @@ class Events(web.View):
                     "name": form["name"],
                     "date_of_event": form["date_of_event"],
                     "time_of_event": form["time_of_event"],
+                    "timezone": form["timezone"],
                     "competition_format": form["competition_format"],
                     "organiser": form["organiser"],
                     "webpage": form["webpage"],
@@ -94,6 +99,7 @@ class Events(web.View):
                     "name": form["name"],
                     "date_of_event": form["date_of_event"],
                     "time_of_event": form["time_of_event"],
+                    "timezone": form["timezone"],
                     "competition_format": form["competition_format"],
                     "organiser": form["organiser"],
                     "webpage": form["webpage"],

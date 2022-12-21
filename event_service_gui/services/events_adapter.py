@@ -1,9 +1,11 @@
 """Module for events adapter."""
 import copy
+from datetime import datetime
 import json
 import logging
 import os
 from typing import List
+from zoneinfo import ZoneInfo
 
 from aiohttp import ClientSession
 from aiohttp import hdrs
@@ -113,6 +115,25 @@ class EventsAdapter:
             raise Exception from e
         return global_setting
 
+    async def get_local_time(self, token: str, event_id: str, format: str) -> str:
+        """Return local time, time zone adjusted from event info."""
+        local_time = ""
+        event = await EventsAdapter().get_event(token, event_id)
+        timezone = event["timezone"]
+        if timezone:
+            local_time_obj = datetime.now(ZoneInfo(timezone))
+        else:
+            local_time_obj = datetime.now()
+
+        if format == "HH:MM":
+            local_time = (
+                f"{local_time_obj.strftime('%H')}:{local_time_obj.strftime('%M')}"
+            )
+        else:
+            local_time = local_time_obj.strftime("%X")
+
+        return local_time
+
     def get_club_logo_url(self, club_name: str) -> str:
         """Get url to club logo - input is 4 first chars of club name."""
         config_files_directory = f"{os.getcwd()}/event_service_gui/config"
@@ -170,7 +191,6 @@ class EventsAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
-
         return id
 
     async def delete_event(self, token: str, id: str) -> str:
