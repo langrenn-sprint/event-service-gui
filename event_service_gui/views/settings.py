@@ -5,12 +5,11 @@ import logging
 from aiohttp import web
 import aiohttp_jinja2
 
-from event_service_gui.services import CompetitionFormatAdapter, EventsAdapter
+from event_service_gui.services import CompetitionFormatAdapter
 from .utils import (
     check_login,
     create_default_competition_format,
     get_event,
-    get_local_time,
     get_qualification_text,
 )
 
@@ -62,10 +61,6 @@ class Settings(web.View):
                     "event_id": "",
                     "informasjon": informasjon,
                     "lopsinfo": "Globale innstillinger",
-                    "local_time": get_local_time("HH:MM"),
-                    "time_zone_offset": EventsAdapter().get_global_setting(
-                        "TIME_ZONE_OFFSET"
-                    ),
                     "username": user["name"],
                 },
             )
@@ -123,7 +118,6 @@ class Settings(web.View):
                         "starting_order": str(form["starting_order"]),
                         "start_procedure": str(form["start_procedure"]),
                         "datatype": str(form["datatype"]),
-                        "timezone": str(form["timezone"]),
                         "time_between_groups": str(form["time_between_groups"]),
                         "time_between_rounds": str(form["time_between_rounds"]),
                         "time_between_heats": str(form["time_between_heats"]),
@@ -157,7 +151,6 @@ class Settings(web.View):
                             form["max_no_of_contestants_in_race"]  # type: ignore
                         ),
                         "datatype": str(form["datatype"]),
-                        "timezone": str(form["timezone"]),
                     }
                 logging.info(request_body["race_config_ranked"])
                 informasjon = (

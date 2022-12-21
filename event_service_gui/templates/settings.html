@@ -62,12 +62,6 @@
                   </td>
                 </tr>
                 <tr>
-                  <td>Tidssone</td>
-                  <td>
-                    <input type=text name=timezone value="{{ format.timezone }}">
-                  </td>
-                </tr>
-                <tr>
                   <td>Pause mellom grupper</td>
                   <td><input type=text name=time_between_groups value="{{ format.time_between_groups }}" required></td>
                 </tr>
@@ -185,25 +179,4 @@
     {% endfor %}
   </table>
   <br>
-  <form action=/settings method=post>
-    <table>
-      <tr>
-        <td colspan=3 id=headerblue>Andre innstillinger</td>
-      </tr>
-      <tr>
-        <td>Time_zone_offset</td>
-        <td>
-          {{ time_zone_offset }}
-        </td>
-        <td>Lokal tid er: <b>{{ local_time }}</b>. Justere lokal tid dersom tidssone på server (i global_settings.json) og konkurransested er ulikt</td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>
-          <input type="submit" name=update_other value="  Lagre  ">
-        </td>
-        <td></td>
-      </tr>
-    </table>
-  </form>
 {% endblock %}

@@ -1,6 +1,5 @@
 {
   "SPORTS_CLUBS": "Bækkelaget;Heming;Kjelsås;Koll;Lillomarka;Lyn;Njård;Rustad;Røa;Try;Årvoll",
-  "TIME_ZONE_OFFSET": 0,
   "TIME_ZONE_OFFSET_G_PHOTOS": 2,
   "CONFIDENCE_LIMIT": "0.7",
   "CSV_FILE_DIR": "result_service_gui/files",

@@ -142,7 +142,7 @@ class RaceclassesAdapter:
             ]
         )
         raceclass = {}
-        ageclass_url = urllib.parse.quote(ageclass, safe='')
+        ageclass_url = urllib.parse.quote(ageclass, safe="")
         async with ClientSession() as session:
             async with session.get(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses?ageclass-name={ageclass_url}",

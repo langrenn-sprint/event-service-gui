@@ -47,8 +47,11 @@ class Tasks(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
-            return web.HTTPSeeOther(location=f"/?informasjon={e}")
+            if "401" in str(e):
+                return web.HTTPSeeOther(location=f"/login?informasjon={e}")
+            else:
+                logging.error(f"Error: {e}. Redirect to main page.")
+                return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""

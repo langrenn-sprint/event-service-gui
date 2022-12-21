@@ -26,8 +26,8 @@ class Events(web.View):
             user = await check_login(self)
             event = await get_event(user["token"], event_id)
             local_time_now = ""
-            if (event):
-                local_time_now = await EventsAdapter().get_local_time(user["token"], event_id, "HH:MM")
+            if event:
+                local_time_now = EventsAdapter().get_local_time(event, "HH:MM")
 
             try:
                 action = self.request.rel_url.query["action"]

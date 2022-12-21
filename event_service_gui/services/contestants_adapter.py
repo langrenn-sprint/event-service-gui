@@ -250,7 +250,7 @@ class ContestantsAdapter:
             ]
         )
         contestants = []
-        ageclass_name_url = urllib.parse.quote(ageclass_name, safe='')
+        ageclass_name_url = urllib.parse.quote(ageclass_name, safe="")
         query_param = f"ageclass={ageclass_name_url}"
         async with ClientSession() as session:
             async with session.get(
@@ -280,7 +280,7 @@ class ContestantsAdapter:
             ]
         )
         contestants = []
-        raceclass_name_url = urllib.parse.quote(raceclass_name, safe='')
+        raceclass_name_url = urllib.parse.quote(raceclass_name, safe="")
         async with ClientSession() as session:
             async with session.get(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_name_url}",
@@ -343,7 +343,7 @@ class ContestantsAdapter:
             ]
         )
         contestants = []
-        raceclass_url = urllib.parse.quote(raceclass, safe='')
+        raceclass_url = urllib.parse.quote(raceclass, safe="")
         async with ClientSession() as session:
             async with session.get(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_url}",

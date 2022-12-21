@@ -115,10 +115,9 @@ class EventsAdapter:
             raise Exception from e
         return global_setting
 
-    async def get_local_time(self, token: str, event_id: str, format: str) -> str:
+    def get_local_time(self, event: dict, format: str) -> str:
         """Return local time, time zone adjusted from event info."""
         local_time = ""
-        event = await EventsAdapter().get_event(token, event_id)
         timezone = event["timezone"]
         if timezone:
             local_time_obj = datetime.now(ZoneInfo(timezone))

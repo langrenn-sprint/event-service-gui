@@ -344,11 +344,12 @@ class RaceplansAdapter:
                 f"{RACE_SERVICE_URL}/raceplans/{raceplan_id}/validate",
                 headers=headers,
             ) as resp:
-                logging.debug(f"{servicename} - got response {resp.status}")
                 if resp.status == 200:
                     validation_result = await resp.json()
                 elif resp.status == 401:
-                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+                    raise Exception(
+                        f"401 Login expired - vennligst logg inn på nytt. Service {servicename}"
+                    )
                 else:
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")

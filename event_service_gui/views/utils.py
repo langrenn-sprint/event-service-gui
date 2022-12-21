@@ -133,20 +133,6 @@ async def get_event(token: str, event_id: str) -> dict:
     return event
 
 
-def get_local_time(format: str) -> str:
-    """Return local time, time zone adjusted from settings file."""
-    time_zone_offset = EventsAdapter().get_global_setting("TIME_ZONE_OFFSET")
-    # calculate new time
-    delta_seconds = int(time_zone_offset) * 3600  # type: ignore
-    local_time_obj = datetime.datetime.now() + datetime.timedelta(seconds=delta_seconds)
-    local_time = ""
-    if format == "HH:MM":
-        local_time = f"{local_time_obj.strftime('%H')}:{local_time_obj.strftime('%M')}"
-    else:
-        local_time = local_time_obj.strftime("%X")
-    return local_time
-
-
 def get_next_race_info(next_race_time_events: list, race_id: str) -> list:
     """Enrich start list with next race info."""
     startlist = []
@@ -283,10 +269,12 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
     return summary
 
 
-def get_races_for_live_view(races, valgt_heat: int, number_of_races: int) -> list:
+def get_races_for_live_view(
+    event, races, valgt_heat: int, number_of_races: int
+) -> list:
     """Return races to display in live view."""
     filtered_racelist = []
-    time_now = get_local_time("HH:MM:SS")
+    time_now = EventsAdapter().get_local_time(event, "HH:MM:SS")
     i = 0
     # find next race on start
     if valgt_heat == 0:
