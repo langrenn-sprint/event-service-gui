@@ -134,6 +134,11 @@ border-right: 1px solid #ddd;
   border-bottom: 0px;
 }
 
+#danger-zone {
+  color: white;
+  background-color: lightcoral;
+}
+
 #smalltext {
 font-size: 0.7em;
 }

@@ -29,6 +29,9 @@
       function result_gui_href(my_element, path) {
         document.getElementById(my_element).href = "http://" + window.location.hostname + ":8090/" + path;
       }
+      function confirm_delete(message) {
+        return window.confirm(message);
+      }
     </script>
   </head>
   <body>

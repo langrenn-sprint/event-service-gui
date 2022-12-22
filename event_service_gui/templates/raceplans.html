@@ -72,7 +72,7 @@
           </form>
         </td>
         <td>
-          <form action=/raceplans method=post onsubmit="return confirm_delete();">
+          <form action=/raceplans method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle kjøreplaner.');">
             <input type="hidden" name="event_id" value="{{ event_id }}">
             <input type="submit" name="delete_all" value="  Slett alle kjøreplaner  ">
           </form>
