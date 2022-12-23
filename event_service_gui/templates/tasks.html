@@ -126,7 +126,7 @@
         <td>
           <ul>
             <li class=dropdown>
-              <a href= target="_blank" onclick="result_gui_href('myPPlan', 'print_lists?event_id={{ event_id }}&action=raceplan')" id="myPPlan" class=dropbtn>Skriv ut kjøreplan</a>
+              <a target="_new" onclick="result_gui_href('myPPlan', 'print_lists?event_id={{ event_id }}&action=raceplan')" id="myPPlan" class=dropbtn href=>Skriv ut kjøreplan</a>
             </li>
           </ul>
         </td>
@@ -235,7 +235,7 @@
       <td>
         <ul>
           <li class=dropdown>
-            <a href= target="_blank" onclick="result_gui_href('myPStart', 'print_lists?event_id={{ event_id }}&action=start')" id="myPStart" class=dropbtn>Skriv ut startlister</a>
+            <a target="_new" onclick="result_gui_href('myPStart', 'print_lists?event_id={{ event_id }}&action=start')" id="myPStart" class=dropbtn href=>Skriv ut startlister</a>
           </li>
         </ul>
       </td>
@@ -336,7 +336,7 @@
         <input type="submit" name="delete_time_events" value="  Slett alle passeringer  ">
       </form>
     </td>
-    <td>Mulighet til å slette alle data startlister og passeringer, inkludert videre til oppsett.</td>
+    <td>Mulighet til å slette all registrert informasjon på arrangementet.</td>
   </tr>
   </table>
 {% endblock %}

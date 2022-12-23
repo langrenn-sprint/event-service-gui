@@ -1,7 +1,7 @@
 {% extends "open_base.html" %}
 {% block titlecontainer %}
-  <div class="w3-quart"></div>
-  <div class="w3-half">
+  <div class="w3-10"></div>
+  <div class="w3-80">
 {% endblock %}
 {% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_event.png"> {{ lopsinfo }}{% endblock %}
@@ -83,7 +83,7 @@
     <div id=spacer></div>
     <form action=/events method=post>
       <input type="hidden" name="event_id" value="{{ event.id }}">
-      <table cellpadding=4>
+      <table>
         <tr>
           <td colspan=3 id=headerblue>
             Rediger arrangementsinformasjon
@@ -134,7 +134,7 @@
               </tr>
             </table>
           </td>
-          <td width=150>
+          <td width=50>
           </td>
           <td valign=top>
               <table cellpadding=4>

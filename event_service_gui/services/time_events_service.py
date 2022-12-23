@@ -1,11 +1,11 @@
 """Module for time event service."""
-import datetime
 import logging
 
 from aiohttp import web
 
 from event_service_gui.services import (
     ContestantsAdapter,
+    EventsAdapter,
     RaceplansAdapter,
     StartAdapter,
     TimeEventsAdapter,
@@ -15,19 +15,19 @@ from event_service_gui.services import (
 class TimeEventsService:
     """Class representing service layer for time_events."""
 
-    async def generate_next_race_templates(self, token: str, event_id: str) -> str:
+    async def generate_next_race_templates(self, token: str, event: dict) -> str:
         """Calculate next race for the entire team."""
         informasjon = ""
         i = 0
-        time_now = datetime.datetime.now()
+        time_stamp_now = EventsAdapter().get_local_time(event, "log")
         time_event = {
             "bib": 0,
-            "event_id": event_id,
+            "event_id": event["id"],
             "race": "",
             "race_id": "",
             "timing_point": "Template",
             "rank": 0,
-            "registration_time": time_now.strftime("%X"),
+            "registration_time": time_stamp_now,
             "next_race": "",
             "next_race_id": "",
             "next_race_position": 0,
@@ -37,7 +37,7 @@ class TimeEventsService:
         # 1. delete all existing Template time events
         current_templates = (
             await TimeEventsAdapter().get_time_events_by_event_id_and_timing_point(
-                token, event_id, "Template"
+                token, event["id"], "Template"
             )
         )
         for template in current_templates:
@@ -45,7 +45,7 @@ class TimeEventsService:
             logging.debug(f"Deleted template time_event id {id}")
 
         # 2. get list of all races and loop, except finals.
-        races = await RaceplansAdapter().get_all_races(token, event_id)
+        races = await RaceplansAdapter().get_all_races(token, event["id"])
         if len(races) == 0:
             informasjon = f"{informasjon} Ingen kjøreplaner funnet."
         else:

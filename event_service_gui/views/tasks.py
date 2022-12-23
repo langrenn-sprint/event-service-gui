@@ -61,7 +61,7 @@ class Tasks(web.View):
         action = ""
         form = await self.request.post()
         event_id = str(form["event_id"])
-        logging.debug(f"Form {form}")
+        event = await get_event(user["token"], event_id)
 
         try:
             if "generate_startlist" in form.keys():
@@ -70,7 +70,7 @@ class Tasks(web.View):
                 )
             elif "generate_next_race" in form.keys():
                 informasjon = await TimeEventsService().generate_next_race_templates(
-                    user["token"], event_id
+                    user["token"], event
                 )
             elif "delete_time_events" in form.keys():
                 informasjon = await delete_time_events(user["token"], event_id)

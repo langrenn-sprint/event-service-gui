@@ -137,32 +137,32 @@ border-right: 1px solid #ddd;
 #danger-zone {
   color: white;
   background-color: lightcoral;
+  vertical-align: top;
 }
 
 #smalltext {
-font-size: 0.7em;
+  font-size: 0.7em;
 }
 
 .timetitle {
-text-align: center;
-font-size: 2.0em;
+  text-align: center;
+  font-size: 2.0em;
 }
 
-
 #bigspacer {
-height: 400px;
+  height: 400px;
 }
 
 #spacer {
-height: 4px;
+  height: 4px;
 }
 
 #minispacer {
-height: 1px;
+  height: 1px;
 }
 
 #bredde {
-vertical-align: top;
+  vertical-align: top;
 }
 
 #subheader {

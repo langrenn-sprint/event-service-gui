@@ -115,22 +115,30 @@ class EventsAdapter:
             raise Exception from e
         return global_setting
 
-    def get_local_time(self, event: dict, format: str) -> str:
-        """Return local time, time zone adjusted from event info."""
-        local_time = ""
+    def get_local_datetime_now(self, event: dict) -> datetime:
+        """Return local datetime object, time zone adjusted from event info."""
         timezone = event["timezone"]
         if timezone:
             local_time_obj = datetime.now(ZoneInfo(timezone))
         else:
             local_time_obj = datetime.now()
+        return local_time_obj
+
+    def get_local_time(self, event: dict, format: str) -> str:
+        """Return local time string, time zone adjusted from event info."""
+        local_time = ""
+        timezone = event["timezone"]
+        if timezone:
+            time_now = datetime.now(ZoneInfo(timezone))
+        else:
+            time_now = datetime.now()
 
         if format == "HH:MM":
-            local_time = (
-                f"{local_time_obj.strftime('%H')}:{local_time_obj.strftime('%M')}"
-            )
+            local_time = f"{time_now.strftime('%H')}:{time_now.strftime('%M')}"
+        elif format == "log":
+            local_time = f"{time_now.strftime('%Y')}-{time_now.strftime('%m')}-{time_now.strftime('%d')}T{time_now.strftime('%X')}"
         else:
-            local_time = local_time_obj.strftime("%X")
-
+            local_time = time_now.strftime("%X")
         return local_time
 
     def get_club_logo_url(self, club_name: str) -> str:

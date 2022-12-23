@@ -1,5 +1,4 @@
 """Resource module for verificatoin of timing registration."""
-import datetime
 import logging
 
 from aiohttp import web
@@ -7,6 +6,7 @@ import aiohttp_jinja2
 
 from event_service_gui.services import (
     ContestantsAdapter,
+    EventsAdapter,
     RaceclassesAdapter,
     RaceplansAdapter,
     StartAdapter,
@@ -106,6 +106,7 @@ class StartEdit(web.View):
             form = await self.request.post()
             logging.debug(f"Form {form}")
             event_id = str(form["event_id"])
+            event = await get_event(user["token"], event_id)
             valgt_klasse = str(form["klasse"])
 
             if "create_start" in form.keys():
@@ -114,7 +115,7 @@ class StartEdit(web.View):
                 informasjon = await delete_start(user, form)  # type: ignore
             if "update_templates" in form.keys():
                 action = str(form["action"])
-                informasjon = await update_template_events(user, form)  # type: ignore
+                informasjon = await update_template_events(user, event, form)  # type: ignore
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
@@ -159,7 +160,7 @@ async def delete_start(user: dict, form: dict) -> str:
     return informasjon
 
 
-async def update_template_events(user: dict, form: dict) -> str:
+async def update_template_events(user: dict, event: dict, form: dict) -> str:
     """Extract form data and update template event."""
     informasjon = "Control result: "
     for i in range(1, 11):
@@ -173,12 +174,12 @@ async def update_template_events(user: dict, form: dict) -> str:
                     "next_race_position": form[f"next_race_position_{i}"],
                     "race": form["race"],
                 }
-                informasjon += await update_time_event(user, request_body)
+                informasjon += await update_time_event(user, event, request_body)
     if form["rank_new"]:
         next_race_id = await get_race_id_by_name(
             user, form["event_id"], form["next_race_new"], form["klasse"]
         )
-        time_now = datetime.datetime.now()
+        time_stamp_now = EventsAdapter().get_local_time(event, "log")
         time_event = {
             "bib": 0,
             "event_id": form["event_id"],
@@ -186,7 +187,7 @@ async def update_template_events(user: dict, form: dict) -> str:
             "race_id": form["race_id"],
             "timing_point": "Template",
             "rank": form["rank_new"],
-            "registration_time": time_now.strftime("%X"),
+            "registration_time": time_stamp_now,
             "next_race": form["next_race_new"],
             "next_race_id": next_race_id,
             "next_race_position": form["next_race_position_new"],
