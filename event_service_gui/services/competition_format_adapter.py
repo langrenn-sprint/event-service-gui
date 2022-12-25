@@ -113,6 +113,10 @@ class CompetitionFormatAdapter:
             config_file_name = (
                 f"{config_files_directory}/competition_format_individual_sprint.json"
             )
+        if format_type == "default_individual_sprint_10":
+            config_file_name = (
+                f"{config_files_directory}/competition_format_individual_sprint_10.json"
+            )
         elif format_type == "default_sprint_all_to_finals":
             config_file_name = f"{config_files_directory}/competition_format_individual_sprint_all_to_finals.json"
         elif format_type == "default_interval_start":

@@ -15,7 +15,7 @@
       "R2"
     ],
     "max_no_of_contestants_in_raceclass": 100,
-    "max_no_of_contestants_in_race": 10,
+    "max_no_of_contestants_in_race": 12,
     "datatype": "individual_sprint",
     "race_config_non_ranked": [
       {
@@ -225,16 +225,34 @@
             "from_to": {"Q": {"A": {"F": {"A": 4, "B": "REST"}}, "C": {"F": {"C": 0}}}}
         },
         {
+          "max_no_of_contestants": 22,
+          "rounds": ["Q", "S", "F"],
+          "no_of_heats": {"Q": {"A": 3}, "S": {"A": 2, "C": 0}, "F": {"A": 1, "B": 1, "C": 1}},
+          "from_to": {"Q": {"A": {"S": {"A": 5, "C": 0}, "F": {"C": "REST"}}}, "S": {"A": {"F": {"A": 4, "B": "REST"}}, "C": {"F": {"C": 0}}}}
+        },
+        {
             "max_no_of_contestants": 27,
             "rounds": ["Q", "S", "F"],
             "no_of_heats": {"Q": {"A": 3}, "S": {"A": 2, "C": 0}, "F": {"A": 1, "B": 1, "C": 1}},
             "from_to": {"Q": {"A": {"S": {"A": 6, "C": 0}, "F": {"C": "REST"}}}, "S": {"A": {"F": {"A": 4, "B": "REST"}}, "C": {"F": {"C": 0}}}}
         },
         {
+          "max_no_of_contestants": 32,
+          "rounds": ["Q", "S", "F"],
+          "no_of_heats": {"Q": {"A": 4}, "S": {"A": 2, "C": 2}, "F": {"A": 1, "B": 1, "C1": 1, "C2": 1}},
+          "from_to": {"Q": {"A": {"S": {"A": 4, "C": "REST"}}}, "S": {"A": {"F": {"A": 4, "B": "REST"}}, "C": {"F": {"C1": 4, "C2": "REST"}}}}
+        },
+        {
             "max_no_of_contestants": 36,
             "rounds": ["Q", "S", "F"],
             "no_of_heats": {"Q": {"A": 4}, "S": {"A": 2, "C": 2}, "F": {"A": 1, "B": 1, "C1": 1, "C2": 1}},
             "from_to": {"Q": {"A": {"S": {"A": 4, "C": "REST"}}}, "S": {"A": {"F": {"A": 4, "B": "REST"}}, "C": {"F": {"C1": 5, "C2": "REST"}}}}
+        },
+        {
+          "max_no_of_contestants": 40,
+          "rounds": ["Q", "S", "F"],
+          "no_of_heats": {"Q": {"A": 5}, "S": {"A": 3, "C": 2}, "F": {"A": 1, "B1": 1, "B2": 1, "C1": 1, "C2": 1}},
+          "from_to": {"Q": {"A": {"S": {"A": 5, "C": "REST"}}}, "S": {"A": {"F": {"A": 3, "B1": 3, "B2": "REST"}}, "C": {"F": {"C1": 4, "C2": "REST"}}}}
         },
         {
             "max_no_of_contestants": 45,
@@ -264,7 +282,13 @@
             "max_no_of_contestants": 80,
             "rounds": ["Q", "S", "F"],
             "no_of_heats": {"Q": {"A": 8}, "S": {"A": 4, "C": 4}, "F": {"A": 1, "B1": 1, "B2": 1, "B3": 1, "B4": 1, "C1": 1, "C2": 1, "C3": 1, "C4": 1, "C5": 1}},
-            "from_to": {"Q": {"A": {"S": {"A": 4, "C": "REST"}}}, "S": {"A": {"F": {"A": 2, "B1": 2, "B2": 2, "B3": 2, "B4": "REST"}}, "C": {"F": {"C1": 2, "C2": 2, "C3": 2, "C4": 2, "C5": "REST"}}}}
+            "from_to": {"Q": {"A": {"S": {"A": 5, "C": "REST"}}}, "S": {"A": {"F": {"A": 2, "B1": 2, "B2": 2, "B3": 2, "B4": "REST"}}, "C": {"F": {"C1": 2, "C2": 2, "C3": 2, "C4": 2, "C5": "REST"}}}}
+        },
+        {
+            "max_no_of_contestants": 90,
+            "rounds": ["Q", "S", "F"],
+            "no_of_heats": {"Q": {"A": 9}, "S": {"A": 4, "C": 5}, "F": {"A": 1, "B1": 1, "B2": 1, "B3": 1, "C1": 1, "C2": 1, "C3": 1, "C4": 1, "C5": 1, "C6": 1}},
+            "from_to": {"Q": {"A": {"S": {"A": 4, "C": "REST"}}}, "S": {"A": {"F": {"A": 2, "B1": 2, "B2": 2, "B3": 2, "C1": "REST"}}, "C": {"F": {"C1": 1, "C2": 2, "C3": 2, "C4": 2, "C5": 2, "C6": "REST"}}}}
         }
     ]
 }

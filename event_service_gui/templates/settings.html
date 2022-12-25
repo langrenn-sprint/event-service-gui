@@ -14,7 +14,8 @@
         <nobr>
           Tilbakestill: 
           <input type="submit" name="default_individual_sprint" value="  Standard sprint oppsett  ">
-          <input type="submit" name="default_sprint_all_to_finals" value="  Sprint med alle til finale  ">
+          <input type="submit" name="default_sprint_all_to_finals" value="  Sprint med 8 pr heat og alle til finale  ">
+          <input type="submit" name="default_individual_sprint_10" value="  Sprint med 10 pr heat og alle til finale  ">
         </nobr>
       </form>
     </div>
@@ -96,17 +97,27 @@
                         <td>Maks antall</td>
                         <td>Runder</td>
                         <td>Ant heat</td>
-                        <td>Regel - kode</td>
-                        <td>Regel - tekstlig</td>
+                        <td>Regel</td>
                       </tr>
                       {% for race_config_r in format.race_config_ranked %}
                         <tr>
                           <td>{{ loop.index }}</td>
                           <td><input type=text name=ranked_{{ loop.index }}_max_no_of_contestants value="{{ race_config_r.max_no_of_contestants }}" size="4"></td>
                           <td><input type=text name=ranked_{{ loop.index }}_rounds value="{{ race_config_r.rounds }}" size="16"></td>
-                          <td><input type=text name=ranked_{{ loop.index }}_no_of_heats value="{{ race_config_r.no_of_heats }}" size="30"></td>
-                          <td><input type=text name=ranked_{{ loop.index }}_from_to value="{{ race_config_r.from_to }}" size="40"></td>
-                          <td>{{ race_config_r.next_race_desc }}</td>
+                          <td>
+                            {% if (race_config_r.no_of_heats.Q) %}Kvart: {{ race_config_r.no_of_heats.Q.A }}<br>{% endif %}
+                            {% if (race_config_r.no_of_heats.S) %}Semi:
+                              {% for key, value in race_config_r.no_of_heats.S.items() %}{{ key }}:{{ value }} {% endfor %}<br>
+                            {% endif %}
+                            {% if (race_config_r.no_of_heats.F) %}Finaler:
+                              {% for key, value in race_config_r.no_of_heats.F.items() %}{{ key }} {% endfor %}<br>
+                            {% endif %}
+                            <input type=text name=ranked_{{ loop.index }}_no_of_heats value="{{ race_config_r.no_of_heats }}" size="30">
+                          </td>
+                          <td>
+                            {{ race_config_r.next_race_desc }}<br>
+                            Kode: <input type=text name=ranked_{{ loop.index }}_from_to value="{{ race_config_r.from_to }}" size="40">
+                          </td>
                         </tr>
                       {% endfor %}
                       <tr>
@@ -115,7 +126,6 @@
                         <td><input type=text name=ranked_new_rounds value="" size="16"></td>
                         <td><input type=text name=ranked_new_no_of_heats value="" size="30"></td>
                         <td><input type=text name=ranked_new_from_to value="" size="40"></td>
-                        <td></td>
                       </tr>
                     </table>
                   {% endif %}
