@@ -269,12 +269,23 @@ async def get_heat_separators(token: str, event_id: str, raceclass: str) -> list
 
 
 async def add_seeding_from_form(token: str, event_id: str, form: dict) -> str:
-    """Load seeding info from form."""
+    """Load seeding info from form and swap BIB."""
     informasjon = "Seeding oppdatert: "
     for key in form.keys():
         if key.startswith("bib_"):
             new_bib = form[key]
             if new_bib.isnumeric():
+                # check if bib is already in use and free it
+                old_contestant = await ContestantsAdapter().get_contestant_by_bib(
+                    token, event_id, new_bib
+                )
+                if old_contestant:
+                    old_contestant["bib"] = None
+                    result = await ContestantsAdapter().update_contestant(
+                        token, event_id, old_contestant
+                    )
+
+                # give bib to new contestant
                 contestant_id = key[4:]
                 contestant = await ContestantsAdapter().get_contestant(
                     token, event_id, contestant_id
@@ -284,9 +295,7 @@ async def add_seeding_from_form(token: str, event_id: str, form: dict) -> str:
                     token, event_id, contestant
                 )
                 logging.debug(result)
-                informasjon += (
-                    f"Oppdatert: {contestant['bib']} {contestant['last_name']}. "
-                )
+                informasjon += f"{contestant['bib']} {contestant['last_name']}. "
     return informasjon
 
 
