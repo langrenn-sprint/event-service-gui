@@ -20,9 +20,17 @@
   <li class=dropdown id=topborder>
     <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
     <div class=dropdown-content>
-      {% for raceclass in raceclasses %}
-        <a href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}>{{ raceclass.name }}</a>
-      {% endfor %}
+      <table>
+        {% for raceclass in raceclasses %}
+          <tr>
+            <td id="black">{{ raceclass.name }}</td>
+            <td><nobr><a href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}>Alle</a></nobr></td>
+            <td><nobr><a href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}&runde=Q>Kvart</a></nobr></td>
+            <td><nobr><a href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}&runde=S>Semi</a></nobr></td>
+            <td><nobr><a href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}&runde=F>Finale</a></nobr></td>
+          </tr>
+        {% endfor %}
+      </table>
     </div>
   </li>
 {% endblock %}
@@ -75,6 +83,7 @@
                 <input type="hidden" name="race_id" value="{{ race.id }}">
                 <input type="hidden" name="timing_point" value="{{ action }}">
                 <input type="hidden" name="klasse" value="{{ valgt_klasse }}">
+                <input type="hidden" name="runde" value="{{ valgt_runde }}">
                 <input type="submit" name="update_templates" value="  Lagre  ">
               </td>
             </tr>
@@ -96,6 +105,7 @@
                   <input type="hidden" name="race_id" value="{{ race.id }}">
                   <input type="hidden" name=start_id value="{{ start.id }}">
                   <input type="hidden" name=klasse value="{{ valgt_klasse }}">
+                  <input type="hidden" name="runde" value="{{ valgt_runde }}">
                   <input type="hidden" name=event_id value="{{ event_id }}">
                 </form>
               </td>
@@ -116,6 +126,7 @@
                   <input type="hidden" name="startlist_id" value="{{ race.startliste[0].startlist_id }}">
                   <input type="hidden" name="start_time" value="{{ race.start_time }}">
                   <input type="hidden" name=klasse value="{{ valgt_klasse }}">
+                  <input type="hidden" name="runde" value="{{ valgt_runde }}">
                   <input type="hidden" name=event_id value="{{ event_id }}">
               </td>
             </form>

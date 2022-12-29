@@ -36,6 +36,10 @@ class StartEdit(web.View):
             informasjon = self.request.rel_url.query["informasjon"]
         except Exception:
             informasjon = ""
+        try:
+            valgt_runde = self.request.rel_url.query["runde"]
+        except Exception:
+            valgt_runde = ""  # noqa: F841
 
         try:
             user = await check_login(self)
@@ -68,6 +72,13 @@ class StartEdit(web.View):
                     race["startliste"] = await get_enrichced_startlist(user, race)
                     next_races.append(race)
 
+            if valgt_runde:
+                filtered_races = []
+                for race in next_races:
+                    if race["round"] == valgt_runde:
+                        filtered_races.append(race)
+                next_races = filtered_races
+
             # get templates
             if action == "Template":
                 # get passeringer
@@ -89,6 +100,7 @@ class StartEdit(web.View):
                     "templates": templates,
                     "username": user["name"],
                     "valgt_klasse": valgt_klasse,
+                    "valgt_runde": valgt_runde,
                 },
             )
         except Exception as e:
@@ -108,6 +120,7 @@ class StartEdit(web.View):
             event_id = str(form["event_id"])
             event = await get_event(user["token"], event_id)
             valgt_klasse = str(form["klasse"])
+            valgt_runde = str(form["runde"])
 
             if "create_start" in form.keys():
                 informasjon = await create_start(user, form)  # type: ignore
@@ -124,7 +137,9 @@ class StartEdit(web.View):
                 return web.HTTPSeeOther(
                     location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
                 )
-        info = f"{informasjon}&klasse={valgt_klasse}&action={action}"
+        info = (
+            f"{informasjon}&klasse={valgt_klasse}&runde={valgt_runde}&action={action}"
+        )
         return web.HTTPSeeOther(
             location=f"/start_edit?event_id={event_id}&informasjon={info}"
         )
