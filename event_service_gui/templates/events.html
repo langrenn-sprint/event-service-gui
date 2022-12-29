@@ -133,7 +133,14 @@
                 <td><input type=text name=information value="{{ event.information }}" size="40"></td>
                 <td></td>
               </tr>
-            </table>
+              <tr>
+                <td></td>
+                <td>
+                  <input type="submit" name=update value="  Lagre  ">
+                </td>
+                <td></td>
+            </tr>
+                </table>
           </td>
           <td width=50>
           </td>
@@ -141,37 +148,22 @@
               <table cellpadding=4>
                 {% if event.competition_format == "Interval Start" %}
                   <tr>
-                    <td width=150>Startintervall</td>
-                    <td><input type=hidden name=intervals value="{{ event.intervals }}"></td>
-                    <td>Tid i sekunder.</td>
+                    <td colspan="3"><input type=hidden name=intervals value="{{ event.intervals }}"></td>
                   </tr>
                 {% elif event.competition_format == "Individual Sprint" %}
                   <tr>
-                    <td width=150>Tid mellom heat</td>
-                    <td><input type=hidden name=time_between_rounds value="{{ event.time_between_rounds }}"></td>
-                    <td>Tid i sekunder.</td>
+                    <td colspan="3"><input type=hidden name=time_between_rounds value="{{ event.time_between_rounds }}"></td>
                   </tr>
                   <tr>
-                    <td>Tid mellom runder</td>
-                    <td><input type=hidden name=time_between_heats value="{{ event.time_between_heats }}"></td>
-                    <td>Sekunder. Standard tid mellom siste start i en runde og første i påfølgende.</td>
+                    <td colspan="3"><input type=hidden name=time_between_heats value="{{ event.time_between_heats }}"></td>
                   </tr>
                   <tr>
-                    <td>Løpere pr heat</td>
-                    <td><input type=hidden name=max_no_of_contestants_in_race value="{{ event.max_no_of_contestants_in_race }}"></td>
-                    <td>Maksimalt antall løpere pr heat.</td>
+                    <td colspan="3"><input type=hidden name=max_no_of_contestants_in_race value="{{ event.max_no_of_contestants_in_race }}"></td>
                   </tr>
                 {% endif %}
               </table>
           </td>
         <tr>
-        <tr>
-            <td align=right>
-              <input type="submit" name=update value="  Lagre  ">
-            </td>
-            <td></td>
-            <td></td>
-        </tr>
         <tr id=spacer></tr>
       </table>
     </form>
