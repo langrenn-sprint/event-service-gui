@@ -20,7 +20,7 @@
       <td>1. Arrangement: Opprett (<a href=/events?event_id={{ event_id }}>se/endre</a>)</td>
       <td id=green>Utført</td>
       <td></td>
-      <td>Tid: {{ event.date_of_event }} kl. {{ event.time_of_event }}<br>Arrangør: {{ event.organiser }}{% if (event.webpage) %} <a href=http://{{ event.webpage }}>Mer info</a>{% endif %}</td>
+      <td>Tid: {{ event.date_of_event }} kl. {{ event.time_of_event }}<br>Arrangør: {{ event.organiser }}{% if (event.webpage) %} <a href={{ event.webpage }}>Mer info</a>{% endif %}</td>
     </tr>
     <tr>
       <td colspan=4 id=spacer></td>
