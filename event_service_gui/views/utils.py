@@ -272,6 +272,55 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
                     elif race["round"] == "F":
                         class_summary["timeF"] = race["start_time"][-8:]
                         class_summary["orderF"] = race["order"]
+        # loop through races - calculate shortest rest-times.
+        # between last Quarter and first Semi and last semi A and final AorB.
+        time_q_last = ""
+        time_s_first = ""
+        time_s_last = ""
+        time_fab_first = ""
+        for race in races:
+            if race["raceclass"] == raceclass["name"]:
+                if race["round"] in ["Q", "R1"]:
+                    time_q_last = race["start_time"]
+                elif race["round"] in ["S", "R2"]:
+                    if not (time_s_first):
+                        time_s_first = race["start_time"]
+                    time_s_last = race["start_time"]
+                elif race["round"] in ["F"]:
+                    if race["index"] in ["A", "B", "B2", "B3", "B4"]:
+                        if not (time_fab_first):
+                            time_fab_first = race["start_time"]
+        if time_q_last:
+            time_q_last_obj = datetime.datetime.strptime(
+                time_q_last, "%Y-%m-%dT%H:%M:%S"
+            )
+            if (time_s_first) and (time_fab_first):
+                time_s_first_obj = datetime.datetime.strptime(
+                    time_s_first, "%Y-%m-%dT%H:%M:%S"
+                )
+                time_s_last_obj = datetime.datetime.strptime(
+                    time_s_last, "%Y-%m-%dT%H:%M:%S"
+                )
+                time_fab_first_obj = datetime.datetime.strptime(
+                    time_fab_first, "%Y-%m-%dT%H:%M:%S"
+                )
+                class_summary["min_pauseS"] = time_s_first_obj - time_q_last_obj
+                class_summary["min_pauseF"] = time_fab_first_obj - time_s_last_obj
+            elif time_fab_first:
+                time_fab_first_obj = datetime.datetime.strptime(
+                    time_fab_first, "%Y-%m-%dT%H:%M:%S"
+                )
+                class_summary["min_pauseS"] = ""
+                class_summary["min_pauseF"] = time_fab_first_obj - time_q_last_obj
+            elif time_s_first:
+                time_s_first_obj = datetime.datetime.strptime(
+                    time_s_first, "%Y-%m-%dT%H:%M:%S"
+                )
+                time_s_last_obj = datetime.datetime.strptime(
+                    time_s_last, "%Y-%m-%dT%H:%M:%S"
+                )
+                class_summary["min_pauseS"] = time_s_first_obj - time_q_last_obj
+                class_summary["min_pauseF"] = ""
         summary.append(class_summary)
     logging.debug(summary)
     return summary

@@ -1,7 +1,7 @@
 {% extends "open_base.html" %}
 {% block titlecontainer %}
-  <div class="w3-quart"></div>
-  <div class="w3-half">
+  <div class="w3-10"></div>
+  <div class="w3-80">
 {% endblock %}
 
 {% block titleheader %}
@@ -80,16 +80,22 @@
     </table>
   {% endif %}
   <! --- End edit menu --->
-  {% if raceplan_validation %}
-    <div class="w3-container" id=info><br>&nbsp;<img width=15 src="../static/warning.png" title="Valideringsfeil">Valideringsfeil.<br>
-      {% for key, value in raceplan_validation.items() %}
-        Heat {{ key }}: {% for element in value %}{{ element }}{% endfor %}<br>
-      {% endfor %}
-      <br>
-    </div>
+
+  <! --- Information --->
+  {% if action == "edit_time" %}
+    <div id=orange>Tilpass tidplan - merk at kun ett tidspunkt kan endres om gangen og at alle påfølgende heat vil bli justert tilsvarende.</div>
+  {% elif raceplan_validation %}
+      <div class="w3-container" id=info><br>&nbsp;<img width=15 src="../static/warning.png" title="Valideringsfeil">Valideringsfeil.<br>
+        {% for key, value in raceplan_validation.items() %}
+          Heat {{ key }}: {% for element in value %}{{ element }}{% endfor %}<br>
+        {% endfor %}
+        <br>
+      </div>
   {% endif %}
+  <! --- End Information --->
+
+ 
   <! --- Display raceplan summary --->
-  {% if action == "" %}
     <table>
       <tr id=headerblue>
         <td>Løpsklasse</td>
@@ -97,6 +103,10 @@
         <td>Semifinaler</td>
         <td>Finaler</td>
         <td>Antall deltakere</td>
+        {% if action == "edit_time" %}
+        <td>Minste tid mellom start 1 og 2</td>
+        <td>Minste tid mellom start 2 og 3</td>
+        {% endif %}
       </tr>
       {% for raceclass in raceplan_summary %}
         {% if (valgt_klasse == "") or (valgt_klasse == raceclass.name) %}
@@ -106,30 +116,17 @@
             <td>{{ raceclass.timeS }}</td>
             <td>{{ raceclass.timeF }}</td>
             <td>{{ raceclass.no_of_contestants }}</td>
+            {% if action == "edit_time" %}
+            <td align="center">{{ raceclass.min_pauseS }}</td>
+            <td align="center">{{ raceclass.min_pauseF }}</td>
+            {% endif %}
           </tr>
         {% endif %}
       {% endfor %}
     </table>
-  {% endif %}
   <! --- End Display raceplan summary --->
 
-  <! --- Information --->
-  {% if action == "edit_time" %}
-    <div id=orange>Tilpass tidplan - merk at kun ett tidspunkt kan endres om gangen og at alle påfølgende heat vil bli justert tilsvarende.</div>
-  {% elif action == "edit_order" %}
-    <div id=orange>Endre rekkefølgen på heat. Skriv inn nye heatnummer på alle endringer, pass på at det ikke blir to heat på samme nummer. Starttidspunkt må endres etterpå.</div>
-  {% endif %}
-  <! --- End Information --->
-
-
   <! --- Raceplan list --->
-  <div align=right>
-    {% if action == "edit_order" %}
-      <form action="/raceplans" method=post>
-        <input type="hidden" name="event_id" value="{{ event_id }}">
-        <input type="submit" name=update_order value="  Endre rekkefølge  ">
-    {% endif %}
-  </div>
   <table>
     <tr id=headerblue>
       <td>Start</td>
