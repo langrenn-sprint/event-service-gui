@@ -73,21 +73,6 @@ class ContestantsAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
-        # update number of contestants in raceclass
-        try:
-            klasse = await RaceclassesAdapter().get_raceclass_by_ageclass(
-                token, event_id, request_body["ageclass"]
-            )
-            if klasse:
-                klasse["no_of_contestants"] = klasse["no_of_contestants"] + 1
-            result = await RaceclassesAdapter().update_raceclass(
-                token, event_id, klasse["id"], klasse
-            )
-            logging.debug(f"No_of_contestants updated - {result}")
-        except Exception as e:
-            logging.error(
-                f"{servicename} failed on update no of contestants in raceclass {e} - {request_body}"
-            )
         return id
 
     async def create_contestants(self, token: str, event_id: str, inputfile) -> str:
@@ -394,7 +379,7 @@ class ContestantsAdapter:
     async def update_contestant(
         self, token: str, event_id: str, contestant: dict
     ) -> str:
-        """Create new contestants function."""
+        """Update contestants function."""
         servicename = "update_contestant"
         request_body = copy.deepcopy(contestant)
         logging.debug(f"update_contestants, got request_body {request_body}")
