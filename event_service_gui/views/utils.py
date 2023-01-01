@@ -305,13 +305,22 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
                     time_fab_first, "%Y-%m-%dT%H:%M:%S"
                 )
                 class_summary["min_pauseS"] = time_s_first_obj - time_q_last_obj
+                class_summary["warning_pauseS"] = check_short_pause(
+                    class_summary["min_pauseS"]
+                )
                 class_summary["min_pauseF"] = time_fab_first_obj - time_s_last_obj
+                class_summary["warning_pauseF"] = check_short_pause(
+                    class_summary["min_pauseF"]
+                )
             elif time_fab_first:
                 time_fab_first_obj = datetime.datetime.strptime(
                     time_fab_first, "%Y-%m-%dT%H:%M:%S"
                 )
                 class_summary["min_pauseS"] = ""
                 class_summary["min_pauseF"] = time_fab_first_obj - time_q_last_obj
+                class_summary["warning_pauseF"] = check_short_pause(
+                    class_summary["min_pauseF"]
+                )
             elif time_s_first:
                 time_s_first_obj = datetime.datetime.strptime(
                     time_s_first, "%Y-%m-%dT%H:%M:%S"
@@ -320,10 +329,22 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
                     time_s_last, "%Y-%m-%dT%H:%M:%S"
                 )
                 class_summary["min_pauseS"] = time_s_first_obj - time_q_last_obj
+                class_summary["warning_pauseS"] = check_short_pause(
+                    class_summary["min_pauseS"]
+                )
                 class_summary["min_pauseF"] = ""
+
         summary.append(class_summary)
     logging.debug(summary)
     return summary
+
+
+def check_short_pause(pause_time) -> bool:
+    """Return true if pause time is acceptable."""
+    if pause_time < datetime.timedelta(minutes=12):
+        return True
+    else:
+        return False
 
 
 def get_races_for_live_view(

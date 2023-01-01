@@ -11,7 +11,7 @@
 {% block content %}
   <table>
     <tr id=subheader id=black>
-      <td id=black>Arbeidsflyt - før rennet</td>
+      <td id=black>Arbeidsflyt - sette rennet</td>
       <td width=150>Status</td>
       <td>Funksjoner</td>
       <td></td>
@@ -311,6 +311,7 @@
     <td>Opprydding</td>
     <td>"Danger-zone"</td>
     <td>
+      {% if not task_status.done_6 %}
       <form action=/raceclasses method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle løpsklasser.');">
         <input type="hidden" name="event_id" value="{{ event_id }}">
         <input type="submit" name="delete_all" value="  Slett alle klasser  ">
@@ -320,11 +321,14 @@
         <input type="hidden" name="event_id" value="{{ event_id }}">
         <input type="submit" name=delete_all value="  Slett alle deltakere  ">
       </form>
+      {% endif %}
+      {% if not task_status.done_8 %}
       <div id=minispacer></div>
       <form action=/raceplans method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle kjøreplaner.');">
         <input type="hidden" name="event_id" value="{{ event_id }}">
         <input type="submit" name="delete_all" value="  Slett alle kjøreplaner  ">
       </form>
+      {% endif %}
       <div id=minispacer></div>
       <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle startlister.');">
         <input type="hidden" name="event_id" value="{{ event_id }}">

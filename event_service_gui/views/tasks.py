@@ -38,7 +38,7 @@ class Tasks(web.View):
                 "tasks.html",
                 self.request,
                 {
-                    "lopsinfo": "Arrangement admin",
+                    "lopsinfo": "Admin: Sette rennet",
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,

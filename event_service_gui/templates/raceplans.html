@@ -33,9 +33,9 @@
   <table>
     <tr>
       <td>
-        <form action=/tasks method=get target=new>
+        <form action=/tasks method=get>
           <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
+          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
         </form>
       </td>
       <td width=150 align=center>
@@ -83,7 +83,12 @@
 
   <! --- Information --->
   {% if action == "edit_time" %}
-    <div id=orange>Tilpass tidplan - merk at kun ett tidspunkt kan endres om gangen og at alle påfølgende heat vil bli justert tilsvarende.</div>
+    <div id=info-zone>
+      <b>TIPS</b><br>
+      - Kun ett tidspunkt kan endres om gangen og at alle påfølgende heat vil bli justert tilsvarende.<br>
+      - Hviletider må verifiseres manuelt - bruk kolonnene "minste tid...". Disse beregner minste tid mellom start siste kvartfinale og start første semifinale / siste semifinale og første finale.<br>
+      - Det anbefales å legge inn pauser mellom runder (altså før start semi- eller finaler), ikke midt i gjennomføringen av en runde.
+    </div>
   {% elif raceplan_validation %}
       <div class="w3-container" id=info><br>&nbsp;<img width=15 src="../static/warning.png" title="Valideringsfeil">Valideringsfeil.<br>
         {% for key, value in raceplan_validation.items() %}
@@ -117,8 +122,18 @@
             <td>{{ raceclass.timeF }}</td>
             <td>{{ raceclass.no_of_contestants }}</td>
             {% if action == "edit_time" %}
-            <td align="center">{{ raceclass.min_pauseS }}</td>
-            <td align="center">{{ raceclass.min_pauseF }}</td>
+              <td align="center">
+                {{ raceclass.min_pauseS }}
+                {% if raceclass.warning_pauseS %}
+                  &nbsp;<img width=15 src="../static/warning.png" title="Short connection between flights!">
+                {% endif %}
+              </td>
+              <td align="center">
+                {{ raceclass.min_pauseF }}
+                {% if raceclass.warning_pauseF %}
+                  &nbsp;<img width=15 src="../static/warning.png" title="Short connection between flights!">
+                {% endif %}
+              </td>
             {% endif %}
           </tr>
         {% endif %}
@@ -205,9 +220,9 @@
   <table>
     <tr>
       <td>
-        <form action=/tasks method=get target=new>
+        <form action=/tasks method=get>
           <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
+          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
         </form>
       </td>
     </tr>

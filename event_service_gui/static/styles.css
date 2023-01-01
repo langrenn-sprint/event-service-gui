@@ -140,8 +140,17 @@ border-right: 1px solid #ddd;
 #danger-zone {
   color: white;
   background-color: lightcoral;
+  padding: 6px;
   vertical-align: top;
 }
+
+#info-zone {
+  color: white;
+  background-color: green;
+  padding: 6px;
+  vertical-align: top;
+}
+
 #smalltext {
 font-size: 0.7em;
 }

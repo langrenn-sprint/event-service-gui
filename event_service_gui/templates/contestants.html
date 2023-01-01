@@ -1,7 +1,7 @@
 {% extends "open_base.html" %}
 {% block titlecontainer %}
-  <div class="w3-quart"></div>
-  <div class="w3-half">
+  <div class="w3-10"></div>
+  <div class="w3-80">
 {% endblock %}
 {% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_new.png"> {{ lopsinfo }}{% endblock %}
@@ -58,9 +58,9 @@
     <table>
       <tr>
         <td>
-          <form action=/tasks method=get target=new>
+          <form action=/tasks method=get>
             <input type="hidden" name=event_id value="{{ event_id }}">
-            <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
+            <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
           </form>
         </td>
         <td>Antall deltakere: {{ contestants|length }}</td>
@@ -68,7 +68,15 @@
     </table>
   {% endif %}
     {% if action == "new_from_file" %}
-    <form action=/contestants method=post enctype="multipart/form-data" >
+    <div id=info-zone>
+      <b>TIPS</b> - det aksepteres 2 ulike filtyper<br>
+      <b>1. Deltakerliste Excel</b> lastes ned fra Sportsadmin og lagres som kommaseparert (csv) fil <a href="https://www.harnaes.no/sprint/web/test_deltakerliste_sportsadmin.csv">(eksempelfil: test_deltakerliste_sportsadmin.csv)</a>.<br>
+      &nbsp;&nbsp;&nbsp;Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a target=_blank href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.<br><br>
+      <b>2. Fra "gammelt excel-skjema"</b>, krever 'excel_manual' i filnavnet. Lagre som csv fil og importer <a target=_blank href="https://www.harnaes.no/sprint/web/test_excel_manual1314.csv">(eksempelfil: test_excel_manual1314.csv)</a><br>
+      &nbsp;&nbsp;&nbsp;Headere i filen som støttes er Navn, Klasse, Klubb, Krets. Valgfrie: Startnr, Seedet<br><br>
+    </div>
+    <div id=spacer>&nbsp;</div>
+      <form action=/contestants method=post enctype="multipart/form-data" >
       <table cellpadding=4>
         <tr id=spacer></tr>
         <tr>
@@ -83,23 +91,6 @@
           <td>
             <input type="hidden" name=event_id value="{{ event_id }}">
             <input type="submit" name=create value="  Last opp  ">
-          </td>
-        </tr>
-        <tr>
-          <td colspan=2>
-            <br>Informasjon
-          </td>
-        </tr>
-        <tr>
-          <td colspan=2>
-            Filetyper som aksepteres:<br>
-            <b>1. Deltakerliste Excel</b> lastes ned fra Sportsadmin og lagres som kommaseparert (csv) fil <a href="https://www.harnaes.no/sprint/web/test_deltakerliste_sportsadmin.csv">(eksempelfil: test_deltakerliste_sportsadmin.csv)</a>.<br>
-            &nbsp;&nbsp;&nbsp;Tips: Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a target=_blank href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.<br><br>
-            <b>2. Fra "gammelt excel-skjema"</b>, krever 'excel_manual' i filnavnet. Lagre som csv fil og importer <a target=_blank href="https://www.harnaes.no/sprint/web/test_excel_manual1314.csv">(eksempelfil: test_excel_manual1314.csv)</a><br>
-            &nbsp;&nbsp;&nbsp;Tips: Headere i filen som støttes er Navn, Klasse, Klubb, Krets. Valgfrie: Startnr, Seedet<br><br>
-            <!-- ><b>3. Seeding (ikke implementert)</b> - fra csv fil med "seeding_manual" i filnavnet <a target=_blank href="https://www.harnaes.no/sprint/web/test_seeding_manual.csv">(eksempelfil: test_seeding_manual.csv)</a><br><br>
-            &nbsp;&nbsp;&nbsp;Nøkkel er idretts_id og ranking er et tall der lave nummer er det beste. Løpere uten seeding informasjon rangeres sist. Merk at dette krever at deltakeren allerede er opprettet.<br>
-            &nbsp;&nbsp;&nbsp;Tips: Headere i filen som støttes er Idrettnr og Seedet <br> </! -->
           </td>
         </tr>
         <tr id=spacer></tr>
@@ -144,12 +135,6 @@
                 <input type="submit" name=delete_select value="  Slett deltakere  ">
               </form>
             </td>
-            <td>
-              <form action=/contestants method=post onsubmit="return confirm_delete('OBS: Alle deltakere blir slettet!');">
-                <input type="hidden" name="event_id" value="{{ event_id }}">
-                <input type="submit" name=delete_all value="  Slett alle deltakere  ">
-              </form>
-            </td>
           </tr>
         </table>
 
@@ -164,7 +149,12 @@
           </div>
           <div id=spacer>&nbsp;</div>
         {% elif action == "seeding" %}
-          <div class="w3-container" id=info>Seeding utføres manuelt ved å "bytte" startnummer. Løpere som er gruppert sammen vil bli satt opp i samme heat når startlister generes.</div>
+          <div id=info-zone>
+            <b>TIPS</b><br>
+            - Seeding utføres manuelt ved å "bytte" startnummer. Løpere som er gruppert sammen vil bli satt opp i samme heat når startlister generes.<br>
+            - Velg klasse først og utfør seeding for en klasse om gangen.<br>
+          </div>
+          <div id=spacer>&nbsp;</div>
           <form action=/contestants method=post>
           <div>
             &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  ">
@@ -428,11 +418,13 @@
               <tr id=spacer></tr>
             </table>
           </form>
-
       {% else %}
-      <div id=spacer></div>
+      <div id=spacer>&nbsp;</div>
       <table>
         <tr id=headerblue>
+          <td colspan="5"><b>Deltakere</b></td>
+        </tr>
+        <tr id=subheader>
           <td>Startnr</td>
           <td>Navn</td>
           <td>Klubb</td>
