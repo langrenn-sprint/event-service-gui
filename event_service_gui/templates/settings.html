@@ -14,6 +14,7 @@
         <nobr>
           Tilbakestill: 
           <input type="submit" name="default_individual_sprint" value="  Standard sprint oppsett  ">
+          <input type="submit" name="default_individual_sprint_steinar" value="  Steinars sprint oppsett  ">
           <input type="submit" name="default_sprint_all_to_finals" value="  Sprint med 8 pr heat og alle til finale  ">
           <input type="submit" name="default_individual_sprint_10" value="  Sprint med 10 pr heat og alle til finale  ">
         </nobr>
@@ -107,10 +108,10 @@
                           <td>
                             {% if (race_config_r.no_of_heats.Q) %}Kvart: {{ race_config_r.no_of_heats.Q.A }}<br>{% endif %}
                             {% if (race_config_r.no_of_heats.S) %}Semi:
-                              {% for key, value in race_config_r.no_of_heats.S.items() %}{{ key }}:{{ value }} {% endfor %}<br>
+                              {% for key, value in race_config_r.no_of_heats.S.items() %}{% if value > 0 %}{{ key }}:{{ value }}{% endif %} {% endfor %}<br>
                             {% endif %}
                             {% if (race_config_r.no_of_heats.F) %}Finaler:
-                              {% for key, value in race_config_r.no_of_heats.F.items() %}{{ key }} {% endfor %}<br>
+                              {% for key, value in race_config_r.no_of_heats.F.items() %}{% if value > 0 %}{{ key }}{% endif %} {% endfor %}<br>
                             {% endif %}
                             <input type=text name=ranked_{{ loop.index }}_no_of_heats value="{{ race_config_r.no_of_heats }}" size="30">
                           </td>

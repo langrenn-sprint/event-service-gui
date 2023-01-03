@@ -81,6 +81,7 @@ class Settings(web.View):
             # Create default settings
             if (
                 "default_individual_sprint" in form.keys()
+                or "default_individual_sprint_steinar" in form.keys()
                 or "default_sprint_all_to_finals" in form.keys()
                 or "default_individual_sprint_10" in form.keys()
             ):
