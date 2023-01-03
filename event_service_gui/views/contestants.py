@@ -350,6 +350,7 @@ async def get_available_bib(token: str, event_id: str) -> int:
 async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
     """Load contestants from excel-file."""
     informasjon = ""
+    error_text = ""
     index_row = 0
     headers = {}
     i_contestants = 0
@@ -357,7 +358,8 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
         index_row += 1
         str_oneline = oneline.decode("utf-8")
         str_oneline = str_oneline.replace("b'", "")
-        str_oneline = str_oneline.replace("\r\n", "")
+        str_oneline = str_oneline.replace("\r", "")
+        str_oneline = str_oneline.replace("\n", "")
         elements = str_oneline.split(";")
         # identify headers
         if index_row == 1:
@@ -400,10 +402,16 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
                 request_body["seeding_points"] = elements[headers["Seedet"]]
             except Exception:
                 logging.debug("Seeding ignored")
-            id = await ContestantsAdapter().create_contestant(
+
+            ret = await ContestantsAdapter().create_contestant(
                 token, event_id, request_body
             )
-            logging.debug(f"Created contestant {id}")
-            i_contestants += 1
-        informasjon = f"Deltakere er opprettet - {i_contestants} totalt"
+            if ret == "201":
+                logging.debug(f"Created contestant {id}")
+                i_contestants += 1
+            else:
+                error_text += f"<br>{ret}"
+        informasjon = f"Deltakere er opprettet - {i_contestants} totalt."
+        if error_text:
+            informasjon += f"<br>Error: {error_text}"
     return informasjon

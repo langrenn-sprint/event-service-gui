@@ -48,7 +48,6 @@ class ContestantsAdapter:
     ) -> str:
         """Create new contestant function."""
         servicename = "create_contestant"
-        id = ""
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -63,17 +62,13 @@ class ContestantsAdapter:
             ) as resp:
                 if resp.status == 201:
                     logging.debug(f"result - got response {resp}")
-                    location = resp.headers[hdrs.LOCATION]
-                    id = location.split(os.path.sep)[-1]
                 elif resp.status == 401:
                     raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
-                    raise web.HTTPBadRequest(
-                        reason=f"Error - {resp.status}: {body['detail']}."
-                    )
-        return id
+                    return body["detail"]
+        return "201"
 
     async def create_contestants(self, token: str, event_id: str, inputfile) -> str:
         """Create new contestants function."""
