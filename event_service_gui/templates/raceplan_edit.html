@@ -1,0 +1,101 @@
+{% extends "open_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-10"></div>
+  <div class="w3-80">
+{% endblock %}
+
+{% block titleheader %}
+  {{ lopsinfo }}
+{% endblock %}
+{% block refresh %}{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_timing.png"> Rediger heat{% endblock %}
+{% block headercontainer %}Rediger heat <img id=header_icon src="../static/icon_timing.png"> {% endblock %}
+{% block content %}
+  <div id=spacer></div>
+
+  <! --- Edit menu --->
+  {% if  action == "edit_mode" %}
+    <table>
+      <tr id=headerblue align=right>
+        <td>
+          <form action=/raceplans method=get>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name=action value="edit_time">
+            <input type="submit" name="edit_time" value="  Tilpass tidskjema  ">
+          </form>
+        </td>
+        <td>
+          <form action=/raceplans method=post>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="generate_raceplan" value="  Generer kjøreplan  ">
+          </form>
+        </td>
+        <td>
+          <form action=/raceplans method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle kjøreplaner.');">
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="delete_all" value="  Slett alle kjøreplaner  ">
+          </form>
+        </td>
+    </table>
+  {% endif %}
+  <! --- End edit menu --->
+
+  <! --- Information --->
+    <div id=info-zone>
+      <b>TIPS</b><br>
+      - Rediger heat informasjon. Merk at endringer ikke vil bli validert.<br>
+      - Start-tidspunkt (sjekk selv at tidspunkt passer inn i tidplan.<br>
+      - Maks antall startende (denne bør kun endres i finaleheat).<br>
+    </div>
+  <! --- End Information --->
+
+ 
+  <! --- Display edit information --->
+  {% for race in races %}
+    <div id=spacer></div>
+    <form action="/raceplans" method=post>
+      <input type="hidden" name="event_id" value="{{ event_id }}">
+      <input type="hidden" name="action" value="edit_mode">
+      <input type="hidden" name="race_id" value="{{ race.id }}">
+      <table>
+            <tr id=headerblue>
+                <td width="100">Felt</td>
+                <td width="100">Verdi</td>
+                <td width="100">Ny verdi</td>
+                <td>Kommentar</td>
+            </tr>
+            <tr>
+                <td>Heat nr</td>
+                <td>{{ race.order }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Runde</td>
+                <td>{{ race.raceclass }}-{{ race.round }}{{ race.index }}{{ race.heat }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Start</td>
+                <td>{{ race.start_time[-8:] }}</td>
+                <td><input type=text name="new_start_time" value="" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" size=8></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Max startende</td>
+                <td>{{ race.max_no_of_contestants }}</td>
+                <td><input type=text name="new_max_no_of_contestants" value="" size=8></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td><input type="submit" name=update_one value="  Lagre  "></td>
+                <td></td>
+            </tr>
+        </table>
+    </form>
+  {% endfor %}
+  <! --- End Display edit info --->
+{% endblock %}

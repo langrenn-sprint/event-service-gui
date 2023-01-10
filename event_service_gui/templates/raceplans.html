@@ -149,10 +149,10 @@
         <td>Ny tid</td>
       {% endif %}
       <td>Løpsklasse</td>
-      <td>Runde</td>
-      <td>Ant løpere</td>
-      <td>Videre til</td>
       <td>Heat</td>
+      <td>Ant løpere / maks</td>
+      <td>Videre til</td>
+      <td>Nr</td>
       <td>
         {% if action == "edit_order" %}
           Endre til
@@ -187,7 +187,7 @@
               Runde 2
             {% endif %}
           </td>
-          <td>{{ race.no_of_contestants }}</td>
+          <td>{{ race.no_of_contestants }} / {{ race.max_no_of_contestants }}</td>
           <td>{{ race.next_race }}</td>
           <td>
             {% if race.validation %}
@@ -197,9 +197,10 @@
           </td>
           <td>
             {% if  action == "edit_mode" %}
-              <form action=/raceplans method=post>
-                <input type="submit" name=delete_one value="  Slett  ">
-                <input type="hidden" name="id" value="{{ race.id }}">
+              <form action=/raceplans method=get>
+                <input type="submit" name=edit_one value="  Endre  ">
+                <input type="hidden" name="race_id" value="{{ race.id }}">
+                <input type="hidden" name="action" value="edit_one">
                 <input type="hidden" name="event_id" value="{{ event_id }}">
               </form>
             {% elif action == "edit_order" %}

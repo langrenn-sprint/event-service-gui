@@ -23,6 +23,8 @@ class Raceplans(web.View):
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
         informasjon = ""
+        html_template = "raceplans.html"
+
         try:
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
@@ -51,14 +53,22 @@ class Raceplans(web.View):
             raceclasses = await RaceclassesAdapter().get_raceclasses(
                 user["token"], event_id
             )
-
-            races = await RaceplansAdapter().get_all_races(user["token"], event_id)
+            races = []
+            if action == "edit_one":
+                html_template = "raceplan_edit.html"
+                race = await RaceplansAdapter().get_race_by_id(
+                    user["token"], self.request.rel_url.query["race_id"]
+                )
+                races.append(race)
+                valgt_klasse = race["raceclass"]
+            else:
+                races = await RaceplansAdapter().get_all_races(user["token"], event_id)
             raceplan_summary = []
             if len(races) == 0:
                 informasjon = f"{informasjon} Ingen kjøreplaner funnet."
             else:
                 raceplan_summary = get_raceplan_summary(races, raceclasses)
-            # generate text explaining qualificatoin rule (videre til)
+            # generate text explaining qualification rule (videre til)
             for race in races:
                 race["next_race"] = get_qualification_text(race)
 
@@ -79,7 +89,7 @@ class Raceplans(web.View):
             event = await EventsAdapter().get_event(user["token"], event_id)
 
             return await aiohttp_jinja2.render_template_async(
-                "raceplans.html",
+                html_template,
                 self.request,
                 {
                     "action": action,
@@ -111,21 +121,26 @@ class Raceplans(web.View):
 
         try:
             if "update_one" in form.keys():
-                id = str(form["id"])
-                request_body = {
-                    "name": str(form["name"]),
-                    "distance": str(form["distance"]),
-                    "event_id": event_id,
-                    "id": id,
-                    "order": int(form["order"]),  # type: ignore
-                    "ageclass_name": str(form["ageclass_name"]),
-                    "no_of_contestants": str(form["no_of_contestants"]),
-                }
-
-                res = await RaceplansAdapter().update_raceplan(
-                    user["token"], event_id, request_body
-                )
-                informasjon = f"Informasjon er oppdatert - {res}"
+                race_id = str(form["race_id"])
+                races = await RaceplansAdapter().get_all_races(user["token"], event_id)
+                for race in races:
+                    if race["id"] == race_id:
+                        new_start_time = form["new_start_time"]
+                        if new_start_time:
+                            race[
+                                "start_time"
+                            ] = f"{race['start_time'][:11]}{new_start_time[-8:]}"
+                        new_max_no_of_contestants = form["new_max_no_of_contestants"]
+                        if new_max_no_of_contestants:
+                            race["max_no_of_contestants"] = new_max_no_of_contestants
+                        res = await RaceplansAdapter().update_race(
+                            user["token"], race["id"], race
+                        )
+                        informasjon = (
+                            f"Race er oppdatert({res}) - race nr {race['order']}"
+                        )
+                        action = "edit_mode"
+                        break
             # Create classes from list of contestants
             elif "generate_raceplan" in form.keys():
                 result = await RaceplansAdapter().generate_raceplan(
@@ -140,12 +155,6 @@ class Raceplans(web.View):
                     user["token"], str(form["event_id"])
                 )
                 informasjon = f"Kjøreplaner er slettet - {resultat}"
-            elif "delete_one" in form.keys():
-                resultat = await RaceplansAdapter().delete_race(
-                    user["token"], str(form["id"])
-                )
-                informasjon = f"Heat er slettet - {resultat}"
-                action = "edit_mode"
             elif "update_time" in form.keys():
                 logging.debug(f"update_time - form:{form}")
                 order = int(form["order"])  # type: ignore
