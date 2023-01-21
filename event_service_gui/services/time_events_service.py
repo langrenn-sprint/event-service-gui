@@ -57,7 +57,7 @@ class TimeEventsService:
                     time_event["race_id"] = race["id"]
 
                     # loop and simulate result for pos 1 to 10
-                    for x in range(1, 11):
+                    for x in range(1, race['max_no_of_contestants'] + 1):
                         time_event["rank"] = x
                         next_start_entry = get_next_start_entry(
                             token, time_event, races
@@ -102,80 +102,90 @@ class TimeEventsService:
             id = await TimeEventsAdapter().update_time_event(
                 token, time_event["id"], time_event
             )
-            informasjon += f" Updated time event {id}. "
+            logging.debug(f"Updated time event: {time_event['bib']} - result: {id}")
+            informasjon += f" Oppdatert startnr {time_event['bib']}. "
         else:
             new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
-            informasjon += f" Bib {new_t_e['bib']}, result: {new_t_e['status']}. "
+            informasjon += f" {new_t_e['bib']}: {new_t_e['status']}. "
 
         return informasjon
 
-    async def create_finish_time_event(self, token: str, time_event: dict) -> str:
+    async def create_finish_time_events(self, token: str, time_events: list) -> str:
         """Validate, enrich and create finish time_event."""
         # Get next race from template
         id = 0
         informasjon = ""
-        contestant = await ContestantsAdapter().get_contestant_by_bib(
-            token, time_event["event_id"], time_event["bib"]
-        )
-        next_start_template = {}
-        next_start_entry = {}
-        next_start_entries = await TimeEventsAdapter().get_time_events_by_race_id(
-            token, time_event["race_id"]
-        )
-        for entry in next_start_entries:
-            if (entry["timing_point"] == "Template") and (
-                entry["rank"] == time_event["rank"]
-            ):
-                next_start_template = entry
-        # Create or update time event
-        if len(next_start_template) > 0:
-            time_event["next_race"] = next_start_template["next_race"]
-            time_event["next_race_id"] = next_start_template["next_race_id"]
-            time_event["next_race_position"] = next_start_template["next_race_position"]
+        next_start_entries = []
+        start_list = []
 
+        if len(time_events) > 0:
+            next_start_entries = await TimeEventsAdapter().get_time_events_by_race_id(
+                token, time_events[0]["race_id"]
+            )
             start_list = await StartAdapter().get_all_starts_by_event(
-                token, time_event["event_id"]
+                token, time_events[0]["event_id"]
             )
-            next_race = await RaceplansAdapter().get_race_by_id(
-                token, time_event["next_race_id"]
+        for time_event in time_events:
+            contestant = await ContestantsAdapter().get_contestant_by_bib(
+                token, time_event["event_id"], time_event["bib"]
             )
-
-            # create next start entry
-            next_start_entry = {
-                "race_id": time_event["next_race_id"],
-                "startlist_id": start_list[0]["id"],
-                "bib": time_event["bib"],
-                "name": f"{contestant['first_name']} {contestant['last_name']}",
-                "club": contestant["club"],
-                "scheduled_start_time": next_race["start_time"],
-                "starting_position": time_event["next_race_position"],
-                "status": "OK",
-            }
-        else:
-            time_event["next_race"] = "Ute"
-            time_event["next_race_id"] = ""
-
-        # add name and club to time_event
-        time_event["name"] = f"{contestant['first_name']} {contestant['last_name']}"
-        time_event["club"] = contestant["club"]
-        result_ok = False
-        if len(time_event["id"]) > 0:
-            # update existing time event
-            id = await TimeEventsAdapter().update_time_event(
-                token, time_event["id"], time_event
-            )
-            result_ok = True
-            informasjon += f" Updated time event {id}. "
-        else:
-            new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
-            informasjon += f" Bib {new_t_e['bib']}, result: {new_t_e['status']}. "
-            if new_t_e["status"] == "OK":
-                result_ok = True
+            if not contestant:
+                informasjon += f"<br> - ERROR! Bib {time_event['bib']}: Fant ingen deltaker. "
             else:
-                informasjon += f" Error details: {new_t_e['changelog']}"
-        if time_event["next_race"] != "Ute" and result_ok:
-            id = await StartAdapter().create_start_entry(token, next_start_entry)
-            informasjon += f" Start OK {id}. "
+                next_start_template = {}
+                next_start_entry = {}
+                for entry in next_start_entries:
+                    if (entry["timing_point"] == "Template") and (
+                        entry["rank"] == time_event["rank"]
+                    ):
+                        next_start_template = entry
+                # Create or update time event
+                if len(next_start_template) > 0:
+                    time_event["next_race"] = next_start_template["next_race"]
+                    time_event["next_race_id"] = next_start_template["next_race_id"]
+                    time_event["next_race_position"] = next_start_template[
+                        "next_race_position"
+                    ]
+
+                    next_race = await RaceplansAdapter().get_race_by_id(
+                        token, time_event["next_race_id"]
+                    )
+                    # create next start entry
+                    next_start_entry = {
+                        "race_id": time_event["next_race_id"],
+                        "startlist_id": start_list[0]["id"],
+                        "bib": time_event["bib"],
+                        "name": f"{contestant['first_name']} {contestant['last_name']}",
+                        "club": contestant["club"],
+                        "scheduled_start_time": next_race["start_time"],
+                        "starting_position": time_event["next_race_position"],
+                        "status": "OK",
+                    }
+                else:
+                    time_event["next_race"] = "Ute"
+                    time_event["next_race_id"] = ""
+                # add name and club to time_event
+                time_event["name"] = f"{contestant['first_name']} {contestant['last_name']}"
+                time_event["club"] = contestant["club"]
+                result_ok = False
+                if len(time_event["id"]) > 0:
+                    # update existing time event
+                    id = await TimeEventsAdapter().update_time_event(
+                        token, time_event["id"], time_event
+                    )
+                    result_ok = True
+                    informasjon += f" Updated time event {id}. "
+                else:
+                    new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
+                    if new_t_e["status"] == "OK":
+                        informasjon += f"{new_t_e['bib']}: {new_t_e['rank']} pl. "
+                        result_ok = True
+                    else:
+                        # error, return info to user
+                        if new_t_e['changelog']:
+                            informasjon += f"{new_t_e['changelog'][-1]['comment']} <br>"
+                if time_event["next_race"] != "Ute" and result_ok:
+                    id = await StartAdapter().create_start_entry(token, next_start_entry)
 
         return informasjon
 

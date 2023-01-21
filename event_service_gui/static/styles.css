@@ -245,26 +245,6 @@ height:16px;
 vertical-align: bottom;
 }
 
-function naviger(id) {
-var elmnt = document.getElementById(id);
-elmnt.scrollIntoView();
-}
-
-async function savefile(inp)
-{
-  let formData = new FormData();
-  let file = inp.files[0];
-
-  formData.append("file", file);
-
-  const ctrl = new AbortController()    // timeout
-  setTimeout(() => ctrl.abort(), 5000);
-
-  let r = await fetch('/contestants',
-    {method: "POST", body: formData, signal: ctrl.signal});
-
-}
-
 /**** Responsivt design ****/
 .w3-container {
 background-color: white;

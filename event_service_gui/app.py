@@ -25,7 +25,6 @@ from .views import (
     Raceclasses,
     Raceplans,
     Settings,
-    StartEdit,
     Tasks,
     Users,
 )
@@ -91,7 +90,6 @@ async def create_app() -> web.Application:
             web.view("/raceclasses", Raceclasses),
             web.view("/raceplans", Raceplans),
             web.view("/settings", Settings),
-            web.view("/start_edit", StartEdit),
             web.view("/tasks", Tasks),
             web.view("/users", Users),
         ]

@@ -32,6 +32,25 @@
       function confirm_delete(message) {
         return window.confirm(message);
       }
+      function naviger(id) {
+        var elmnt = document.getElementById(id);
+        elmnt.scrollIntoView();
+      }
+
+      async function savefile(inp)
+      {
+        let formData = new FormData();
+        let file = inp.files[0];
+
+        formData.append("file", file);
+
+        const ctrl = new AbortController()    // timeout
+        setTimeout(() => ctrl.abort(), 5000);
+
+        let r = await fetch('/contestants',
+          {method: "POST", body: formData, signal: ctrl.signal});
+
+      }
     </script>
   </head>
   <body>

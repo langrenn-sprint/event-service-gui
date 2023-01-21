@@ -371,6 +371,34 @@ class ContestantsAdapter:
                     )
         return contestant
 
+    async def search_contestants_by_name(self, token: str, event_id: str, search_text: str) -> list:
+        """Search contestant by name - first or last function."""
+        contestants = []
+        servicename = "search_contestants_by_name"
+        request_body = {"name": search_text}
+        headers = MultiDict(
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
+        )
+        async with ClientSession() as session:
+            async with session.post(
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/search",
+                headers=headers,
+                json=request_body,
+            ) as resp:
+                if resp.status == 200:
+                    contestants = await resp.json()
+                    logging.debug(f"result - got response {resp}")
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+                else:
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(reason=f"{resp.status} Error - {body['detail']}")
+        return contestants
+
     async def update_contestant(
         self, token: str, event_id: str, contestant: dict
     ) -> str:
