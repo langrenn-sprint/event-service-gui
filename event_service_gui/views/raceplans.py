@@ -1,4 +1,5 @@
 """Resource module for main view."""
+import datetime
 import logging
 
 from aiohttp import web
@@ -125,11 +126,6 @@ class Raceplans(web.View):
                 races = await RaceplansAdapter().get_all_races(user["token"], event_id)
                 for race in races:
                     if race["id"] == race_id:
-                        new_start_time = form["new_start_time"]
-                        if new_start_time:
-                            race[
-                                "start_time"
-                            ] = f"{race['start_time'][:11]}{new_start_time[-8:]}"
                         new_max_no_of_contestants = form["new_max_no_of_contestants"]
                         if new_max_no_of_contestants:
                             race["max_no_of_contestants"] = new_max_no_of_contestants
@@ -163,10 +159,13 @@ class Raceplans(web.View):
                     user["token"], event_id, order, new_time
                 )
                 action = "edit_time"
-            elif "update_order" in form.keys():
-                logging.info(f"update_order - form:{form}")
-                informasjon = await update_order(user, event_id, form)  # type: ignore
-                action = "edit_order"
+            elif "set_rest_time" in form.keys():
+                min_rest_time = int(form["min_rest_time"])
+                informasjon = await set_min_rest_time(
+                    user["token"], event_id, min_rest_time
+                )
+                action = "edit_time"
+
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
@@ -175,23 +174,59 @@ class Raceplans(web.View):
                 return web.HTTPSeeOther(
                     location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
                 )
-
+        informasjon = f"Suksess! {informasjon}"
         info = f"action={action}&informasjon={informasjon}"
         return web.HTTPSeeOther(location=f"/raceplans?event_id={event_id}&{info}")
 
 
-async def update_order(user: dict, event_id: str, form: dict) -> str:
-    """Extract form data and update one result and corresponding start event."""
+async def set_min_rest_time(token: str, event_id: str, min_rest_time: int) -> str:
+    """Update raceplan - set minimum rest time between races."""
     informasjon = ""
-    for x in form.keys():
-        if x.startswith("new_order_"):
-            new_order = form[x]
-            if new_order != "":
-                race_id = x[10:]
-                old_order = form[f"old_order_{race_id}"]
-                if new_order != old_order:
-                    result = await RaceplansAdapter().update_order(
-                        user["token"], race_id, new_order
-                    )
-                    informasjon += f" {result}"
+    races = await RaceplansAdapter().get_all_races(token, event_id)
+    raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
+    raceplan_summary = get_raceplan_summary(races, raceclasses)
+    rest_time = datetime.timedelta(minutes=min_rest_time)
+    for raceclass in raceplan_summary:
+        # check rest time before semi-finals and adjust if nessecarry
+        if (raceclass["min_pauseS"]) < rest_time:
+            time_adjust = rest_time - raceclass["min_pauseS"]
+            # find first semi final race
+            for race in races:
+                if race["raceclass"] == raceclass["name"]:
+                    if f"{race['round']}{race['heat']}" == "S1":
+                        # set new time for this race and all following
+                        old_time_obj = datetime.datetime.strptime(
+                            race["start_time"], "%Y-%m-%dT%H:%M:%S"
+                        )
+                        new_time_obj = old_time_obj + time_adjust
+                        new_time = f"{new_time_obj.strftime('%X')}"
+                        informasjon += await RaceplansAdapter().update_start_time(
+                            token, event_id, race["order"], new_time
+                        )
+                        # refresh data - get latest time info
+                        races = await RaceplansAdapter().get_all_races(token, event_id)
+                        raceplan_summary = get_raceplan_summary(races, raceclasses)
+                        break
+        # check rest time before finals and adjust if nessecarry
+        if (raceclass["min_pauseF"]) < rest_time:
+            time_adjust = rest_time - raceclass["min_pauseF"]
+            # find first final race
+            for race in races:
+                if race["raceclass"] == raceclass["name"]:
+                    if f"{race['round']}" == "F":
+                        # set new time for this race and all following
+                        old_time_obj = datetime.datetime.strptime(
+                            race["start_time"], "%Y-%m-%dT%H:%M:%S"
+                        )
+                        new_time_obj = old_time_obj + time_adjust
+                        new_time = f"{new_time_obj.strftime('%X')}"
+                        informasjon += await RaceplansAdapter().update_start_time(
+                            token, event_id, race["order"], new_time
+                        )
+                        # refresh data - get latest time info
+                        races = await RaceplansAdapter().get_all_races(token, event_id)
+                        raceplan_summary = get_raceplan_summary(races, raceclasses)
+                        break
+    if not informasjon:
+        informasjon = "Ingen endringer."
     return informasjon

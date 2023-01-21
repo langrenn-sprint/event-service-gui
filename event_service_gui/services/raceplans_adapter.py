@@ -324,7 +324,7 @@ class RaceplansAdapter:
                 res = await RaceplansAdapter().update_race(token, race["id"], race)
                 logging.debug(f"Raceplan update time, result: {res}. {race}")
 
-        informasjon = f"Lagret! Utsettelse på {delta_time} fra heat {order}."
+        informasjon = f"Utsettelse på {delta_time} fra heat {order}. "
 
         return informasjon
 

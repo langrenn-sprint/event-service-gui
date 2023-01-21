@@ -57,7 +57,7 @@ class TimeEventsService:
                     time_event["race_id"] = race["id"]
 
                     # loop and simulate result for pos 1 to 10
-                    for x in range(1, race['max_no_of_contestants'] + 1):
+                    for x in range(1, race["max_no_of_contestants"] + 1):
                         time_event["rank"] = x
                         next_start_entry = get_next_start_entry(
                             token, time_event, races
@@ -130,7 +130,9 @@ class TimeEventsService:
                 token, time_event["event_id"], time_event["bib"]
             )
             if not contestant:
-                informasjon += f"<br> - ERROR! Bib {time_event['bib']}: Fant ingen deltaker. "
+                informasjon += (
+                    f"<br> - ERROR! Bib {time_event['bib']}: Fant ingen deltaker. "
+                )
             else:
                 next_start_template = {}
                 next_start_entry = {}
@@ -165,7 +167,9 @@ class TimeEventsService:
                     time_event["next_race"] = "Ute"
                     time_event["next_race_id"] = ""
                 # add name and club to time_event
-                time_event["name"] = f"{contestant['first_name']} {contestant['last_name']}"
+                time_event[
+                    "name"
+                ] = f"{contestant['first_name']} {contestant['last_name']}"
                 time_event["club"] = contestant["club"]
                 result_ok = False
                 if len(time_event["id"]) > 0:
@@ -176,16 +180,20 @@ class TimeEventsService:
                     result_ok = True
                     informasjon += f" Updated time event {id}. "
                 else:
-                    new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
+                    new_t_e = await TimeEventsAdapter().create_time_event(
+                        token, time_event
+                    )
                     if new_t_e["status"] == "OK":
                         informasjon += f"{new_t_e['bib']}: {new_t_e['rank']} pl. "
                         result_ok = True
                     else:
                         # error, return info to user
-                        if new_t_e['changelog']:
+                        if new_t_e["changelog"]:
                             informasjon += f"{new_t_e['changelog'][-1]['comment']} <br>"
                 if time_event["next_race"] != "Ute" and result_ok:
-                    id = await StartAdapter().create_start_entry(token, next_start_entry)
+                    id = await StartAdapter().create_start_entry(
+                        token, next_start_entry
+                    )
 
         return informasjon
 

@@ -371,7 +371,9 @@ class ContestantsAdapter:
                     )
         return contestant
 
-    async def search_contestants_by_name(self, token: str, event_id: str, search_text: str) -> list:
+    async def search_contestants_by_name(
+        self, token: str, event_id: str, search_text: str
+    ) -> list:
         """Search contestant by name - first or last function."""
         contestants = []
         servicename = "search_contestants_by_name"
@@ -396,7 +398,9 @@ class ContestantsAdapter:
                 else:
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
-                    raise web.HTTPBadRequest(reason=f"{resp.status} Error - {body['detail']}")
+                    raise web.HTTPBadRequest(
+                        reason=f"{resp.status} Error - {body['detail']}"
+                    )
         return contestants
 
     async def update_contestant(

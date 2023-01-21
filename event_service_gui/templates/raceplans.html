@@ -54,40 +54,14 @@
     </tr>
   </table>
 
-  <! --- Edit menu --->
-  {% if  action == "edit_mode" %}
-    <table>
-      <tr id=headerblue align=right>
-        <td>
-          <form action=/raceplans method=get>
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="hidden" name=action value="edit_time">
-            <input type="submit" name="edit_time" value="  Tilpass tidskjema  ">
-          </form>
-        </td>
-        <td>
-          <form action=/raceplans method=post>
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="submit" name="generate_raceplan" value="  Generer kjøreplan  ">
-          </form>
-        </td>
-        <td>
-          <form action=/raceplans method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle kjøreplaner.');">
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="submit" name="delete_all" value="  Slett alle kjøreplaner  ">
-          </form>
-        </td>
-    </table>
-  {% endif %}
-  <! --- End edit menu --->
-
   <! --- Information --->
   {% if action == "edit_time" %}
     <div id=info-zone>
       <b>TIPS</b><br>
       - Kun ett tidspunkt kan endres om gangen og at alle påfølgende heat vil bli justert tilsvarende.<br>
       - Hviletider må verifiseres manuelt - bruk kolonnene "minste tid...". Disse beregner minste tid mellom start siste kvartfinale og start første semifinale / siste semifinale og første finale.<br>
-      - Det anbefales å legge inn pauser mellom runder (altså før start semi- eller finaler), ikke midt i gjennomføringen av en runde.
+      - Det anbefales å legge inn pauser mellom runder (altså før start semi- eller finaler), ikke midt i gjennomføringen av en runde.<br>
+      - Funksjonen "Sett minimum hviletid" vil legge inn pauser i kjøreplanen slik at ingen løpere får mindre enn angitt tid mellom to starter.
     </div>
   {% elif raceplan_validation %}
       <div class="w3-container" id=info><br>&nbsp;<img width=15 src="../static/warning.png" title="Valideringsfeil">Valideringsfeil.<br>
@@ -99,8 +73,57 @@
   {% endif %}
   <! --- End Information --->
 
+  <! --- Edit menu --->
+  {% if action == "edit_mode" %}
+    <div id=spacer></div>
+    <table>
+      <tr id=headerblue align=right>
+      <td>
+        <form action=/raceplans method=get>
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="hidden" name=action value="edit_time">
+          <input type="submit" name="edit_time" value="  Tilpass tidskjema  ">
+        </form>
+      </td>
+      <td>
+        <form action=/raceplans method=post>
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="submit" name="generate_raceplan" value="  Generer kjøreplan  ">
+        </form>
+      </td>
+      <td>
+        <form action=/raceplans method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle kjøreplaner.');">
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="submit" name="delete_all" value="  Slett alle kjøreplaner  ">
+        </form>
+      </td>
+      <td width="100"></td>
+    </table>
+  {% elif action == "edit_time" %}
+    <div id=spacer></div>
+    <table>
+      <tr id=headerblue align=right>
+        <td>
+          <form action=/raceplans method=post>
+            <select name="min_rest_time">
+              <option value="10">&nbsp;&nbsp;10 min  </option>
+              <option value="12" selected>&nbsp;&nbsp;12 min</option>
+              <option value="15">&nbsp;&nbsp;15 min</option>
+              <option value="18">&nbsp;&nbsp;18 min</option>
+              <option value="20">&nbsp;&nbsp;20 min</option>
+              <option value="25">&nbsp;&nbsp;25 min&nbsp;&nbsp;</option>
+            </select>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" name="set_rest_time" value="  Sett minimum hviletid  ">
+          </form>
+        </td>
+        <td width="100"></td>
+    </table>
+  {% endif %}
+  <! --- End edit menu --->
  
   <! --- Display raceplan summary --->
+    <div id=spacer></div>
     <table>
       <tr id=headerblue>
         <td>Løpsklasse</td>
@@ -154,9 +177,6 @@
       <td>Videre til</td>
       <td>Nr</td>
       <td>
-        {% if action == "edit_order" %}
-          Endre til
-        {% endif %}
       </td>
     </tr>
     {% for race in races %}
@@ -203,21 +223,12 @@
                 <input type="hidden" name="action" value="edit_one">
                 <input type="hidden" name="event_id" value="{{ event_id }}">
               </form>
-            {% elif action == "edit_order" %}
-              <input type=number name=new_order_{{ race.id }} value="" min=1 max=999>
-              <input type=hidden name=old_order_{{ race.id }} value="{{ race.order }}">
             {% endif %}
           </td>
         </tr>
       {% endif %}
     {% endfor %}
   </table>
-  <div align=right>
-    {% if action == "edit_order" %}
-        <input type="submit" name=update_order value="  Lagre  ">
-      </form>
-    {% endif %}
-  </div>
   <table>
     <tr>
       <td>
