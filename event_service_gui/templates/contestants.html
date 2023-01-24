@@ -90,7 +90,7 @@
           </td>
           <td>
             <input type="hidden" name=event_id value="{{ event_id }}">
-            <input type="submit" name=create value="  Last opp  ">
+            <input type="submit" id="create" name=create value="  Last opp  " onclick=save_message(this.id);>
           </td>
         </tr>
         <tr id=spacer></tr>
@@ -321,7 +321,7 @@
                   <script>
                     document.getElementById("url").value = "http://" + window.location.hostname + ":8090";
                   </script>
-                  <input type="submit" name=create_one value="  Opprett  ">
+                  <input type="submit" id="create_one" name=create_one value="  Lagre  " onclick=save_message(this.id); >
                 </td>
                 <td></td>
             </tr>

@@ -174,7 +174,8 @@ class Raceplans(web.View):
                 return web.HTTPSeeOther(
                     location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
                 )
-        informasjon = f"Suksess! {informasjon}"
+        else:
+            informasjon = f"Suksess! {informasjon}"
         info = f"action={action}&informasjon={informasjon}"
         return web.HTTPSeeOther(location=f"/raceplans?event_id={event_id}&{info}")
 
@@ -188,7 +189,7 @@ async def set_min_rest_time(token: str, event_id: str, min_rest_time: int) -> st
     rest_time = datetime.timedelta(minutes=min_rest_time)
     for raceclass in raceplan_summary:
         # check rest time before semi-finals and adjust if nessecarry
-        if (raceclass["min_pauseS"]) < rest_time:
+        if raceclass["min_pauseS"] and (raceclass["min_pauseS"] < rest_time):
             time_adjust = rest_time - raceclass["min_pauseS"]
             # find first semi final race
             for race in races:
@@ -208,7 +209,7 @@ async def set_min_rest_time(token: str, event_id: str, min_rest_time: int) -> st
                         raceplan_summary = get_raceplan_summary(races, raceclasses)
                         break
         # check rest time before finals and adjust if nessecarry
-        if (raceclass["min_pauseF"]) < rest_time:
+        if raceclass["min_pauseF"] and (raceclass["min_pauseF"] < rest_time):
             time_adjust = rest_time - raceclass["min_pauseF"]
             # find first final race
             for race in races:

@@ -115,9 +115,9 @@ class CompetitionFormatAdapter:
             )
         elif format_type == "default_individual_sprint_steinar":
             config_file_name = f"{config_files_directory}/competition_format_individual_sprint_steinar.json"
-        elif format_type == "default_individual_sprint_10":
+        elif format_type == "default_individual_sprint_s2":
             config_file_name = (
-                f"{config_files_directory}/competition_format_individual_sprint_10.json"
+                f"{config_files_directory}/competition_format_sprint_steinar2.json"
             )
         elif format_type == "default_sprint_all_to_finals":
             config_file_name = f"{config_files_directory}/competition_format_individual_sprint_all_to_finals.json"
@@ -125,6 +125,7 @@ class CompetitionFormatAdapter:
             config_file_name = (
                 f"{config_files_directory}/competition_format_interval_start.json"
             )
+
         try:
             with open(config_file_name) as json_file:
                 default_format = json.load(json_file)

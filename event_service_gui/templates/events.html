@@ -9,6 +9,17 @@
 {% block refresh %}{% endblock %}
 {% block content %}
   <div id=spacer></div>
+  <table>
+    <tr>
+      <td>
+        <form action=/tasks method=get>
+          <input type="hidden" name=event_id value="{{ event_id }}">
+          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
+        </form>
+    </td>
+    </tr>
+  </table>
+  <div id=spacer></div>
   {% if create_new %}
     <form action=/events method=post>
       <table cellpadding=4>

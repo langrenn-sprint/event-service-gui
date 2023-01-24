@@ -32,6 +32,10 @@
       function confirm_delete(message) {
         return window.confirm(message);
       }
+      function save_message(id) {
+        document.getElementById(id).value = "  Lagrer, vennligst vent... ";
+        return true;
+      }
       function naviger(id) {
         var elmnt = document.getElementById(id);
         elmnt.scrollIntoView();

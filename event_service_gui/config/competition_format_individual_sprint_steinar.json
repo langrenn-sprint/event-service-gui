@@ -2,7 +2,7 @@
   "name": "Individual Sprint",
   "starting_order": "Draw",
   "start_procedure": "Heat Start",
-  "time_between_groups": "00:05:00",
+  "time_between_groups": "00:02:00",
   "time_between_rounds": "00:03:00",
   "time_between_heats": "00:01:30",
   "rounds_ranked_classes": [

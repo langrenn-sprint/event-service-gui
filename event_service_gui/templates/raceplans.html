@@ -114,7 +114,7 @@
               <option value="25">&nbsp;&nbsp;25 min&nbsp;&nbsp;</option>
             </select>
             <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="submit" name="set_rest_time" value="  Sett minimum hviletid  ">
+            <input type="submit" id="set_rest_time" name="set_rest_time" value="  Sett minimum hviletid  " onclick=save_message(this.id);>
           </form>
         </td>
         <td width="100"></td>
