@@ -169,12 +169,31 @@ class StartAdapter:
         self, token: str, event_id: str, bib: int
     ) -> List:
         """Get all start_entries by bib function."""
-        start_entries = []
-        all_starts = await StartAdapter().get_all_starts_by_event(token, event_id)
-        if all_starts:
-            for start in all_starts[0]["start_entries"]:
-                if start["bib"] == bib:
-                    start_entries.append(start)
+        startlists: List[dict] = []
+        start_entries: List[dict] = []
+        headers = MultiDict(
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
+        )
+
+        async with ClientSession() as session:
+            async with session.get(
+                f"{RACE_SERVICE_URL}/startlists?eventId={event_id}&bib={bib}", headers=headers
+            ) as resp:
+                logging.debug(f"get_start_entries_by_bib - got response {resp.status}")
+                if resp.status == 200:
+                    startlists = await resp.json()
+                else:
+                    servicename = "get_start_entries_by_bib"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+
+        if len(startlists) > 0:
+            start_entries = startlists[0]["start_entries"]
         return start_entries
 
     async def get_all_starts_by_event(self, token: str, event_id: str) -> List:
