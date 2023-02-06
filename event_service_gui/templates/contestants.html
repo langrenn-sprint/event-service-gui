@@ -361,13 +361,17 @@
               <tr>
                 <td>Aldersklasse</td>
                 <td>
-                  <select name="ageclass">
-                    {% for klasse in raceclasses %}
-                      {% for ac_name in klasse.ageclasses %}
-                        <option value="{{ ac_name }}" {% if ac_name == contestant.ageclass %}selected{% endif %}>{{ ac_name }}</option>
+                  {% if raceclasses %}
+                    <select name="ageclass">
+                      {% for klasse in raceclasses %}
+                        {% for ac_name in klasse.ageclasses %}
+                          <option value="{{ ac_name }}" {% if ac_name == contestant.ageclass %}selected{% endif %}>{{ ac_name }}</option>
+                        {% endfor %}
                       {% endfor %}
-                    {% endfor %}
-                  </select>
+                    </select>
+                  {% else %}
+                    <input type=text name="ageclass" value="{{ contestant.ageclass }}"></td>
+                  {% endif %}
                 </td>
                 <td></td>
               </tr>
