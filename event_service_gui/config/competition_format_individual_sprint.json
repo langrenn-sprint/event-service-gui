@@ -243,6 +243,12 @@
       "from_to": {"Q": {"A": {"S": {"A": 5, "C": 0}, "F": {"C": "REST"}}}, "S": {"A": {"F": {"A": 4, "B": "REST"}}, "C": {"F": {"C": 0}}}}
     },
     {
+      "max_no_of_contestants": 24,
+      "rounds": ["Q", "S", "F"],
+      "no_of_heats": {"Q": {"A": 4}, "S": {"A": 2, "C": 2}, "F": {"A": 1, "B": 1, "C": 1}},
+      "from_to": {"Q": {"A": {"S": {"A": 3, "C": "REST"}}}, "S": {"A": {"F": {"A": 3, "B": "REST"}}, "C": {"F": {"C": 4}}}}
+    },
+    {
       "max_no_of_contestants": 28,
       "rounds": ["Q", "S", "F"],
       "no_of_heats": {"Q": {"A": 4}, "S": {"A": 2, "C": 2}, "F": {"A": 1, "B": 1, "C": 1}},
