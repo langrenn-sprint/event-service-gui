@@ -314,12 +314,12 @@
       {% if not task_status.done_6 %}
       <form action=/raceclasses method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle løpsklasser.');">
         <input type="hidden" name="event_id" value="{{ event_id }}">
-        <input type="submit" id="delete_all_classes" name="delete_all_classes" value="  Slett alle klasser  " onclick=save_message(this.id);>
+        <input type="submit" id="delete_all_classes" name="delete_all" value="  Slett alle klasser  " onclick=save_message(this.id);>
       </form>
       <div id=minispacer></div>
       <form action=/contestants method=post onsubmit="return confirm_delete('OBS: Alle deltakere blir slettet!');">
         <input type="hidden" name="event_id" value="{{ event_id }}">
-        <input type="submit" id="delete_all_cont" name=delete_all_cont value="  Slett alle deltakere  " onclick=save_message(this.id);>
+        <input type="submit" id="delete_all_cont" name=delete_all value="  Slett alle deltakere  " onclick=save_message(this.id);>
       </form>
       {% endif %}
       {% if not task_status.done_8 %}
