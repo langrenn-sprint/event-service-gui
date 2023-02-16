@@ -9,12 +9,19 @@
 {% block refresh %}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_settings.png"> {{ lopsinfo }}{% endblock %}
 {% block content %}
+  <! --- Information --->
+    <div id=info-zone>
+      <b>TIPS</b><br>
+      - Dokumentasjon finnes her: <a href=https://langrenn-sprint.github.io/docs/before_race target="_blank">https://langrenn-sprint.github.io/docs/before_race</a><br>
+    </div>
+    <div id=spacer></div>
+  <! --- End Information --->
   <table>
     <tr id=subheader id=black>
       <td id=black>Arbeidsflyt - sette rennet</td>
       <td width=150>Status</td>
       <td>Funksjoner</td>
-      <td></td>
+      <td>Merknad</td>
     </tr>
     <tr>
       <td>1. Arrangement: Opprett (<a href=/events?event_id={{ event_id }}>se/endre</a>)</td>
