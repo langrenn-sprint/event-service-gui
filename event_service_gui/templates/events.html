@@ -9,18 +9,15 @@
 {% block refresh %}{% endblock %}
 {% block content %}
   <div id=spacer></div>
-  <table>
-    <tr>
-      <td>
-        <form action=/tasks method=get>
-          <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
-        </form>
-    </td>
-    </tr>
-  </table>
-  <div id=spacer></div>
   {% if create_new %}
+  <! --- Information --->
+    <div id=info-zone align="center">
+      <b>TIPS</b><br>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/By1KbuHGirQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+    <div id=spacer></div>
+  <! --- End Information --->
+
     <form action=/events method=post>
       <table cellpadding=4>
         <tr id=spacer></tr>
@@ -86,12 +83,22 @@
       </table>
     </form>
   {% else %}
-    <div align=right>
-            <form action=/events method=post>
-              <input type="hidden" name="event_id" value="{{ event.id }}">
-              <input type="submit" name=delete value="  Slett  ">
-            </form>
-    </div>
+    <table>
+      <tr>
+        <td>
+          <form action=/tasks method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
+          </form>
+        </td>
+        <td align="right">
+          <form action=/events method=post>
+            <input type="hidden" name="event_id" value="{{ event.id }}">
+            <input type="submit" name=delete value="  Slett  ">
+          </form>
+        </td>
+      </tr>
+    </table>
     <div id=spacer></div>
     <form action=/events method=post>
       <input type="hidden" name="event_id" value="{{ event.id }}">
