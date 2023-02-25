@@ -9,15 +9,15 @@
 {% block refresh %}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_settings.png"> {{ lopsinfo }}{% endblock %}
 {% block content %}
-  <! --- Information --->
-    <div id=info-zone>
-      <b>TIPS</b><br>
-      - Dokumentasjon finnes her: <a href=https://langrenn-sprint.github.io/docs/before_race target="_blank">https://langrenn-sprint.github.io/docs/before_race</a><br>
-      - Videoinstruksjoner finnes her: <a href=https://youtu.be/By1KbuHGirQ target="_blank">YouTube, spilleliste "langrenn-sprint"</a><br>
-    </div>
-    <div id=spacer></div>
-  <! --- End Information --->
-  <table>
+<! --- Information --->
+  <div id=info-zone>
+    <b>TIPS</b><br>
+    - Dokumentasjon finnes her: <a href=https://langrenn-sprint.github.io/docs/before_race target="_blank">https://langrenn-sprint.github.io/docs/before_race</a><br>
+    - Videoinstruksjoner finnes her: <a href=https://youtu.be/By1KbuHGirQ target="_blank">YouTube, spilleliste "langrenn-sprint"</a><br>
+  </div>
+  <div id=spacer></div>
+<! --- End Information --->
+<table>
     <tr id=subheader id=black>
       <td id=black>Arbeidsflyt - sette rennet</td>
       <td width=150>Status</td>
@@ -41,12 +41,6 @@
         <td id=green>Utført</td>
         <td>
           {% if (task_status.done_8) %}
-            <form action=/contestants method=get>
-              <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="hidden" name="action" value="new_manual">
-              <input type="submit" name="new_manual" value="  Etteranmelding  ">
-            </form>
-            <div id=minispacer></div>
             <form onclick="result_gui_action('myAvmeld', 'start_edit')" id="myAvmeld" action=/start_edit method=get>
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="hidden" name="action" value="edit_mode">
@@ -102,12 +96,12 @@
     </tr>
     <tr>
       <td>3b. Klasser: Startrekkefølge</td>
-      {% if (task_status.done_4) %}
+      {% if (task_status.done_6) %}
         <td id=green>Utført</td>
         <td></td>
         <td></td>
       {% else %}
-        <td id=red>Mangler</td>
+        <td>Manuell sjekk</td>
         <td>
           {% if (task_status.done_3) %}
             <form action=/raceclasses method=get>
@@ -166,7 +160,7 @@
     </tr>
     <tr>
       <td>4b. Kjøreplan: Tilpass tidsskjema (<a href=/raceplans?event_id={{ event_id }}&action=edit_time>se/endre</a>)</td>
-      <td>Manuell sjekk</td>
+      <td></td>
       <td>
         {% if (task_status.done_6) %}
           <form action=/raceplans method=get>
@@ -223,7 +217,11 @@
     </tr>
     <tr>
       <td>5b. Deltakere: Seeding</td>
-        <td>Manuell sjekk</td>
+      {% if (task_status.done_8) %}
+        <td id=green>Utført</td>
+        <td colspan="2"></td>
+      {% else %}
+        <td></td>
         <td>
           <form action=/contestants method=get>
             <input type="hidden" name=event_id value="{{ event_id }}">
@@ -232,7 +230,8 @@
           </form>
         </td>
         <td></td>
-    </tr>
+      {% endif %}
+      </tr>
     <tr>
       <td colspan=4 id=spacer></td>
     </tr>
@@ -269,12 +268,6 @@
     {% if (task_status.done_9) %}
       <td id=green>Utført</td>
       <td>
-        {% if (task_status.done_6) %}
-          <form action=/tasks method=post>
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="submit" id="generate_new_next_race" name="generate_new_next_race" value="  Generer på nytt  " onclick=save_message(this.id);>
-          </form>
-        {% endif %}
       </td>
       <td>
         {{ task_status.no_of_next_race }} <i>videre til</i> semi og finaler er opprettet.
@@ -297,7 +290,7 @@
   </tr>
   <tr>
     <td>Eksporter data</td>
-    <td>Manuell operasjon</td>
+    <td></td>
     <td>
       <ul>
         <li class=dropdown>

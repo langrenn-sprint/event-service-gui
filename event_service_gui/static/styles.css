@@ -112,6 +112,12 @@ border-right: 1px solid #ddd;
   font-weight: bold;
 }
 
+#headerinfo {
+  font-weight: bold;
+  color: white;
+  background-color: green;
+}
+
 #green {
   color: green;
   font-weight: bold;
