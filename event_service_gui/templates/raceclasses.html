@@ -208,17 +208,11 @@
               </td>
             </tr>
             <tr>
-              <td width=150>Klasse</td>
+              <td width=150>Aldersklasser</td>
               <td>
-                {% for ac_name in klasse.ageclasses %}
-                  {% if loop.index == 1 %}
-                    <input type=text name="ageclass" value="{{ ac_name }}"><br>
-                  {% else %}
-                    {{ ac_name }}<br>
-                  {% endif %}
-                {% endfor %}
+                <input type=text name="ageclass" value="{% for ac_name in klasse.ageclasses %}{{ ac_name }}{% if not loop.last %},{% endif %}{% endfor %}"><br>
               </td>
-              <td></td>
+              <td>OBS: Formatteringen må ikke endres - skal være kommaseparert ved flere aldersklasser i samme løpsklasse</td>
             </tr>
             <tr>
               <td>Distanse</td>

@@ -136,10 +136,13 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
             for ageclass in klasse["ageclasses"]:
                 merged_ageclasses.append(ageclass)
             old_raceclasses.append(klasse)
-    # create new-common class based upon first one
+    # create new-common class based upon first one - do not allow spaces in name
+    new_raceclass_name = str(form["new_raceclass_name"])
+    new_raceclass_name = new_raceclass_name.replace(" ", "")
+
     if len(old_raceclasses) > 1:
         request_body = {
-            "name": str(form["new_raceclass_name"]),
+            "name": new_raceclass_name,
             "distance": old_raceclasses[0]["distance"],
             "event_id": event_id,
             "id": old_raceclasses[0]["id"],
@@ -176,6 +179,9 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
             ranking = True
     except Exception:
         ranking = False
+
+    form_ageclasses = form["ageclass"]
+    ageclasses = form_ageclasses.split(",")
     request_body = {
         "name": str(form["name"]),
         "distance": str(form["distance"]),
@@ -185,7 +191,7 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
         "order": int(form["order"]),  # type: ignore
         "ranking": ranking,
         "seeding": False,
-        "ageclasses": [str(form["ageclass"])],
+        "ageclasses": ageclasses,
         "no_of_contestants": int(form["no_of_contestants"]),  # type: ignore
     }
     result = await RaceclassesAdapter().update_raceclass(

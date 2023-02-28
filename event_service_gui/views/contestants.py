@@ -65,6 +65,8 @@ class Contestants(web.View):
             if valgt_klasse == "":
                 if action == "new_manual":
                     available_bib = await get_available_bib(user["token"], event_id)
+                elif action == "seeding":
+                    informasjon = "Velg klasse for å utføre seeding."
                 else:
                     contestants = await ContestantsAdapter().get_all_contestants(
                         user["token"], event_id
@@ -365,6 +367,9 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
         if index_row == 1:
             index_column = 0
             for element in elements:
+                # special case to handle random bytes first in file
+                if index_column == 0 and element.endswith("Startnr"):
+                    headers["Startnr"] = 0
                 headers[element] = index_column
                 index_column += 1
         else:
