@@ -68,11 +68,13 @@
     </table>
   {% endif %}
     {% if action == "new_from_file" %}
-    <div id=info-zone>
+      <div id=spacer></div>
+      <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
+      <div id=info-zone class="collapse">
       <b>TIPS</b> - det aksepteres 2 ulike filtyper<br>
       <b>1. Deltakerliste Excel</b> lastes ned fra Sportsadmin og lagres som kommaseparert (csv) fil <a href="https://www.harnaes.no/sprint/web/test_deltakerliste_sportsadmin.csv">(eksempelfil: test_deltakerliste_sportsadmin.csv)</a>.<br>
       &nbsp;&nbsp;&nbsp;Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a target=_blank href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.<br><br>
-      <b>2. Fra "gammelt excel-skjema"</b>, krever 'excel_manual' i filnavnet. Lagre som csv fil og importer <a target=_blank href="https://www.harnaes.no/sprint/web/test_excel_manual1314.csv">(eksempelfil: test_excel_manual1314.csv)</a><br>
+      <b>2. Fra "gammelt excel-skjema"</b>, krever 'excel_manual' i filnavnet. Lagre som csv fil i UTF8 format og importer <a target=_blank href="https://www.harnaes.no/sprint/web/test_excel_manual1314.csv">(eksempelfil: test_excel_manual1314.csv)</a><br>
       &nbsp;&nbsp;&nbsp;Headere i filen som støttes er Navn, Klasse, Klubb, Krets. Valgfrie: Startnr, Seedet<br><br>
     </div>
     <div id=spacer>&nbsp;</div>

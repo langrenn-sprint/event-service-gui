@@ -110,8 +110,9 @@
         {% endfor %}
       </table>
       {% elif  action == "update_order" %}
-        <div id=info-zone>
-          <b>TIPS</b><br>
+        <div id=spacer></div>
+        <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
+        <div id=info-zone class="collapse">
           - Løpsklasser i samme startgruppe går samtidig.<br>
           - 80-100 løpere i hver startgruppe gir effektiv gjennomføring og 15 - 25 minutter pause mellom hver start for løperne.<br>
           - Ved få deltakere påmeldt i en klasse (under 15) bør man vurdere å slå sammen flere årsklasser til en felles løpsklasse slik at alle får gått 3 runder.<br>
