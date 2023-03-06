@@ -144,7 +144,7 @@ border-right: 1px solid #ddd;
 }
 
 #danger-zone {
-  color: white;
+  color: black;
   background-color: lightcoral;
   padding: 6px;
   vertical-align: top;

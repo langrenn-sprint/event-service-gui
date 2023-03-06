@@ -28,9 +28,11 @@
   </table>
   {% if  action == "edit_mode" %}
       <table>
-        <tr id=headerblue align=right>
+        <tr align=right>
         {% if raceclasses %}
-          <td>
+        <td width="300">
+        </td>
+        <td>
             <form action=/raceclasses method=post>
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="submit" name="refresh_no_of_contestants" value="  Refresh deltakerantall  ">
