@@ -243,7 +243,16 @@
         {% endif %}
       {% elif action == "new_manual" %}
         <div id=spacer></div>
-        <form action=/contestants method=post>
+        <! --- Information --->
+          <div id=spacer></div>
+          <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS - videoinstruksjoner</a></div>
+          {% if available_bib < 2 %}<div id="info">Advarsel: Startnummer er ikke tildelt. Du bør ikke utføre etteranmeldinger nå.</div>{% endif %}
+          <div id=info-zone class="collapse" align="center">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/Gp1R1on6ujI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          </div>
+          <div id=spacer></div>
+        <! --- End Information --->
+          <form action=/contestants method=post>
           <table cellpadding=4>
             <tr id=spacer></tr>
             <tr>
