@@ -65,17 +65,17 @@ class TimeEventsAdapter:
         url = f"{RACE_SERVICE_URL}/time-events/{id}"
         async with ClientSession() as session:
             async with session.delete(url, headers=headers) as resp:
-                pass
-            logging.debug(f"Delete time_event: {id} - res {resp.status}")
-            if resp.status == 204:
-                logging.debug(f"result - got response {resp}")
-            elif resp.status == 401:
-                raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
-            else:
-                logging.error(f"delete_time_event failed - {resp.status}, {resp}")
-                raise web.HTTPBadRequest(
-                    reason=f"Delete time_event failed {resp.status}."
-                )
+                logging.debug(f"Delete time_event: {id} - res {resp.status}")
+                if resp.status == 204:
+                    logging.debug(f"result - got response {resp}")
+                elif resp.status == 401:
+                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+                else:
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
         return resp.status
 
     async def update_time_event(self, token: str, id: str, time_event: dict) -> int:
@@ -134,6 +134,37 @@ class TimeEventsAdapter:
                     )
         return time_event
 
+    async def get_time_events_by_event_id_and_bib(
+        self, token: str, event_id: str, bib: int
+    ) -> List:
+        """Get all get_time_events_by_event_id_and_bib."""
+        headers = MultiDict(
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
+        )
+        time_events = []
+        async with ClientSession() as session:
+            async with session.get(
+                f"{RACE_SERVICE_URL}/time-events?eventId={event_id}&bib={bib}",
+                headers=headers,
+            ) as resp:
+                logging.debug(
+                    f"get_time_events_by_event_id_and_bib - got response {resp.status}"
+                )
+                if resp.status == 200:
+                    time_events = await resp.json()
+                elif resp.status == 401:
+                    raise Exception(f"Login expired: {resp}")
+                else:
+                    servicename = "get_time_events_by_event_id_and_bib"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        return time_events
+
     async def get_time_events_by_event_id(self, token: str, event_id: str) -> List:
         """Get all time_events - lap time or heat place function."""
         headers = MultiDict(
@@ -154,7 +185,7 @@ class TimeEventsAdapter:
                 elif resp.status == 401:
                     raise Exception(f"Login expired: {resp}")
                 else:
-                    servicename = "get_all_time_events"
+                    servicename = "get_time_events_by_event_id"
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(

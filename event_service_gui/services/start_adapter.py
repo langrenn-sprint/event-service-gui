@@ -330,7 +330,8 @@ async def shuffle_round2(token: str, event_id: str) -> str:
                             [0, 2, 4],
                         )
                         swap_count += 3
-    informasjon = f" R2 for urangerte er stokket - {swap_count} flyttinger."
+    if swap_count > 0:
+        informasjon = f" R2 for urangerte er stokket - {swap_count} flyttinger."
     return informasjon
 
 

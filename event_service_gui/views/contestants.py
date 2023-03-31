@@ -10,7 +10,7 @@ from event_service_gui.services import (
     RaceclassesAdapter,
     RaceplansAdapter,
 )
-from .utils import check_login, check_login_open, get_event
+from .utils import check_login, check_login_open, create_start, get_event
 
 
 class Contestants(web.View):
@@ -198,15 +198,17 @@ class Contestants(web.View):
 
 
 async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
-    """Load contestants from form."""
+    """Load contestants from form. Place in startlist if relevant."""
     url = ""
     informasjon = ""
+    klasse = ""
     request_body = get_contestant_from_form(event_id, form)  # type: ignore
     if "create_one" in form.keys():
+        # 1. Add contestant
         id = await ContestantsAdapter().create_contestant(token, event_id, request_body)
         logging.debug(f"Etteranmelding {id}")
         informasjon = f"Deltaker med startnr {request_body['bib']} er lagt til."
-        informasjon += " Plasser løper i ønsket heat."
+        # 2. Update number of contestants in raceclass
         raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
         for raceclass in raceclasses:
             if request_body["ageclass"] in raceclass["ageclasses"]:
@@ -217,10 +219,44 @@ async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
                     token, event_id, raceclass["id"], raceclass
                 )
                 logging.debug(f"Participant count updated: {result}")
-                # redirect user to correct page to add start entry
-                info = f"klasse={klasse}&event_id={event_id}"
-                info += f"&informasjon={informasjon}"
-                url = f"{form['url']}/start_edit?{info}"  # type: ignore
+
+                # 3. Add contestant to startlist in quarter final with lowest number of participants
+                races = await RaceplansAdapter().get_races_by_racesclass(
+                    token, event_id, klasse
+                )
+                if races and races[0]["start_entries"]:
+                    first_race = await RaceplansAdapter().get_race_by_id(
+                        token, races[0]["id"]
+                    )
+                    start_min_count = 999
+                    new_start = {
+                        "event_id": event_id,
+                        "bib": int(request_body["bib"]),
+                        "startlist_id": first_race["start_entries"][0]["startlist_id"],
+                        "race_id": "",
+                        "round": "",
+                        "starting_position": 0,
+                        "start_time": "",
+                    }
+                    for race in races:
+                        if race["round"] in ["Q", "R1"]:
+                            if race["no_of_contestants"] < start_min_count:
+                                start_min_count = race["no_of_contestants"]
+                                new_start["race_id"] = race["id"]
+                                new_start["round"] = race["round"]
+                                new_start["starting_position"] = (
+                                    len(race["start_entries"]) + 1
+                                )
+                                new_start["start_time"] = race["start_time"]
+                    user = {"token": token}
+                    informasjon += await create_start(user, new_start)  # type: ignore
+
+                    # TODO - need to handle R2 scenario
+    # redirect user to correct page to add start entry
+    info = f"event_id={event_id}"
+    info += f"&informasjon={informasjon}"
+    url = f"/contestants?action=new_manual&{info}"  # type: ignore
+
     return url
 
 
