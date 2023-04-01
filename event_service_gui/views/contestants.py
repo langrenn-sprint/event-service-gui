@@ -197,17 +197,60 @@ class Contestants(web.View):
         return web.HTTPSeeOther(location=f"/contestants?event_id={event_id}&{info}")
 
 
+async def add_to_startlist(token: str, event_id: str, klasse: str, bib: int) -> str:
+    """Add contestant to startlist in quarter final with lowest number of participants."""
+    informasjon = ""
+    races = await RaceplansAdapter().get_races_by_racesclass(token, event_id, klasse)
+    if races and races[0]["start_entries"]:
+        first_race = await RaceplansAdapter().get_race_by_id(token, races[0]["id"])
+        start_min_count = 999
+        new_start = {
+            "event_id": event_id,
+            "bib": bib,
+            "startlist_id": first_race["start_entries"][0]["startlist_id"],
+            "race_id": "",
+            "round": "",
+            "starting_position": 0,
+            "start_time": "",
+        }
+        user = {"token": token}
+        for race in races:
+            if race["round"] in ["Q", "R1"]:
+                if race["no_of_contestants"] < start_min_count:
+                    start_min_count = race["no_of_contestants"]
+                    new_start["race_id"] = race["id"]
+                    new_start["round"] = race["round"]
+                    new_start["starting_position"] = len(race["start_entries"]) + 1
+                    new_start["start_time"] = race["start_time"]
+        informasjon += await create_start(user, new_start)  # type: ignore
+
+        # Handle R2 scenario
+        if new_start["round"] == "R1":
+            for race in races:
+                if race["round"] in ["R2"]:
+                    if race["no_of_contestants"] <= start_min_count:
+                        start_min_count = race["no_of_contestants"]
+                        new_start["race_id"] = race["id"]
+                        new_start["round"] = race["round"]
+                        new_start["starting_position"] = len(race["start_entries"]) + 1
+                        new_start["start_time"] = race["start_time"]
+            informasjon += await create_start(user, new_start)  # type: ignore
+
+    return informasjon
+
+
 async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
     """Load contestants from form. Place in startlist if relevant."""
     url = ""
     informasjon = ""
     klasse = ""
     request_body = get_contestant_from_form(event_id, form)  # type: ignore
+    bib = request_body["bib"]
     if "create_one" in form.keys():
         # 1. Add contestant
         id = await ContestantsAdapter().create_contestant(token, event_id, request_body)
         logging.debug(f"Etteranmelding {id}")
-        informasjon = f"Deltaker med startnr {request_body['bib']} er lagt til."
+        informasjon = f"Deltaker med startnr {bib} er lagt til."
         # 2. Update number of contestants in raceclass
         raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
         for raceclass in raceclasses:
@@ -221,37 +264,8 @@ async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
                 logging.debug(f"Participant count updated: {result}")
 
                 # 3. Add contestant to startlist in quarter final with lowest number of participants
-                races = await RaceplansAdapter().get_races_by_racesclass(
-                    token, event_id, klasse
-                )
-                if races and races[0]["start_entries"]:
-                    first_race = await RaceplansAdapter().get_race_by_id(
-                        token, races[0]["id"]
-                    )
-                    start_min_count = 999
-                    new_start = {
-                        "event_id": event_id,
-                        "bib": int(request_body["bib"]),
-                        "startlist_id": first_race["start_entries"][0]["startlist_id"],
-                        "race_id": "",
-                        "round": "",
-                        "starting_position": 0,
-                        "start_time": "",
-                    }
-                    for race in races:
-                        if race["round"] in ["Q", "R1"]:
-                            if race["no_of_contestants"] < start_min_count:
-                                start_min_count = race["no_of_contestants"]
-                                new_start["race_id"] = race["id"]
-                                new_start["round"] = race["round"]
-                                new_start["starting_position"] = (
-                                    len(race["start_entries"]) + 1
-                                )
-                                new_start["start_time"] = race["start_time"]
-                    user = {"token": token}
-                    informasjon += await create_start(user, new_start)  # type: ignore
+                informasjon += await add_to_startlist(token, event_id, klasse, bib)
 
-                    # TODO - need to handle R2 scenario
     # redirect user to correct page to add start entry
     info = f"event_id={event_id}"
     info += f"&informasjon={informasjon}"

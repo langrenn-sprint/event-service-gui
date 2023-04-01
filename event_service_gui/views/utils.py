@@ -479,7 +479,7 @@ async def create_start(user: dict, form: dict) -> str:
 
         id = await StartAdapter().create_start_entry(user["token"], new_start)
         logging.debug(f"create_start {id} - {new_start}")
-        informasjon = f" Lagt til nr {bib} i startlistte, start kl {form['start_time']}"
+        informasjon = f" Start kl {form['start_time'][-8:]}"
 
         # update previous result with correct "videre til"
         time_events = await TimeEventsAdapter().get_time_events_by_event_id_and_bib(
