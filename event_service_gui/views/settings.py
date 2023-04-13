@@ -106,14 +106,9 @@ class Settings(web.View):
                     user["token"], "default_interval_start"
                 )
             elif "update" in form.keys():
-
                 if form["datatype"] == "individual_sprint":
-                    rounds_ranked_classes = form["rounds_ranked_classes"].replace(
-                        "'", '"'
-                    )
-                    rounds_non_ranked_classes = form[
-                        "rounds_non_ranked_classes"
-                    ].replace("'", '"')
+                    rounds_ranked_classes = form["rounds_ranked_classes"].replace("'", '"')  # type: ignore
+                    rounds_non_ranked_classes = form["rounds_non_ranked_classes"].replace("'", '"')  # type: ignore
                     request_body = {
                         "id": str(form["id"]),
                         "name": str(form["name"]),
@@ -133,10 +128,8 @@ class Settings(web.View):
                         "rounds_non_ranked_classes": json.loads(
                             rounds_non_ranked_classes
                         ),
-                        "race_config_ranked": get_config_from_form(form, "ranked"),
-                        "race_config_non_ranked": get_config_from_form(
-                            form, "non_ranked"
-                        ),
+                        "race_config_ranked": get_config_from_form(form, "ranked"),  # type: ignore
+                        "race_config_non_ranked": get_config_from_form(form, "non_ranked"),  # type: ignore
                     }
                 elif form["datatype"] == "interval_start":
                     request_body = {

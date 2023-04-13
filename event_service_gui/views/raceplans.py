@@ -160,7 +160,7 @@ class Raceplans(web.View):
                 )
                 action = "edit_time"
             elif "set_rest_time" in form.keys():
-                min_rest_time = int(form["min_rest_time"])
+                min_rest_time = int(form["min_rest_time"])  # type: ignore
                 informasjon = await set_min_rest_time(
                     user["token"], event_id, min_rest_time
                 )
