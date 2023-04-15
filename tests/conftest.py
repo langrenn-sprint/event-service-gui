@@ -7,7 +7,7 @@ from typing import Any
 from aiohttp.test_utils import TestClient as _TestClient
 import pytest
 import requests
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, Timeout
 
 from event_service_gui import create_app
 
@@ -30,6 +30,8 @@ def is_responsive(url: Any) -> Any:
         if response.status_code == 200:
             time.sleep(2)  # sleep extra 2 sec
             return True
+    except Timeout:
+        return False
     except ConnectionError:
         return False
 
@@ -39,7 +41,7 @@ def is_responsive(url: Any) -> Any:
 def http_service(docker_ip: Any, docker_services: Any) -> Any:
     """Ensure that HTTP service is up and responsive."""
     # `port_for` takes a container port and returns the corresponding host port
-    port = docker_services.port_for("event-service", HOST_PORT)
+    port = docker_services.port_for("event-service-gui", HOST_PORT)
     url = "http://{}:{}".format(docker_ip, port)
     docker_services.wait_until_responsive(
         timeout=30.0, pause=0.1, check=lambda: is_responsive(url)
