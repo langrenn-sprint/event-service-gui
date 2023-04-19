@@ -224,10 +224,10 @@
       {% else %}
         <td></td>
         <td>
-          <form action=/contestants method=get>
+          <form action=/seeding method=get>
             <input type="hidden" name=event_id value="{{ event_id }}">
-            <input type="hidden" name=action value="seeding">
-            <input type="submit" name=seeding value="  Utfør seeding  ">
+            <input type="hidden" name=action value="seeding_points">
+            <input type="submit" value="  Utfør seeding  ">
           </form>
         </td>
         <td></td>
@@ -313,7 +313,7 @@
     <td>Opprydding</td>
     <td>"Danger-zone"</td>
     <td>
-      {% if not task_status.done_6 %}
+      {% if not task_status.done_8 %}
       <form action=/raceclasses method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle løpsklasser.');">
         <input type="hidden" name="event_id" value="{{ event_id }}">
         <input type="submit" id="delete_all_classes" name="delete_all" value="  Slett alle klasser  " onclick=save_message(this.id);>
@@ -323,24 +323,24 @@
         <input type="hidden" name="event_id" value="{{ event_id }}">
         <input type="submit" id="delete_all_cont" name=delete_all value="  Slett alle deltakere  " onclick=save_message(this.id);>
       </form>
-      {% endif %}
-      {% if not task_status.done_8 %}
       <div id=minispacer></div>
       <form action=/raceplans method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle kjøreplaner.');">
         <input type="hidden" name="event_id" value="{{ event_id }}">
         <input type="submit" id="delete_all" name="delete_all" value="  Slett alle kjøreplaner  " onclick=save_message(this.id);>
       </form>
       {% endif %}
-      <div id=minispacer></div>
-      <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle startlister.');">
-        <input type="hidden" name="event_id" value="{{ event_id }}">
-        <input type="submit" id="delete_start_lists" name="delete_start_lists" value="  Slett alle startlister  " onclick=save_message(this.id);>
-      </form>
-      <div id=minispacer></div>
-      <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle passeringer.');">
-        <input type="hidden" name="event_id" value="{{ event_id }}">
-        <input type="submit" id="delete_time_events" name="delete_time_events" value="  Slett alle passeringer  " onclick=save_message(this.id);>
-      </form>
+      {% if task_status.done_8 %}
+        <div id=minispacer></div>
+        <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle startlister.');">
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="submit" id="delete_start_lists" name="delete_start_lists" value="  Slett alle startlister  " onclick=save_message(this.id);>
+        </form>
+        <div id=minispacer></div>
+        <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle passeringer.');">
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="submit" id="delete_time_events" name="delete_time_events" value="  Slett alle passeringer  " onclick=save_message(this.id);>
+        </form>
+        {% endif %}
     </td>
     <td>Mulighet til å slette all registrert informasjon på arrangementet.</td>
   </tr>

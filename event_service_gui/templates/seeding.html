@@ -1,0 +1,172 @@
+{% extends "open_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-10"></div>
+  <div class="w3-80">
+{% endblock %}
+{% block titleheader %}{{ lopsinfo }}{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_new.png"> {{ lopsinfo }}{% endblock %}
+{% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_new.png"> {% endblock %}
+{% block refresh %}{% endblock %}
+{% block menuitems %}
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
+    <div class=dropdown-content>
+      <a href=/seeding?event_id={{ event_id }}&action={{ action }}>Alle</a>
+      {% for klasse in raceclasses %}
+        {% for ageclass_name in klasse.ageclasses %}
+          <a href=/seeding?event_id={{ event_id }}&klasse={{ klasse.name }}&action={{ action }}>{{ ageclass_name }}</a>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </li>
+{% endblock %}
+
+{% block content %}
+  <script>
+    function green_bg(my_element) {
+      try {
+        old_element = my_element.oldvalue;
+        document.getElementById(old_element).style.backgroundColor = "";
+        document.getElementById("n_" + old_element).style.backgroundColor = "";
+      }
+      catch(err) {
+      }
+      try {
+        new_element = my_element.value;
+        document.getElementById("n_" + new_element).style.backgroundColor = "green";
+        document.getElementById(new_element).value = my_element.id;
+        document.getElementById("n_" + my_element.id).style.backgroundColor = "green";
+        my_element.style.backgroundColor = "";
+      }
+      catch(err) {
+        if (my_element.value != "") {
+            my_element.style.backgroundColor = "red";
+        }
+      }
+      return true;
+    }
+  </script>
+  {% for info in info_list %}
+    <div class="w3-container" id=info>{{ info }}</div>
+  {% endfor %}
+    <table>
+      <tr>
+        <td>
+          <form action=/tasks method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
+          </form>
+        </td>
+        <td>Antall deltakere: {{ contestants|length }}</td>
+      </tr>
+    </table>
+    {% if valgt_klasse %}
+        <table>
+            <tr align=center>
+                <td>
+                    <form action=/seeding method=get>
+                        <input type="hidden" name=event_id value="{{ event_id }}">
+                        <input type="hidden" name=action value="seeding_points">
+                        <input type="hidden" name=klasse value={{ valgt_klasse }}>
+                        <input type="submit" name=seeding value="  Legg inn seeding-poeng  ">
+                    </form>
+                </td>
+                <td>
+                    <form action=/seeding method=get>
+                        <input type="hidden" name=event_id value="{{ event_id }}">
+                        <input type="hidden" name=action value="seeding_manual">
+                        <input type="hidden" name=klasse value={{ valgt_klasse }}>
+                        <input type="submit" name=seeding value="  Manuell innplassering i heat  ">
+                    </form>
+                </td>
+            </tr>
+        </table>
+    {% endif %}
+        <div id=spacer>&nbsp;</div>
+          <div id=info-zone>
+            <b>TIPS</b><br>
+            Seeding kan gjøres på to måter (1) automatisk ved å bruke seeding_informasjon eller (2) ved manuelt å flytte løpere mellom heat.<br>
+            1. Automatisk seeding - dette utføres ved.<br>
+            - Velg klasse først og utfør seeding for en klasse om gangen.<br>
+          </div>
+          <div id=spacer>&nbsp;</div>
+          <form action=/seeding method=post>
+            {% if valgt_klasse %}
+                <div>
+                    &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  ">
+                    <input type="hidden" name=klasse value={{ valgt_klasse }}>
+                </div>
+            {% endif %}
+          <div id=spacer>&nbsp;</div>
+        <table>
+          <tr id=headerblue>
+            <td>Startnr</td>
+            <td>
+                {% if  action == "seeding_manual"%}
+                    Nytt startnr
+                {% endif %}
+            </td>
+            <td>Seeding</td>
+            <td></td>
+            <td>Navn</td>
+            <td>Klubb</td>
+            <td>Født</td>
+            <td></td>
+            <td>Klasse</td>
+            <td>Region</td>
+            <td>Idrettsnr</td>
+          </tr>
+          {% for contestant in contestants %}
+            <tr>
+                <td id=n_{{ contestant.bib }}>{{ contestant.bib }}</td>
+                <td>
+                    {% if  action == "seeding_manual"%}
+                        <input id={{ contestant.bib }} type=number name="bib_{{ contestant.id }}" value="" min="1" max="9999" size=4 onfocus="this.oldvalue = this.value;" onchange="green_bg(this)">
+                    {% endif %}
+                    <input type="hidden" name="id_{{ contestant.id }}" value="{{ contestant.id }}">
+                    <input type="hidden" name="old_bib_{{ contestant.id }}" value="{{ contestant.bib }}">
+                </td>
+                <td>
+                    {% if  action == "seeding_points"%}
+                        <input id={{ contestant.bib }} type=number name="seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4 onfocus="this.oldvalue = this.value;">
+                        <input type="hidden" name="old_seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}">
+                    {% else %}
+                        {{ contestant.seeding_points }}
+                    {% endif %}
+                    </td>
+                <td></td>
+                <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
+                <td>{{ contestant.club }}{% if contestant.team %} / {{ contestant.team }}{% endif %}</td>
+                <td>{{ contestant.birth_date }}</td>
+                <td>{{ contestant.gender }}</td>
+                <td>{{ contestant.ageclass }}</td>
+                <td>{{ contestant.region }}</td>
+                <td>{{ contestant.minidrett_id }}</td>
+            </tr>
+            {% if loop.index in heat_separators %}
+              <tr>
+                <td colspan=11 align="center"><b>-- nytt heat --</b></td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </table>
+        {% if valgt_klasse %}
+          <div>
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  ">
+            <input type="hidden" name=action value={{ action }}>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+          </div>
+          </form>
+        {% endif %}
+    <table>
+    <tr>
+        <td>
+            <form action=/tasks method=get>
+                <input type="hidden" name=event_id value="{{ event_id }}">
+                <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
+              </form>
+        </td>
+        <td>Antall deltakere: {{ contestants|length }}</td>
+    </tr>
+    </table>
+  {% endblock %}

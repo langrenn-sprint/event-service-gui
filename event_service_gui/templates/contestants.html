@@ -11,10 +11,14 @@
   <li class=dropdown id=topborder>
     <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
     <div class=dropdown-content>
-      <a href=/contestants?event_id={{ event_id }}&action={{ action }}>Alle</a>
+      <a href=/contestants?event_id={{ event_id }}>Alle</a>
       {% for klasse in raceclasses %}
         {% for ageclass_name in klasse.ageclasses %}
-          <a href=/contestants?event_id={{ event_id }}&klasse={{ klasse.name }}&action={{ action }}>{{ ageclass_name }}</a>
+          {% if action == "new_manual" %}
+            <a href=/contestants?event_id={{ event_id }}&klasse={{ klasse.name }}>{{ ageclass_name }}</a>
+          {% else %}
+            <a href=/contestants?event_id={{ event_id }}&klasse={{ klasse.name }}&action={{ action }}>{{ ageclass_name }}</a>
+          {% endif %}
         {% endfor %}
       {% endfor %}
     </div>
@@ -27,30 +31,6 @@
 {% endblock %}
 
 {% block content %}
-  <script>
-    function green_bg(my_element) {
-      try {
-        old_element = my_element.oldvalue;
-        document.getElementById(old_element).style.backgroundColor = "";
-        document.getElementById("n_" + old_element).style.backgroundColor = "";
-      }
-      catch(err) {
-      }
-      try {
-        new_element = my_element.value;
-        document.getElementById("n_" + new_element).style.backgroundColor = "green";
-        document.getElementById(new_element).value = my_element.id;
-        document.getElementById("n_" + my_element.id).style.backgroundColor = "green";
-        my_element.style.backgroundColor = "";
-      }
-      catch(err) {
-        if (my_element.value != "") {
-            my_element.style.backgroundColor = "red";
-        }
-      }
-      return true;
-    }
-  </script>
   {% for info in info_list %}
     <div class="w3-container" id=info>{{ info }}</div>
   {% endfor %}
@@ -124,14 +104,6 @@
             <td>
               <form action=/contestants method=get>
                 <input type="hidden" name=event_id value="{{ event_id }}">
-                <input type="hidden" name=action value="seeding">
-                <input type="hidden" name=klasse value={{ valgt_klasse }}>
-                <input type="submit" name=seeding value="  Manuell seeding  ">
-              </form>
-            </td>
-            <td>
-              <form action=/contestants method=get>
-                <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="delete_select">
                 <input type="hidden" name=klasse value={{ valgt_klasse }}>
                 <input type="submit" name=delete_select value="  Slett deltakere  ">
@@ -141,26 +113,13 @@
         </table>
 
     {% endif %}
-    {% if  action in ["edit_mode", "seeding", "delete_select"] %}
+    {% if  action in ["edit_mode", "delete_select"] %}
         <div id=spacer>&nbsp;</div>
         {% if action == "delete_select" %}
           <form action=/contestants method=post>
           <div>
             &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
             <input type="hidden" name=action value={{ action }}>
-          </div>
-          <div id=spacer>&nbsp;</div>
-        {% elif action == "seeding" %}
-          <div id=info-zone>
-            <b>TIPS</b><br>
-            - Seeding utføres manuelt ved å "bytte" startnummer. Løpere som er gruppert sammen vil bli satt opp i samme heat når startlister generes.<br>
-            - Velg klasse først og utfør seeding for en klasse om gangen.<br>
-          </div>
-          <div id=spacer>&nbsp;</div>
-          <form action=/contestants method=post>
-          <div>
-            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  ">
-            <input type="hidden" name=klasse value={{ valgt_klasse }}>
           </div>
           <div id=spacer>&nbsp;</div>
         {% endif %}
@@ -192,17 +151,6 @@
                     <input type="hidden" name="event_id" value="{{ event_id }}">
                   </form>
                 </td>
-              {% elif  action == "seeding"%}
-                <td id=n_{{ contestant.bib }}>{{ contestant.bib }}</td>
-                <td>
-                  <input id={{ contestant.bib }} type=number name="bib_{{ contestant.id }}" value="" min="1" max="9999" size=4 onfocus="this.oldvalue = this.value;" onchange="green_bg(this)">
-                  <input type="hidden" name="id_{{ contestant.id }}" value="{{ contestant.id }}">
-                  <input type="hidden" name="old_bib_{{ contestant.id }}" value="{{ contestant.bib }}">
-                  <input type=hidden name="seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4>
-                  <input type="hidden" name="old_seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}">
-                </td>
-                <td>{{ contestant.seeding_points }}</td>
-                <td></td>
               {% else %}
                 <td>{{ contestant.bib }}</td>
                 <td></td>
@@ -219,24 +167,12 @@
               <td>{{ contestant.region }}</td>
               <td>{{ contestant.minidrett_id }}</td>
             </tr>
-            {% if loop.index in heat_separators %}
-              <tr>
-                <td colspan=11 align="center"><b>-- nytt heat --</b></td>
-              </tr>
-            {% endif %}
           {% endfor %}
         </table>
         {% if action == "delete_select" %}
           <div>
             &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
             <input type="hidden" name=action value="delete select">
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-          </div>
-          </form>
-        {% elif action == "seeding" %}
-          <div>
-            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  ">
-            <input type="hidden" name=action value="seeding">
             <input type="hidden" name="event_id" value="{{ event_id }}">
           </div>
           </form>
@@ -465,9 +401,9 @@
       <table>
         <tr>
           <td>
-            <form action=/tasks method=get target=new>
+            <form action=/tasks method=get>
               <input type="hidden" name=event_id value="{{ event_id }}">
-              <input type="submit" name="to_tasks" value="  Tilbake til rennforberedelser  ">
+              <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
             </form>
           </td>
           <td>Antall deltakere: {{ contestants|length }}</td>

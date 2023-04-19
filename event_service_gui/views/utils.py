@@ -9,6 +9,7 @@ from event_service_gui.services import (
     CompetitionFormatAdapter,
     ContestantsAdapter,
     EventsAdapter,
+    RaceclassesAdapter,
     RaceplansAdapter,
     StartAdapter,
     TimeEventsAdapter,
@@ -509,3 +510,129 @@ async def create_start(user: dict, form: dict) -> str:
     else:
         informasjon = f"Error. Fant ikke deltaker med startnr {form['bib']}."
     return informasjon
+
+
+async def swap_bibs(token: str, event_id: str, bib1: int, bib2: int) -> str:
+    """Swap bibs."""
+    informasjon = ""
+    if bib1 != bib2:
+        contestant1 = await ContestantsAdapter().get_contestant_by_bib(
+            token, event_id, bib1
+        )
+        if contestant1:
+            contestant1["bib"] = None
+            result = await ContestantsAdapter().update_contestant(
+                token, event_id, contestant1
+            )
+
+            # give bib1 to contestant2
+            contestant2 = await ContestantsAdapter().get_contestant_by_bib(
+                token, event_id, bib2
+            )
+            if contestant2:
+                contestant2["bib"] = int(bib1)
+                result = await ContestantsAdapter().update_contestant(
+                    token, event_id, contestant2
+                )
+                logging.debug(result)
+
+                # give bib2 to contestant1
+                contestant1["bib"] = int(bib2)
+                result = await ContestantsAdapter().update_contestant(
+                    token, event_id, contestant1
+                )
+                logging.debug(result)
+                informasjon += f"Bibs swapped: {bib1} <> {bib2}. "
+            else:
+                informasjon += f"Bib {bib1} not found. "
+        else:
+            informasjon += f"Bib {bib1} not found. "
+
+    return informasjon
+
+
+async def add_seeding_points(token: str, event_id: str, form: dict) -> str:
+    """Load seeding points from form and update changes"""
+    informasjon = "Seeding oppdatert: "
+    for key in form.keys():
+        if key.startswith("seeding_points_"):
+            new_seeding_points = form[key]
+            old_seeding_points = form[f"old_{key}"]
+            if not new_seeding_points:
+                new_seeding_points = ""
+            if not old_seeding_points:
+                old_seeding_points = ""
+            if new_seeding_points != old_seeding_points:
+                contestant_id = key[15:]
+                contestant = await ContestantsAdapter().get_contestant(
+                    token, event_id, contestant_id
+                )
+                if new_seeding_points.isnumeric():
+                    contestant["seeding_points"] = int(new_seeding_points)
+                else:
+                    contestant["seeding_points"] = None
+                result = await ContestantsAdapter().update_contestant(
+                    token, event_id, contestant
+                )
+                logging.debug(result)
+                informasjon += f"{contestant['bib']} {contestant['last_name']}. "
+    return informasjon
+
+
+async def perform_seeding(token: str, event_id: str, valgt_klasse: str) -> str:
+    """Assign bibs according to seeding points, low point is best."""
+    informasjon = ""
+    # if raceclass is missing, do seeding for all raceclasses
+    raceclass_list = []
+    if not valgt_klasse:
+        raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
+        for _raceclass in raceclasses:
+            raceclass_list.append(_raceclass["name"])
+    else:
+        raceclass_list.append(valgt_klasse)
+
+    for seeding_raceclass in raceclass_list:
+        contestants = await ContestantsAdapter().get_contestants_by_raceclass(
+            token, event_id, seeding_raceclass
+        )
+        # sort seeded contestants by seeding points, lowest seeding is best - ignore contestants with no seeding points
+        seeded_contestants = [x for x in contestants if x["seeding_points"]]
+        seeded_contestants.sort(key=lambda x: x["seeding_points"])
+
+        # get count of participants in each heat and number of heats
+        heat_separators = await get_heat_separators(token, event_id, seeding_raceclass)
+        no_of_heats = len(heat_separators)
+
+        # calculate who to swap and do the bib swap
+        seeding_index = 0
+        for seeded_contestant in seeded_contestants:
+            # heat is modulo of seeding_index and no_of_heats and position is rest of division
+            heat = seeding_index % no_of_heats
+            position = seeding_index // no_of_heats
+            if heat == 0:
+                new_bib_index = position
+            else:
+                new_bib_index = heat_separators[heat - 1] + position
+            new_bib = contestants[new_bib_index]["bib"]
+            # get latest bib from db - contestant by id
+            latest_seeded_contestant = await ContestantsAdapter().get_contestant(
+                token, event_id, seeded_contestant["id"]
+            )
+            old_bib = latest_seeded_contestant["bib"]
+            informasjon += await swap_bibs(token, event_id, new_bib, old_bib)
+            seeding_index += 1
+    if len(raceclass_list) > 1:
+        informasjon = "<br>Alle klasser er seedet basert på innleste seeding poeng."
+    return informasjon
+
+
+async def get_heat_separators(token: str, event_id: str, raceclass: str) -> list:
+    """Indicate how many racers that will be placed in same heat."""
+    heat_separators = []
+    races = await RaceplansAdapter().get_races_by_racesclass(token, event_id, raceclass)
+    count = 0
+    for race in races:
+        if race["round"] == "Q":
+            count += race["no_of_contestants"]
+            heat_separators.append(count)
+    return heat_separators

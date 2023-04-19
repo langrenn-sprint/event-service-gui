@@ -10,6 +10,7 @@ from .main import Main
 from .print_contestants import PrintContestants
 from .raceclasses import Raceclasses
 from .raceplans import Raceplans
+from .seeding import Seeding
 from .settings import Settings
 from .tasks import Tasks
 from .users import Users
