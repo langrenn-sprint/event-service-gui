@@ -552,7 +552,7 @@ async def swap_bibs(token: str, event_id: str, bib1: int, bib2: int) -> str:
 
 
 async def add_seeding_points(token: str, event_id: str, form: dict) -> str:
-    """Load seeding points from form and update changes"""
+    """Load seeding points from form and update changes."""
     informasjon = "Seeding oppdatert: "
     for key in form.keys():
         if key.startswith("seeding_points_"):
