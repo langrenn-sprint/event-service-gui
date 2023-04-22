@@ -10,7 +10,13 @@ from event_service_gui.services import (
     RaceclassesAdapter,
     RaceplansAdapter,
 )
-from .utils import check_login, check_login_open, create_start, get_event
+from .utils import (
+    check_login,
+    check_login_open,
+    create_start,
+    get_event,
+    perform_seeding,
+)
 
 
 class Contestants(web.View):
@@ -20,7 +26,6 @@ class Contestants(web.View):
         """Get route function that return the index page."""
         action = ""
         available_bib = 0
-        heat_separators = []
         try:
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
@@ -65,8 +70,6 @@ class Contestants(web.View):
             if valgt_klasse == "":
                 if action == "new_manual":
                     available_bib = await get_available_bib(user["token"], event_id)
-                elif action == "seeding":
-                    informasjon = "Velg klasse for å utføre seeding."
                 else:
                     contestants = await ContestantsAdapter().get_all_contestants(
                         user["token"], event_id
@@ -76,9 +79,6 @@ class Contestants(web.View):
                     await ContestantsAdapter().get_all_contestants_by_raceclass(
                         user["token"], event_id, valgt_klasse
                     )
-                )
-                heat_separators = await get_heat_separators(
-                    user["token"], event_id, valgt_klasse
                 )
             for tmp_contestant in contestants:
                 tmp_contestant["club_logo"] = EventsAdapter().get_club_logo_url(
@@ -94,7 +94,6 @@ class Contestants(web.View):
                     "event": event,
                     "event_id": event_id,
                     "available_bib": available_bib,
-                    "heat_separators": heat_separators,
                     "info_list": info_list,
                     "informasjon": informasjon,
                     "raceclasses": raceclasses,
@@ -123,10 +122,13 @@ class Contestants(web.View):
             except Exception:
                 action = ""  # noqa: F841
 
-            # Create new deltakere
+            # Assign bibs and perform seeding
             if "assign_bibs" in form.keys():
                 informasjon = await ContestantsAdapter().assign_bibs(
                     user["token"], event_id
+                )
+                informasjon += await perform_seeding(
+                    user["token"], event_id, valgt_klasse
                 )
                 return web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
@@ -139,10 +141,6 @@ class Contestants(web.View):
                 allowed_filetypes = ["text/csv", "application/vnd.ms-excel"]
                 if "excel_manual" in file.filename:  # type: ignore
                     informasjon = await create_contestants_from_excel(
-                        user["token"], event_id, text_file
-                    )
-                elif "seeding_manual" in file.filename:  # type: ignore
-                    informasjon = await add_seeding_from_excel(
                         user["token"], event_id, text_file
                     )
                 elif file.content_type in allowed_filetypes:  # type: ignore
@@ -181,9 +179,6 @@ class Contestants(web.View):
                     user["token"], event_id
                 )
                 informasjon = f"Deltakerne er slettet - {result}"
-            elif "seeding" in form.keys():
-                informasjon = await add_seeding_from_form(user["token"], event_id, form)  # type: ignore
-                valgt_klasse = str(form["klasse"])
         except Exception as e:
             logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
@@ -306,85 +301,6 @@ def get_contestant_from_form(event_id: str, form: dict) -> dict:
         "bib": bib,
     }
     return contestant
-
-
-async def get_heat_separators(token: str, event_id: str, raceclass: str) -> list:
-    """Indicate how many racers that will be placed in same heat."""
-    heat_separators = []
-    races = await RaceplansAdapter().get_races_by_racesclass(token, event_id, raceclass)
-    count = 0
-    for race in races:
-        if race["round"] == "Q":
-            count += race["no_of_contestants"]
-            heat_separators.append(count)
-    return heat_separators
-
-
-async def add_seeding_from_form(token: str, event_id: str, form: dict) -> str:
-    """Load seeding info from form and swap BIB."""
-    informasjon = "Seeding oppdatert: "
-    for key in form.keys():
-        if key.startswith("bib_"):
-            new_bib = form[key]
-            if new_bib.isnumeric():
-                # check if bib is already in use and free it
-                old_contestant = await ContestantsAdapter().get_contestant_by_bib(
-                    token, event_id, new_bib
-                )
-                if old_contestant:
-                    old_contestant["bib"] = None
-                    result = await ContestantsAdapter().update_contestant(
-                        token, event_id, old_contestant
-                    )
-
-                # give bib to new contestant
-                contestant_id = key[4:]
-                contestant = await ContestantsAdapter().get_contestant(
-                    token, event_id, contestant_id
-                )
-                contestant["bib"] = int(new_bib)
-                result = await ContestantsAdapter().update_contestant(
-                    token, event_id, contestant
-                )
-                logging.debug(result)
-                informasjon += f"{contestant['bib']} {contestant['last_name']}. "
-    return informasjon
-
-
-async def add_seeding_from_excel(token: str, event_id: str, file) -> str:
-    """Load seeding info from excel-file."""
-    informasjon = ""
-    index_row = 0
-    headers = {}
-    i_contestants = 0
-    contestants = await ContestantsAdapter().get_all_contestants(token, event_id)
-    for oneline in file.readlines():
-        index_row += 1
-        str_oneline = str(oneline)
-        str_oneline = str_oneline.replace("b'", "")
-        elements = str_oneline.split(";")
-        # identify headers
-        if index_row == 1:
-            index_column = 0
-            for element in elements:
-                headers[element] = index_column
-                index_column += 1
-        else:
-            minidrett_id = elements[headers["Idrettnr"]]
-            if minidrett_id and len(minidrett_id) > 0:
-                for contestant in contestants:
-                    if contestant["minidrett_id"] == minidrett_id:
-                        contestant["seeding_points"] = elements[headers["Seedet"]]
-                        result = await ContestantsAdapter().update_contestant(
-                            token, event_id, contestant
-                        )
-                        logging.debug(
-                            f"Added seeding for contestant {contestant['id']} - {result}"
-                        )
-                        i_contestants += 1
-                        break
-        informasjon = f"Deltakere er opprettet - {i_contestants} totalt"
-    return informasjon
 
 
 async def get_available_bib(token: str, event_id: str) -> int:
