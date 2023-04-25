@@ -553,15 +553,14 @@ async def swap_bibs(token: str, event_id: str, bib1: int, bib2: int) -> str:
 
 async def add_seeding_points(token: str, event_id: str, form: dict) -> str:
     """Load seeding points from form and update changes."""
-    informasjon = "Seeding oppdatert: "
+    informasjon = "Seeding poeng oppdatert: "
     for key in form.keys():
         if key.startswith("seeding_points_"):
             new_seeding_points = form[key]
             old_seeding_points = form[f"old_{key}"]
-            breakpoint()
-            if not new_seeding_points:
+            if new_seeding_points in ["", "None", None]:
                 new_seeding_points = ""
-            if not old_seeding_points:
+            if old_seeding_points in ["", "None", None]:
                 old_seeding_points = ""
             if new_seeding_points != old_seeding_points:
                 contestant_id = key[15:]
@@ -576,7 +575,7 @@ async def add_seeding_points(token: str, event_id: str, form: dict) -> str:
                     token, event_id, contestant
                 )
                 logging.debug(result)
-                informasjon += f"{contestant['bib']} {contestant['last_name']}. "
+                informasjon += f"{contestant['first_name']} {contestant['last_name']}. "
     return informasjon
 
 
