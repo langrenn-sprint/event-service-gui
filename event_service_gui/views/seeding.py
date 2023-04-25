@@ -145,7 +145,7 @@ class Seeding(web.View):
 
 async def add_seeding_from_form(token: str, event_id: str, form: dict) -> str:
     """Load seeding info from form and swap BIB."""
-    informasjon = "Seeding oppdatert: "
+    informasjon = "Flyttet på løpere: "
     for key in form.keys():
         if key.startswith("bib_"):
             new_bib = form[key]
