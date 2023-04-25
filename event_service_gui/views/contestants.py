@@ -117,6 +117,7 @@ class Contestants(web.View):
             form = await self.request.post()
             logging.debug(f"Form {form}")
             event_id = str(form["event_id"])
+            event = await get_event(user["token"], event_id)
             try:
                 action = str(form["action"])
             except Exception:
@@ -153,10 +154,10 @@ class Contestants(web.View):
                     location=f"/contestants?event_id={event_id}&informasjon={informasjon}"
                 )
             elif "create_one" in form.keys():
-                url = await create_one_contestant(user["token"], event_id, form)  # type: ignore
+                url = await create_one_contestant(user["token"], event, form)  # type: ignore
                 return web.HTTPSeeOther(location=url)  # type: ignore
             elif "update_one" in form.keys():
-                request_body = get_contestant_from_form(event_id, form)  # type: ignore
+                request_body = get_contestant_from_form(event, form)  # type: ignore
                 request_body["id"] = str(form["id"])
                 result = await ContestantsAdapter().update_contestant(
                     user["token"], event_id, request_body
@@ -234,42 +235,44 @@ async def add_to_startlist(token: str, event_id: str, klasse: str, bib: int) -> 
     return informasjon
 
 
-async def create_one_contestant(token: str, event_id: str, form: dict) -> str:
+async def create_one_contestant(token: str, event: dict, form: dict) -> str:
     """Load contestants from form. Place in startlist if relevant."""
     url = ""
     informasjon = ""
     klasse = ""
-    request_body = get_contestant_from_form(event_id, form)  # type: ignore
+    request_body = get_contestant_from_form(event, form)  # type: ignore
     bib = request_body["bib"]
     if "create_one" in form.keys():
         # 1. Add contestant
-        id = await ContestantsAdapter().create_contestant(token, event_id, request_body)
+        id = await ContestantsAdapter().create_contestant(
+            token, event["id"], request_body
+        )
         logging.debug(f"Etteranmelding {id}")
         informasjon = f"Deltaker med startnr {bib} er lagt til."
         # 2. Update number of contestants in raceclass
-        raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
+        raceclasses = await RaceclassesAdapter().get_raceclasses(token, event["id"])
         for raceclass in raceclasses:
             if request_body["ageclass"] in raceclass["ageclasses"]:
                 klasse = raceclass["name"]
                 # update number of contestants in raceclass
                 raceclass["no_of_contestants"] += 1
                 result = await RaceclassesAdapter().update_raceclass(
-                    token, event_id, raceclass["id"], raceclass
+                    token, event["id"], raceclass["id"], raceclass
                 )
                 logging.debug(f"Participant count updated: {result}")
 
                 # 3. Add contestant to startlist in quarter final with lowest number of participants
-                informasjon += await add_to_startlist(token, event_id, klasse, bib)
+                informasjon += await add_to_startlist(token, event["id"], klasse, bib)
 
     # redirect user to correct page to add start entry
-    info = f"event_id={event_id}"
+    info = f"event_id={event['id']}"
     info += f"&informasjon={informasjon}"
     url = f"/contestants?action=new_manual&{info}"  # type: ignore
 
     return url
 
 
-def get_contestant_from_form(event_id: str, form: dict) -> dict:
+def get_contestant_from_form(event: dict, form: dict) -> dict:
     """Load contestants from form."""
     try:
         if len(form["bib"]) > 0:  # type: ignore
@@ -285,7 +288,10 @@ def get_contestant_from_form(event_id: str, form: dict) -> dict:
             seeding_points = None
     except Exception:
         seeding_points = None
+    time_stamp_now = EventsAdapter().get_local_time(event, "log")
+
     contestant = {
+        "bib": bib,
         "first_name": str(form["first_name"]),
         "last_name": str(form["last_name"]),
         "birth_date": str(form["birth_date"]),
@@ -293,12 +299,12 @@ def get_contestant_from_form(event_id: str, form: dict) -> dict:
         "ageclass": str(form["ageclass"]),
         "region": str(form["region"]),
         "club": str(form["club"]),
-        "event_id": event_id,
+        "event_id": event["id"],
         "email": str(form["email"]),
         "team": str(form["team"]),
         "seeding_points": seeding_points,
         "minidrett_id": str(form["minidrett_id"]),
-        "bib": bib,
+        "registration_time": time_stamp_now,
     }
     return contestant
 
@@ -362,6 +368,7 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
                 "email": "",
                 "team": "",
                 "minidrett_id": "",
+                "registration_time": "",
             }
             try:
                 bib = elements[headers["Startnr"]]

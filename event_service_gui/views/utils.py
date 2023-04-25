@@ -558,6 +558,7 @@ async def add_seeding_points(token: str, event_id: str, form: dict) -> str:
         if key.startswith("seeding_points_"):
             new_seeding_points = form[key]
             old_seeding_points = form[f"old_{key}"]
+            breakpoint()
             if not new_seeding_points:
                 new_seeding_points = ""
             if not old_seeding_points:

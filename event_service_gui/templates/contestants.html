@@ -43,6 +43,18 @@
             <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
           </form>
         </td>
+        <td>
+          <form action=/contestants method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="hidden" name=klasse value={{ valgt_klasse }}>
+            {% if action in ["all_attributes", "edit_mode"] %}
+              <input type="submit" name="to_tasks" value="  Normal visning  ">
+            {% elif not action %}
+              <input type="hidden" name=action value="all_attributes">
+              <input type="submit" name="to_tasks" value="  Vis alle attributter  ">
+            {% endif %}
+          </form>
+        </td>
         <td>Antall deltakere: {{ contestants|length }}</td>
       </tr>
     </table>
@@ -92,7 +104,7 @@
               <form action=/contestants method=get>
                 <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="new_manual">
-                <input type="submit" name=new_manual value="  Legg til deltaker  ">
+                <input type="submit" name=new_manual value="  Etteranmelding  ">
               </form>
             </td>
             <td>
@@ -372,29 +384,69 @@
       {% else %}
       <div id=spacer>&nbsp;</div>
       <table>
-        <tr id=headerblue>
-          <td colspan="5"><b>Deltakere</b></td>
-        </tr>
-        <tr id=subheader>
-          <td>Startnr</td>
-          <td>Navn</td>
-          <td>Klubb</td>
-          <td>Klasse</td>
-          <td>Region</td>
-        </tr>
-          {% for contestant in contestants %}
-            <tr>
-              <td>{{ contestant.bib }}</td>
-              <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
-              <td>
-                {% if contestant.club_logo %}<img width=15 src={{ contestant.club_logo }}>{% endif %}
-                {{ contestant.club }}{% if contestant.team %} / {{ contestant.team }}{% endif %}
-              </td>
-              <td>{{ contestant.ageclass }}</td>
-              <td>{{ contestant.region }}</td>
-            </tr>
-            {% endfor %}
-        <tr id=spacer></tr>
+        {% if action == "all_attributes" %}
+          <tr id=headerblue>
+            <td colspan="11"><b>Deltakere</b></td>
+          </tr>
+          <tr id=subheader>
+            <td>Startnr</td>
+            <td>Navn</td>
+            <td>Født</td>
+            <td></td>
+            <td>Klasse</td>
+            <td>Klubb</td>
+            <td>Region</td>
+            <td>Email</td>
+            <td>Idrettsnummer</td>
+            <td>Seeding</td>
+            <td>Påmeldt tid</td>
+          </tr>
+            {% for contestant in contestants %}
+              <tr>
+                <td>{{ contestant.bib }}</td>
+                <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
+                <td>{{ contestant.birth_date }}</td>
+                <td>{{ contestant.gender }}</td>
+                <td>{{ contestant.ageclass }}</td>
+                <td>
+                  {% if contestant.club_logo %}<img width=15 src={{ contestant.club_logo }}>{% endif %}
+                  {{ contestant.club }}{% if contestant.team %} / {{ contestant.team }}{% endif %}
+                </td>
+                <td>{{ contestant.region }}</td>
+                <td>{{ contestant.email }}</td>
+                <td>{{ contestant.minidrett_id }}</td>
+                <td>{{ contestant.seeding_points }}</td>
+                <td>{{ contestant.registration_time }}</td>
+              </tr>
+              {% endfor %}
+          <tr id=spacer></tr>
+        {% else %}
+          <tr id=headerblue>
+            <td colspan="6"><b>Deltakere</b></td>
+          </tr>
+          <tr id=subheader>
+            <td>Startnr</td>
+            <td>Navn</td>
+            <td>Klubb</td>
+            <td>Klasse</td>
+            <td>Region</td>
+            <td>Påmeldt tid</td>
+          </tr>
+            {% for contestant in contestants %}
+              <tr>
+                <td>{{ contestant.bib }}</td>
+                <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
+                <td>
+                  {% if contestant.club_logo %}<img width=15 src={{ contestant.club_logo }}>{% endif %}
+                  {{ contestant.club }}{% if contestant.team %} / {{ contestant.team }}{% endif %}
+                </td>
+                <td>{{ contestant.ageclass }}</td>
+                <td>{{ contestant.region }}</td>
+                <td>{{ contestant.registration_time }}</td>
+              </tr>
+              {% endfor %}
+          <tr id=spacer></tr>
+        {% endif %}
       </table>
     {% endif %}
     {% if username != "Gjest" and action != "new_manual" %}
