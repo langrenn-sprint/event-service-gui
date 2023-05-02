@@ -622,7 +622,7 @@ async def perform_seeding(token: str, event_id: str, valgt_klasse: str) -> str:
             informasjon += await swap_bibs(token, event_id, new_bib, old_bib)
             seeding_index += 1
     if len(raceclass_list) > 1:
-        informasjon = "<br>Alle klasser er seedet basert på innleste seeding poeng."
+        informasjon = " Alle klasser er seedet basert på innleste seeding poeng."
     return informasjon
 
 
