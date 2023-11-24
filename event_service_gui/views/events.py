@@ -1,7 +1,9 @@
 """Resource module for main view."""
+import json
 import logging
 
 from aiohttp import web
+from aiohttp.web import Response
 import aiohttp_jinja2
 
 from event_service_gui.services import CompetitionFormatAdapter, EventsAdapter
@@ -21,18 +23,25 @@ class Events(web.View):
             informasjon = self.request.rel_url.query["informasjon"]
         except Exception:
             informasjon = ""
+        try:
+            action = self.request.rel_url.query["action"]
+        except Exception:
+            action = ""
 
         try:
             user = await check_login(self)
+
+            # return all events as json list
+            if action == "REST":
+                events = await EventsAdapter().get_all_events(user["token"])
+                body = json.dumps(events, default=str, ensure_ascii=False)
+                return Response(status=200, body=body, content_type="application/json")
+
             event = await get_event(user["token"], event_id)
             local_time_now = ""
             if event:
                 local_time_now = EventsAdapter().get_local_time(event, "HH:MM")
 
-            try:
-                action = self.request.rel_url.query["action"]
-            except Exception:
-                action = ""
             try:
                 create_new = False
                 new = self.request.rel_url.query["new"]
