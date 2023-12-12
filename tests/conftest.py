@@ -6,8 +6,8 @@ from typing import Any
 
 from aiohttp.test_utils import TestClient as _TestClient
 import pytest
-import requests
-from requests.exceptions import ConnectionError, Timeout
+import requests  # type: ignore
+from requests.exceptions import ConnectionError, Timeout  # type: ignore
 
 from event_service_gui import create_app
 
