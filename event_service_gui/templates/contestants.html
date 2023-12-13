@@ -67,10 +67,21 @@
       <b>1. Deltakerliste Excel</b> lastes ned fra Sportsadmin og lagres som kommaseparert (csv) fil <a href="https://www.harnaes.no/sprint/web/test_deltakerliste_sportsadmin.csv">(eksempelfil: test_deltakerliste_sportsadmin.csv)</a>.<br>
       &nbsp;&nbsp;&nbsp;Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a target=_blank href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.<br><br>
       <b>2. Fra "gammelt excel-skjema"</b>, krever 'excel_manual' i filnavnet. Lagre som csv fil i UTF8 format og importer <a target=_blank href="https://www.harnaes.no/sprint/web/test_excel_manual1314.csv">(eksempelfil: test_excel_manual1314.csv)</a><br>
-      &nbsp;&nbsp;&nbsp;Headere i filen som støttes er Navn, Klasse, Klubb, Krets. Valgfrie: Startnr, Seedet<br><br>
+      Headere i filen som støttes er:<br>
+      <ul>
+        <li>Startnr (valgfritt)</li><br>
+        <li>Fornavn</li><br>
+        <li>Etternavn (eller bare Navn)</li><br>
+        <li>Klasse</li><br>
+        <li>Klubb</li><br>
+        <li>Krets</li><br>
+        <li>Seedet (valgfritt)</li><br>
+        <li>Påmeldt (valgfritt) - krever isoformat: 2024-01-05T19:48:03</li><br>
+      </ul>
+      <br><br>
     </div>
     <div id=spacer>&nbsp;</div>
-      <form action=/contestants method=post enctype="multipart/form-data" >
+    <form action=/contestants method=post enctype="multipart/form-data" >
       <table cellpadding=4>
         <tr id=spacer></tr>
         <tr>
@@ -81,13 +92,14 @@
         <tr>
           <td>
             <input type="file" name="file" onchange="savefile(this)">
+            <input type="hidden" name="event_id" value={{ event_id }}>
           </td>
           <td>
-            <input type="hidden" name=event_id value="{{ event_id }}">
             <input type="submit" id="create" name=create value="  Last opp  " onclick=save_message(this.id);>
           </td>
         </tr>
-        <tr id=spacer></tr>
+        <tr id=spacer>
+        </tr>
       </table>
     </form>
     {% elif  action == "edit_mode" %}

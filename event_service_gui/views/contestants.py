@@ -110,18 +110,18 @@ class Contestants(web.View):
         """Post route function that creates deltakerliste."""
         # check login
         user = await check_login(self)
-
+        action = ""
+        event_id = ""
         informasjon = ""
         valgt_klasse = ""
         try:
             form = await self.request.post()
-            logging.debug(f"Form {form}")
-            event_id = str(form["event_id"])
-            event = await get_event(user["token"], event_id)
             try:
                 action = str(form["action"])
             except Exception:
                 action = ""  # noqa: F841
+            event_id = str(form["event_id"])
+            event = await get_event(user["token"], event_id)
 
             # Assign bibs and perform seeding
             if "assign_bibs" in form.keys():
@@ -142,7 +142,7 @@ class Contestants(web.View):
                 allowed_filetypes = ["text/csv", "application/vnd.ms-excel"]
                 if "excel_manual" in file.filename:  # type: ignore
                     informasjon = await create_contestants_from_excel(
-                        user["token"], event_id, text_file
+                        user["token"], event, text_file
                     )
                 elif file.content_type in allowed_filetypes:  # type: ignore
                     informasjon = await ContestantsAdapter().create_contestants(
@@ -321,7 +321,7 @@ async def get_available_bib(token: str, event_id: str) -> int:
     return available_bib
 
 
-async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
+async def create_contestants_from_excel(token: str, event: dict, file) -> str:
     """Load contestants from excel-file."""
     informasjon = ""
     error_text = ""
@@ -345,31 +345,37 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
                 headers[element] = index_column
                 index_column += 1
         else:
-            name = elements[headers["Navn"]]
-            all_names = name.split(" ")
+            # get name - first and last or split on space
             first_name = ""
             last_name = ""
-            i = 0
-            for one_name in all_names:
-                if i == 0:
-                    first_name = one_name
-                else:
-                    last_name += one_name + " "
-                i += 1
+            try:
+                first_name = elements[headers["Fornavn"]]
+                last_name = elements[headers["Etternavn"]]
+            except Exception:
+                name = elements[headers["Navn"]]
+                all_names = name.split(" ")
+                i = 0
+                for one_name in all_names:
+                    if i == 0:
+                        first_name = one_name
+                    else:
+                        last_name += one_name + " "
+                    i += 1
             request_body = {
                 "first_name": first_name,
-                "last_name": last_name,
+                "last_name": last_name.strip(),
                 "birth_date": "",
                 "gender": "",
                 "ageclass": elements[headers["Klasse"]],
                 "club": elements[headers["Klubb"]],
                 "region": elements[headers["Krets"]],
-                "event_id": event_id,
+                "event_id": event["id"],
                 "email": "",
                 "team": "",
                 "minidrett_id": "",
                 "registration_time": "",
             }
+            # optional fields
             try:
                 bib = elements[headers["Startnr"]]
                 if bib.isnumeric():
@@ -380,9 +386,17 @@ async def create_contestants_from_excel(token: str, event_id: str, file) -> str:
                 request_body["seeding_points"] = elements[headers["Seedet"]]
             except Exception:
                 logging.debug("Seeding ignored")
+            try:
+                request_body["registration_time"] = elements[headers["Påmeldt"]]
+            except Exception:
+                logging.debug("Påmeldt unknown")
+                # set current time for registration_time
+                request_body["registration_time"] = EventsAdapter().get_local_time(
+                    event, "log"
+                )
 
             ret = await ContestantsAdapter().create_contestant(
-                token, event_id, request_body
+                token, event["id"], request_body
             )
             if ret == "201":
                 logging.debug(f"Created contestant {id}")
