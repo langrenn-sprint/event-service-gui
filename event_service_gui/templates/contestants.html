@@ -63,19 +63,20 @@
       <div id=spacer></div>
       <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
       <div id=info-zone class="collapse">
-      <b>TIPS</b> - det aksepteres 2 ulike filtyper<br>
-      <b>1. Deltakerliste Excel</b> lastes ned fra Sportsadmin og lagres som kommaseparert (csv) fil <a href="https://www.harnaes.no/sprint/web/test_deltakerliste_sportsadmin.csv">(eksempelfil: test_deltakerliste_sportsadmin.csv)</a>.<br>
+      Det aksepteres 3 ulike filtyper<br>
+      <b>1. Sportsadmin</b>: Last ned deltakerliste og lagre som kommaseparert (csv) fil <a href="https://www.harnaes.no/sprint/web/test_deltakerliste_sportsadmin.csv">(eksempelfil: test_deltakerliste_sportsadmin.csv)</a>.<br>
       &nbsp;&nbsp;&nbsp;Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a target=_blank href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.<br><br>
-      <b>2. Fra "gammelt excel-skjema"</b>, krever 'excel_manual' i filnavnet. Lagre som csv fil i UTF8 format og importer <a target=_blank href="https://www.harnaes.no/sprint/web/test_excel_manual1314.csv">(eksempelfil: test_excel_manual1314.csv)</a><br>
+      <b>2. isonen</b>: Last ned deltakerliste og lagre som kommaseparert (csv) fil.<br><br>
+      <b>3. Fra eget excel-skjema</b>: Krever 'excel_manual' i filnavnet. Lagre som csv fil i UTF8 format og importer <a target=_blank href="https://www.harnaes.no/sprint/web/test_excel_manual1314.csv">(eksempelfil: test_excel_manual1314.csv)</a><br>
       Headere i filen som støttes er:<br>
       <ul>
         <li>Startnr (valgfritt)</li><br>
         <li>Fornavn</li><br>
-        <li>Etternavn (eller bare Navn)</li><br>
-        <li>Klasse</li><br>
+        <li>Etternavn (i stedet for Fornavn og Etternavn kan et felt Navn benyttes, som da må inneholde både for- og etternavn)</li><br>
+        <li>Klasse</li> (årsklasse, f.eks J 15 år)<br>
         <li>Klubb</li><br>
         <li>Krets</li><br>
-        <li>Seedet (valgfritt)</li><br>
+        <li>Seedet (valgfritt) - heltall der 1 er beste seeding</li><br>
         <li>Påmeldt (valgfritt) - krever isoformat: 2024-01-05T19:48:03</li><br>
       </ul>
       <br><br>
@@ -383,7 +384,7 @@
               </tr>
               <tr>
                 <td>Påmedlt tid</td>
-                <td><input type=text name="registration_time" value="{{ contestant.registration_time }}"></td>
+                <td><input type=text name="registration_date_time" value="{{ contestant.registration_date_time }}"></td>
                 <td></td>
               </tr>
               <tr>
@@ -433,16 +434,17 @@
                 <td>{{ contestant.email }}</td>
                 <td>{{ contestant.minidrett_id }}</td>
                 <td>{{ contestant.seeding_points }}</td>
-                <td>{{ contestant.registration_time }}</td>
+                <td>{{ contestant.registration_date_time }}</td>
               </tr>
               {% endfor %}
           <tr id=spacer></tr>
         {% else %}
           <tr id=headerblue>
-            <td colspan="6"><b>Deltakere</b></td>
+            <td colspan="7"><b>Deltakere</b></td>
           </tr>
           <tr id=subheader>
             <td>Startnr</td>
+            <td>Seeding</td>
             <td>Navn</td>
             <td>Klubb</td>
             <td>Klasse</td>
@@ -452,6 +454,7 @@
             {% for contestant in contestants %}
               <tr>
                 <td>{{ contestant.bib }}</td>
+                <td>{{ contestant.seeding_points }}</td>
                 <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
                 <td>
                   {% if contestant.club_logo %}<img width=15 src={{ contestant.club_logo }}>{% endif %}
@@ -459,7 +462,7 @@
                 </td>
                 <td>{{ contestant.ageclass }}</td>
                 <td>{{ contestant.region }}</td>
-                <td>{{ contestant.registration_time }}</td>
+                <td>{{ contestant.registration_date_time }}</td>
               </tr>
               {% endfor %}
           <tr id=spacer></tr>

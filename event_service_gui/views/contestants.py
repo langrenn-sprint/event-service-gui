@@ -304,7 +304,7 @@ def get_contestant_from_form(event: dict, form: dict) -> dict:
         "team": str(form["team"]),
         "seeding_points": seeding_points,
         "minidrett_id": str(form["minidrett_id"]),
-        "registration_time": time_stamp_now,
+        "registration_date_time": time_stamp_now,
     }
     return contestant
 
@@ -373,7 +373,7 @@ async def create_contestants_from_excel(token: str, event: dict, file) -> str:
                 "email": "",
                 "team": "",
                 "minidrett_id": "",
-                "registration_time": "",
+                "registration_date_time": "",
             }
             # optional fields
             try:
@@ -383,15 +383,15 @@ async def create_contestants_from_excel(token: str, event: dict, file) -> str:
             except Exception:
                 logging.debug("Startnr ignored")
             try:
-                request_body["seeding_points"] = elements[headers["Seedet"]]
+                request_body["seeding_points"] = int(elements[headers["Seedet"]])
             except Exception:
-                logging.debug("Seeding ignored")
+                request_body["seeding_points"] = None
             try:
-                request_body["registration_time"] = elements[headers["Påmeldt"]]
+                request_body["registration_date_time"] = elements[headers["Påmeldt"]]
             except Exception:
                 logging.debug("Påmeldt unknown")
-                # set current time for registration_time
-                request_body["registration_time"] = EventsAdapter().get_local_time(
+                # set current time for registration_date_time
+                request_body["registration_date_time"] = EventsAdapter().get_local_time(
                     event, "log"
                 )
 
