@@ -11,14 +11,14 @@ body {
 
 table {
 width: 100%;
-font-size: 0.9em;
+font-size: 0.8em;
 border-spacing: 0;
 }
 
 tr:nth-child(even){background-color: #f2f2f2;}
 
 td {
-padding: 3px;
+padding: 1px;
 }
 
 a {
@@ -37,7 +37,7 @@ font-weight: bold;
 #adminpagetitle {
 text-align: center;
 color: black;
-font-size: 2.0em;
+font-size: 1.5em;
 background-color: #white;
 }
 
@@ -100,8 +100,8 @@ vertical-align: top;
 }
 
 #header_icon{
-width:60px;
-height:60px;
+width:30px;
+height:30px;
 vertical-align: bottom;
 }
 

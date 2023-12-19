@@ -188,13 +188,12 @@ async def set_min_rest_time(token: str, event_id: str, min_rest_time: int) -> st
     raceplan_summary = get_raceplan_summary(races, raceclasses)
     rest_time = datetime.timedelta(minutes=min_rest_time)
     for raceclass in raceplan_summary:
-        # check rest time before semi-finals and adjust if nessecarry
+        # check rest time before semi-finals / round 2 and adjust if nessecarry
         if raceclass["min_pauseS"] and (raceclass["min_pauseS"] < rest_time):
             time_adjust = rest_time - raceclass["min_pauseS"]
-            # find first semi final race
             for race in races:
                 if race["raceclass"] == raceclass["name"]:
-                    if f"{race['round']}{race['heat']}" == "S1":
+                    if f"{race['round']}{race['heat']}" in ("S1", "R21"):
                         # set new time for this race and all following
                         old_time_obj = datetime.datetime.strptime(
                             race["start_time"], "%Y-%m-%dT%H:%M:%S"
