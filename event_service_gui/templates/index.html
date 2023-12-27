@@ -38,7 +38,7 @@
             <a id="myAdmF{{ oneevent.id }}" onclick="event_gui_href('myAdmF{{ oneevent.id }}', 'tasks?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Sette rennet" src="../static/icon_event_txt.png"></a>
             <a id="myNewContestant{{ oneevent.id }}" onclick="event_gui_href('myNewContestant{{ oneevent.id }}', 'contestants?event_id={{ oneevent.id }}&action=new_manual')" href=><img id=frontpage_icon title="Etteranmelding" src="../static/icon_new_txt.png"></a>
             <a id="myTiming{{ oneevent.id }}" onclick="result_gui_href('myTiming{{ oneevent.id }}', 'resultat_edit?event_id={{ oneevent.id }}&heat=0')" href=><img id=frontpage_icon title="Tidtaking / registrere resultater" src="../static/icon_timing_txt.png"></a>
-            <a id="myPhotoAdm{{ oneevent.id }}" onclick="result_gui_href('myPhotoAdm{{ oneevent.id }}', 'photo_sync?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Foto" src="../static/icon_photos_adm_txt.png"></a>
+            <a id="myPhotoAdm{{ oneevent.id }}" onclick="result_gui_href('myPhotoAdm{{ oneevent.id }}', 'photos_edit?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Foto" src="../static/icon_photos_adm_txt.png"></a>
             <a id="myAdmU{{ oneevent.id }}" onclick="result_gui_href('myAdmU{{ oneevent.id }}', 'dashboard?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Renndagen" src="../static/icon_renn_adm_txt.png"></a>
         </td>
         {% else %}

@@ -36,29 +36,6 @@
           </td>
         </table>
       </form>
-    {% elif action == "g_login" %}
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
-        <script>
-          function handleCredentialResponse(response) {
-            console.log("Encoded JWT ID token: " + response.credential);
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("POST", "http://localhost:8090/login?action=g_login", true);
-            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.send("g_jwt=" + response.credential);
-          }
-          window.onload = function () {
-            google.accounts.id.initialize({
-              client_id: "387505318281-l17l2o5i0a31lih0s7vutjr0d86tgkt5.apps.googleusercontent.com",
-              callback: handleCredentialResponse
-            });
-            google.accounts.id.renderButton(
-              document.getElementById("buttonDiv"),
-              { theme: "outline", size: "large" }  // customization attributes
-            );
-          }
-        </script>
-        <div id="buttonDiv"></div>
-        <div id=spacer></div>
     {% else %}
       <form action="/login?event_id={{ event_id }}&action=login" method="post">
         <table cellpadding=4>

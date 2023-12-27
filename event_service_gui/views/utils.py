@@ -29,13 +29,6 @@ async def check_login(self) -> dict:
         "name": session["name"],
         "loggedin": True,
         "token": session["token"],
-        "g_loggedin": session["g_loggedin"],
-        "g_name": session["g_name"],
-        "g_jwt": session["g_jwt"],
-        "g_auth_photos": session["g_auth_photos"],
-        "g_scope": session["g_scope"],
-        "g_client_id": session["g_client_id"],
-        "g_photos_token": session["g_photos_token"],
     }
 
 

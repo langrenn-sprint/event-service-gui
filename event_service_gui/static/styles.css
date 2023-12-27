@@ -59,6 +59,9 @@ background-color: #f0f0f0;
 display: block;
 }
 
+/* tooltip that shows image, centered and covering 80% of the screen */
+
+
 .img_desi {
 width: auto;
 height: 100px;

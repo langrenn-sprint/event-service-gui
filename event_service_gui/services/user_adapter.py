@@ -5,7 +5,6 @@ from typing import List
 
 from aiohttp import ClientSession, hdrs, web
 from aiohttp_session import Session
-import jwt
 from multidict import MultiDict
 
 USERS_HOST_SERVER = os.getenv("USERS_HOST_SERVER")
@@ -125,58 +124,12 @@ class UserAdapter:
                     cookiestorage["token"] = token
                     cookiestorage["name"] = username
                     cookiestorage["loggedin"] = True
-                    cookiestorage["g_jwt"] = ""
-                    cookiestorage["g_name"] = ""
-                    cookiestorage["g_loggedin"] = False
-                    cookiestorage["g_auth_photos"] = False
-                    cookiestorage["g_scope"] = ""
-                    cookiestorage["g_client_id"] = ""
-                    cookiestorage["g_photos_token"] = USER_SERVICE_URL  # type: ignore
         return result
-
-    def login_google(self, g_jwt: str, user: dict, cookiestorage: Session) -> int:
-        """Login based upon google token."""
-        decoded_jwt = jwt.decode(g_jwt, options={"verify_signature": False})
-
-        # store token to session variable
-        cookiestorage["token"] = user["token"]
-        cookiestorage["name"] = user["name"]
-        cookiestorage["loggedin"] = user["loggedin"]
-        cookiestorage["g_jwt"] = g_jwt
-        cookiestorage["g_name"] = decoded_jwt["name"]
-        cookiestorage["g_loggedin"] = True
-        cookiestorage["g_auth_photos"] = user["g_auth_photos"]
-        cookiestorage["g_scope"] = ""
-        cookiestorage["g_client_id"] = ""
-        cookiestorage["g_photos_token"] = USER_SERVICE_URL  # type: ignore
-        return 200
 
     def isloggedin(self, cookiestorage: Session) -> bool:
         """Check if user is logged in function."""
         try:
             result = cookiestorage["loggedin"]
-        except Exception:
-            result = False
-        return result
-
-    def isloggedin_google(self, cookiestorage: Session) -> bool:
-        """Check if user is logged in with google function."""
-        try:
-            result = cookiestorage["loggedin"]
-            if result:
-                result = cookiestorage["g_loggedin"]
-        except Exception:
-            result = False
-        return result
-
-    def isloggedin_google_photos(self, cookiestorage: Session) -> bool:
-        """Check if user has authorized google photos access."""
-        try:
-            result = cookiestorage["loggedin"]
-            if result:
-                result = cookiestorage["g_loggedin"]
-                if result:
-                    result = cookiestorage["g_auth_photos"]
         except Exception:
             result = False
         return result
