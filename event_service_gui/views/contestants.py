@@ -334,6 +334,9 @@ async def create_contestants_from_excel(token: str, event: dict, file) -> str:
         str_oneline = str_oneline.replace("b'", "")
         str_oneline = str_oneline.replace("\r", "")
         str_oneline = str_oneline.replace("\n", "")
+        # split by ; or ,
+        if str_oneline.find(";") == -1:
+            str_oneline = str_oneline.replace(",", ";")
         elements = str_oneline.split(";")
         # identify headers
         if index_row == 1:

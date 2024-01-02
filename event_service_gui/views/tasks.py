@@ -72,6 +72,19 @@ class Tasks(web.View):
                 informasjon = await TimeEventsService().generate_next_race_templates(
                     user["token"], event
                 )
+            elif "delete_all_cont" in form.keys():
+                res = await ContestantsAdapter().delete_all_contestants(
+                    user["token"], event_id
+                )
+                informasjon = f"Deltakerne er slettet - {res}"
+            elif "delete_all_raceplans" in form.keys():
+                res = await RaceplansAdapter().delete_raceplans(user["token"], event_id)
+                informasjon = f"Kjøreplaner er slettet - {res}"
+            elif "delete_all_raceclasses" in form.keys():
+                res = await RaceclassesAdapter().delete_all_raceclasses(
+                    user["token"], event_id
+                )
+                informasjon = f"Klasser er slettet - {res}"
             elif "delete_time_events" in form.keys():
                 informasjon = await delete_time_events(user["token"], event_id)
             elif "delete_start_lists" in form.keys():

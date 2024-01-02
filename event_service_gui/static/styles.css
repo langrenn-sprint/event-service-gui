@@ -277,6 +277,12 @@ z-index: 99;
 top: 0;
 }
 
+.w3-footer-sticky {
+  padding:0.01em 0px;
+  position: fixed;
+  bottom: 0;
+}
+
 .w3-third,.w3-twothird,.w3-quart,.w3-10,.w3-80,.w3-row-padding,.w3-half {
 padding:0.01em 2px;
 }
