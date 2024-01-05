@@ -323,7 +323,7 @@ class RaceplansAdapter:
                 race["start_time"] = f"{race['start_time'][:11]}{new_time}"
                 res = await RaceplansAdapter().update_race(token, race["id"], race)
                 logging.debug(f"Raceplan update time, result: {res}. {race}")
-            
+
         if delta_seconds < 0:
             delta_seconds_abs = abs(delta_seconds)
             hours, remainder = divmod(delta_seconds_abs, 3600)

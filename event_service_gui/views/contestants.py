@@ -179,7 +179,6 @@ class Contestants(web.View):
                         except Exception as e:
                             informasjon += f"Feil:{key}({e}) "
 
-            
             elif "delete_all" in form.keys():
                 result = await ContestantsAdapter().delete_all_contestants(
                     user["token"], event_id
