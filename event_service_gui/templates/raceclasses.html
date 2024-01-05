@@ -213,9 +213,11 @@
             <tr>
               <td width=150>Aldersklasser</td>
               <td>
-                <input type=text name="ageclass" value="{% for ac_name in klasse.ageclasses %}{{ ac_name }}{% if not loop.last %},{% endif %}{% endfor %}"><br>
+                {% for ac_name in klasse.ageclasses %}
+                  {{ ac_name }}<br>
+                {% endfor %}
               </td>
-              <td>OBS: Formatteringen må ikke endres - skal være kommaseparert ved flere aldersklasser i samme løpsklasse</td>
+              <td>Info: Årsklasser hentes fra påmeldingssystemet og kan ikke endres.</td>
             </tr>
             <tr>
               <td>Distanse</td>
