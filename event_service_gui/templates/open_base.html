@@ -2,9 +2,6 @@
 <html lang="en">
   <head>
     <title>{% block titleheader %}{% endblock %}</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../static/styles.css">
     {% if event.organiser[:5] == "Kjels" %}
       <link rel="stylesheet" type="text/css" href="../static/styles_kjelsaas.css">
@@ -35,27 +32,28 @@
       function confirm_delete(message) {
         return window.confirm(message);
       }
-      function save_message(id) {
-        document.getElementById(id).value = "  Lagrer, vennligst vent... ";
-        return true;
-      }
+
       function naviger(id) {
         var elmnt = document.getElementById(id);
         elmnt.scrollIntoView();
       }
+      function save_message(id) {
+        document.getElementById(id).value = "  Lagrer, vennligst vent... ";
+        return true;
+      }
 
       async function savefile(inp)
       {
-        let formData = new FormData();
-        let file = inp.files[0];
+          let formData = new FormData();
+          let file = inp.files[0];
 
-        formData.append("file", file);
+          formData.append("file", file);
 
-        const ctrl = new AbortController()    // timeout
-        setTimeout(() => ctrl.abort(), 5000);
+          const ctrl = new AbortController()    // timeout
+          setTimeout(() => ctrl.abort(), 5000);
 
-        let r = await fetch('/contestants',
-          {method: "POST", body: formData, signal: ctrl.signal});
+          let r = await fetch('/contestants',
+            {method: "POST", body: formData, signal: ctrl.signal});
 
       }
     </script>
@@ -113,11 +111,10 @@
       <div id=spacer></div>
       <div class="w3-container" id=info>{{ informasjon }}</div>
     {% block content %}{% endblock %}
-    <div id=spacer></div>
-    <div id=footeradmin>
-        <a href="https://github.com/langrenn-sprint">langrenn-sprint</a> - utviklet av Lyn ski og Kjelsås langrenn
-    </div>
     <div id=bigspacer></div>
+  </div>
+  <div class="w3-footer-sticky" id=footeradmin>
+    <a href="https://github.com/langrenn-sprint">langrenn-sprint</a> - utviklet av Lyn ski og Kjelsås langrenn
   </div>
   </body>
 </html>

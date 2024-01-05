@@ -14,48 +14,50 @@
 
 
 ul {
-		background-color: #94b5e0;
+  background-color: #94b5e0;
 }
 
 .active {
-    background-color: #00247d;
-}
-
-li:hover, .dropdown:hover, .dropbtn:hover {
   background-color: #00247d;
 }
 
-.visible_link {
-	background-color: #94b5e0;
-	text-decoration: none;
-	color: white;
+li:hover, .dropdown:hover, .dropbtn:hover {
+background-color: #00247d;
 }
 
-#topborder {
-  border-left: 1px solid white;
+.visible_link {
+background-color: #94b5e0;
+text-decoration: none;
+color: white;
 }
 
 #headerblue {
-    color: white;
-    background-color: #00247d;
+  color: white;
+  background-color: #00247d;
 }
 
 #headerblack {
-    color: black;
-    background-color: #ffb549;
+  color: black;
+  background-color: #ffb549;
 }
 
 #headercollapse {
-		text-align: center;
-		font-size: 1.5em;
-    color: white;
-    background-color: #94b5e0;
+  text-align: left;
+  font-size: 1.5em;
+  color: white;
+  background-color: #94b5e0;
 }
 
-
 #adminpagetitle {
-  text-align: center;
-  color: white;
-  font-size: 2.0em;
-	background-color: #94b5e0;
+text-align: center;
+color: white;
+font-size: 2.0em;
+background-color: #94b5e0;
+}
+
+#footeradmin {
+background-color: #94b5e0;
+color: white;
+text-align: center;
+padding: 5px 5px 5px 5px;
 }
