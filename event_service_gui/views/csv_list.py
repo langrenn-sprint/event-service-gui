@@ -103,7 +103,7 @@ def get_fields_contestants() -> list:
         "minidrett_id",
         "id",
         "seeding_points",
-        "registration_time",
+        "registration_date_time",
     ]
     return fields
 
