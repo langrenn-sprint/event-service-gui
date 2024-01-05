@@ -63,15 +63,14 @@
       - Hviletider må verifiseres - bruk kolonnene "minste tid...". Disse beregner minste tid mellom start siste kvartfinale og start første semifinale / siste semifinale og første finale.<br>
       - Funksjonen "Sett minimum hviletid" vil legge inn pauser i kjøreplanen slik at ingen løpere får mindre enn angitt tid mellom to starter.
     </div>
-  {% elif raceplan_validation %}
-      <div class="w3-container" id=info><br>&nbsp;<img width=15 src="../static/warning.png" title="Valideringsfeil">Valideringsfeil.<br>
-        {% for key, value in raceplan_validation.items() %}
-          Heat {{ key }}: {% for element in value %}{{ element }}{% endfor %}<br>
-        {% endfor %}
-        <br>
-      </div>
   {% endif %}
-  <! --- End Information --->
+  <div class="w3-container" id=info><br>&nbsp;<img width=15 src="../static/warning.png" title="Valideringsfeil">Valideringsfeil.<br>
+    {% for key, value in raceplan_validation.items() %}
+      Heat {{ key }}: {% for element in value %}{{ element }}{% endfor %}<br>
+    {% endfor %}
+    <br>
+  </div>
+<! --- End Information --->
 
   <! --- Edit menu --->
   {% if action == "edit_mode" %}
@@ -182,7 +181,12 @@
     {% for race in races %}
       {% if (valgt_klasse == "") or (valgt_klasse == race.raceclass) %}
         <tr>
-          <td>{{ race.start_time[-8:] }}</td>
+          <td>
+            {{ race.start_time[-8:] }}
+              {% if race.validation %}
+                &nbsp;<img width=15 src="../static/warning.png" title="{{ raceplan_validation }}">
+              {% endif %}
+          </td>
           {% if action == "edit_time" %}
             <td>
               <form action="/raceplans" method=post>

@@ -84,7 +84,7 @@ class Raceplans(web.View):
                 )  # type: ignore
                 for race in races:
                     for x, y in raceplan_validation.items():
-                        if x == race["order"]:
+                        if x == str(race["order"]):
                             race["validation"] = y
 
             event = await EventsAdapter().get_event(user["token"], event_id)
