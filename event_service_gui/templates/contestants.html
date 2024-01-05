@@ -181,7 +181,7 @@
                 <td></td>
                 <td>{{ contestant.seeding_points }}</td>
                 <td>
-                  <input type="checkbox" name="slett_{{ contestant.bib }}" value="{{ contestant.id }}">
+                  <input type="checkbox" name="slett_{{ loop.index }}" value="{{ contestant.id }}">
                 </td>
               {% endif %}
               <td>{{ contestant.first_name }} {{ contestant.last_name }}</td>
