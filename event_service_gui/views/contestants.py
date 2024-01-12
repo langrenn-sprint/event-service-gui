@@ -3,6 +3,7 @@ import logging
 
 from aiohttp import web
 import aiohttp_jinja2
+import xmltodict
 
 from event_service_gui.services import (
     ContestantsAdapter,
@@ -142,6 +143,10 @@ class Contestants(web.View):
                 allowed_filetypes = ["text/csv", "application/vnd.ms-excel"]
                 if "excel_manual" in file.filename:  # type: ignore
                     informasjon = await create_contestants_from_excel(
+                        user["token"], event, text_file
+                    )
+                if "ET6" in file.filename:  # type: ignore
+                    informasjon = await create_contestants_from_emit(
                         user["token"], event, text_file
                     )
                 elif file.content_type in allowed_filetypes:  # type: ignore
@@ -313,6 +318,27 @@ def get_contestant_from_form(event: dict, form: dict) -> dict:
     return contestant
 
 
+def contestant_from_xml(xml_dict: dict, event_id: str, time_stamp_now: str) -> dict:
+    """Converts an XML representation of a contestant to a dictionary."""
+    contestant = {
+        "bib": int(xml_dict["@startno"]),
+        "first_name": xml_dict["@fornavn"],
+        "last_name": xml_dict["@etternavn"],
+        "birth_date": "",
+        "gender": "",
+        "ageclass": xml_dict["@klasse"],
+        "region": "",
+        "club": xml_dict["@team"],
+        "event_id": event_id,
+        "email": "",
+        "team": xml_dict["@teamabb"],
+        "seeding_points": None,
+        "minidrett_id": xml_dict["@starttid"],
+        "registration_date_time": time_stamp_now,
+    }
+    return contestant
+
+
 async def get_available_bib(token: str, event_id: str) -> int:
     """Find available bib, one above higest assigned."""
     contestants = await ContestantsAdapter().get_all_contestants(token, event_id)
@@ -410,6 +436,33 @@ async def create_contestants_from_excel(token: str, event: dict, file) -> str:
                 i_contestants += 1
             else:
                 error_text += f"<br>{ret}"
+        informasjon = f"Deltakere er opprettet - {i_contestants} totalt."
+        if error_text:
+            informasjon += f"<br>Error: {error_text}"
+    return informasjon
+
+
+async def create_contestants_from_emit(token: str, event: dict, file) -> str:
+    """Load contestants from excel-file."""
+    informasjon = ""
+    error_text = ""
+    i_contestants = 0
+    xml_data = file.read()
+    dict_data = xmltodict.parse(xml_data)
+
+    for oneline in dict_data["startliste"]["start"]:
+        time_stamp_now = EventsAdapter().get_local_time(event, "log")
+
+        request_body = contestant_from_xml(oneline, event["id"], time_stamp_now)
+
+        ret = await ContestantsAdapter().create_contestant(
+            token, event["id"], request_body
+        )
+        if ret == "201":
+            logging.debug(f"Created contestant {id}")
+            i_contestants += 1
+        else:
+            error_text += f"<br>{ret}"
         informasjon = f"Deltakere er opprettet - {i_contestants} totalt."
         if error_text:
             informasjon += f"<br>Error: {error_text}"

@@ -69,7 +69,7 @@ gcloud auth configure-docker
 ```Shell
 docker-compose pull #oppdatere images
 docker-compose up --build
-docker-compose up --build event-service race-service user-service mongodb
+docker-compose up --build event-service race-service user-service mongodb competition-format-service
 ```
 
 Denne fila _skal_ ligge i .dockerignore og .gitignore
