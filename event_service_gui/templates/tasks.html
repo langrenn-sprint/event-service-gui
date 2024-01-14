@@ -264,6 +264,7 @@
   <tr>
     <td colspan=4 id=spacer></td>
   </tr>
+  {% if event.competition_format == "Individual Sprint" %}
   <tr>
     <td>6b. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="event_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=Template')" href=>se/endre</a>)</td>
     {% if (task_status.done_9) %}
@@ -286,6 +287,7 @@
       <td></td>
     {% endif %}
   </tr>
+  {% endif %}
   <tr>
     <td colspan=4 id=spacer></td>
   </tr>

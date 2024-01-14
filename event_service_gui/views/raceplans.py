@@ -6,7 +6,6 @@ from aiohttp import web
 import aiohttp_jinja2
 
 from event_service_gui.services import (
-    EventsAdapter,
     RaceclassesAdapter,
     RaceplansAdapter,
 )
@@ -86,8 +85,6 @@ class Raceplans(web.View):
                     for x, y in raceplan_validation.items():
                         if x == str(race["order"]):
                             race["validation"] = y
-
-            event = await EventsAdapter().get_event(user["token"], event_id)
 
             return await aiohttp_jinja2.render_template_async(
                 html_template,

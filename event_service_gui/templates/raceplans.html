@@ -64,12 +64,16 @@
       - Funksjonen "Sett minimum hviletid" vil legge inn pauser i kjøreplanen slik at ingen løpere får mindre enn angitt tid mellom to starter.
     </div>
   {% endif %}
-  <div class="w3-container" id=info><br>&nbsp;<img width=15 src="../static/warning.png" title="Valideringsfeil">Valideringsfeil.<br>
-    {% for key, value in raceplan_validation.items() %}
-      Heat {{ key }}: {% for element in value %}{{ element }}{% endfor %}<br>
-    {% endfor %}
-    <br>
-  </div>
+
+  {% if raceplan_validation %}
+    <div class="w3-container" id=info><br>&nbsp;<img width=15 src="../static/warning.png" title="Valideringsfeil">Valideringsfeil.<br>
+      {% for key, value in raceplan_validation.items() %}
+        Heat {{ key }}: {% for element in value %}{{ element }}{% endfor %}<br>
+      {% endfor %}
+      <br>
+    </div>
+  {% endif %}
+
 <! --- End Information --->
 
   <! --- Edit menu --->

@@ -147,6 +147,12 @@ class RaceplansAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
+        # ensure that round always exists by setting F(inal) if missing
+        for race in races:
+            if "round" in race.keys():
+                break
+            else:
+                race["round"] = "F"
         return races
 
     async def get_race_by_id(self, token: str, race_id: str) -> dict:
@@ -173,17 +179,65 @@ class RaceplansAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
+        # ensure that round always exists by setting F(inal) if missing
+        if "round" in race.keys():
+            pass
+        else:
+            race["round"] = "F"
+        return race
+
+    async def get_race_by_order(
+        self, token: str, event_id: str, race_order: int
+    ) -> dict:
+        """Get one race for event function."""
+        all_races = await RaceplansAdapter().get_all_races(token, event_id)
+        race = {}
+        for _race in all_races:
+            if _race["order"] == race_order:
+                race = await RaceplansAdapter().get_race_by_id(token, _race["id"])
+                break
+        # ensure that round always exists by setting F(inal) if missing
+        if "round" in race.keys():
+            pass
+        else:
+            race["round"] = "F"
         return race
 
     async def get_races_by_racesclass(
         self, token: str, event_id: str, valgt_klasse: str
     ) -> list:
         """Get all get_races_by_racesclass function."""
+        headers = MultiDict(
+            [
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
+        )
         races = []
-        _tmp_races = await RaceplansAdapter().get_all_races(token, event_id)
-        for race in _tmp_races:
-            if race["raceclass"] == valgt_klasse or ("" == valgt_klasse):
-                races.append(race)
+        async with ClientSession() as session:
+            async with session.get(
+                f"{RACE_SERVICE_URL}/races?eventId={event_id}&raceclass={valgt_klasse}",
+                headers=headers,
+            ) as resp:
+                logging.debug(
+                    f"get_all_races_by_racesclass - got response {resp.status}"
+                )
+                if resp.status == 200:
+                    races = await resp.json()
+                elif resp.status == 401:
+                    raise Exception(f"Login expired: {resp}")
+                else:
+                    servicename = "get_all_races_by_racesclass"
+                    body = await resp.json()
+                    logging.error(f"{servicename} failed - {resp.status} - {body}")
+                    raise web.HTTPBadRequest(
+                        reason=f"Error - {resp.status}: {body['detail']}."
+                    )
+        # ensure that round always exists by setting F(inal) if missing
+        for race in races:
+            if "round" in race.keys():
+                break
+            else:
+                race["round"] = "F"
         return races
 
     async def update_order(self, token: str, race_id: str, new_order: int) -> str:
