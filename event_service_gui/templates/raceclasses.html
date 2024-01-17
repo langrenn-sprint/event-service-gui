@@ -216,6 +216,7 @@
                 {% for ac_name in klasse.ageclasses %}
                   {{ ac_name }}<br>
                 {% endfor %}
+                <input type=hidden name="ageclasses" value="{{ klasse.ageclasses }}">
               </td>
               <td>Info: Årsklasser hentes fra påmeldingssystemet og kan ikke endres.</td>
             </tr>

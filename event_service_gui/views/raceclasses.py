@@ -1,4 +1,5 @@
 """Resource module for main view."""
+import ast
 import logging
 
 from aiohttp import web
@@ -179,9 +180,9 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
             ranking = True
     except Exception:
         ranking = False
-
-    form_ageclasses = form["ageclass"]
-    ageclasses = form_ageclasses.split(",")
+    breakpoint()
+    ageclasses_str = form["ageclasses"]
+    ageclasses = ast.literal_eval(ageclasses_str)
     request_body = {
         "name": str(form["name"]),
         "distance": str(form["distance"]),
