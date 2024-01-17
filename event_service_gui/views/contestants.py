@@ -99,6 +99,9 @@ class Contestants(web.View):
                     "informasjon": informasjon,
                     "raceclasses": raceclasses,
                     "valgt_klasse": valgt_klasse,
+                    "ledige_plasser": await get_available_etteranmelding(
+                        user["token"], event_id
+                    ),
                     "lopsinfo": f"Deltakere {valgt_klasse}",
                     "username": user["name"],
                 },
@@ -467,3 +470,47 @@ async def create_contestants_from_emit(token: str, event: dict, file) -> str:
         if error_text:
             informasjon += f"<br>Error: {error_text}"
     return informasjon
+
+
+async def get_available_etteranmelding(token: str, event_id: str) -> list:
+    """Get number of available places per raceclass."""
+    event_availability = []
+
+    raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
+    races = await RaceplansAdapter().get_all_races(token, event_id)
+    for raceclass in raceclasses:
+        # number of places in semi final is limitation
+        max_available_places = 0
+
+        if raceclass["ranking"]:
+            found_semi = False
+            for race in races:
+                if raceclass["name"] == race["raceclass"]:
+                    if f"{race['round']}{race['index']}" == "SC":
+                        max_available_places += race["max_no_of_contestants"]
+                    elif f"{race['round']}{race['index']}" == "SA":
+                        max_available_places += race["no_of_contestants"]
+                        found_semi = True
+
+            # handle raceclasses without semi-finals - finale B is limitation
+            if not found_semi:
+                for race in races:
+                    if raceclass["name"] == race["raceclass"]:
+                        if race["round"] == "F":
+                            max_available_places += race["max_no_of_contestants"]
+
+        # handle raceclasses - urangert
+        else:
+            for race in races:
+                if raceclass["name"] == race["raceclass"]:
+                    if race["round"] == "R1":
+                        max_available_places += race["max_no_of_contestants"]
+
+        available_places = max_available_places - raceclass["no_of_contestants"]
+        raceclass_availability = {
+            "ageclasses": raceclass["ageclasses"],
+            "available_places": available_places,
+        }
+
+        event_availability.append(raceclass_availability)
+    return event_availability
