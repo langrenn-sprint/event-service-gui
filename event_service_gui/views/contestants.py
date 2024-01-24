@@ -498,6 +498,8 @@ async def get_available_etteranmelding(token: str, event_id: str) -> list:
                     if raceclass["name"] == race["raceclass"]:
                         if race["round"] == "F":
                             max_available_places += race["max_no_of_contestants"]
+                            # only the one (the first) final has open places
+                            break
 
         # handle raceclasses - urangert
         else:
