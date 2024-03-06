@@ -148,7 +148,7 @@ class Contestants(web.View):
                     informasjon = await create_contestants_from_excel(
                         user["token"], event, text_file
                     )
-                if "ET6" in file.filename:  # type: ignore
+                elif "ET6" in file.filename:  # type: ignore
                     informasjon = await create_contestants_from_emit(
                         user["token"], event, text_file
                     )
@@ -362,86 +362,94 @@ async def create_contestants_from_excel(token: str, event: dict, file) -> str:
     headers = {}
     i_contestants = 0
     for oneline in file.readlines():
-        index_row += 1
-        str_oneline = oneline.decode("utf-8")
-        str_oneline = str_oneline.replace("b'", "")
-        str_oneline = str_oneline.replace("\r", "")
-        str_oneline = str_oneline.replace("\n", "")
-        # split by ; or ,
-        if str_oneline.find(";") == -1:
-            str_oneline = str_oneline.replace(",", ";")
-        elements = str_oneline.split(";")
-        # identify headers
-        if index_row == 1:
-            index_column = 0
-            for element in elements:
-                # special case to handle random bytes first in file
-                if index_column == 0 and element.endswith("Startnr"):
-                    headers["Startnr"] = 0
-                headers[element] = index_column
-                index_column += 1
-        else:
-            # get name - first and last or split on space
-            first_name = ""
-            last_name = ""
-            try:
-                first_name = elements[headers["Fornavn"]]
-                last_name = elements[headers["Etternavn"]]
-            except Exception:
-                name = elements[headers["Navn"]]
-                all_names = name.split(" ")
-                i = 0
-                for one_name in all_names:
-                    if i == 0:
-                        first_name = one_name
-                    else:
-                        last_name += one_name + " "
-                    i += 1
-            request_body = {
-                "first_name": first_name,
-                "last_name": last_name.strip(),
-                "birth_date": "",
-                "gender": "",
-                "ageclass": elements[headers["Klasse"]],
-                "club": elements[headers["Klubb"]],
-                "region": elements[headers["Krets"]],
-                "event_id": event["id"],
-                "email": "",
-                "team": "",
-                "minidrett_id": "",
-                "registration_date_time": "",
-            }
-            # optional fields
-            try:
-                bib = elements[headers["Startnr"]]
-                if bib.isnumeric():
-                    request_body["bib"] = int(bib)  # type: ignore
-            except Exception:
-                logging.debug("Startnr ignored")
-            try:
-                request_body["seeding_points"] = int(elements[headers["Seedet"]])
-            except Exception:
-                request_body["seeding_points"] = None
-            try:
-                request_body["registration_date_time"] = elements[headers["Påmeldt"]]
-            except Exception:
-                logging.debug("Påmeldt unknown")
-                # set current time for registration_date_time
-                request_body["registration_date_time"] = EventsAdapter().get_local_time(
-                    event, "log"
-                )
-
-            ret = await ContestantsAdapter().create_contestant(
-                token, event["id"], request_body
-            )
-            if ret == "201":
-                logging.debug(f"Created contestant {id}")
-                i_contestants += 1
+        try:
+            index_row += 1
+            str_oneline = oneline.decode("utf-8")
+            str_oneline = str_oneline.replace("b'", "")
+            str_oneline = str_oneline.replace("\r", "")
+            str_oneline = str_oneline.replace("\n", "")
+            str_oneline = str_oneline.replace("\ufeff", "")
+            # split by ; or ,
+            if str_oneline.find(";") == -1:
+                str_oneline = str_oneline.replace(",", ";")
+            elements = str_oneline.split(";")
+            # identify headers
+            if index_row == 1:
+                index_column = 0
+                for element in elements:
+                    # special case to handle random bytes first in file
+                    if index_column == 0 and element.endswith("Startnr"):
+                        headers["Startnr"] = 0
+                    headers[element] = index_column
+                    index_column += 1
             else:
-                error_text += f"<br>{ret}"
-        informasjon = f"Deltakere er opprettet - {i_contestants} totalt."
-        if error_text:
-            informasjon += f"<br>Error: {error_text}"
+                # get name - first and last or split on space
+                first_name = ""
+                last_name = ""
+                try:
+                    first_name = elements[headers["Fornavn"]]
+                    last_name = elements[headers["Etternavn"]]
+                except Exception:
+                    name = elements[headers["Navn"]]
+                    all_names = name.split(" ")
+                    i = 0
+                    for one_name in all_names:
+                        if i == 0:
+                            first_name = one_name
+                        else:
+                            last_name += one_name + " "
+                        i += 1
+                request_body = {
+                    "first_name": first_name,
+                    "last_name": last_name.strip(),
+                    "birth_date": "",
+                    "gender": "",
+                    "ageclass": elements[headers["Klasse"]],
+                    "club": elements[headers["Klubb"]],
+                    "region": elements[headers["Krets"]],
+                    "event_id": event["id"],
+                    "email": "",
+                    "team": "",
+                    "minidrett_id": "",
+                    "registration_date_time": "",
+                }
+                # optional fields
+                try:
+                    bib = elements[headers["Startnr"]]
+                    if bib.isnumeric():
+                        request_body["bib"] = int(bib)  # type: ignore
+                except Exception:
+                    logging.debug("Startnr ignored")
+                try:
+                    request_body["seeding_points"] = int(elements[headers["Seedet"]])
+                except Exception:
+                    request_body["seeding_points"] = None
+                try:
+                    request_body["registration_date_time"] = elements[
+                        headers["Påmeldt"]
+                    ]
+                except Exception:
+                    logging.debug("Påmeldt unknown")
+                    # set current time for registration_date_time
+                    request_body[
+                        "registration_date_time"
+                    ] = EventsAdapter().get_local_time(event, "log")
+
+                ret = await ContestantsAdapter().create_contestant(
+                    token, event["id"], request_body
+                )
+                if ret == "201":
+                    logging.debug(f"Created contestant {id}")
+                    i_contestants += 1
+                else:
+                    error_text += f"<br>{ret}"
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            error_text += f"<br>{e}"
+
+    informasjon = f"Deltakere er opprettet - {i_contestants} totalt."
+    if error_text:
+        informasjon += f"<br>Error: {error_text}"
     return informasjon
 
 
