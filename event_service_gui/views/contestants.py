@@ -499,25 +499,28 @@ async def get_available_etteranmelding(token: str, event_id: str) -> list:
     raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
     races = await RaceplansAdapter().get_all_races(token, event_id)
     for raceclass in raceclasses:
-        # number of places in semi final is limitation
-        max_available_places = 0
+        # number of places in semi final C is limitation
+        available_places = 0
 
         if raceclass["ranking"]:
-            found_semi = False
+            found_semi_c = False
             for race in races:
                 if raceclass["name"] == race["raceclass"]:
                     if f"{race['round']}{race['index']}" == "SC":
-                        max_available_places += race["max_no_of_contestants"]
-                    elif f"{race['round']}{race['index']}" == "SA":
-                        max_available_places += race["no_of_contestants"]
-                        found_semi = True
+                        available_places += (
+                            race["max_no_of_contestants"] - race["no_of_contestants"]
+                        )
+                        found_semi_c = True
 
-            # handle raceclasses without semi-finals - finale B is limitation
-            if not found_semi:
+            # handle raceclasses without c semi-finals - first finale is limitation
+            if not found_semi_c:
                 for race in races:
                     if raceclass["name"] == race["raceclass"]:
                         if race["round"] == "F":
-                            max_available_places += race["max_no_of_contestants"]
+                            available_places = (
+                                race["max_no_of_contestants"]
+                                - race["no_of_contestants"]
+                            )
                             # only the one (the first) final has open places
                             break
 
@@ -526,9 +529,10 @@ async def get_available_etteranmelding(token: str, event_id: str) -> list:
             for race in races:
                 if raceclass["name"] == race["raceclass"]:
                     if race["round"] == "R1":
-                        max_available_places += race["max_no_of_contestants"]
+                        available_places += (
+                            race["max_no_of_contestants"] - race["no_of_contestants"]
+                        )
 
-        available_places = max_available_places - raceclass["no_of_contestants"]
         raceclass_availability = {
             "ageclasses": raceclass["ageclasses"],
             "available_places": available_places,
