@@ -34,11 +34,13 @@ color: white;
 #headerblue {
   color: white;
   background-color: #00247d;
+  padding: 4px;
 }
 
 #headerblack {
   color: black;
   background-color: #ffb549;
+  padding: 4px;
 }
 
 #headercollapse {

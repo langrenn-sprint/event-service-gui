@@ -30,11 +30,13 @@ color: white;
 #headerblue {
   color: white;
   background-color: #75000e;
+  padding: 4px;
 }
 
 #headerblack {
   color: white;
   background-color: #1f3d8e;
+  padding: 4px;
 }
 
 #headercollapse {
