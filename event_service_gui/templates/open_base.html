@@ -67,46 +67,81 @@
           <a href=javascript:void(0) class=dropbtn>...</a>
           <div class=dropdown-content>
             <table>
-              {% if event_id %}
+              {% if not event_id %}
                 <tr>
-                  <td id="black">Info for alle</td>
-                  {% if username != "Gjest" %}
-                    <td>&nbsp;&nbsp;</td>
-                    <td id="black">Renn-funksjoner</td>
-                    <td>&nbsp;&nbsp;</td>
-                    <td id="black">Admin-funksjoner</td>
-                  {% endif %}
+                  <td>
+                    <nobr><a id="myIndex" onclick="event_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>&nbsp;</nobr>
+                  </td>
                 </tr>
-              {% endif %}
-              <tr>
-                <td valign="top">
-                  {% if event_id %}
+              {% else %}
+                {% if username == "Gjest" %}
+                  <tr><td id="black">
+                      {{ event.name }}
+                  </td></tr>
+                  <tr><td>
                     <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a>
+                  </td></tr>
+                  <tr><td>
                     <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a>
+                  </td></tr>
+                  <tr><td>
                     <nobr><a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater&nbsp;</a></nobr>
+                  </td></tr>
+                  <tr><td>
                     <a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a>
-                    {% else %}
-                      <nobr><a id="myIndex" onclick="event_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>&nbsp;</nobr>
-                    {% endif %}
-                </td>
-                {% if username != "Gjest" %}
-                  <td>&nbsp;&nbsp;</td>
-                  <td valign="top">
-                    <nobr><a id="myNewContestant" onclick="event_gui_href('myNewContestant', 'contestants?event_id={{ event_id }}&action=new_manual')" href=><img id=menu_icon src="../static/icon_new.png"> Etteranmelding</a></nobr>
-                    <a id="myDNS" onclick="result_gui_href('myDNS', 'timing?event_id={{ event_id }}&action=start')" href=><img id=menu_icon src="../static/icon_timing.png"> Start/DNS</a>
-                    <a id="myStartEdit" onclick="result_gui_href('myStartEdit', 'start_edit?event_id={{ event_id }}&action=start')" href=><img id=menu_icon src="../static/icon_start.png"> Start/Endre</a>
-                    <a id="myTiming" onclick="result_gui_href('myTiming', 'resultat_edit?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Målpassering</a>
-                    <a id="myPF" onclick="result_gui_href('myPF', 'photo_finish?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Målfoto</a>
-                    <a id="myPrint" onclick="result_gui_href('myPrint', 'print_dash?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Utskrifter</a>
-                  </td>
-                  <td>&nbsp;&nbsp;</td>
-                  <td valign="top">
-                    <a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_event.png"> Admin: Sette renn</a>
-                    <a id="myTimingDash" onclick="result_gui_href('myTimingDash', 'timing_dash?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Admin: Kjøre renn</a>
-                    <a id="myAdmB" onclick="result_gui_href('myAdmB', 'photos_edit?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Admin: Foto</a>
-                  </td>
+                  </td></tr>
+                {% else %}
+                  <tr>
+                    <td id="black">{{ event.name }}</td>
+                    <td>&nbsp;</td>
+                    <td id="black">Renn-funksjoner</td>
+                    <td>&nbsp;</td>
+                    <td id="black">Admin-funksjoner</td>
+                  </tr>
+                  <tr>
+                    <td><a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a></td>
+                    <td>&nbsp;</td>
+                    <td><nobr><a id="myNewContestant" onclick="event_gui_href('myNewContestant', 'contestants?event_id={{ event_id }}&action=new_manual')" href=><img id=menu_icon src="../static/icon_new.png"> Etteranmelding</a></nobr></td>
+                    <td>&nbsp;</td>
+                    <td><a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_event.png"> Admin: Sette renn</a></td>
+                  </tr>
+                  <tr>
+                    <td><a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a></td>
+                    <td>&nbsp;</td>
+                    <td><a id="myDNS" onclick="result_gui_href('myDNS', 'timing?event_id={{ event_id }}&action=start')" href=><img id=menu_icon src="../static/icon_timing.png"> Start: DNS</a></td>
+                    <td>&nbsp;</td>
+                    <td><nobr><a id="myTimingDash" onclick="result_gui_href('myTimingDash', 'timing_dash?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Admin: Kjøre renn</a></nobr></td>
+                  </tr>
+                  <tr>
+                    <td><nobr><a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater&nbsp;</a></nobr></td>
+                    <td>&nbsp;</td>
+                    <td><a id="myStartEdit" onclick="result_gui_href('myStartEdit', 'start_edit?event_id={{ event_id }}&action=start')" href=><img id=menu_icon src="../static/icon_start.png"> Start: Endre</a></td>
+                    <td>&nbsp;</td>
+                    <td><a id="myAdmB" onclick="result_gui_href('myAdmB', 'photos_edit?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Admin: Foto</a></td>
+                  </tr>
+                  <tr>
+                    <td><a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a></td>
+                    <td>&nbsp;</td>
+                    <td><a id="myTiming" onclick="result_gui_href('myTiming', 'resultat_edit?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Målpassering</a></td>
+                    <td>&nbsp;</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>&nbsp;</td>
+                    <td><a id="myPF" onclick="result_gui_href('myPF', 'photo_finish?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Målfoto</a></td>
+                    <td>&nbsp;</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>&nbsp;</td>
+                    <td><a id="myPrint" onclick="result_gui_href('myPrint', 'print_dash?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Utskrifter</a></td>
+                    <td>&nbsp;</td>
+                    <td></td>
+                  </tr>
                 {% endif %}
-              </tr>
+              {% endif %}
             </table>
           </div>
         </li>

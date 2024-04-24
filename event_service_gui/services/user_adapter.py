@@ -132,5 +132,4 @@ class UserAdapter:
             result = cookiestorage["loggedin"]
         except Exception:
             result = False
-        breakpoint()
         return result

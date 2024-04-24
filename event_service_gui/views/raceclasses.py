@@ -180,7 +180,6 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
             ranking = True
     except Exception:
         ranking = False
-    breakpoint()
     ageclasses_str = form["ageclasses"]
     ageclasses = ast.literal_eval(ageclasses_str)
     request_body = {
