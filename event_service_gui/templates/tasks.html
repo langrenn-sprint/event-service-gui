@@ -10,14 +10,16 @@
 {% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_settings.png"> {% endblock %}
 
 {% block content %}
-<div id=table_header_green>
-  <a data-toggle="collapse" id=info-header href="#tips_tasks">TIPS</a>
-</div>
-<div id="tips_tasks" class="collapse">
-    - Dokumentasjon finnes her: <a href=https://langrenn-sprint.github.io/docs/before_race target="_blank">https://langrenn-sprint.github.io/docs/before_race</a><br>
-    - Videoinstruksjoner finnes her: <a href=https://youtu.be/By1KbuHGirQ target="_blank">YouTube, spilleliste "langrenn-sprint"</a><br>
+<! --- Information --->
+<div id=spacer></div>
+<div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
+<div id=info-zone class="collapse">
+  - Her settes hele rennet - innlasting av deltakere, opprettelse av klasser, kjøreplan, seeding og startliste.<br>
+  - Dokumentasjon finnes her: <a href=https://langrenn-sprint.github.io/docs/before_race target="_blank">https://langrenn-sprint.github.io/docs/before_race</a><br>
+  - Videoinstruksjoner finnes her: <a href=https://youtu.be/By1KbuHGirQ target="_blank">YouTube, spilleliste "langrenn-sprint"</a><br>
 </div>
 <div id=spacer></div>
+<! --- End Information --->
 <table>
     <tr id=subheader id=black>
       <td id=black>Arbeidsflyt - sette rennet</td>
