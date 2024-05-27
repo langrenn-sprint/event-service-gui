@@ -18,8 +18,11 @@ services:
       - COMPETITION_FORMAT_HOST_PORT=8080
       - USERS_HOST_SERVER=user-service
       - USERS_HOST_PORT=8080
+      - ERROR_FILE=error.log
     volumes:
-      - .:/app
+      - type: bind
+        source: ${ERROR_FILE}
+        target: /app/${ERROR_FILE}
     depends_on:
       - "event-service"
       - "competition-format-service"

@@ -143,18 +143,19 @@ class EventsAdapter:
 
     def get_club_logo_url(self, club_name: str) -> str:
         """Get url to club logo - input is 4 first chars of club name."""
-        config_files_directory = f"{os.getcwd()}/event_service_gui/config"
-        try:
-            if len(club_name) == 3:
-                club_name_short = f"{club_name} "
-            else:
-                club_name_short = club_name[:4]
-            with open(f"{config_files_directory}/sports_clubs.json") as json_file:
-                logo_urls = json.load(json_file)
-            logo_url = logo_urls[club_name_short]
-        except Exception as e:
-            logging.error(f"Club logo not found - {club_name}, error: {e}")
-            logo_url = ""
+        logo_url = ""
+        if club_name:
+            config_files_directory = f"{os.getcwd()}/event_service_gui/config"
+            try:
+                if len(club_name) == 3:
+                    club_name_short = f"{club_name} "
+                else:
+                    club_name_short = club_name[:4]
+                with open(f"{config_files_directory}/sports_clubs.json") as json_file:
+                    logo_urls = json.load(json_file)
+                logo_url = logo_urls[club_name_short]
+            except Exception as e:
+                logging.error(f"Club logo not found - {club_name}, error: {e}")
         return logo_url
 
     async def create_event(self, token: str, event: dict) -> str:
