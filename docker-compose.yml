@@ -21,8 +21,8 @@ services:
       - ERROR_FILE=error.log
     volumes:
       - type: bind
-        source: ${ERROR_FILE}
-        target: /app/${ERROR_FILE}
+        source: $error.log
+        target: /app/$error.log
     depends_on:
       - "event-service"
       - "competition-format-service"
