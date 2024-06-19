@@ -16,19 +16,26 @@
 <div id=info-zone class="collapse">
   - Her settes hele rennet - innlasting av deltakere, opprettelse av klasser, kjøreplan, seeding og startliste.<br>
   - Dokumentasjon finnes her: <a href=https://langrenn-sprint.github.io/docs/before_race target="_blank">https://langrenn-sprint.github.io/docs/before_race</a><br>
-  - Videoinstruksjoner finnes her: <a href=https://youtu.be/By1KbuHGirQ target="_blank">YouTube, spilleliste "langrenn-sprint"</a><br>
+  - Videoinstruksjoner finnes for hver funksjon (bruk <img src="../static/video.png" width="20" height="20"> ikonet). Alle videoer finnes på Youtube: <a href=https://youtu.be/By1KbuHGirQ target="_blank">YouTube, spilleliste "langrenn-sprint"</a><br>
 </div>
 <div id=spacer></div>
 <! --- End Information --->
 <table>
     <tr id=subheader id=black>
       <td id=black>Arbeidsflyt - sette rennet</td>
+      <td>
+      </td>
       <td width=150>Status</td>
       <td>Funksjoner</td>
-      <td>Merknad</td>
+      <td>Informasjon og instruksjonsvideoer</td>
     </tr>
     <tr>
       <td>1a. Arrangement: Opprett (<a href=/events?event_id={{ event_id }}>se/endre</a>)</td>
+      <td>
+        <a href="https://youtube.com/clip/UgkxVITcKqDXK2bojijsB8PAkA6ikulGSROf?si=ud_7rOMWIO6XucIv" target="_blank">
+          <img src="../static/video.png" title="Video - Nytt arrangement" width="20" height="20">
+        </a>
+      </td>
       <td id=green>Utført</td>
       <td></td>
       <td>Tid: {{ event.date_of_event }} kl. {{ event.time_of_event }}<br>Arrangør: {{ event.organiser }}{% if (event.webpage) %} <a href={{ event.webpage }}>Mer info</a>{% endif %}</td>
@@ -38,6 +45,11 @@
     </tr>
     <tr>
       <td>1b. Arrangement: Sprint oppsett</td>
+      <td>
+        <a href="https://youtube.com/clip/Ugkx2-IrmmOmhkmI87fbWHDuKzEiwFo3MfL_?si=YO7aqXHeFqbp2Ppd" target="_blank">
+          <img src="../static/video.png" title="Video - Sprint oppsett" width="20" height="20">
+        </a>
+      </td>
       {% if (task_status.done_6) %}
         <td id=green>Utført</td>
         <td></td>
@@ -57,6 +69,11 @@
     <tr>
       <td>
         2. Deltakere: Last inn (<a href=/contestants?event_id={{ event_id }}>se/endre</a>)
+      </td>
+      <td>
+        <a href="https://youtube.com/clip/UgkxVr0qnmwGr--scKWuSZrK4CEvrmQHuUS2?si=obMdIb4j7cj9Z9zO" target="_blank">
+          <img src="../static/video.png" title="Video - Last inn deltakere" width="20" height="20">
+        </a>
       </td>
       {% if (task_status.done_2) %}
         <td id=green>Utført</td>
@@ -87,6 +104,11 @@
     </tr>
     <tr>
       <td>3a. Klasser: Opprett (<a href=/raceclasses?event_id={{ event_id }}>se/endre</a>)</td>
+      <td>
+        <a href="https://youtube.com/clip/UgkxOoS6PDocELARATX6OSIOx28ddg9o64xC?si=yQUPzm4SlVTUjrGt" target="_blank">
+          <img src="../static/video.png" title="Video - Klasser" width="20" height="20">
+        </a>
+      </td>
       {% if (task_status.done_3) %}
         <td id=green>Utført</td>
         <td>
@@ -117,6 +139,11 @@
     </tr>
     <tr>
       <td>3b. Klasser: Startrekkefølge</td>
+      <td>
+        <a href="https://youtube.com/clip/UgkxP3E6r-k5nBlZ6bLiHqwEAXhxuRylZUAC?si=AzwUSyezAQLeTr7T" target="_blank">
+          <img src="../static/video.png" title="Video - Startrekkefølge" width="20" height="20">
+        </a>
+      </td>
       {% if (task_status.done_6) %}
         <td id=green>Utført</td>
         <td></td>
@@ -140,6 +167,11 @@
     </tr>
     <tr>
       <td>4a. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
+      <td>
+        <a href="https://youtube.com/clip/Ugkx05ceyvE2PmAMyL3MYU2a2hla1lPpA3eX?si=QFXKK-1diqq0OTQq" target="_blank">
+          <img src="../static/video.png" title="Video - Kjøreplan" width="20" height="20">
+        </a>
+      </td>
       {% if (task_status.done_6) %}
         {% if (task_status.raceplan_validation) %}
           <td id=orange>Valideringsfeil</td>
@@ -181,6 +213,11 @@
     </tr>
     <tr>
       <td>4b. Kjøreplan: Tilpass tidsskjema (<a href=/raceplans?event_id={{ event_id }}&action=edit_time>se/endre</a>)</td>
+      <td>
+        <a href="https://youtube.com/clip/UgkxHUUTs5G21QuKHV9BDWFsx8vZN34M9BnH?si=6uLu9M8cRUYnD34T" target="_blank">
+          <img src="../static/video.png" title="Video - Tidsskjema" width="20" height="20">
+        </a>
+      </td>
       <td></td>
       <td>
         {% if (task_status.done_6) %}
@@ -198,6 +235,11 @@
   </tr>
   <tr>
     <td>5a. Deltakere: Startnummer (<a href=/contestants?event_id={{ event_id }}&action=edit_mode>se/endre</a>)</td>
+    <td>
+      <a href="https://youtube.com/clip/Ugkxqx_SsRIi9zSy0909GMz7mmT9jzqW3sly?si=H_n7WTGD1pXtvM1b" target="_blank">
+        <img src="../static/video.png" title="Video - Startnummer" width="20" height="20">
+      </a>
+    </td>
     {% if (task_status.done_5) %}
       <td id=green>Utført</td>
       <td>
@@ -238,6 +280,11 @@
     </tr>
     <tr>
       <td>5b. Deltakere: Seeding</td>
+      <td>
+        <a href="https://youtube.com/clip/UgkxF86V9g_jzUq0gPITsUp5g0PHYI3TPZuw?si=Ww15wJtVewTN5GGF" target="_blank">
+          <img src="../static/video.png" title="Video - Seeding" width="20" height="20">
+        </a>
+      </td>
       {% if (task_status.done_8) %}
         <td id=green>Utført</td>
         <td colspan="2"></td>
@@ -258,7 +305,12 @@
     </tr>
   <tr>
     <td>6a. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
-    {% if (task_status.done_8) %}
+    <td>
+      <a href="https://youtube.com/clip/UgkxfTfwJfSwx_W94esb9QYyYEckhOOwuIYe?si=bRslED4IhRfTFYAQ" target="_blank">
+        <img src="../static/video.png" title="Video - Startlister" width="20" height="20">
+      </a>
+    </td>
+  {% if (task_status.done_8) %}
       <td id=green>Utført</td>
       <td>
         <ul>
@@ -286,8 +338,13 @@
   </tr>
   {% if event.competition_format == "Individual Sprint" %}
   <tr>
-    <td>6b. "Videre til" oppsett: Opprett (<a id="mySeeControl" onclick="event_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=Template')" href=>se/endre</a>)</td>
-    {% if (task_status.done_9) %}
+    <td>6b. Videre oppsett: Opprett (<a id="mySeeControl" onclick="event_gui_href('mySeeControl', 'control?event_id={{ event_id }}&action=Template')" href=>se/endre</a>)</td>
+    <td>
+      <a href="https://youtube.com/clip/Ugkxb2i2Sa0nlIV93EMptOp1SZFJ4iavrc2X?si=zB5qsV6GVD5rYrXD" target="_blank">
+        <img src="../static/video.png" title="Video - Videre oppsett" width="20" height="20">
+      </a>
+    </td>
+  {% if (task_status.done_9) %}
       <td id=green>Utført</td>
       <td>
       </td>
@@ -313,7 +370,12 @@
   </tr>
   <tr>
     <td>Eksporter data</td>
-    <td></td>
+    <td>
+      <a href="https://youtube.com/clip/Ugkxur0WbXlews2KE7ItDdHbPOvEU_vxOQFh?si=PAzvCGYCvAHJk5Bv" target="_blank">
+        <img src="../static/video.png" title="Video - Eksporter data" width="20" height="20">
+      </a>
+    </td>
+  <td></td>
     <td>
       <ul>
         <li class=dropdown>
@@ -333,6 +395,7 @@
   </tr>
   <tr id="danger-zone">
     <td>Opprydding</td>
+    <td></td>
     <td>"Danger-zone"</td>
     <td>
       {% if (task_status.done_2) %}
