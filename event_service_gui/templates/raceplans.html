@@ -108,14 +108,7 @@
       <tr align=right>
         <td>
           <form action=/raceplans method=post>
-            <select name="min_rest_time">
-              <option value="10">&nbsp;&nbsp;10 min  </option>
-              <option value="12" selected>&nbsp;&nbsp;12 min</option>
-              <option value="15">&nbsp;&nbsp;15 min</option>
-              <option value="18">&nbsp;&nbsp;18 min</option>
-              <option value="20">&nbsp;&nbsp;20 min</option>
-              <option value="25">&nbsp;&nbsp;25 min&nbsp;&nbsp;</option>
-            </select>
+            <input type="text" name="min_rest_time" value="12" size="1" pattern="[0-9]*" title="Only numbers allowed" required> minutter.
             <input type="hidden" name="event_id" value="{{ event_id }}">
             <input type="submit" id="set_rest_time" name="set_rest_time" value="  Sett minimum hviletid  " onclick=save_message(this.id);>
           </form>
