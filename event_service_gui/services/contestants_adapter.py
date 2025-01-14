@@ -67,7 +67,7 @@ class ContestantsAdapter:
                 else:
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
-                    return body["detail"]
+                    raise Exception(body["detail"]) from None
         return "201"
 
     async def create_contestants(self, token: str, event_id: str, inputfile) -> str:

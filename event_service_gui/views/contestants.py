@@ -255,7 +255,7 @@ async def create_one_contestant(token: str, event: dict, form: dict) -> str:
     request_body = get_contestant_from_form(event, form)  # type: ignore
     bib = request_body["bib"]
     if "create_one" in form.keys():
-        # 1. Add contestant
+        # 1. Add contestant.
         id = await ContestantsAdapter().create_contestant(
             token, event["id"], request_body
         )
