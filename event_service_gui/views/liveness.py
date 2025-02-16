@@ -1,4 +1,5 @@
 """Resource module for liveness resources."""
+
 import logging
 import os
 

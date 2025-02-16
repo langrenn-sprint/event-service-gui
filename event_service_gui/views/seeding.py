@@ -1,4 +1,5 @@
 """Resource module for seeding view."""
+
 import logging
 
 from aiohttp import web

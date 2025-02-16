@@ -1,4 +1,5 @@
 """Module for contestants adapter."""
+
 import copy
 import logging
 import os

@@ -1,4 +1,5 @@
 """Resource module for logout view."""
+
 import logging
 
 from aiohttp import web

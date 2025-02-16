@@ -1,4 +1,5 @@
 """Package for all views."""
+
 from .contestants import Contestants
 from .control import Control
 from .csv_list import CsvList

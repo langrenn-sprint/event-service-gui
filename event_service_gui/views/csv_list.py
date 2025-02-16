@@ -1,4 +1,5 @@
 """Resource module for csv export."""
+
 import csv
 import io
 

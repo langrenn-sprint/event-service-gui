@@ -1,4 +1,5 @@
 """Resource module for control resources."""
+
 import logging
 
 from aiohttp import web

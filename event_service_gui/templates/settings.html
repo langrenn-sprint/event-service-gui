@@ -13,10 +13,9 @@
       <form action=/settings method=post>
         <nobr>
           Tilbakestill: 
-          <input type="submit" name="default_individual_sprint" value="  Standard sprint oppsett  ">
+          <input type="submit" name="default_individual_sprint_s2" value="  Standard sprint oppsett (Steinar v2) ">
+          <input type="submit" name="default_individual_sprint" value="  Sprint oppsett - alternativ  ">
           <input type="submit" name="default_sprint_all_to_finals" value="  Sprint - alle til finale  ">
-          <input type="submit" name="default_individual_sprint_steinar" value="  Steinars oppsett  ">
-          <input type="submit" name="default_individual_sprint_s2" value="  Steinar v2 med 7 pr heat  ">
         </nobr>
       </form>
     </div>
@@ -95,16 +94,23 @@
                     <table border="1">
                       <tr>
                         <td></td>
-                        <td>Ant</td>
-                        <td>Runder</td>
-                        <td>Ant heat</td>
-                        <td>Regel</td>
+                        <td><b>Ant</b></td>
+                        <td><b>Runder</b></td>
+                        <td><b>Ant heat</b></td>
+                        <td><b>Regel</b></td>
                       </tr>
                       {% for race_config_r in format.race_config_ranked %}
                         <tr>
                           <td>{{ loop.index }}</td>
-                          <td><input type=text name=ranked_{{ loop.index }}_max_no_of_contestants value="{{ race_config_r.max_no_of_contestants }}" size="2"></td>
-                          <td><input type=text name=ranked_{{ loop.index }}_rounds value="{{ race_config_r.rounds }}" size="8"></td>
+                          <td>
+                            {{ race_config_r.max_no_of_contestants }}<br>
+                            <input type=text name=ranked_{{ loop.index }}_max_no_of_contestants value="{{ race_config_r.max_no_of_contestants }}" size="2">
+                          </td>
+                          <td>
+                            {% if (race_config_r.no_of_heats.Q) %}Kvartfinale<br>{% endif %}
+                            {% if (race_config_r.no_of_heats.S) %}Semifinale<br>{% endif %}
+                            {% if (race_config_r.no_of_heats.F) %}Finale<br>{% endif %}
+                            <input type=text name=ranked_{{ loop.index }}_rounds value="{{ race_config_r.rounds }}" size="8"></td>
                           <td>
                             {% if (race_config_r.no_of_heats.Q) %}Kvart: {{ race_config_r.no_of_heats.Q.A }}<br>{% endif %}
                             {% if (race_config_r.no_of_heats.S) %}Semi:

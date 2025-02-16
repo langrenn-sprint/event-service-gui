@@ -1,4 +1,5 @@
 """Module for user adapter."""
+
 import logging
 import os
 from typing import List

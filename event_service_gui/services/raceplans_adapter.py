@@ -1,4 +1,5 @@
 """Module for raceplans adapter."""
+
 import datetime
 import logging
 import os
@@ -84,7 +85,6 @@ class RaceplansAdapter:
         async with ClientSession() as session:
             async with session.post(url, headers=headers, json=request_body) as resp:
                 res = resp.status
-                logging.debug(f"generate_raceplan result - got response {resp}")
                 if res == 201:
                     pass
                 elif resp.status == 401:

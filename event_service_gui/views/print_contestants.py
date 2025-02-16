@@ -1,4 +1,5 @@
 """Resource module for live resources."""
+
 import logging
 from operator import itemgetter
 

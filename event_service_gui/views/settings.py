@@ -1,4 +1,5 @@
 """Resource module for main view."""
+
 import json
 import logging
 
@@ -38,9 +39,9 @@ class Settings(web.View):
                         try:
                             from_to = race_config["from_to"]
                             next_race_q = {"round": "Q", "rule": from_to["Q"]["A"]}
-                            race_config[
-                                "next_race_desc"
-                            ] = f"Q: {get_qualification_text(next_race_q)}"
+                            race_config["next_race_desc"] = (
+                                f"Q: {get_qualification_text(next_race_q)}"
+                            )
                             next_race_sa = {"round": "SA", "rule": from_to["S"]["A"]}
                             race_config[
                                 "next_race_desc"
@@ -81,7 +82,6 @@ class Settings(web.View):
             # Create default settings
             if (
                 "default_individual_sprint" in form.keys()
-                or "default_individual_sprint_steinar" in form.keys()
                 or "default_sprint_all_to_finals" in form.keys()
                 or "default_individual_sprint_s2" in form.keys()
             ):
@@ -97,7 +97,7 @@ class Settings(web.View):
                             user["token"], format["id"]
                         )
                     )
-                # create new - for individual sprint and interval start
+                # create new - for individual_sprint and interval_start
                 for format in form.keys():
                     informasjon += await create_default_competition_format(
                         user["token"], format

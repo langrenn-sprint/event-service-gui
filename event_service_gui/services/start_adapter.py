@@ -1,4 +1,5 @@
 """Module for start adapter."""
+
 import logging
 import os
 from typing import List

@@ -1,4 +1,5 @@
 """Module for time events adapter."""
+
 import copy
 import logging
 import os

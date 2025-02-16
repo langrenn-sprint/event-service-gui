@@ -1,4 +1,5 @@
 """Package for all services."""
+
 from .competition_format_adapter import CompetitionFormatAdapter
 from .contestants_adapter import ContestantsAdapter
 from .events_adapter import EventsAdapter

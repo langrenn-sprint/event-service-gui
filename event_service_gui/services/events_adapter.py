@@ -1,4 +1,5 @@
 """Module for events adapter."""
+
 import copy
 from datetime import datetime
 import json

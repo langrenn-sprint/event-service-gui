@@ -1,4 +1,5 @@
 """Module for raceclass results adapter."""
+
 import logging
 import os
 from typing import List

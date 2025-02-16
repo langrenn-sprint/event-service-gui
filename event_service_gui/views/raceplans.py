@@ -1,4 +1,5 @@
 """Resource module for main view."""
+
 import datetime
 import logging
 
@@ -115,7 +116,6 @@ class Raceplans(web.View):
         action = ""
         form = await self.request.post()
         event_id = str(form["event_id"])
-        logging.debug(f"Form {form}")
 
         try:
             if "update_one" in form.keys():

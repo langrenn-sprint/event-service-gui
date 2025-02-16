@@ -1,4 +1,5 @@
 """Module for time event service."""
+
 import logging
 
 from aiohttp import web
@@ -51,9 +52,9 @@ class TimeEventsService:
         else:
             for race in races:
                 if race["round"] in ["Q", "S"]:
-                    time_event[
-                        "race"
-                    ] = f"{race['raceclass']}-{race['round']}{race['index']}{race['heat']}"
+                    time_event["race"] = (
+                        f"{race['raceclass']}-{race['round']}{race['index']}{race['heat']}"
+                    )
                     time_event["race_id"] = race["id"]
 
                     # loop and simulate result for pos 1 to 10
@@ -167,9 +168,9 @@ class TimeEventsService:
                     time_event["next_race"] = "Ute"
                     time_event["next_race_id"] = ""
                 # add name and club to time_event
-                time_event[
-                    "name"
-                ] = f"{contestant['first_name']} {contestant['last_name']}"
+                time_event["name"] = (
+                    f"{contestant['first_name']} {contestant['last_name']}"
+                )
                 time_event["club"] = contestant["club"]
                 result_ok = False
                 if len(time_event["id"]) > 0:
@@ -284,13 +285,13 @@ def calculate_next_start_entry(
                 start_entry["race_id"] = race.get("id")
                 start_entry["scheduled_start_time"] = race.get("start_time")
                 if race.get("round") == "F":
-                    start_entry[
-                        "race_round"
-                    ] = f"{race.get('round')}{race.get('index')}"
+                    start_entry["race_round"] = (
+                        f"{race.get('round')}{race.get('index')}"
+                    )
                 else:
-                    start_entry[
-                        "race_round"
-                    ] = f"{race.get('round')}{race.get('index')}{race.get('heat')}"
+                    start_entry["race_round"] = (
+                        f"{race.get('round')}{race.get('index')}{race.get('heat')}"
+                    )
         start_entry["starting_position"] = next_race_position
 
         logging.debug(

@@ -1,4 +1,5 @@
 """Package for exposing validation endpoint."""
+
 import base64
 import logging
 from logging.handlers import RotatingFileHandler

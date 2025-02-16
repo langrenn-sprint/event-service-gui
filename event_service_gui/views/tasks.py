@@ -1,4 +1,5 @@
 """Resource module for main view."""
+
 import logging
 
 from aiohttp import web

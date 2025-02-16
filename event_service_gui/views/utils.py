@@ -1,4 +1,5 @@
 """Utilities module for gui services."""
+
 import datetime
 import logging
 
@@ -108,15 +109,15 @@ async def get_enrichced_startlist(user: dict, race: dict) -> list:
                 elif time_event["timing_point"] == "Start":
                     if time_event["bib"] == start_entry["bib"]:
                         start_entry["start_status"] = "Started"
-                        start_entry[
-                            "info"
-                        ] = f"Started registered at {time_event['registration_time']}"
+                        start_entry["info"] = (
+                            f"Started registered at {time_event['registration_time']}"
+                        )
                 elif time_event["timing_point"] == "DNS":
                     if time_event["bib"] == start_entry["bib"]:
                         start_entry["start_status"] = "DNS"
-                        start_entry[
-                            "info"
-                        ] = f"DNS registered at {time_event['registration_time']}"
+                        start_entry["info"] = (
+                            f"DNS registered at {time_event['registration_time']}"
+                        )
             startlist.append(start_entry)
 
     return startlist
@@ -491,9 +492,9 @@ async def create_start(user: dict, form: dict) -> str:
             if new_race["round"] == "F":
                 latest_result["next_race"] = f"{new_race['round']}{new_race['index']}"
             else:
-                latest_result[
-                    "next_race"
-                ] = f"{new_race['round']}{new_race['index']}{new_race['heat']}"
+                latest_result["next_race"] = (
+                    f"{new_race['round']}{new_race['index']}{new_race['heat']}"
+                )
             latest_result["next_race_position"] = new_start["starting_position"]
             id = await TimeEventsAdapter().update_time_event(
                 user["token"], latest_result["id"], latest_result

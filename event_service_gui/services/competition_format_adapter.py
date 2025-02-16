@@ -1,4 +1,5 @@
 """Module for events adapter."""
+
 import json
 import logging
 import os
@@ -113,8 +114,6 @@ class CompetitionFormatAdapter:
             config_file_name = (
                 f"{config_files_directory}/competition_format_individual_sprint.json"
             )
-        elif format_type == "default_individual_sprint_steinar":
-            config_file_name = f"{config_files_directory}/competition_format_individual_sprint_steinar.json"
         elif format_type == "default_individual_sprint_s2":
             config_file_name = (
                 f"{config_files_directory}/competition_format_sprint_steinar2.json"
