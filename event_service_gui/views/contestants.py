@@ -130,9 +130,15 @@ class Contestants(web.View):
 
             # Assign bibs and perform seeding
             if "assign_bibs" in form.keys():
-                informasjon = await ContestantsAdapter().assign_bibs(
-                    user["token"], event_id
-                )
+                if "start_bib" in form.keys():
+                    start_bib = int(form["start_bib"])  # type: ignore
+                    informasjon = await ContestantsAdapter().assign_bibs(
+                        user["token"], event_id, start_bib  # type: ignore
+                    )
+                else:
+                    informasjon = await ContestantsAdapter().assign_bibs(
+                        user["token"], event_id
+                    )
                 informasjon += await perform_seeding(
                     user["token"], event_id, valgt_klasse
                 )

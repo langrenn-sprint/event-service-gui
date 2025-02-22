@@ -265,9 +265,12 @@
                 <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="submit" name=assign_bibs value="  Tildel startnummer  " onclick=save_message(this.id);>
               </form>
-            {% endif %}
-          </td>
-          <td></td>
+            </td>
+            <td>For å starte på noe annet enn startnummer 1, <a href=/contestants?event_id={{ event_id }}&action=edit_mode>se her</a>.</td>
+          {% else %}
+            </td>
+            <td></td>
+          {% endif %}
         {% else %}
           <td id=orange>Delvis</td>
           <td></td>

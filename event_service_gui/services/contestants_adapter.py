@@ -21,12 +21,16 @@ EVENT_SERVICE_URL = f"http://{EVENTS_HOST_SERVER}:{EVENTS_HOST_PORT}"
 class ContestantsAdapter:
     """Class representing contestants."""
 
-    async def assign_bibs(self, token: str, event_id: str) -> str:
+    async def assign_bibs(
+        self, token: str, event_id: str, start_bib: int = None  # type: ignore
+    ) -> str:
         """Generate bibs based upon registrations."""
         servicename = "assign_bibs"
         headers = MultiDict([(hdrs.AUTHORIZATION, f"Bearer {token}")])
 
         url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/assign-bibs"
+        if start_bib:
+            url += f"?start-bib={start_bib}"
         async with ClientSession() as session:
             async with session.post(url, headers=headers) as resp:
                 res = resp.status
