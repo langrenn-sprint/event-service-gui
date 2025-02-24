@@ -117,12 +117,14 @@
                     <td>&nbsp;</td>
                     <td><a id="myStartEdit" onclick="result_gui_href('myStartEdit', 'start_edit?event_id={{ event_id }}&action=start')" href=><img id=menu_icon src="../static/icon_start.png"> Start: Endre</a></td>
                     <td>&nbsp;</td>
-                    <td><a id="myAdmB" onclick="result_gui_href('myAdmB', 'photos_edit?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Admin: Foto</a></td>
+                    <td><a id="myAdmPhF" onclick="result_gui_href('myAdmPhF', 'config?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Admin: Målfoto</a></td>
                   </tr>
                   <tr>
                     <td><a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a></td>
                     <td>&nbsp;</td>
-                    <td><a id="myTiming" onclick="result_gui_href('myTiming', 'resultat_edit?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Målpassering</a></td>
+                    <td><a id="myTiming" onclick="result_gui_href('myTiming', 'resultat_edit?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_timing.png"> Målpassering</a></td>
+                    <td>&nbsp;</td>
+                    <td><a id="myTimingNew" onclick="result_gui_href('myTimingNew', 'resultat_edit_new?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_timing.png"> Målpassering (ny)</a></td>
                     <td>&nbsp;</td>
                     <td></td>
                   </tr>
@@ -136,11 +138,18 @@
                   <tr>
                     <td></td>
                     <td>&nbsp;</td>
+                    <td><a id="myPhotoEdit" onclick="result_gui_href('myPhotoEdit', 'photos_edit?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Foto redigering</a></td>
+                    <td>&nbsp;</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>&nbsp;</td>
                     <td><a id="myPrint" onclick="result_gui_href('myPrint', 'print_dash?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Utskrifter</a></td>
                     <td>&nbsp;</td>
                     <td></td>
                   </tr>
-                {% endif %}
+                  {% endif %}
               {% endif %}
             </table>
           </div>
