@@ -49,7 +49,7 @@ class ContestantsAdapter:
         return information
 
     async def create_contestant(
-        self, token: str, event_id: str, request_body: dict
+        self, token: str, event_id: str, contestant: dict
     ) -> str:
         """Create new contestant function."""
         servicename = "create_contestant"
@@ -59,6 +59,12 @@ class ContestantsAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
+        request_body = copy.deepcopy(contestant)
+        # Trim club name
+        if "club" in request_body:
+            request_body["club"] = request_body["club"].strip()
+            request_body["club"] = request_body["club"].replace("-", "")
+
         async with ClientSession() as session:
             async with session.post(
                 f"{EVENT_SERVICE_URL}/events/{event_id}/contestants",

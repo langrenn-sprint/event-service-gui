@@ -32,6 +32,11 @@ Her finner du en enkel webserver som generer html basert på csv-filer i test-da
 % poetry update / poetry add <module>
 ```
 
+## Virtual env
+Install: curl https://pyenv.run | bash 
+python -m venv .vienv 
+source .vienv/bin/activate
+
 ## Miljøvariable
 
 Du må sette opp ei .env fil med miljøvariable. Eksempel:

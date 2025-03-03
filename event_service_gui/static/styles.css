@@ -185,6 +185,10 @@ height: 400px;
 height: 4px;
 }
 
+#spacer20 {
+  height: 20px;
+  }
+  
 #minispacer {
 height: 1px;
 }

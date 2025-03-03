@@ -58,12 +58,27 @@
   {% if action == "edit_time" %}
     <div id=spacer></div>
     <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
-    <div id=info-zone class="collapse">
+    <div id=info-zone>
       - Kun ett tidspunkt kan endres om gangen. Alle påfølgende heat vil bli justert tilsvarende.<br>
       - Hviletider må verifiseres - bruk kolonnene "minste tid...". Disse beregner minste tid mellom start siste kvartfinale og start første semifinale / siste semifinale og første finale.<br>
       - Funksjonen "Sett minimum hviletid" vil legge inn pauser i kjøreplanen slik at ingen løpere får mindre enn angitt tid mellom to starter.
     </div>
-  {% endif %}
+    {% elif action == "edit_mode" %}
+      <div id=spacer></div>
+      <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
+      <div id=info-zone class="collapse">
+        - <b>Tilpass tidskjema</b>: Her kan du redigere hele tidskjema og tilpasse hviletider mellom runder.<br>
+        - <b>Tilpass tid hvert heat</b>: Kan brukes til å sette nye start-intervall mellom heat. Angi hvilke heat det skal gjelde for (fra nummer, til nummer).<br>
+        - <b>Generer kjøreplan</b>: Brukes kun dersom kjøreplan ikke allerede er opprettet.<br>
+        - <b>Slett kjøreplan</b>: Vil slette alle heat.<br>
+      </div>
+      {% elif action == "edit_heat_interval" %}
+      <div id=spacer></div>
+      <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
+      <div id=info-zone>
+        - <b>Tilpass tid hvert heat</b>: Kan brukes til å sette nye start-intervall mellom heat. Angi hvilke heat det skal gjelde for (fra nummer, til nummer).<br>
+      </div>
+      {% endif %}
 
   {% if raceplan_validation %}
     <div class="w3-container" id=info><br>&nbsp;<img width=15 src="../static/warning.png" title="Valideringsfeil">Valideringsfeil.<br>
@@ -78,7 +93,7 @@
 
   <! --- Edit menu --->
   {% if action == "edit_mode" %}
-    <div id=spacer></div>
+    <div id=spacer20></div>
     <table>
       <tr align=right>
       <td>
@@ -86,6 +101,13 @@
           <input type="hidden" name="event_id" value="{{ event_id }}">
           <input type="hidden" name=action value="edit_time">
           <input type="submit" name="edit_time" value="  Tilpass tidskjema  ">
+        </form>
+      </td>
+      <td>
+        <form action=/raceplans method=get>
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="hidden" name=action value="edit_heat_interval">
+          <input type="submit" name="edit_time" value="  Tilpass tid mellom heat  ">
         </form>
       </td>
       <td>
@@ -102,10 +124,14 @@
       </td>
       <td width="100"></td>
     </table>
-  {% elif action == "edit_time" %}
-    <div id=spacer></div>
+    <div id=spacer20></div>
+    {% elif action == "edit_time" %}
+    <div id=spacer20></div>
     <table>
-      <tr align=right>
+      <tr id=headerblue>
+        <td>Redigere minimum hviletid</td>
+      </tr>
+      <tr>
         <td>
           <form action=/raceplans method=post>
             <input type="text" name="min_rest_time" value="12" size="1" pattern="[0-9]*" title="Only numbers allowed" required> minutter.
@@ -113,9 +139,29 @@
             <input type="submit" id="set_rest_time" name="set_rest_time" value="  Sett minimum hviletid  " onclick=save_message(this.id);>
           </form>
         </td>
-        <td width="100"></td>
+      </tr>
     </table>
-  {% endif %}
+    <div id=spacer20></div>
+    {% elif action == "edit_heat_interval" %}
+      <div id=spacer20></div>
+      <table>
+        <tr id=headerblue>
+          <td>Redigere tid mellom heat</td>
+        </tr>
+        <tr>
+          <td>
+            <form action=/raceplans method=post>
+              Fra heat <input type="text" name="first_heat" value="" size="3" title="Only numbers allowed" required>&nbsp;
+              til heat <input type="text" name="last_heat" value="" size="3" title="Only numbers allowed" required>. 
+              Pause (mm:ss) <input type="text" name="heat_interval" value="" size="3" pattern="[0-9]{2}:[0-9]{2}" title="Only numbers allowed" required>. 
+              <input type="hidden" name="event_id" value="{{ event_id }}">
+              <input type="submit" id="edit_heat_interval" name="edit_heat_interval" value="  Lagre  " onclick=save_message(this.id);>
+            </form>
+          </td>
+        </tr>
+      </table>
+      <div id=spacer20></div>
+    {% endif %}
   <! --- End edit menu --->
  
   <! --- Display raceplan summary --->
