@@ -2,6 +2,7 @@
 
 import logging
 import os
+import random
 from typing import List
 import urllib.parse
 
@@ -82,7 +83,7 @@ class RaceclassResultsAdapter:
         return res
 
     async def get_raceclass_result(self, event_id: str, raceclass: str) -> dict:
-        """Get all raceclass function."""
+        """Get all raceclass result function."""
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -99,12 +100,30 @@ class RaceclassResultsAdapter:
                 logging.debug(f"{servicename} - got response {resp.status}")
                 if resp.status == 200:
                     raceclass_result = await resp.json()
+                elif resp.status == 404:
+                    # No results yet for this raceclass
+                    raise web.HTTPBadRequest(
+                        reason=f"Resultater er ikke klare for {raceclass_url}."
+                    )
                 else:
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
                     raise web.HTTPBadRequest(
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
+        return raceclass_result
+
+    async def get_raceclass_result_shuffeled(
+        self, event_id: str, raceclass: str, i_keep: int
+    ) -> dict:
+        """Get all raceclass result function. Shuffeled, except the n first."""
+        raceclass_result = await self.get_raceclass_result(event_id, raceclass)
+        if raceclass_result and raceclass_result.get(
+            "ranking_sequence"
+        ):  # Check if ranking_sequence exists
+            raceclass_result["ranking_sequence"] = shuffle_list_keep_first(
+                raceclass_result["ranking_sequence"], i_keep
+            )
         return raceclass_result
 
     async def get_all_raceclass_results(self, event_id: str) -> List:
@@ -118,19 +137,11 @@ class RaceclassResultsAdapter:
         )
         async with ClientSession() as session:
             async with session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses", headers=headers
+                f"{EVENT_SERVICE_URL}/events/{event_id}/results", headers=headers
             ) as resp:
                 logging.debug(f"{servicename} - got response {resp.status}")
                 if resp.status == 200:
-                    all_raceclasses = await resp.json()
-                    for raceclass in all_raceclasses:
-                        logging.debug(f"Raceclasses order: {raceclass['order']}.")
-
-                        try:
-                            if raceclass["event_id"] == event_id:
-                                raceclass_results.append(raceclass)
-                        except Exception as e:
-                            logging.error(f"Error - data quality: {e}")
+                    raceclass_results = await resp.json()
                 else:
                     body = await resp.json()
                     logging.error(f"{servicename} failed - {resp.status} - {body}")
@@ -138,3 +149,14 @@ class RaceclassResultsAdapter:
                         reason=f"Error - {resp.status}: {body['detail']}."
                     )
         return raceclass_results
+
+
+def shuffle_list_keep_first(my_list: list, n: int) -> list:
+    """Shuffles a list, keeping the first n elements fixed."""
+    if len(my_list) <= n:  # Nothing to shuffle if list is shorter than n
+        return my_list
+
+    head = my_list[:n]
+    tail = my_list[n:]
+    random.shuffle(tail)  # Shuffle only the tail portion
+    return head + tail
