@@ -2,8 +2,8 @@
 
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
+from aiohttp import web
 
 from event_service_gui.services import (
     ContestantsAdapter,
@@ -13,6 +13,7 @@ from event_service_gui.services import (
     TimeEventsAdapter,
     TimeEventsService,
 )
+
 from .utils import check_login, get_event
 
 
@@ -50,9 +51,8 @@ class Tasks(web.View):
         except Exception as e:
             if "401" in str(e):
                 return web.HTTPSeeOther(location=f"/login?informasjon={e}")
-            else:
-                logging.error(f"Error: {e}. Redirect to main page.")
-                return web.HTTPSeeOther(location=f"/?informasjon={e}")
+            logging.exception("Error.. Redirect to main page.")
+            return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""
@@ -65,39 +65,39 @@ class Tasks(web.View):
         event = await get_event(user["token"], event_id)
 
         try:
-            if "generate_startlist" in form.keys():
+            if "generate_startlist" in form:
                 informasjon = await StartAdapter().generate_startlist_for_event(
                     user["token"], event_id
                 )
-            elif "generate_next_race" in form.keys():
+            elif "generate_next_race" in form:
                 informasjon = await TimeEventsService().generate_next_race_templates(
                     user["token"], event
                 )
-            elif "delete_all_cont" in form.keys():
+            elif "delete_all_cont" in form:
                 res = await ContestantsAdapter().delete_all_contestants(
                     user["token"], event_id
                 )
                 informasjon = f"Deltakerne er slettet - {res}"
-            elif "delete_all_raceplans" in form.keys():
+            elif "delete_all_raceplans" in form:
                 res = await RaceplansAdapter().delete_raceplans(user["token"], event_id)
                 informasjon = f"Kjøreplaner er slettet - {res}"
-            elif "delete_all_raceclasses" in form.keys():
+            elif "delete_all_raceclasses" in form:
                 res = await RaceclassesAdapter().delete_all_raceclasses(
                     user["token"], event_id
                 )
                 informasjon = f"Klasser er slettet - {res}"
-            elif "delete_time_events" in form.keys():
+            elif "delete_time_events" in form:
                 informasjon = await delete_time_events(user["token"], event_id)
-            elif "delete_start_lists" in form.keys():
+            elif "delete_start_lists" in form:
                 informasjon = await delete_start_lists(user["token"], event_id)
         except Exception as e:
-            logging.error(f"Error: {e}")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
                 return web.HTTPSeeOther(
                     location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
                 )
+            logging.exception("Error")
 
         info = f"action={action}&informasjon={informasjon}"
         return web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
@@ -105,20 +105,17 @@ class Tasks(web.View):
 
 async def delete_start_lists(token: str, event_id: str) -> str:
     """Delete all start lists on event."""
-    informasjon = ""
     startlists = await StartAdapter().get_all_starts_by_event(token, event_id)
     i = 0
     for startlist in startlists:
-        id = await StartAdapter().delete_start_list(token, startlist["id"])
-        logging.debug(f"Slettet startliste {startlist['id']} - resultat {id}")
+        w_id = await StartAdapter().delete_start_list(token, startlist["id"])
+        logging.debug(f"Slettet startliste {startlist['id']} - resultat {w_id}")
         i += 1
-    informasjon = f"Slettet {i} start lister."
-    return informasjon
+    return f"Slettet {i} start lister."
 
 
 async def delete_time_events(token: str, event_id: str) -> str:
     """Delete all time_events on event."""
-    informasjon = ""
     # delete all existing Template time events
     all_time_events = await TimeEventsAdapter().get_time_events_by_event_id(
         token,
@@ -126,12 +123,10 @@ async def delete_time_events(token: str, event_id: str) -> str:
     )
     i = 0
     for time_event in all_time_events:
-        id = await TimeEventsAdapter().delete_time_event(token, time_event["id"])
-        logging.debug(f"Deleted time_event id {id}")
+        w_id = await TimeEventsAdapter().delete_time_event(token, time_event["id"])
+        logging.debug(f"Deleted time_event id {w_id}")
         i += 1
-    informasjon = f"Slettet {i} time_events."
-
-    return informasjon
+    return f"Slettet {i} time_events."
 
 
 async def get_task_status(token: str, event_id: str) -> dict:
@@ -183,7 +178,7 @@ async def get_task_status(token: str, event_id: str) -> dict:
                 "raceplan_validation"
             ] = await RaceplansAdapter().validate_raceplan(
                 token, raceplans[0]["id"]
-            )  # type: ignore
+            )
     else:
         task_status["done_6"] = False
 

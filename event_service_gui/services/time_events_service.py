@@ -42,8 +42,8 @@ class TimeEventsService:
             )
         )
         for template in current_templates:
-            id = await TimeEventsAdapter().delete_time_event(token, template["id"])
-            logging.debug(f"Deleted template time_event id {id}")
+            w_id = await TimeEventsAdapter().delete_time_event(token, template["id"])
+            logging.debug(f"Deleted template time_event id {w_id}")
 
         # 2. get list of all races and loop, except finals.
         races = await RaceplansAdapter().get_all_races(token, event["id"])
@@ -61,7 +61,7 @@ class TimeEventsService:
                     for x in range(1, race["max_no_of_contestants"] + 1):
                         time_event["rank"] = x
                         next_start_entry = get_next_start_entry(
-                            token, time_event, races
+                            time_event, races
                         )
                         logging.debug(f"Time_event: {time_event}")
                         logging.debug(f"Start_entry: {next_start_entry}")
@@ -76,18 +76,12 @@ class TimeEventsService:
                             )
                             logging.debug(f"Created template: {new_t_e['status']}")
                             i += 1
-        informasjon = f"Suksess! Opprettet {i} templates. "
-        return informasjon
+        return f"Suksess! Opprettet {i} templates. "
 
     async def create_start_time_event(self, token: str, time_event: dict) -> str:
         """Validate, enrich and create new start time_event."""
         # 1. First enrich data
         informasjon = ""
-        if time_event["race_id"] == "":
-            time_event["race_id"] = await find_race_id_from_time_event(
-                token, time_event
-            )
-
         if (time_event["timing_point"] == "Start") or (
             time_event["timing_point"] == "DNS"
         ):
@@ -100,10 +94,10 @@ class TimeEventsService:
 
         if len(time_event["id"]) > 0:
             # update existing time event
-            id = await TimeEventsAdapter().update_time_event(
+            w_id = await TimeEventsAdapter().update_time_event(
                 token, time_event["id"], time_event
             )
-            logging.debug(f"Updated time event: {time_event['bib']} - result: {id}")
+            logging.debug(f"Updated time event: {time_event['bib']} - result: {w_id}")
             informasjon += f" Oppdatert startnr {time_event['bib']}. "
         else:
             new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
@@ -114,7 +108,7 @@ class TimeEventsService:
     async def create_finish_time_events(self, token: str, time_events: list) -> str:
         """Validate, enrich and create finish time_event."""
         # Get next race from template
-        id = 0
+        w_id = 0
         informasjon = ""
         next_start_entries = []
         start_list = []
@@ -175,11 +169,11 @@ class TimeEventsService:
                 result_ok = False
                 if len(time_event["id"]) > 0:
                     # update existing time event
-                    id = await TimeEventsAdapter().update_time_event(
+                    w_id = await TimeEventsAdapter().update_time_event(
                         token, time_event["id"], time_event
                     )
                     result_ok = True
-                    informasjon += f" Updated time event {id}. "
+                    informasjon += f" Updated time event {w_id}. "
                 else:
                     new_t_e = await TimeEventsAdapter().create_time_event(
                         token, time_event
@@ -187,19 +181,18 @@ class TimeEventsService:
                     if new_t_e["status"] == "OK":
                         informasjon += f"{new_t_e['bib']}: {new_t_e['rank']} pl. "
                         result_ok = True
-                    else:
-                        # error, return info to user
-                        if new_t_e["changelog"]:
-                            informasjon += f"{new_t_e['changelog'][-1]['comment']} <br>"
+                    # error, return info to user
+                    elif new_t_e["changelog"]:
+                        informasjon += f"{new_t_e['changelog'][-1]['comment']} <br>"
                 if time_event["next_race"] != "Ute" and result_ok:
-                    id = await StartAdapter().create_start_entry(
+                    await StartAdapter().create_start_entry(
                         token, next_start_entry
                     )
 
         return informasjon
 
 
-def get_next_start_entry(token: str, time_event: dict, races: list) -> dict:
+def get_next_start_entry(time_event: dict, races: list) -> dict:
     """Generate start_entry - empty result if not qualified."""
     start_entry = {}
 
@@ -221,16 +214,15 @@ def get_next_start_entry(token: str, time_event: dict, races: list) -> dict:
             # now we have next round - get race id
             time_event["rank_qualified"] = time_event["rank"] - ilimitplace
             start_entry = calculate_next_start_entry(
-                token, race_item, time_event, races
+                race_item, time_event, races
             )
             break
-        else:
-            ilimitplace = limit_rank
+        ilimitplace = limit_rank
     return start_entry
 
 
 def calculate_next_start_entry(
-    token: str, race_item: dict, time_event: dict, races: list
+    race_item: dict, time_event: dict, races: list
 ) -> dict:
     """Identify next race_id and generate start entry data."""
     start_entry = {
@@ -301,15 +293,6 @@ def calculate_next_start_entry(
             f"Next:{next_race_heat} pos:{next_race_position}, id: {start_entry['race_id']}"
         )
     return start_entry
-
-
-async def find_race_id_from_time_event(token: str, time_event: dict) -> str:
-    """Identify race_id for a time_event."""
-    race_id = "Todo"
-    # get start(s) for contestants
-
-    # validate registration time_for confirmation
-    return race_id
 
 
 def populate_next_race(time_event: dict, races: list, next_race: list) -> list:

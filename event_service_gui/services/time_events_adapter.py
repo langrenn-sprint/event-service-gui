@@ -3,11 +3,8 @@
 import copy
 import logging
 import os
-from typing import List
 
-from aiohttp import ClientSession
-from aiohttp import hdrs
-from aiohttp import web
+from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
 RACE_HOST_SERVER = os.getenv("RACE_HOST_SERVER", "localhost")
@@ -54,7 +51,7 @@ class TimeEventsAdapter:
                     )
         return new_time_event
 
-    async def delete_time_event(self, token: str, id: str) -> int:
+    async def delete_time_event(self, token: str, t_id: str) -> int:
         """Delete time_event function."""
         servicename = "delete_time_event"
         headers = MultiDict(
@@ -63,10 +60,10 @@ class TimeEventsAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = f"{RACE_SERVICE_URL}/time-events/{id}"
+        url = f"{RACE_SERVICE_URL}/time-events/{t_id}"
         async with ClientSession() as session:
             async with session.delete(url, headers=headers) as resp:
-                logging.debug(f"Delete time_event: {id} - res {resp.status}")
+                logging.debug(f"Delete time_event: {t_id} - res {resp.status}")
                 if resp.status == 204:
                     logging.debug(f"result - got response {resp}")
                 elif resp.status == 401:
@@ -79,7 +76,7 @@ class TimeEventsAdapter:
                     )
         return resp.status
 
-    async def update_time_event(self, token: str, id: str, time_event: dict) -> int:
+    async def update_time_event(self, token: str, t_id: str, time_event: dict) -> int:
         """Update time_event function."""
         servicename = "update_time_event"
         headers = MultiDict(
@@ -91,7 +88,7 @@ class TimeEventsAdapter:
 
         async with ClientSession() as session:
             async with session.put(
-                f"{RACE_SERVICE_URL}/time-events/{id}",
+                f"{RACE_SERVICE_URL}/time-events/{t_id}",
                 headers=headers,
                 json=time_event,
             ) as resp:
@@ -106,10 +103,10 @@ class TimeEventsAdapter:
                     raise web.HTTPBadRequest(
                         reason=f"Update time_event failed - {resp.status} input data: {time_event}."
                     )
-            logging.debug(f"Updated time_event: {id} - res {resp.status}")
+            logging.debug(f"Updated time_event: {t_id} - res {resp.status}")
         return resp.status
 
-    async def get_time_event_by_id(self, token: str, id: str) -> dict:
+    async def get_time_event_by_id(self, token: str, t_id: str) -> dict:
         """Get one time_event - lap time or heat place function."""
         headers = MultiDict(
             [
@@ -119,7 +116,7 @@ class TimeEventsAdapter:
         time_event = {}
         async with ClientSession() as session:
             async with session.get(
-                f"{RACE_SERVICE_URL}/time-events/{id}", headers=headers
+                f"{RACE_SERVICE_URL}/time-events/{t_id}", headers=headers
             ) as resp:
                 logging.debug(f"get_time_event_by_id - got response {resp.status}")
                 if resp.status == 200:
@@ -137,7 +134,7 @@ class TimeEventsAdapter:
 
     async def get_time_events_by_event_id_and_bib(
         self, token: str, event_id: str, bib: int
-    ) -> List:
+    ) -> list:
         """Get all get_time_events_by_event_id_and_bib."""
         headers = MultiDict(
             [
@@ -166,7 +163,7 @@ class TimeEventsAdapter:
                     )
         return time_events
 
-    async def get_time_events_by_event_id(self, token: str, event_id: str) -> List:
+    async def get_time_events_by_event_id(self, token: str, event_id: str) -> list:
         """Get all time_events - lap time or heat place function."""
         headers = MultiDict(
             [
@@ -196,7 +193,7 @@ class TimeEventsAdapter:
 
     async def get_time_events_by_event_id_and_timing_point(
         self, token: str, event_id: str, timing_point: str
-    ) -> List:
+    ) -> list:
         """Get all time_events - lap time or heat place function."""
         headers = MultiDict(
             [
@@ -225,7 +222,7 @@ class TimeEventsAdapter:
                     )
         return time_events
 
-    async def get_time_events_by_race_id(self, token: str, race_id: str) -> List:
+    async def get_time_events_by_race_id(self, token: str, race_id: str) -> list:
         """Get time_events - lap time or heat place function."""
         headers = MultiDict(
             [

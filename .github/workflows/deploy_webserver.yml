@@ -1,4 +1,5 @@
-name: Test, build and deploy webserver
+name: Test, build and deploy server
+
 on:
   push:
     branches:
@@ -8,26 +9,26 @@ jobs:
   build-and-deploy:
     name: Build, test and deploy to GitHub Container registry
     runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
 
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
         with:
-          python-version: 3.11
-          architecture: x64
+          # Install a specific version of uv.
+          version: "0.5.18"
 
-      - name: Install dependencies
-        run: |-
-          pipx install poetry==1.7.1
-          pipx install nox==2022.11.21
-          pipx inject nox nox-poetry
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
 
-      - name: Build image and test with nox
-        run: |-
-          nox
+      - name: Install the project
+        run: uv sync --all-extras --dev
+
+      - name: Run tests
+        run: |
+          uv run poe release
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}

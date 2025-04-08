@@ -2,10 +2,9 @@
 
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
-from aiohttp_session import get_session
-from aiohttp_session import new_session
+from aiohttp import web
+from aiohttp_session import get_session, new_session
 
 from event_service_gui.services import UserAdapter
 
@@ -54,32 +53,29 @@ class Login(web.View):
         """Get route function that return the index page."""
         informasjon = ""
         result = 0
-        logging.debug(f"Login: {self}")
+        form = await self.request.post()
+        try:
+            event_id = self.request.rel_url.query["event_id"]
+            logging.debug(f"Event: {event_id}")
+        except Exception:
+            event_id = ""
+        try:
+            action = self.request.rel_url.query["action"]
+        except Exception:
+            action = ""
 
         try:
-            form = await self.request.post()
-            try:
-                event_id = self.request.rel_url.query["event_id"]
-                logging.debug(f"Event: {event_id}")
-            except Exception:
-                event_id = ""
-            try:
-                action = self.request.rel_url.query["action"]
-            except Exception:
-                action = ""
-
-            # Create new event
-            if "create" in form.keys():
+            # Create new user
+            if "create" in form:
                 session = await get_session(self.request)
                 token = str(session["token"])
-                id = await UserAdapter().create_user(
+                w_id = await UserAdapter().create_user(
                     token,
                     str(form["newrole"]),
                     str(form["newusername"]),
                     str(form["newpassword"]),
-                    session,
                 )
-                informasjon = f"Ny bruker opprettet med id {id}"
+                informasjon = f"Ny bruker opprettet med id {w_id}"
                 result = 201
             # Perform login
             elif action == "login":
@@ -93,7 +89,7 @@ class Login(web.View):
                     informasjon = f"Innlogging feilet - {result}"
 
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             result = 400
 
@@ -109,5 +105,4 @@ class Login(web.View):
                     "informasjon": informasjon,
                 },
             )
-        else:
-            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+        return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

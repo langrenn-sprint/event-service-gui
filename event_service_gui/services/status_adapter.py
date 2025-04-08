@@ -1,9 +1,9 @@
 """Module for status adapter."""
 
 import copy
-from http import HTTPStatus
 import logging
 import os
+from http import HTTPStatus
 
 from aiohttp import ClientSession, hdrs, web
 from dotenv import load_dotenv

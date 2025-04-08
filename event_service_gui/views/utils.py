@@ -24,7 +24,7 @@ async def check_login(self) -> dict:
     loggedin = UserAdapter().isloggedin(session)
     if not loggedin:
         informasjon = "Logg inn for å se denne siden"
-        raise web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")  # type: ignore
+        raise web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")
 
     return {
         "name": session["name"],
@@ -55,10 +55,9 @@ async def create_default_competition_format(token: str, format_name: str) -> str
     request_body = CompetitionFormatAdapter().get_default_competition_format(
         format_name
     )
-    informasjon = await CompetitionFormatAdapter().create_competition_format(
+    return await CompetitionFormatAdapter().create_competition_format(
         token, request_body
     )
-    return informasjon
 
 
 def get_display_style(start_time: str, event: dict) -> str:
@@ -149,7 +148,7 @@ def get_next_race_info(next_race_time_events: list, race_id: str) -> list:
             if template["timing_point"] == "Template":
                 if _rank == x:
                     start_entry["race_id"] = race_id
-                    start_entry["starting_position"] = x  # type: ignore
+                    start_entry["starting_position"] = x
                     if template["next_race"].startswith("Ute"):
                         start_entry["next_race"] = "Ute"
                     else:
@@ -177,32 +176,27 @@ async def get_passeringer(
     elif action in [
         "Template",
     ]:
-        for passering in tmp_passeringer:
-            if valgt_klasse in passering["race"]:
-                if passering["timing_point"] == "Template":
-                    passeringer.append(passering)
+        passeringer.extend(
+            passering for passering in tmp_passeringer
+            if (valgt_klasse in passering["race"]) and (passering["timing_point"] == "Template")
+        )
     else:
-        for passering in tmp_passeringer:
-            if passering["timing_point"] not in [
-                "Template",
-                "Error",
-            ]:
-                passeringer.append(passering)
+        passeringer.extend(
+            passering for passering in tmp_passeringer
+            if passering["timing_point"] not in ["Template", "Error"]
+        )
 
     # indentify last passering in race
-    i = 0
     last_race = ""
-    for passering in passeringer:
+    for i, passering in enumerate(passeringer):
         if i == 0:
             passering["first_in_heat"] = True
         elif last_race != passering["race"]:
             passeringer[i - 1]["last_in_heat"] = True
             passering["first_in_heat"] = True
-        i += 1
-        if i == len(passeringer):
+        if i == len(passeringer) - 1:
             passering["last_in_heat"] = True
         last_race = passering["race"]
-
     return passeringer
 
 
@@ -248,7 +242,7 @@ async def get_race_id_by_name(
 
 
 def get_races_for_live_view(
-    event, races, valgt_heat: int, number_of_races: int
+    event: dict, races: list, valgt_heat: int, number_of_races: int
 ) -> list:
     """Return races to display in live view."""
     filtered_racelist = []
@@ -280,67 +274,27 @@ async def get_races_for_print(
     for raceclass in raceclasses:
         first_in_class = True
         for race in _tmp_races:
-            if race["raceclass"] == raceclass["name"]:
-                if (race["raceclass"] == valgt_klasse) or ("" == valgt_klasse):
-                    race = await RaceplansAdapter().get_race_by_id(
-                        user["token"], race["id"]
-                    )
-                    race["first_in_class"] = first_in_class
-                    race["next_race"] = get_qualification_text(race)
-                    race["start_time"] = race["start_time"][-8:]
-                    # get start list details
-                    if (
-                        action == "start" or len(race["results"]) == 0
-                    ) and action != "result":
-                        race["list_type"] = "start"
-                        race["startliste"] = await get_enrichced_startlist(user, race)
-                    else:
-                        race["list_type"] = action
-                    if first_in_class:
-                        first_in_class = False
-                    races.append(race)
+            if (race["raceclass"] == raceclass["name"]) and (
+                (race["raceclass"] == valgt_klasse) or (valgt_klasse == "")
+            ):
+                race = await RaceplansAdapter().get_race_by_id(
+                    user["token"], race["id"]
+                )
+                race["first_in_class"] = first_in_class
+                race["next_race"] = get_qualification_text(race)
+                race["start_time"] = race["start_time"][-8:]
+                # get start list details
+                if (
+                    action == "start" or len(race["results"]) == 0
+                ) and action != "result":
+                    race["list_type"] = "start"
+                    race["startliste"] = await get_enrichced_startlist(user, race)
+                else:
+                    race["list_type"] = action
+                if first_in_class:
+                    first_in_class = False
+                races.append(race)
     return races
-
-
-async def update_time_event(user: dict, event: dict, form: dict) -> str:
-    """Register time event - return information."""
-    informasjon = ""
-    time_stamp_now = EventsAdapter().get_local_time(event, "log")
-    request_body = await TimeEventsAdapter().get_time_event_by_id(
-        user["token"], form["id"]
-    )
-    if "update" in form.keys():
-        request_body["changelog"] = [
-            {
-                "timestamp": time_stamp_now,
-                "user_id": user["name"],
-                "comment": f"Oppdatering - tidligere informasjon: {request_body}. ",
-            }
-        ]
-        request_body["timing_point"] = form["timing_point"]
-        request_body["registration_time"] = form["registration_time"]
-        request_body["rank"] = form["rank"]
-    elif "update_template" in form.keys():
-        request_body["changelog"] = [
-            {
-                "timestamp": time_stamp_now,
-                "user_id": user["name"],
-                "comment": f"Oppdatering - old info, next_race {request_body['next_race']}-{request_body['next_race_position']}. ",
-            }
-        ]
-        request_body["next_race_position"] = form["next_race_position"]
-        raceclass = form["race"].split("-")
-        request_body["next_race_id"] = await get_race_id_by_name(
-            user, form["event_id"], form["next_race"], raceclass[0]
-        )
-        request_body["next_race"] = form["next_race"]
-    elif "delete" in form.keys():
-        response = await TimeEventsAdapter().delete_time_event(
-            user["token"], form["id"]
-        )
-    logging.debug(f"Control result: {response}")
-    informasjon = f"Oppdatert - {response}  "
-    return informasjon
 
 
 async def create_start(user: dict, form: dict) -> str:
@@ -375,8 +329,8 @@ async def create_start(user: dict, form: dict) -> str:
                     reason=f"405 Bib already exists in round - {race['round']}"
                 )
 
-        id = await StartAdapter().create_start_entry(user["token"], new_start)
-        logging.debug(f"create_start {id} - {new_start}")
+        w_id = await StartAdapter().create_start_entry(user["token"], new_start)
+        logging.debug(f"create_start {w_id} - {new_start}")
         informasjon = f" Start kl {form['start_time'][-8:]}"
 
         # update previous result with correct "videre til"
@@ -385,11 +339,15 @@ async def create_start(user: dict, form: dict) -> str:
         )
         latest_result: dict = {}
         for time_event in time_events:
-            if (time_event["timing_point"] == "Finish") and (time_event["bib"] == bib):
-                if (not latest_result) or (
-                    time_event["registration_time"] > latest_result["registration_time"]
-                ):
-                    latest_result = time_event
+            if (
+                (time_event["timing_point"] == "Finish")
+                and (time_event["bib"] == bib)
+                and (
+                    (not latest_result)
+                    or (time_event["registration_time"] > latest_result["registration_time"])
+                )
+            ):
+                latest_result = time_event
         if latest_result:
             latest_result["next_race_id"] = new_race["id"]
             if new_race["round"] == "F":
@@ -399,10 +357,10 @@ async def create_start(user: dict, form: dict) -> str:
                     f"{new_race['round']}{new_race['index']}{new_race['heat']}"
                 )
             latest_result["next_race_position"] = new_start["starting_position"]
-            id = await TimeEventsAdapter().update_time_event(
+            w_id = await TimeEventsAdapter().update_time_event(
                 user["token"], latest_result["id"], latest_result
             )
-            logging.debug(f"updated time event {id} - {latest_result}")
+            logging.debug(f"updated time event {w_id} - {latest_result}")
             informasjon += " Oppdatert videre til fra forrige runde."
     else:
         informasjon = f"Error. Fant ikke deltaker med startnr {form['bib']}."
@@ -451,10 +409,10 @@ async def swap_bibs(token: str, event_id: str, bib1: int, bib2: int) -> str:
 async def add_seeding_points(token: str, event_id: str, form: dict) -> str:
     """Load seeding points from form and update changes."""
     informasjon = "Seeding poeng oppdatert: "
-    for key in form.keys():
+    for key, value in form.items():
         if key.startswith("seeding_points_"):
-            new_seeding_points = form[key]
-            old_seeding_points = form[f"old_{key}"]
+            new_seeding_points = value
+            old_seeding_points = form.get(f"old_{key}", "")
             if new_seeding_points in ["", "None", None]:
                 new_seeding_points = ""
             if old_seeding_points in ["", "None", None]:
@@ -483,8 +441,7 @@ async def perform_seeding(token: str, event_id: str, valgt_klasse: str) -> str:
     raceclass_list = []
     if not valgt_klasse:
         raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
-        for _raceclass in raceclasses:
-            raceclass_list.append(_raceclass["name"])
+        raceclass_list.extend(_raceclass["name"] for _raceclass in raceclasses)
     else:
         raceclass_list.append(valgt_klasse)
 
@@ -501,8 +458,7 @@ async def perform_seeding(token: str, event_id: str, valgt_klasse: str) -> str:
         no_of_heats = len(heat_separators)
 
         # calculate who to swap and do the bib swap
-        seeding_index = 0
-        for seeded_contestant in seeded_contestants:
+        for seeding_index, seeded_contestant in enumerate(seeded_contestants):
             # heat is modulo of seeding_index and no_of_heats and position is rest of division
             heat = seeding_index % no_of_heats
             position = seeding_index // no_of_heats
@@ -517,7 +473,6 @@ async def perform_seeding(token: str, event_id: str, valgt_klasse: str) -> str:
             )
             old_bib = latest_seeded_contestant["bib"]
             informasjon += await swap_bibs(token, event_id, new_bib, old_bib)
-            seeding_index += 1
     if len(raceclass_list) > 1:
         informasjon = " Alle klasser er seedet basert på innleste seeding poeng."
     return informasjon

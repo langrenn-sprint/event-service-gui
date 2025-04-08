@@ -4,44 +4,38 @@ Her finner du en enkel webserver som generer html basert på csv-filer i test-da
 
 ## Slik går du fram for å kjøre dette lokalt
 
-## Utvikle og kjøre lokalt
+## Usage example
 
-### Krav til programvare
-
-- [pyenv](https://github.com/pyenv/pyenv) (recommended)
-- [poetry](https://python-poetry.org/)
-- [nox](https://nox.thea.codes/en/stable/)
-- [nox-poetry](https://pypi.org/project/nox-poetry/)
-
-### Installere programvare
-
-```Shell
-% git clone https://github.com/langrenn-sprint/event-service-gui.git
-% cd evnt-service-gui
-% pyenv install 3.9.1
-% pyenv local 3.9.1
-% pipx install poetry
-% pipx install nox
-% pipx inject nox nox-poetry
-% poetry install
+```Zsh
+% curl -H "Content-Type: application/json" \
+  -X POST \
+  --data '{"username":"admin","password":"passw123"}' \
+  http://localhost:8080/login
+% export ACCESS="" #token from response
+% curl -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ACCESS" \
+  -X POST \
+  --data @tests/files/user.json \
+  http://localhost:8080/users
+% curl -H "Authorization: Bearer $ACCESS"  http://localhost:8080/users
 ```
 
-## oppdatere
+## Architecture
 
-```Shell
-% poetry update / poetry add <module>
-```
+Layers:
 
-## Virtual env
-Install: curl https://pyenv.run | bash 
-python -m venv .vienv 
-source .vienv/bin/activate
+- views: routing functions, maps representations to/from model
+- services: enforce validation, calls adapter-layer for storing/retrieving objects
+- models: model-classes
+- adapters: adapters to external services
 
-## Miljøvariable
+## Environment variables
 
-Du må sette opp ei .env fil med miljøvariable. Eksempel:
+To run the service locally, you need to supply a set of environment variables. A simple way to solve this is to supply a .env file in the root directory.
 
-```Shell
+A minimal .env:
+
+```Zsh
 JWT_SECRET=secret
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=password
@@ -59,48 +53,70 @@ RACE_HOST_SERVER=localhost
 RACE_HOST_PORT=8088
 USERS_HOST_SERVER=localhost
 USERS_HOST_PORT=8086
+
+## Requirement for development
+
+Install [uv](https://docs.astral.sh/uv/), e.g.:
+
+```Zsh
+% curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### Config gcloud
+## If required - virtual environment
 
-```Shell
-gcloud -v
-gcloud auth login
-gcloud config set project langrenn-sprint
-gcloud auth configure-docker
+Install: curl <https://pyenv.run> | bash
+Create: python -m venv .venv (replace .venv with your preferred name)
+Install python 3.12: pyenv install 3.12
+Activate:
+source .venv/bin/activate
+
+## Then install the dependencies:
+
+```Zsh
+% uv sync
 ```
 
-### Starte services i docker
+## Running the API locally
 
-```Shell
-docker-compose pull #oppdatere images
-docker-compose up --build
-docker-compose up event-service race-service user-service mongodb competition-format-service
+Start the server locally:
+
+```Zsh
+% uv run adev runserver -p 8080 event_service_gui
 ```
 
-Denne fila _skal_ ligge i .dockerignore og .gitignore
+## Running the API in a wsgi-server (gunicorn)
 
-### Kjøre webserver lokalt
-
-## Start lokal webserver mha aiohttp-devtools(adev)
-
-```Shell
-% source .env
-% poetry run adev runserver -p 8080 event_service_gui
+```Zsh
+% uv run gunicorn event_service_gui:create_app --bind localhost:8080 --worker-class aiohttp.GunicornWebWorker
 ```
 
-### Teste manuelt
+## Running the wsgi-server in Docker
 
-Enten åpne din nettleser på <http://localhost:8080/>
+To build and run the api in a Docker container:
 
-Eller via curl:
-
-```Shell
-% curl -i http://localhost:8080/
+```Zsh
+% docker build -t langrenn-sprint/event-service-gui:latest .
+% docker run --env-file .env -p 8080:8080 -d langrenn-sprint/event-service-gui:latest
 ```
 
-Når du endrer koden i event_service_gui, vil webserveren laste applikasjonen på nytt autoamtisk ved lagring.
+The easier way would be with docker-compose:
 
-## Referanser
+```Zsh
+docker compose up --build
+```
 
-aiohttp: <https://docs.aiohttp.org/>
+## Running tests
+
+We use [pytest](https://docs.pytest.org/en/latest/) for contract testing.
+
+To run linters, checkers and tests:
+
+```Zsh
+% uv run poe release
+```
+
+To run tests with logging, do:
+
+```Zsh
+% uv run pytest -m integration -- --log-cli-level=DEBUG
+```

@@ -2,7 +2,6 @@
 
 import logging
 import os
-from typing import List
 
 from aiohttp import ClientSession, hdrs, web
 from aiohttp_session import Session
@@ -22,11 +21,10 @@ class UserAdapter:
         role: str,
         username: str,
         password: str,
-        cookiestorage: Session,
     ) -> str:
         """Create user function."""
         servicename = "create_user"
-        id = ""
+        w_id = ""
         request_body = {
             "role": role,
             "username": username,
@@ -45,16 +43,16 @@ class UserAdapter:
                 if resp.status == 201:
                     logging.debug(f"create user - got response {resp}")
                     location = resp.headers[hdrs.LOCATION]
-                    id = location.split(os.path.sep)[-1]
+                    w_id = location.split(os.path.sep)[-1]
                 elif resp.status == 401:
                     raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
                     logging.error(f"create_user failed - {resp.status}")
                     raise web.HTTPBadRequest(reason="Create user failed.")
 
-        return id
+        return w_id
 
-    async def delete_user(self, token: str, id: str) -> int:
+    async def delete_user(self, token: str, w_id: str) -> int:
         """Delete user function."""
         servicename = "delete_user"
         headers = MultiDict(
@@ -63,11 +61,11 @@ class UserAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = f"{USER_SERVICE_URL}/users/{id}"
+        url = f"{USER_SERVICE_URL}/users/{w_id}"
         async with ClientSession() as session:
             async with session.delete(url, headers=headers) as resp:
                 pass
-            logging.info(f"Delete user: {id} - res {resp.status}")
+            logging.info(f"Delete user: {w_id} - res {resp.status}")
             if resp.status == 204:
                 logging.debug(f"result - got response {resp}")
             elif resp.status == 401:
@@ -77,7 +75,7 @@ class UserAdapter:
                 raise web.HTTPBadRequest(reason="Delete user failed.")
         return resp.status
 
-    async def get_all_users(self, token: str) -> List:
+    async def get_all_users(self, token: str) -> list:
         """Get all users function."""
         users = []
         headers = MultiDict(

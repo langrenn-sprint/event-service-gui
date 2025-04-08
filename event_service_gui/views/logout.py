@@ -17,7 +17,7 @@ class Logout(web.View):
             informasjon = "Du er nå logget ut. Velkommen tilbake!"
 
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
 
         return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

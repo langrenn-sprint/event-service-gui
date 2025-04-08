@@ -3,10 +3,11 @@
 import json
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
+from aiohttp import web
 
 from event_service_gui.services import CompetitionFormatAdapter
+
 from .utils import (
     check_login,
     create_default_competition_format,
@@ -33,9 +34,9 @@ class Settings(web.View):
                 await CompetitionFormatAdapter().get_competition_formats(user["token"])
             )
             # enrich with qualification text
-            for format in competition_formats:
-                if format["datatype"] == "individual_sprint":
-                    for race_config in format["race_config_ranked"]:
+            for c_format in competition_formats:
+                if c_format["datatype"] == "individual_sprint":
+                    for race_config in c_format["race_config_ranked"]:
                         try:
                             from_to = race_config["from_to"]
                             next_race_q = {"round": "Q", "rule": from_to["Q"]["A"]}
@@ -66,7 +67,7 @@ class Settings(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
+            logging.exception("Error.. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
@@ -78,12 +79,13 @@ class Settings(web.View):
         try:
             form = await self.request.post()
             logging.debug(f"Form {form}")
+            request_body = {}
 
             # Create default settings
             if (
-                "default_individual_sprint" in form.keys()
-                or "default_sprint_all_to_finals" in form.keys()
-                or "default_individual_sprint_s2" in form.keys()
+                "default_individual_sprint" in form
+                or "default_sprint_all_to_finals" in form
+                or "default_individual_sprint_s2" in form
             ):
                 # delete all old information
                 competition_formats = (
@@ -91,24 +93,24 @@ class Settings(web.View):
                         user["token"]
                     )
                 )
-                for format in competition_formats:
+                for c_format in competition_formats:
                     informasjon = (
                         await CompetitionFormatAdapter().delete_competition_format(
-                            user["token"], format["id"]
+                            user["token"], c_format["id"]
                         )
                     )
                 # create new - for individual_sprint and interval_start
-                for format in form.keys():
+                for c_format in form:
                     informasjon += await create_default_competition_format(
-                        user["token"], format
+                        user["token"], c_format
                     )
                 informasjon += await create_default_competition_format(
                     user["token"], "default_interval_start"
                 )
-            elif "update" in form.keys():
+            elif "update" in form:
                 if form["datatype"] == "individual_sprint":
-                    rounds_ranked_classes = form["rounds_ranked_classes"].replace("'", '"')  # type: ignore
-                    rounds_non_ranked_classes = form["rounds_non_ranked_classes"].replace("'", '"')  # type: ignore
+                    rounds_ranked_classes = str(form["rounds_ranked_classes"]).replace("'", '"')
+                    rounds_non_ranked_classes = str(form["rounds_non_ranked_classes"]).replace("'", '"')
                     request_body = {
                         "id": str(form["id"]),
                         "name": str(form["name"]),
@@ -119,17 +121,17 @@ class Settings(web.View):
                         "time_between_rounds": str(form["time_between_rounds"]),
                         "time_between_heats": str(form["time_between_heats"]),
                         "max_no_of_contestants_in_raceclass": int(
-                            form["max_no_of_contestants_in_raceclass"]  # type: ignore
+                            str(form["max_no_of_contestants_in_raceclass"])
                         ),
                         "max_no_of_contestants_in_race": int(
-                            form["max_no_of_contestants_in_race"]  # type: ignore
+                            str(form["max_no_of_contestants_in_race"])
                         ),
                         "rounds_ranked_classes": json.loads(rounds_ranked_classes),
                         "rounds_non_ranked_classes": json.loads(
                             rounds_non_ranked_classes
                         ),
-                        "race_config_ranked": get_config_from_form(form, "ranked"),  # type: ignore
-                        "race_config_non_ranked": get_config_from_form(form, "non_ranked"),  # type: ignore
+                        "race_config_ranked": get_config_from_form(dict(form), "ranked"),
+                        "race_config_non_ranked": get_config_from_form(dict(form), "non_ranked"),
                     }
                 elif form["datatype"] == "interval_start":
                     request_body = {
@@ -140,10 +142,10 @@ class Settings(web.View):
                         "time_between_groups": str(form["time_between_groups"]),
                         "intervals": str(form["intervals"]),
                         "max_no_of_contestants_in_raceclass": int(
-                            form["max_no_of_contestants_in_raceclass"]  # type: ignore
+                            str(form["max_no_of_contestants_in_raceclass"])
                         ),
                         "max_no_of_contestants_in_race": int(
-                            form["max_no_of_contestants_in_race"]  # type: ignore
+                            str(form["max_no_of_contestants_in_race"])
                         ),
                         "datatype": str(form["datatype"]),
                     }
@@ -154,7 +156,7 @@ class Settings(web.View):
                     )
                 )
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e}."
             error_reason = str(e)
             if error_reason.startswith("401"):
@@ -169,7 +171,7 @@ def get_config_from_form(form: dict, rank_type: str) -> list:
     """Get settings for sprint race-config set-up."""
     race_settings = []
     for i in range(50):
-        if f"{rank_type}_{i}_max_no_of_contestants" in form.keys():
+        if f"{rank_type}_{i}_max_no_of_contestants" in form:
             if form[f"{rank_type}_{i}_max_no_of_contestants"]:
                 rounds = form[f"{rank_type}_{i}_rounds"].replace("'", '"')
                 no_of_heats = form[f"{rank_type}_{i}_no_of_heats"].replace("'", '"')

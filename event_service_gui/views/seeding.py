@@ -2,14 +2,15 @@
 
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
+from aiohttp import web
 
 from event_service_gui.services import (
     ContestantsAdapter,
     EventsAdapter,
     RaceclassesAdapter,
 )
+
 from .utils import (
     add_seeding_points,
     check_login,
@@ -50,13 +51,13 @@ class Seeding(web.View):
             try:
                 valgt_klasse = self.request.rel_url.query["klasse"]
             except Exception:
-                valgt_klasse = ""  # noqa: F841
+                valgt_klasse = ""
 
             raceclasses = await RaceclassesAdapter().get_raceclasses(
                 user["token"], event_id
             )
 
-            contestants = list()
+            contestants = []
             try:
                 action = self.request.rel_url.query["action"]
             except Exception:
@@ -100,7 +101,7 @@ class Seeding(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
+            logging.exception("Error.. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
@@ -110,21 +111,21 @@ class Seeding(web.View):
 
         informasjon = ""
         valgt_klasse = ""
+        form = await self.request.post()
         try:
-            form = await self.request.post()
+            action = str(form["action"])
+        except Exception:
+            action = ""
+        event_id = str(form["event_id"])
+        try:
             logging.debug(f"Form {form}")
-            event_id = str(form["event_id"])
             valgt_klasse = str(form["klasse"])
-            try:
-                action = str(form["action"])
-            except Exception:
-                action = ""  # noqa: F841
 
             # Do the stuff
             if action == "seeding_manual":
-                informasjon = await add_seeding_from_form(user["token"], event_id, form)  # type: ignore
+                informasjon = await add_seeding_from_form(user["token"], event_id, dict(form))
             elif action == "seeding_points":
-                informasjon = await add_seeding_points(user["token"], event_id, form)  # type: ignore
+                informasjon = await add_seeding_points(user["token"], event_id, dict(form))
                 informasjon += "<br>"
                 informasjon += await perform_seeding(
                     user["token"],
@@ -132,7 +133,7 @@ class Seeding(web.View):
                     valgt_klasse,
                 )
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
@@ -147,7 +148,7 @@ class Seeding(web.View):
 async def add_seeding_from_form(token: str, event_id: str, form: dict) -> str:
     """Load seeding info from form and swap BIB."""
     informasjon = "Flyttet på løpere: "
-    for key in form.keys():
+    for key in form:
         if key.startswith("bib_"):
             new_bib = form[key]
             if new_bib.isnumeric():

@@ -1,8 +1,8 @@
 """Module for start adapter."""
 
-from http import HTTPStatus
 import logging
 import os
+from http import HTTPStatus
 
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
@@ -297,23 +297,22 @@ async def shuffle_round2(token: str, event_id: str) -> str:
             for r2_race in r2_race_info:
                 if first:
                     first = False
+                elif r2_race["heat"] % 2 == 1:
+                    await swap_starts(
+                        token,
+                        r2_race["race_id"],
+                        r2_race["previous_race_id"],
+                        [1, 3],
+                    )
+                    swap_count += 2
                 else:
-                    if r2_race["heat"] % 2 == 1:
-                        await swap_starts(
-                            token,
-                            r2_race["race_id"],
-                            r2_race["previous_race_id"],
-                            [1, 3],
-                        )
-                        swap_count += 2
-                    else:
-                        await swap_starts(
-                            token,
-                            r2_race["race_id"],
-                            r2_race["previous_race_id"],
-                            [0, 2, 4],
-                        )
-                        swap_count += 3
+                    await swap_starts(
+                        token,
+                        r2_race["race_id"],
+                        r2_race["previous_race_id"],
+                        [0, 2, 4],
+                    )
+                    swap_count += 3
     if swap_count > 0:
         informasjon = f" R2 for urangerte er stokket - {swap_count} flyttinger."
     return informasjon
@@ -323,7 +322,6 @@ async def swap_starts(
     token: str, from_race_id: str, to_race_id: str, start_indexes: list
 ) -> str:
     """Shuffle round 2 start-lists to avoid same heat twice."""
-    informasjon = ""
     from_race = await RaceplansAdapter().get_race_by_id(token, from_race_id)
     to_race = await RaceplansAdapter().get_race_by_id(token, to_race_id)
     for start_index in start_indexes:
@@ -355,16 +353,14 @@ async def swap_starts(
         except Exception:
             # if error dont change anytning
             logging.debug("Error: Skipping swap of urangert starts")
-    return informasjon
+    return "swapped_starts"
 
 
 async def delete_start(token: str, form: dict) -> str:
     """Extract form data and delete one start event."""
-    informasjon = "delete_start"
-    id = await StartAdapter().delete_start_entry(token, form["race_id"], form["id"])
-    logging.debug(f"delete_start {id} - {form}")
-    informasjon = "Slettet start."
-    return informasjon
+    w_id = await StartAdapter().delete_start_entry(token, form["race_id"], form["id"])
+    logging.debug(f"delete_start {w_id} - {form}")
+    return "Slettet start."
 
 
 async def create_start(token: str, form: dict) -> str:
@@ -378,7 +374,6 @@ async def create_start(token: str, form: dict) -> str:
         "name": form["name"],
         "club": form["club"],
     }
-    id = await StartAdapter().create_start_entry(token, new_start)
-    logging.debug(f"create_start {id} - {new_start}")
-    informasjon = f"Lagt til nr {new_start['bib']}"
-    return informasjon
+    w_id = await StartAdapter().create_start_entry(token, new_start)
+    logging.debug(f"create_start {w_id} - {new_start}")
+    return f"Lagt til nr {new_start['bib']}"

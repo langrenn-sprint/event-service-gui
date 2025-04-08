@@ -2,13 +2,14 @@
 
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
+from aiohttp import web
 
 from event_service_gui.services import (
     RaceclassesAdapter,
     TimeEventsAdapter,
 )
+
 from .utils import (
     check_login,
     get_event,
@@ -72,7 +73,7 @@ class Control(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
+            logging.exception("Error.. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
@@ -81,15 +82,15 @@ class Control(web.View):
         user = await check_login(self)
         informasjon = ""
         action = ""
+        form = await self.request.post()
+        event_id = str(form["event_id"])
+        valgt_klasse = str(form["valgt_klasse"])
         try:
-            form = await self.request.post()
-            event_id = str(form["event_id"])
-            valgt_klasse = str(form["valgt_klasse"])
             action = str(form["action"])
-            if "resolve_error" in form.keys():
-                informasjon = await delete_timing_events(user, form)  # type: ignore
+            if "resolve_error" in form:
+                informasjon = await delete_timing_events(user, dict(form))
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
@@ -114,7 +115,7 @@ def get_heatliste(passeringer) -> list:
 async def delete_timing_events(user: dict, form: dict) -> str:
     """Extract form data and update time events."""
     informasjon = "Delete result: "
-    for key in form.keys():
+    for key in form:
         if key.startswith("resolved_"):
             response = await TimeEventsAdapter().delete_time_event(
                 user["token"], form[key]

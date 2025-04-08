@@ -3,13 +3,14 @@
 import logging
 from operator import itemgetter
 
-from aiohttp import web
 import aiohttp_jinja2
+from aiohttp import web
 
 from event_service_gui.services import (
     ContestantsAdapter,
     RaceclassesAdapter,
 )
+
 from .utils import (
     check_login,
     get_event,
@@ -37,7 +38,7 @@ class PrintContestants(web.View):
             try:
                 valgt_klasse = self.request.rel_url.query["klasse"]
             except Exception:
-                valgt_klasse = ""  # noqa: F841
+                valgt_klasse = ""
             try:
                 action = self.request.rel_url.query["action"]
             except Exception:
@@ -87,5 +88,5 @@ class PrintContestants(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
+            logging.exception("Error.. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")

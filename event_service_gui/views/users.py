@@ -2,11 +2,11 @@
 
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
-from aiohttp_session import get_session
+from aiohttp import web
 
 from event_service_gui.services import UserAdapter
+
 from .utils import check_login
 
 
@@ -53,7 +53,7 @@ class Users(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
+            logging.exception("Error: Redirecting to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
@@ -65,20 +65,18 @@ class Users(web.View):
             form = await self.request.post()
 
             # Create new event
-            if "create" in form.keys():
-                session = await get_session(self.request)
-                id = await UserAdapter().create_user(
+            if "create" in form:
+                w_id = await UserAdapter().create_user(
                     user["token"],
                     str(form["newrole"]),
                     str(form["newusername"]),
                     str(form["newpassword"]),
-                    session,
                 )
-                informasjon = f"Ny bruker opprettet med id {id}"
-            elif "delete" in form.keys():
-                id = str(form["id"])
-                logging.info(f"Enter delete {id}")
-                res = await UserAdapter().delete_user(user["token"], id)
+                informasjon = f"Ny bruker opprettet med id {w_id}"
+            elif "delete" in form:
+                w_id = str(form["id"])
+                logging.info(f"Enter delete {w_id}")
+                res = await UserAdapter().delete_user(user["token"], w_id)
                 if res == "204":
                     informasjon = "Bruker er slettet."
                 else:
@@ -87,7 +85,7 @@ class Users(web.View):
                 informasjon = "Ingen endringer utført"
 
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error in users.py")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):

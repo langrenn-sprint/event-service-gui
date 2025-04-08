@@ -1,9 +1,9 @@
 """Module for events adapter."""
 
-from http import HTTPStatus
 import json
 import logging
 import os
+from http import HTTPStatus
 from pathlib import Path
 
 from aiohttp import ClientSession, hdrs, web
@@ -125,11 +125,8 @@ class CompetitionFormatAdapter:
             with config_file_name.open() as json_file:
                 default_format = json.load(json_file)
         except Exception as e:
-            error_text = f"Default competition format for {format_type} not found. File path {config_files_directory} - {e}"
+            error_text = f"Competition format for {format_type} not found. File {config_files_directory} Current dir: {Path.cwd()}"
             logging.exception(error_text)
-            logging.exception(
-                f"Current directory {Path.cwd()} - content {os.listdir()}"
-            )
             raise Exception(error_text) from e
         return default_format
 

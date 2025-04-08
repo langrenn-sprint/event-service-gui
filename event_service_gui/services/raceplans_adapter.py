@@ -1,9 +1,9 @@
 """Module for raceplans adapter."""
 
 import datetime
-from http import HTTPStatus
 import logging
 import os
+from http import HTTPStatus
 
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict

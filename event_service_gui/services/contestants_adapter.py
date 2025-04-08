@@ -1,11 +1,11 @@
 """Module for contestants adapter."""
 
 import copy
-from http import HTTPStatus
 import logging
 import os
-from typing import Any
 import urllib.parse
+from http import HTTPStatus
+from typing import Any, Optional
 
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
@@ -21,12 +21,17 @@ EVENT_SERVICE_URL = f"http://{EVENTS_HOST_SERVER}:{EVENTS_HOST_PORT}"
 class ContestantsAdapter:
     """Class representing contestants."""
 
-    async def assign_bibs(self, token: str, event_id: str) -> str:
+
+    async def assign_bibs(
+        self, token: str, event_id: str, start_bib: int | None = None
+    ) -> str:
         """Generate bibs based upon registrations."""
         servicename = "assign_bibs"
         headers = MultiDict([(hdrs.AUTHORIZATION, f"Bearer {token}")])
 
         url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/assign-bibs"
+        if start_bib:
+             url += f"?start-bib={start_bib}"
         async with ClientSession() as session, session.post(
             url, headers=headers
         ) as resp:

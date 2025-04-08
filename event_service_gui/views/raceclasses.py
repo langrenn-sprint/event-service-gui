@@ -3,11 +3,11 @@
 import ast
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
+from aiohttp import web
 
-from event_service_gui.services import EventsAdapter
-from event_service_gui.services import RaceclassesAdapter
+from event_service_gui.services import EventsAdapter, RaceclassesAdapter
+
 from .utils import check_login, get_event
 
 
@@ -34,9 +34,9 @@ class Raceclasses(web.View):
             try:
                 action = self.request.rel_url.query["action"]
                 if action == "update_one":
-                    id = self.request.rel_url.query["id"]
+                    w_id = self.request.rel_url.query["id"]
                     klasse = await RaceclassesAdapter().get_raceclass(
-                        user["token"], event_id, id
+                        user["token"], event_id, w_id
                     )
 
             except Exception:
@@ -62,7 +62,7 @@ class Raceclasses(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
+            logging.exception("Error.. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
@@ -71,24 +71,23 @@ class Raceclasses(web.View):
 
         informasjon = ""
         action = "edit_mode"
+        form = await self.request.post()
+        event_id = str(form["event_id"])
         try:
-            form = await self.request.post()
-            logging.debug(f"Form {form}")
-            event_id = str(form["event_id"])
             # delete_all
-            if "delete_all" in form.keys():
+            if "delete_all" in form:
                 res = await RaceclassesAdapter().delete_all_raceclasses(
                     user["token"], event_id
                 )
                 informasjon = f"Klasser er slettet - {res}"
             # delete
-            elif "delete_one" in form.keys():
+            elif "delete_one" in form:
                 res = await RaceclassesAdapter().delete_raceclass(
                     user["token"], event_id, str(form["id"])
                 )
                 informasjon = f"Klasse er slettet - {res}"
             # Create classes from list of contestants
-            elif "generate_raceclasses" in form.keys():
+            elif "generate_raceclasses" in form:
                 informasjon = await EventsAdapter().generate_classes(
                     user["token"], event_id
                 )
@@ -98,20 +97,20 @@ class Raceclasses(web.View):
                 return web.HTTPSeeOther(
                     location=f"/raceclasses?event_id={event_id}&action=edit_mode&informasjon={informasjon}"
                 )
-            elif "merge_ageclasses" in form.keys():
-                informasjon = await merge_ageclasses(user, event_id, form)  # type: ignore
-            elif "refresh_no_of_contestants" in form.keys():
+            elif "merge_ageclasses" in form:
+                informasjon = await merge_ageclasses(user, event_id, dict(form))
+            elif "refresh_no_of_contestants" in form:
                 informasjon = "Ikke implementert. Rediger manuelt pr klasse."
-            elif "update_one" in form.keys():
-                informasjon = await update_one(user, event_id, form)  # type: ignore
-            elif "update_order" in form.keys():
-                informasjon = await update_order(user, event_id, form)  # type: ignore
+            elif "update_one" in form:
+                informasjon = await update_one(user, event_id, dict(form))
+            elif "update_order" in form:
+                informasjon = await update_order(user, event_id, dict(form))
                 return web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
 
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
@@ -129,14 +128,13 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
     merged_ageclasses = []
     no_of_contestants = 0
     # get classes to be merged
-    for x in form.keys():
+    for x in form:
         if x.startswith("ageclass_"):
             klasse = await RaceclassesAdapter().get_raceclass(
                 user["token"], event_id, form[x]
             )
             no_of_contestants += klasse["no_of_contestants"]
-            for ageclass in klasse["ageclasses"]:
-                merged_ageclasses.append(ageclass)
+            merged_ageclasses.extend(klasse["ageclasses"])
             old_raceclasses.append(klasse)
     # create new-common class based upon first one - do not allow spaces in name
     new_raceclass_name = str(form["new_raceclass_name"])
@@ -175,7 +173,8 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
 
 async def update_one(user: dict, event_id: str, form: dict) -> str:
     """Extract form data and perform update ageclass."""
-    id = str(form["id"])
+    w_id = str(form["id"])
+    ranking = False
     try:
         if form["ranking"] == "on":
             ranking = True
@@ -187,42 +186,40 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
         "name": str(form["name"]),
         "distance": str(form["distance"]),
         "event_id": event_id,
-        "id": id,
-        "group": int(form["group"]),  # type: ignore
-        "order": int(form["order"]),  # type: ignore
+        "id": w_id,
+        "group": int(form["group"]),
+        "order": int(form["order"]),
         "ranking": ranking,
         "seeding": False,
         "ageclasses": ageclasses,
-        "no_of_contestants": int(form["no_of_contestants"]),  # type: ignore
+        "no_of_contestants": int(form["no_of_contestants"]),
     }
     result = await RaceclassesAdapter().update_raceclass(
-        user["token"], event_id, id, request_body
+        user["token"], event_id, w_id, request_body
     )
-    informasjon = f"Informasjon er oppdatert - {result}"
-    return informasjon
+    return f"Informasjon er oppdatert - {result}"
 
 
 async def update_order(user: dict, event_id: str, form: dict) -> str:
     """Extract form data and perform update order in ageclasses."""
-    for input in form.keys():
-        if input.startswith("id_"):
-            id = str(form[input])
+    for key, value in form:
+        if key.startswith("id_"):
+            w_id = str(value)
             race_class = await RaceclassesAdapter().get_raceclass(
-                user["token"], event_id, id
+                user["token"], event_id, w_id
             )
-            igroup = int(form[f"group_{id}"])  # type: ignore
-            iorder = int(form[f"order_{id}"])  # type: ignore
+            igroup = int(form[f"group_{w_id}"])
+            iorder = int(form[f"order_{w_id}"])
             race_class["group"] = igroup
             race_class["order"] = iorder
             try:
-                if form[f"ranking_{id}"] == "on":
+                if form[f"ranking_{w_id}"] == "on":
                     race_class["ranking"] = True
             except Exception:
                 race_class["ranking"] = False
             race_class["seeding"] = False
             result = await RaceclassesAdapter().update_raceclass(
-                user["token"], event_id, id, race_class
+                user["token"], event_id, w_id, race_class
             )
             logging.debug(f"New race_class: {race_class}- update result {result}")
-    informasjon = "Rekkefølgen er oppdatert. Neste steg: Kjøreplan."
-    return informasjon
+    return "Rekkefølgen er oppdatert. Neste steg: Kjøreplan."

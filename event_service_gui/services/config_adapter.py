@@ -1,12 +1,13 @@
 """Module for config adapter."""
 
 import copy
-from http import HTTPStatus
 import json
 import logging
 import os
+from http import HTTPStatus
 from pathlib import Path
 
+import aiofiles
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
@@ -43,7 +44,7 @@ class ConfigAdapter:
                 informasjon = f"{servicename} failed - {resp.status} - {body['detail']}"
                 logging.error(informasjon)
                 raise web.HTTPBadRequest(reason=informasjon)
-        return config["value"]  # type: ignore
+        return config["value"]
 
     async def get_all_configs(self, token: str, event: dict) -> list:
         """Get config by google id function."""
@@ -145,14 +146,14 @@ class ConfigAdapter:
 
     async def init_config(self, token: str, event: dict) -> None:
         """Load default config function - read from file."""
-        PROJECT_ROOT = os.path.join(Path.cwd(), "result_service_gui")
-        config_file = Path(f"{PROJECT_ROOT}/config/global_settings.json")
+        project_root = f"{Path.cwd()}/result_service_gui"
+        config_file = Path(f"{project_root}/config/global_settings.json")
 
         current_configs = await ConfigAdapter().get_all_configs(token, event)
 
         try:
-            with config_file.open() as json_file:
-                settings = json.load(json_file)
+            async with aiofiles.open(config_file) as json_file:
+                settings = json.loads(await json_file.read())
                 for key, value in settings.items():
                     updated = False
                     for config in current_configs:
@@ -164,7 +165,7 @@ class ConfigAdapter:
                         await self.create_config(token, event, key, value)
         except Exception as e:
             err_info = f"Error linitializing config from {config_file} - {e}"
-            logging.error(err_info)
+            logging.exception(err_info)
             raise Exception(err_info) from e
 
     async def update_config_list(

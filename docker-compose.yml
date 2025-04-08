@@ -10,6 +10,7 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - HOST_PORT=8080
+      - HOST_SERVER=event-service-gui
       - EVENTS_HOST_SERVER=event-service
       - EVENTS_HOST_PORT=8080
       - RACE_HOST_SERVER=race-service

@@ -1,9 +1,9 @@
 """Module for raceclasses adapter."""
 
-from http import HTTPStatus
 import logging
 import os
 import urllib.parse
+from http import HTTPStatus
 
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict

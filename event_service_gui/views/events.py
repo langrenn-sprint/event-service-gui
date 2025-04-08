@@ -2,10 +2,11 @@
 
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
+from aiohttp import web
 
 from event_service_gui.services import CompetitionFormatAdapter, EventsAdapter
+
 from .utils import check_login, create_default_competition_format, get_event
 
 
@@ -61,7 +62,7 @@ class Events(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
+            logging.exception("Error.. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
@@ -76,7 +77,7 @@ class Events(web.View):
             form = await self.request.post()
             logging.debug(f"Form {form}")
             # Create new event
-            if "create_manual" in form.keys():
+            if "create_manual" in form:
                 request_body = {
                     "name": form["name"],
                     "date_of_event": form["date_of_event"],
@@ -94,7 +95,7 @@ class Events(web.View):
                 action = "next_contestants"
                 info = f"action={action}&informasjon={informasjon}"
                 return web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
-            elif "update" in form.keys():
+            if "update" in form:
                 # Update event
                 event_id = str(form["event_id"])
                 request_body = {
@@ -117,13 +118,13 @@ class Events(web.View):
                     user["token"], event_id, request_body
                 )
                 informasjon = f"Arrangementinformasjon er oppdatert {res}."
-            elif "delete" in form.keys():
+            elif "delete" in form:
                 event_id = str(form["event_id"])
                 res = await EventsAdapter().delete_event(user["token"], event_id)
                 informasjon = f"Arrangement er slettet {res}."
                 return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):

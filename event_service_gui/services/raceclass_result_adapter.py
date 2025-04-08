@@ -3,12 +3,9 @@
 import logging
 import os
 import random
-from typing import List
 import urllib.parse
 
-from aiohttp import ClientSession
-from aiohttp import hdrs
-from aiohttp import web
+from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
 EVENTS_HOST_SERVER = os.getenv("EVENTS_HOST_SERVER", "localhost")
@@ -24,7 +21,7 @@ class RaceclassResultsAdapter:
     ) -> int:
         """Create new raceclass results function."""
         servicename = "create_raceclass_results"
-        id = ""
+        w_id = ""
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -40,8 +37,8 @@ class RaceclassResultsAdapter:
                 res = resp.status
                 if resp.status == 201:
                     location = resp.headers[hdrs.LOCATION]
-                    id = location.split(os.path.sep)[-1]
-                    logging.debug(f"{servicename} - got response {resp}, id {id}")
+                    w_id = location.split(os.path.sep)[-1]
+                    logging.debug(f"{servicename} - got response {resp}, id {w_id}")
                 elif resp.status == 401:
                     raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
@@ -126,7 +123,7 @@ class RaceclassResultsAdapter:
             )
         return raceclass_result
 
-    async def get_all_raceclass_results(self, event_id: str) -> List:
+    async def get_all_raceclass_results(self, event_id: str) -> list:
         """Get all raceclasses function."""
         raceclass_results = []
         servicename = "get_all_raceclass_results"

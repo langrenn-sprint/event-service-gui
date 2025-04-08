@@ -2,9 +2,9 @@
 
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
 import xmltodict
+from aiohttp import web
 
 from event_service_gui.services import (
     ContestantsAdapter,
@@ -12,6 +12,7 @@ from event_service_gui.services import (
     RaceclassesAdapter,
     RaceplansAdapter,
 )
+
 from .utils import (
     check_login,
     check_login_open,
@@ -51,7 +52,7 @@ class Contestants(web.View):
             try:
                 valgt_klasse = self.request.rel_url.query["klasse"]
             except Exception:
-                valgt_klasse = ""  # noqa: F841
+                valgt_klasse = ""
 
             raceclasses = await RaceclassesAdapter().get_raceclasses(
                 user["token"], event_id
@@ -62,9 +63,9 @@ class Contestants(web.View):
             try:
                 action = self.request.rel_url.query["action"]
                 if action == "update_one":
-                    id = self.request.rel_url.query["id"]
+                    w_id = self.request.rel_url.query["id"]
                     contestant = await ContestantsAdapter().get_contestant(
-                        user["token"], event_id, id
+                        user["token"], event_id, w_id
                     )
             except Exception:
                 action = ""
@@ -108,7 +109,7 @@ class Contestants(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
+            logging.exception("Error.. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
@@ -124,16 +125,16 @@ class Contestants(web.View):
             try:
                 action = str(form["action"])
             except Exception:
-                action = ""  # noqa: F841
+                action = ""
             event_id = str(form["event_id"])
             event = await get_event(user["token"], event_id)
 
             # Assign bibs and perform seeding
-            if "assign_bibs" in form.keys():
-                if "start_bib" in form.keys():
-                    start_bib = int(form["start_bib"])  # type: ignore
+            if "assign_bibs" in form:
+                if "start_bib" in form:
+                    start_bib = int(str(form["start_bib"]))
                     informasjon = await ContestantsAdapter().assign_bibs(
-                        user["token"], event_id, start_bib  # type: ignore
+                        user["token"], event_id, start_bib
                     )
                 else:
                     informasjon = await ContestantsAdapter().assign_bibs(
@@ -146,41 +147,41 @@ class Contestants(web.View):
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
 
-            elif "create" in form.keys():
+            if "create" in form:
                 file = form["file"]
-                text_file = file.file  # type: ignore
+                text_file = file.file  # type: ignore[attr-defined]
                 # handle file - csv supported
                 allowed_filetypes = ["text/csv", "application/vnd.ms-excel"]
-                if "excel_manual" in file.filename:  # type: ignore
+                if "excel_manual" in file.filename:  # type: ignore[attr-defined]
                     informasjon = await create_contestants_from_excel(
                         user["token"], event, text_file
                     )
-                elif "ET6" in file.filename:  # type: ignore
+                elif "ET6" in file.filename:  # type: ignore[attr-defined]
                     informasjon = await create_contestants_from_emit(
                         user["token"], event, text_file
                     )
-                elif file.content_type in allowed_filetypes:  # type: ignore
+                elif file.content_type in allowed_filetypes:  # type: ignore[attr-defined]
                     informasjon = await ContestantsAdapter().create_contestants(
                         user["token"], event_id, text_file
                     )
                 else:
-                    raise Exception(f"Ugyldig filtype {file.content_type}")  # type: ignore
+                    raise Exception(f"Ugyldig filtype {file.content_type}")  # type: ignore[attr-defined]
                 return web.HTTPSeeOther(
                     location=f"/contestants?event_id={event_id}&informasjon={informasjon}"
                 )
-            elif "create_one" in form.keys():
-                url = await create_one_contestant(user["token"], event, form)  # type: ignore
-                return web.HTTPSeeOther(location=url)  # type: ignore
-            elif "update_one" in form.keys():
-                request_body = get_contestant_from_form(event, form)  # type: ignore
+            if "create_one" in form:
+                url = await create_one_contestant(user["token"], event, dict(form))
+                return web.HTTPSeeOther(location=url)
+            if "update_one" in form:
+                request_body = get_contestant_from_form(event, dict(form))
                 request_body["id"] = str(form["id"])
                 result = await ContestantsAdapter().update_contestant(
                     user["token"], event_id, request_body
                 )
                 informasjon = f"Informasjon er oppdatert - {result}"
-            elif "delete_select" in form.keys():
+            elif "delete_select" in form:
                 informasjon = "Sletting utført: "
-                for key in form.keys():
+                for key in form:
                     if key.startswith("slett_"):
                         try:
                             contestant_id = str(form[key])
@@ -194,13 +195,13 @@ class Contestants(web.View):
                         except Exception as e:
                             informasjon += f"Feil:{key}({e}) "
 
-            elif "delete_all" in form.keys():
+            elif "delete_all" in form:
                 result = await ContestantsAdapter().delete_all_contestants(
                     user["token"], event_id
                 )
                 informasjon = f"Deltakerne er slettet - {result}"
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
@@ -237,7 +238,7 @@ async def add_to_startlist(token: str, event_id: str, klasse: str, bib: int) -> 
                     new_start["round"] = race["round"]
                     new_start["starting_position"] = len(race["start_entries"]) + 1
                     new_start["start_time"] = race["start_time"]
-        informasjon += await create_start(user, new_start)  # type: ignore
+        informasjon += await create_start(user, new_start)
 
         # Handle R2 scenario
         if new_start["round"] == "R1":
@@ -249,24 +250,23 @@ async def add_to_startlist(token: str, event_id: str, klasse: str, bib: int) -> 
                         new_start["round"] = race["round"]
                         new_start["starting_position"] = len(race["start_entries"]) + 1
                         new_start["start_time"] = race["start_time"]
-            informasjon += await create_start(user, new_start)  # type: ignore
+            informasjon += await create_start(user, new_start)
 
     return informasjon
 
 
 async def create_one_contestant(token: str, event: dict, form: dict) -> str:
     """Load contestants from form. Place in startlist if relevant."""
-    url = ""
     informasjon = ""
     klasse = ""
-    request_body = get_contestant_from_form(event, form)  # type: ignore
+    request_body = get_contestant_from_form(event, form)
     bib = request_body["bib"]
-    if "create_one" in form.keys():
+    if "create_one" in form:
         # 1. Add contestant.
-        id = await ContestantsAdapter().create_contestant(
+        c_id = await ContestantsAdapter().create_contestant(
             token, event["id"], request_body
         )
-        logging.debug(f"Etteranmelding {id}")
+        logging.debug(f"Etteranmelding {c_id}")
         informasjon = f"Deltaker med startnr {bib} er lagt til."
         # 2. Update number of contestants in raceclass
         raceclasses = await RaceclassesAdapter().get_raceclasses(token, event["id"])
@@ -286,30 +286,25 @@ async def create_one_contestant(token: str, event: dict, form: dict) -> str:
     # redirect user to correct page to add start entry
     info = f"event_id={event['id']}"
     info += f"&informasjon={informasjon}"
-    url = f"/contestants?action=new_manual&{info}"  # type: ignore
-
-    return url
+    return f"/contestants?action=new_manual&{info}"
 
 
 def get_contestant_from_form(event: dict, form: dict) -> dict:
     """Load contestants from form."""
     try:
-        if len(form["bib"]) > 0:  # type: ignore
-            bib = int(form["bib"])  # type: ignore
-        else:
-            bib = None
+        bib = int(form["bib"]) if len(form["bib"]) > 0 else None
     except Exception:
         bib = None
     try:
-        if len(form["seeding_points"]) > 0:  # type: ignore
-            seeding_points = int(form["seeding_points"])  # type: ignore
+        if len(form["seeding_points"]) > 0:
+            seeding_points = int(form["seeding_points"])
         else:
             seeding_points = None
     except Exception:
         seeding_points = None
     time_stamp_now = EventsAdapter().get_local_time(event, "log")
 
-    contestant = {
+    return {
         "bib": bib,
         "first_name": str(form["first_name"]),
         "last_name": str(form["last_name"]),
@@ -325,12 +320,11 @@ def get_contestant_from_form(event: dict, form: dict) -> dict:
         "minidrett_id": str(form["minidrett_id"]),
         "registration_date_time": time_stamp_now,
     }
-    return contestant
 
 
 def contestant_from_xml(xml_dict: dict, event_id: str, time_stamp_now: str) -> dict:
     """Converts an XML representation of a contestant to a dictionary."""
-    contestant = {
+    return {
         "bib": int(xml_dict["@startno"]),
         "first_name": xml_dict["@fornavn"],
         "last_name": xml_dict["@etternavn"],
@@ -346,7 +340,6 @@ def contestant_from_xml(xml_dict: dict, event_id: str, time_stamp_now: str) -> d
         "minidrett_id": xml_dict["@starttid"],
         "registration_date_time": time_stamp_now,
     }
-    return contestant
 
 
 async def get_available_bib(token: str, event_id: str) -> int:
@@ -355,10 +348,8 @@ async def get_available_bib(token: str, event_id: str) -> int:
     highest_bib = 0
     for contestant in contestants:
         if contestant["bib"]:
-            if contestant["bib"] > highest_bib:
-                highest_bib = contestant["bib"]
-    available_bib = highest_bib + 1
-    return available_bib
+            highest_bib = max(highest_bib, contestant["bib"])
+    return highest_bib + 1
 
 
 async def create_contestants_from_excel(token: str, event: dict, file) -> str:
@@ -383,13 +374,11 @@ async def create_contestants_from_excel(token: str, event: dict, file) -> str:
             elements = str_oneline.split(";")
             # identify headers
             if index_row == 1:
-                index_column = 0
-                for element in elements:
+                for index_column, element in enumerate(elements):
                     # special case to handle random bytes first in file
                     if index_column == 0 and element.endswith("Startnr"):
                         headers["Startnr"] = 0
                     headers[element] = index_column
-                    index_column += 1
             else:
                 request_body = get_contestant_dict(event, elements, headers)
 
@@ -407,7 +396,7 @@ async def create_contestants_from_excel(token: str, event: dict, file) -> str:
                 error_text = f"Ingen tilgang, vennligst logg inn på nytt. {e}"
                 break
             i_errors += 1
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             error_text += f"<br>{e}"
         if i_errors > 10:
             error_text = f"For mange feil i filen - avsluttet import. {error_text}"
@@ -429,13 +418,11 @@ def get_contestant_dict(event: dict, elements: list, headers: dict) -> dict:
     except Exception:
         name = elements[headers["Navn"]]
         all_names = name.split(" ")
-        i = 0
-        for one_name in all_names:
+        for i, one_name in enumerate(all_names):
             if i == 0:
                 first_name = one_name
             else:
                 last_name += one_name + " "
-            i += 1
     request_body = {
         "first_name": first_name,
         "last_name": last_name.strip(),
@@ -454,7 +441,7 @@ def get_contestant_dict(event: dict, elements: list, headers: dict) -> dict:
     try:
         bib = elements[headers["Startnr"]]
         if bib.isnumeric():
-            request_body["bib"] = int(bib)  # type: ignore
+            request_body["bib"] = int(bib)
     except Exception:
         logging.debug("Startnr ignored")
     try:

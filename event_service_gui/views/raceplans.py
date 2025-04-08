@@ -3,13 +3,14 @@
 import datetime
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
+from aiohttp import web
 
 from event_service_gui.services import (
     RaceclassesAdapter,
     RaceplansAdapter,
 )
+
 from .utils import (
     check_login,
     get_event,
@@ -48,7 +49,7 @@ class Raceplans(web.View):
             try:
                 valgt_klasse = self.request.rel_url.query["klasse"]
             except Exception:
-                valgt_klasse = ""  # noqa: F841
+                valgt_klasse = ""
 
             raceclasses = await RaceclassesAdapter().get_raceclasses(
                 user["token"], event_id
@@ -80,7 +81,7 @@ class Raceplans(web.View):
             if len(raceplans) == 1:
                 raceplan_validation = await RaceplansAdapter().validate_raceplan(
                     user["token"], raceplans[0]["id"]
-                )  # type: ignore
+                )
                 for race in races:
                     for x, y in raceplan_validation.items():
                         if x == str(race["order"]):
@@ -104,7 +105,7 @@ class Raceplans(web.View):
                 },
             )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to main page.")
+            logging.exception("Error.. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
     async def post(self) -> web.Response:
@@ -117,7 +118,7 @@ class Raceplans(web.View):
         event_id = str(form["event_id"])
 
         try:
-            if "update_one" in form.keys():
+            if "update_one" in form:
                 race_id = str(form["race_id"])
                 races = await RaceplansAdapter().get_all_races(user["token"], event_id)
                 for race in races:
@@ -133,7 +134,7 @@ class Raceplans(web.View):
                         )
                         break
             # Create classes from list of contestants
-            elif "generate_raceplan" in form.keys():
+            elif "generate_raceplan" in form:
                 result = await RaceplansAdapter().generate_raceplan(
                     user["token"], event_id
                 )
@@ -141,29 +142,29 @@ class Raceplans(web.View):
                 return web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
-            elif "delete_all" in form.keys():
+            elif "delete_all" in form:
                 resultat = await RaceplansAdapter().delete_raceplans(
                     user["token"], str(form["event_id"])
                 )
                 informasjon = f"Kjøreplaner er slettet - {resultat}"
-            elif "update_time" in form.keys():
+            elif "update_time" in form:
                 logging.debug(f"update_time - form:{form}")
                 informasjon = await RaceplansAdapter().update_start_time(
-                    user["token"], event_id, int(form["order"]), form["new_time"]  # type: ignore
+                    user["token"], event_id, int(str(form["order"])), str(form["new_time"])
                 )
                 action = "edit_time"
-            elif "set_rest_time" in form.keys():
+            elif "set_rest_time" in form:
                 informasjon = await set_min_rest_time(
-                    user["token"], event_id, int(form["min_rest_time"])  # type: ignore
+                    user["token"], event_id, int(str(form["min_rest_time"]))
                 )
                 action = "edit_time"
-            elif "edit_heat_interval" in form.keys():
+            elif "edit_heat_interval" in form:
                 informasjon = await update_heat_time_interval(
-                    user["token"], event_id, form  # type: ignore
+                    user["token"], event_id, dict(form)
                 )
 
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
@@ -184,19 +185,25 @@ async def update_heat_time_interval(token: str, event_id: str, form: dict) -> st
     last_heat = int(form["last_heat"])
     heat_interval = time_str_to_timedelta(form["heat_interval"])
 
-    for race in races:
-        if first_heat == race["order"]:
-            previous_race_time_obj = datetime.datetime.strptime(
-                race["start_time"], "%Y-%m-%dT%H:%M:%S"
-            )
-        if first_heat < race["order"] <= last_heat:
-            # set new time for this
-            new_time_obj = previous_race_time_obj + heat_interval
-            new_time = f"{new_time_obj.strftime('%X')}"
-            informasjon += await RaceplansAdapter().update_start_time(
-                token, event_id, race["order"], new_time
-            )
-            previous_race_time_obj = new_time_obj
+    if races:
+        # Initialize previous_race_time_obj with first value
+        previous_race_time_obj = datetime.datetime.strptime(
+                    races[0]["start_time"], "%Y-%m-%dT%H:%M:%S"
+                )
+
+        for race in races:
+            if first_heat == race["order"]:
+                previous_race_time_obj = datetime.datetime.strptime(
+                    race["start_time"], "%Y-%m-%dT%H:%M:%S"
+                )
+            if first_heat < race["order"] <= last_heat:
+                # set new time for this
+                new_time_obj = previous_race_time_obj + heat_interval
+                new_time = f"{new_time_obj.strftime('%X')}"
+                informasjon += await RaceplansAdapter().update_start_time(
+                    token, event_id, race["order"], new_time
+                )
+                previous_race_time_obj = new_time_obj
     return informasjon
 
 
@@ -287,20 +294,20 @@ def get_raceplan_timing(races: list, raceclass: dict) -> dict:
             class_summary["min_pauseS"] = time_s_first_obj - time_q_last_obj
             class_summary["warning_pauseS"] = check_short_pause(
                 class_summary["min_pauseS"]
-            )  # type: ignore
+            )
             class_summary["min_pauseF"] = time_fab_first_obj - time_s_last_obj
             class_summary["warning_pauseF"] = check_short_pause(
                 class_summary["min_pauseF"]
-            )  # type: ignore
+            )
         elif time_fab_first:
             time_fab_first_obj = datetime.datetime.strptime(
                 time_fab_first, "%Y-%m-%dT%H:%M:%S"
             )
-            class_summary["min_pauseS"] = ""  # type: ignore
+            class_summary["min_pauseS"] = ""
             class_summary["min_pauseF"] = time_fab_first_obj - time_q_last_obj
             class_summary["warning_pauseF"] = check_short_pause(
                 class_summary["min_pauseF"]
-            )  # type: ignore
+            )
         elif time_s_first:
             time_s_first_obj = datetime.datetime.strptime(
                 time_s_first, "%Y-%m-%dT%H:%M:%S"
@@ -311,8 +318,8 @@ def get_raceplan_timing(races: list, raceclass: dict) -> dict:
             class_summary["min_pauseS"] = time_s_first_obj - time_q_last_obj
             class_summary["warning_pauseS"] = check_short_pause(
                 class_summary["min_pauseS"]
-            )  # type: ignore
-            class_summary["min_pauseF"] = ""  # type: ignore
+            )
+            class_summary["min_pauseF"] = ""
 
     return class_summary
 
@@ -408,10 +415,7 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
 
 def check_short_pause(pause_time) -> bool:
     """Return true if pause time is acceptable."""
-    if pause_time < datetime.timedelta(minutes=12):
-        return True
-    else:
-        return False
+    return (pause_time < datetime.timedelta(minutes=12))
 
 
 def time_str_to_timedelta(time_str: str) -> datetime.timedelta:

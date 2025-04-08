@@ -1,18 +1,20 @@
 FROM python:3.12
 
-RUN mkdir -p /app
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+# Install uv.
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Copy the application into the container.
+ADD . /app
+
+# Install the application dependencies.
 WORKDIR /app
+RUN uv sync --frozen
 
-RUN pip install --upgrade pip
-RUN pip install "poetry==1.8.5"
-COPY poetry.lock pyproject.toml /app/
-
-# Project initialization:
-RUN poetry config virtualenvs.create false \
-  && poetry install --no-dev --no-interaction --no-ansi
-
-ADD event_service_gui /app/event_service_gui
-
+# Expose the application port.
 EXPOSE 8080
 
-CMD gunicorn "event_service_gui:create_app"  --config=event_service_gui/gunicorn_config.py --worker-class aiohttp.GunicornWebWorker
+# Run the application.
+CMD ["/app/.venv/bin/gunicorn", "event_service_gui:create_app",  "--config=event_service_gui/gunicorn_config.py", "--worker-class", "aiohttp.GunicornWebWorker"]

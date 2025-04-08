@@ -3,10 +3,11 @@
 import json
 import logging
 
-from aiohttp import web
 import aiohttp_jinja2
+from aiohttp import web
 
 from event_service_gui.services import EventsAdapter
+
 from .utils import check_login_open, get_event
 
 
@@ -33,24 +34,23 @@ class Main(web.View):
                 return web.Response(
                     status=200, body=body, content_type="application/json"
                 )
-            else:
-                event = await get_event(user["token"], "")
+            event = await get_event(user["token"], "")
 
-                events = await EventsAdapter().get_all_events(user["token"])
-                logging.debug(f"Events: {events}")
+            events = await EventsAdapter().get_all_events(user["token"])
+            logging.debug(f"Events: {events}")
 
-                return await aiohttp_jinja2.render_template_async(
-                    "index.html",
-                    self.request,
-                    {
-                        "lopsinfo": "Startside",
-                        "event": event,
-                        "event_id": "",
-                        "events": events,
-                        "informasjon": informasjon,
-                        "username": user["name"],
-                    },
-                )
+            return await aiohttp_jinja2.render_template_async(
+                "index.html",
+                self.request,
+                {
+                    "lopsinfo": "Startside",
+                    "event": event,
+                    "event_id": "",
+                    "events": events,
+                    "informasjon": informasjon,
+                    "username": user["name"],
+                },
+            )
         except Exception as e:
-            logging.error(f"Error: {e}. Redirect to login page.")
+            logging.exception("Error.. Redirect to login page.")
             return web.HTTPSeeOther(location=f"/login?informasjon={e}")

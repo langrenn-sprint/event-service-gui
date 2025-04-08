@@ -51,8 +51,8 @@
           <td>Rennformat</td>
           <td>
             <select name="competition_format" required>
-              {% for format in competition_formats %}
-                <option value="{{ format.name }}">{{ format.name }}</option>
+              {% for c_format in competition_formats %}
+                <option value="{{ c_format.name }}">{{ c_format.name }}</option>
               {% endfor %}
             </select>
           </td>
