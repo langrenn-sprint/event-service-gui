@@ -14,8 +14,7 @@ from requests.exceptions import ConnectionError as _ConnectionError
 from event_service_gui import create_app
 
 load_dotenv()
-HOST_PORT = int(str(os.getenv("HOST_PORT")))
-HOST_SERVER = str(os.getenv("HOST_SERVER"))
+HOST_PORT = int(os.getenv("HOST_PORT", "8080"))
 
 
 @pytest.fixture
@@ -27,9 +26,9 @@ async def client(aiohttp_client: Any) -> _TestClient:
 
 def is_responsive(url: Any) -> Any:
     """Return true if response from service is 200."""
-    url = f"{url}/ready"
+    url = f"{url}/ping"
     try:
-        response = requests.get(url, timeout=60)
+        response = requests.get(url, timeout=20)
         if response.status_code == HTTPStatus.OK:
             time.sleep(2)  # sleep extra 2 sec
             return True
@@ -41,10 +40,10 @@ def is_responsive(url: Any) -> Any:
 def http_service(docker_ip: Any, docker_services: Any) -> Any:
     """Ensure that HTTP service is up and responsive."""
     # `port_for` takes a container port and returns the corresponding host port
-    port = docker_services.port_for(HOST_SERVER, HOST_PORT)
-    url = f"http://{docker_ip}:{HOST_PORT}"
+    port = docker_services.port_for("event-service-gui", HOST_PORT)
+    url = f"http://{docker_ip}:{port}"
     docker_services.wait_until_responsive(
-        timeout=10.0, pause=0.1, check=lambda: is_responsive(url)
+        timeout=30.0, pause=0.1, check=lambda: is_responsive(url)
     )
     return url
 

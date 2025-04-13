@@ -202,7 +202,7 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
 
 async def update_order(user: dict, event_id: str, form: dict) -> str:
     """Extract form data and perform update order in ageclasses."""
-    for key, value in form:
+    for key, value in form.items():
         if key.startswith("id_"):
             w_id = str(value)
             race_class = await RaceclassesAdapter().get_raceclass(

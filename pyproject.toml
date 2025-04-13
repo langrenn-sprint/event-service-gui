@@ -28,6 +28,7 @@ dependencies = [
     "multidict>=6.0.1",
     "python-dotenv>=1.0.0",
     "xmltodict>=0.14.2",
+    "python-json-logger>=3.2.1",
 ]
 [project.urls]
 Homepage = "https://github.com/langrenn-sprint/event-service-gui"
@@ -155,14 +156,13 @@ env = [
     "DB_USER=admin",
     "DB_PASSWORD=admin",
     "LOGGING_LEVEL=INFO",
-    "EVENTS_HOST_SERVER=localhost",
-    "EVENTS_HOST_PORT=8082",
+    "EVENTS_HOST_SERVER=event-service",
+    "EVENTS_HOST_PORT=8080",
     "HOST_PORT=8080",
-    "HOST_SERVER=event-service-gui",
-    "COMPETITION_FORMAT_HOST_SERVER=localhost",
-    "COMPETITION_FORMAT_HOST_PORT=8082",
-    "USERS_HOST_SERVER=localhost",
-    "USERS_HOST_PORT=8086",
+    "COMPETITION_FORMAT_HOST_SERVER=competition-format-service",
+    "COMPETITION_FORMAT_HOST_PORT=8080",
+    "USERS_HOST_SERVER=user-service",
+    "USERS_HOST_PORT=8080",
     "ERROR_FILE=error.log",
     "FERNET_KEY=23EHUWpP_MyKey_MyKeyhxndWqyc0vO-MyKeySMyKey=",
     "RACE_HOST_SERVER=localhost",

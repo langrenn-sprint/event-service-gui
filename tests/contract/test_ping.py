@@ -7,7 +7,7 @@ import pytest
 
 
 @pytest.mark.contract
-@pytest.mark.asyncio(scope="module")
+@pytest.mark.asyncio(loop_scope="function")
 async def test_ping(http_service: Any) -> None:
     """Should return OK."""
     url = f"{http_service}/ping"
