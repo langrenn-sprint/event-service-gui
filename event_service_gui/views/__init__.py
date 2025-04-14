@@ -15,3 +15,22 @@ from .seeding import Seeding
 from .settings import Settings
 from .tasks import Tasks
 from .users import Users
+
+__all__ = [
+    "Contestants",
+    "Control",
+    "CsvList",
+    "Events",
+    "Login",
+    "Logout",
+    "Main",
+    "Ping",
+    "PrintContestants",
+    "Raceclasses",
+    "Raceplans",
+    "Ready",
+    "Seeding",
+    "Settings",
+    "Tasks",
+    "Users",
+]

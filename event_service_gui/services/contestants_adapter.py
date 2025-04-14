@@ -5,7 +5,7 @@ import logging
 import os
 import urllib.parse
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
