@@ -1,6 +1,6 @@
 # webserver
 
-Her finner du en enkel webserver som generer html basert på csv-filer i test-data
+Her finner du en enkel webserver som generer html sider basert på innhold fra backend tjenester event-service, user-service, competition-format-service, race-service og photo-service.
 
 ## Slik går du fram for å kjøre dette lokalt
 

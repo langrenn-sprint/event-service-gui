@@ -32,15 +32,17 @@ color: white;
 }
 
 #headerblue {
-  color: white;
-  background-color: #00247d;
-  padding: 4px;
+color: white;
+background-color: #00247d;
+padding: 4px;
+font-weight: bold;
 }
 
 #headerblack {
-  color: black;
-  background-color: #ffb549;
-  padding: 4px;
+color: black;
+background-color: #ffb549;
+padding: 4px;
+font-weight: bold;
 }
 
 #headercollapse {

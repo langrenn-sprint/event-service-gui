@@ -21,7 +21,7 @@ PHOTO_SERVICE_URL = f"http://{PHOTOS_HOST_SERVER}:{PHOTOS_HOST_PORT}"
 class StatusAdapter:
     """Class representing status."""
 
-    async def get_status(self, token: str, event: dict, count: int) -> list:
+    async def get_status(self, token: str, event_id: str, count: int) -> list:
         """Get latest status messages."""
         status = []
         headers = MultiDict(
@@ -33,7 +33,7 @@ class StatusAdapter:
         servicename = "get_status"
 
         async with ClientSession() as session, session.get(
-            f"{PHOTO_SERVICE_URL}/status?count={count}&eventId={event['id']}",
+            f"{PHOTO_SERVICE_URL}/status?count={count}&eventId={event_id}",
             headers=headers,
         ) as resp:
             if resp.status == HTTPStatus.OK:

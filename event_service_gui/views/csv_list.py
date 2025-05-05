@@ -33,8 +33,11 @@ class CsvList(web.View):
             csvdata = await RaceplansAdapter().get_all_races("", event_id)
             fields = get_fields_raceplan()
         elif action == "startlist":
-            startlist = await StartAdapter().get_all_starts_by_event("", event_id)
-            csvdata = startlist[0]["start_entries"]
+            try:
+                race_round = self.request.rel_url.query["round"]
+            except Exception:
+                race_round = ""
+            csvdata = await get_startlist_data(event_id, race_round)
             fields = get_fields_startlist()
         elif action == "contestants":
             csvdata = await ContestantsAdapter().get_all_contestants("", event_id)
@@ -63,6 +66,23 @@ class CsvList(web.View):
 
         return web.Response(text=informasjon)
 
+
+async def get_startlist_data(
+    event_id: str, race_round: str
+) -> list:
+    """Return list of start-entries, filtered on round."""
+    filtered_startlist = []
+    startlist = await StartAdapter().get_all_starts_by_event("", event_id)
+    if race_round:
+        races = await RaceplansAdapter().get_all_races("", event_id)
+        for race in races:
+            if race["round"] == race_round:
+                filtered_startlist.extend(
+                    start for start in startlist[0]["start_entries"] if start["race_id"] == race["id"]
+                )
+    else:
+        filtered_startlist = startlist[0]["start_entries"]
+    return filtered_startlist
 
 def get_fields_raceplan() -> list:
     """Return field for display."""
