@@ -2,32 +2,16 @@
 
 Her finner du en enkel webserver som generer html sider basert på innhold fra backend tjenester event-service, user-service, competition-format-service, race-service og photo-service.
 
-## Slik går du fram for å kjøre dette lokalt
-
-## Usage example
-
-```Zsh
-% curl -H "Content-Type: application/json" \
-  -X POST \
-  --data '{"username":"admin","password":"passw123"}' \
-  http://localhost:8080/login
-% export ACCESS="" #token from response
-% curl -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $ACCESS" \
-  -X POST \
-  --data @tests/files/user.json \
-  http://localhost:8080/users
-% curl -H "Authorization: Bearer $ACCESS"  http://localhost:8080/users
-```
-
 ## Architecture
 
 Layers:
-
+- templates: presentation layer, in html and javascript
 - views: routing functions, maps representations to/from model
 - services: enforce validation, calls adapter-layer for storing/retrieving objects
 - models: model-classes
 - adapters: adapters to external services
+
+## Slik går du fram for å kjøre dette lokalt
 
 ## Environment variables
 
@@ -62,37 +46,20 @@ Install [uv](https://docs.astral.sh/uv/), e.g.:
 % curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-## If required - virtual environment
-
-Install: curl <https://pyenv.run> | bash
-Create: python -m venv .venv (replace .venv with your preferred name)
-Install python 3.12: pyenv install 3.12
-Activate:
-source .venv/bin/activate
-
-## Then install the dependencies:
+## Then install the dependencies and activate virtual env:
 
 ```Zsh
-% uv sync
+uv sync
+source .venv/bin/activate
 ```
 
-## Running the API locally
-
-Start the server locally:
+## Start the server locally
 
 ```Zsh
 % uv run adev runserver -p 8080 event_service_gui
 ```
 
-## Running the API in a wsgi-server (gunicorn)
-
-```Zsh
-% uv run gunicorn event_service_gui:create_app --bind localhost:8080 --worker-class aiohttp.GunicornWebWorker
-```
-
-## Running the wsgi-server in Docker
-
-To build and run the api in a Docker container:
+## Running the service in Docker
 
 ```Zsh
 % docker build -t langrenn-sprint/event-service-gui:latest .
