@@ -187,4 +187,5 @@ release = { sequence = [
     "check_deps",
     "audit",
     "integration_test",
+    "contract_test",
 ] }
