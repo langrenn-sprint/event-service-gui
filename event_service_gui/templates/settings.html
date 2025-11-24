@@ -1,8 +1,5 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
-{% endblock %}
+{% extends "open_base_new.html" %}
+
 {% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_settings.png"> {{ lopsinfo }}{% endblock %}
 {% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_settings.png"> {% endblock %}
@@ -13,9 +10,9 @@
       <form action=/settings method=post>
         <nobr>
           Tilbakestill: 
-          <input type="submit" name="default_individual_sprint_s2" value="  Standard sprint oppsett (Steinar v2) ">
-          <input type="submit" name="default_individual_sprint" value="  Sprint oppsett - alternativ  ">
-          <input type="submit" name="default_sprint_all_to_finals" value="  Sprint - alle til finale  ">
+          <input type="submit" name="default_individual_sprint_s2" value="  Standard sprint oppsett (Steinar v2) " class="btn btn-default">
+          <input type="submit" name="default_individual_sprint" value="  Sprint oppsett - alternativ  " class="btn btn-default">
+          <input type="submit" name="default_sprint_all_to_finals" value="  Sprint - alle til finale  " class="btn btn-default">
         </nobr>
       </form>
     </div>
@@ -49,23 +46,23 @@
                 <tr>
                   <td>Deltakertak pr klasse</td>
                   <td>
-                    <input type=number name=max_no_of_contestants_in_raceclass value="{{ c_format.max_no_of_contestants_in_raceclass }}" min=0 max=9999>
+                    <input type=number class="form-control" name=max_no_of_contestants_in_raceclass value="{{ c_format.max_no_of_contestants_in_raceclass }}" min=0 max=9999>
                   </td>
                 </tr>
                 <tr>
                   <td>Deltakertak pr heat</td>
                   <td>
-                    <input type=number name=max_no_of_contestants_in_race value="{{ c_format.max_no_of_contestants_in_race }}" min=0 max=9999>
+                    <input type=number class="form-control" name=max_no_of_contestants_in_race value="{{ c_format.max_no_of_contestants_in_race }}" min=0 max=9999>
                   </td>
                 </tr>
                 <tr>
                   <td>Pause mellom grupper</td>
-                  <td><input type=text name=time_between_groups value="{{ c_format.time_between_groups }}" required></td>
+                  <td><input type=text class="form-control" name=time_between_groups value="{{ c_format.time_between_groups }}" required></td>
                 </tr>
                 {% if c_format.datatype == "interval_start" %}
                 <tr>
                   <td>Startintervall</td>
-                  <td><input type=text name=intervals value="{{ c_format.intervals }}" required></td>
+                  <td><input type=text class="form-control" name=intervals value="{{ c_format.intervals }}" required></td>
                 </tr>
                 <tr>
                   <td colspan=2>&nbsp;</td>
@@ -73,16 +70,16 @@
                 {% elif c_format.datatype == "individual_sprint" %}
                 <tr>
                   <td>Pause mellom runde</td>
-                  <td><input type=text name=time_between_rounds value="{{ c_format.time_between_rounds }}" required></td>
+                  <td><input type=text class="form-control" name=time_between_rounds value="{{ c_format.time_between_rounds }}" required></td>
                 </tr>
                 <tr>
                   <td>Pause mellom heat</td>
-                  <td><input type=text name=time_between_heats value="{{ c_format.time_between_heats }}" required></td>
+                  <td><input type=text class="form-control" name=time_between_heats value="{{ c_format.time_between_heats }}" required></td>
                 </tr>
               <tr>
                 <td>Rangerte klasser - runder</td>
                 <td>
-                  <input type=text name=rounds_ranked_classes value="{{ c_format.rounds_ranked_classes }}" required>
+                  <input type=text class="form-control" name=rounds_ranked_classes value="{{ c_format.rounds_ranked_classes }}" required>
                 </td>
               </tr>
               <tr>
@@ -104,13 +101,13 @@
                           <td>{{ loop.index }}</td>
                           <td>
                             {{ race_config_r.max_no_of_contestants }}<br>
-                            <input type=text name=ranked_{{ loop.index }}_max_no_of_contestants value="{{ race_config_r.max_no_of_contestants }}" size="2">
+                            <input type=text class="form-control" name=ranked_{{ loop.index }}_max_no_of_contestants value="{{ race_config_r.max_no_of_contestants }}" size="2">
                           </td>
                           <td>
                             {% if (race_config_r.no_of_heats.Q) %}Kvartfinale<br>{% endif %}
                             {% if (race_config_r.no_of_heats.S) %}Semifinale<br>{% endif %}
                             {% if (race_config_r.no_of_heats.F) %}Finale<br>{% endif %}
-                            <input type=text name=ranked_{{ loop.index }}_rounds value="{{ race_config_r.rounds }}" size="8"></td>
+                            <input type=text class="form-control" name=ranked_{{ loop.index }}_rounds value="{{ race_config_r.rounds }}" size="8"></td>
                           <td>
                             {% if (race_config_r.no_of_heats.Q) %}Kvart: {{ race_config_r.no_of_heats.Q.A }}<br>{% endif %}
                             {% if (race_config_r.no_of_heats.S) %}Semi:
@@ -119,20 +116,20 @@
                             {% if (race_config_r.no_of_heats.F) %}Finaler:
                               {% for key, value in race_config_r.no_of_heats.F.items() %}{% if value > 0 %}{{ key }}{% endif %} {% endfor %}<br>
                             {% endif %}
-                            <input type=text name=ranked_{{ loop.index }}_no_of_heats value="{{ race_config_r.no_of_heats }}" size="50">
+                            <input type=text class="form-control" name=ranked_{{ loop.index }}_no_of_heats value="{{ race_config_r.no_of_heats }}" size="50">
                           </td>
                           <td>
                             {{ race_config_r.next_race_desc }}<br>
-                            Kode: <input type=text name=ranked_{{ loop.index }}_from_to value="{{ race_config_r.from_to }}" size="100">
+                            Kode: <input type=text class="form-control" name=ranked_{{ loop.index }}_from_to value="{{ race_config_r.from_to }}" size="100">
                           </td>
                         </tr>
                       {% endfor %}
                       <tr>
                         <td>Ny</td>
-                        <td><input type=text name=ranked_new_max_no_of_contestants value="" size="4"></td>
-                        <td><input type=text name=ranked_new_rounds value="" size="16"></td>
-                        <td><input type=text name=ranked_new_no_of_heats value="" size="30"></td>
-                        <td><input type=text name=ranked_new_from_to value="" size="40"></td>
+                        <td><input type=text class="form-control" name=ranked_new_max_no_of_contestants value="" size="4"></td>
+                        <td><input type=text class="form-control" name=ranked_new_rounds value="" size="16"></td>
+                        <td><input type=text class="form-control" name=ranked_new_no_of_heats value="" size="30"></td>
+                        <td><input type=text class="form-control" name=ranked_new_from_to value="" size="40"></td>
                       </tr>
                     </table>
                   {% endif %}
@@ -141,7 +138,7 @@
               <tr>
                 <td>Ikke rangerte klasser - runder</td>
                 <td>
-                  <input type=text name=rounds_non_ranked_classes value="{{ c_format.rounds_non_ranked_classes }}" required>
+                  <input type=text class="form-control" name=rounds_non_ranked_classes value="{{ c_format.rounds_non_ranked_classes }}" required>
                 </td>
               </tr>
               <tr>
@@ -161,18 +158,18 @@
                       {% for race_config_non_r in c_format.race_config_non_ranked %}
                         <tr>
                           <td>{{ loop.index }}</td>
-                          <td><input type=text name=non_ranked_{{ loop.index }}_max_no_of_contestants value="{{ race_config_non_r.max_no_of_contestants }}" size="4"></td>
-                          <td><input type=text name=non_ranked_{{ loop.index }}_rounds value="{{ race_config_non_r.rounds }}" size="16"></td>
-                          <td><input type=text name=non_ranked_{{ loop.index }}_no_of_heats value="{{ race_config_non_r.no_of_heats }}" size="40"></td>
-                          <td><input type=text name=non_ranked_{{ loop.index }}_from_to value="{{ race_config_non_r.from_to }}" size="60"></td>
+                          <td><input type=text class="form-control" name=non_ranked_{{ loop.index }}_max_no_of_contestants value="{{ race_config_non_r.max_no_of_contestants }}" size="4"></td>
+                          <td><input type=text class="form-control" name=non_ranked_{{ loop.index }}_rounds value="{{ race_config_non_r.rounds }}" size="16"></td>
+                          <td><input type=text class="form-control" name=non_ranked_{{ loop.index }}_no_of_heats value="{{ race_config_non_r.no_of_heats }}" size="40"></td>
+                          <td><input type=text class="form-control" name=non_ranked_{{ loop.index }}_from_to value="{{ race_config_non_r.from_to }}" size="60"></td>
                         </tr>
                       {% endfor %}
                       <tr>
                         <td>Ny</td>
-                        <td><input type=text name=non_ranked_new_max_no_of_contestants value="" size="4"></td>
-                        <td><input type=text name=non_ranked_new_rounds value="" size="16"></td>
-                        <td><input type=text name=non_ranked_new_no_of_heats value="" size="40"></td>
-                        <td><input type=text name=non_ranked_new_from_to value="" size="60"></td>
+                        <td><input type=text class="form-control" name=non_ranked_new_max_no_of_contestants value="" size="4"></td>
+                        <td><input type=text class="form-control" name=non_ranked_new_rounds value="" size="16"></td>
+                        <td><input type=text class="form-control" name=non_ranked_new_no_of_heats value="" size="40"></td>
+                        <td><input type=text class="form-control" name=non_ranked_new_from_to value="" size="60"></td>
                       </tr>
                     </table>
                   {% endif %}
@@ -182,7 +179,7 @@
               <tr>
                 <td></td>
                 <td>
-                  <input type="submit" name=update value="  Lagre  ">
+                  <input type="submit" name=update value="  Lagre  " class="btn btn-default">
                 </td>
               </tr>
             </table>

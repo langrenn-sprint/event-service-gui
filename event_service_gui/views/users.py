@@ -1,6 +1,7 @@
 """Resource module for users view."""
 
 import logging
+from http import HTTPStatus
 
 import aiohttp_jinja2
 from aiohttp import web
@@ -77,7 +78,7 @@ class Users(web.View):
                 w_id = str(form["id"])
                 logging.info(f"Enter delete {w_id}")
                 res = await UserAdapter().delete_user(user["token"], w_id)
-                if res == "204":
+                if res == HTTPStatus.NO_CONTENT:
                     informasjon = "Bruker er slettet."
                 else:
                     informasjon = f"En feil oppstod {res}."

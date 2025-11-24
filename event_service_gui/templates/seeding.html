@@ -1,8 +1,5 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
-{% endblock %}
+{% extends "open_base_new.html" %}
+
 {% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_new.png"> {{ lopsinfo }}{% endblock %}
 {% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_new.png"> {% endblock %}
@@ -19,6 +16,13 @@
       {% endfor %}
     </div>
   </li>
+{% endblock %}
+
+{% block tips %}
+  Seeding kan gjøres på to måter (1) automatisk ved å bruke seeding_informasjon eller (2) ved manuelt å flytte løpere mellom heat.<br>
+  1. Automatisk seeding - dette utføres ved at løpere tildeles startnummer i henhold til seeding. De med best seeding får posisjon 1 i heatene, deretter posisjon 2 osv...<br>
+  - Velg klasse først og utfør seeding for en klasse om gangen.<br>
+  2. Manuell innplassering - her er det mulig å flytte løpere mellom heat. Dette gjøres ved å skrive inn et startnummer i feltet "Nytt startnr" og trykke på "Lagre".<br>
 {% endblock %}
 
 {% block content %}
@@ -54,7 +58,7 @@
         <td>
           <form action=/tasks method=get>
             <input type="hidden" name=event_id value="{{ event_id }}">
-            <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
+            <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
           </form>
         </td>
         <td>Antall deltakere: {{ contestants|length }}</td>
@@ -68,7 +72,7 @@
                         <input type="hidden" name=event_id value="{{ event_id }}">
                         <input type="hidden" name=action value="seeding_points">
                         <input type="hidden" name=klasse value={{ valgt_klasse }}>
-                        <input type="submit" name=seeding value="  Legg inn seeding-poeng  ">
+                        <input type="submit" name=seeding value="  Legg inn seeding-poeng  " class="btn btn-default">
                     </form>
                 </td>
                 <td>
@@ -76,25 +80,17 @@
                         <input type="hidden" name=event_id value="{{ event_id }}">
                         <input type="hidden" name=action value="seeding_manual">
                         <input type="hidden" name=klasse value={{ valgt_klasse }}>
-                        <input type="submit" name=seeding value="  Manuell innplassering i heat  ">
+                        <input type="submit" name=seeding value="  Manuell innplassering i heat  " class="btn btn-default">
                     </form>
                 </td>
             </tr>
         </table>
     {% endif %}
         <div id=spacer>&nbsp;</div>
-          <div id=info-zone>
-            <b>TIPS</b><br>
-            Seeding kan gjøres på to måter (1) automatisk ved å bruke seeding_informasjon eller (2) ved manuelt å flytte løpere mellom heat.<br>
-            1. Automatisk seeding - dette utføres ved at løpere tildeles startnummer i henhold til seeding. De med best seeding får posisjon 1 i heatene, deretter posisjon 2 osv...<br>
-            - Velg klasse først og utfør seeding for en klasse om gangen.<br>
-            2. Manuell innplassering - her er det mulig å flytte løpere mellom heat. Dette gjøres ved å skrive inn et startnummer i feltet "Nytt startnr" og trykke på "Lagre".<br>
-          </div>
-          <div id=spacer>&nbsp;</div>
           <form action=/seeding method=post>
             {% if valgt_klasse %}
                 <div>
-                    &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  ">
+                    &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  " class="btn btn-default">
                     <input type="hidden" name=klasse value={{ valgt_klasse }}>
                 </div>
             {% endif %}
@@ -122,14 +118,14 @@
                 <td id=n_{{ contestant.bib }}>{{ contestant.bib }}</td>
                 <td>
                     {% if  action == "seeding_manual"%}
-                        <input id={{ contestant.bib }} type=number name="bib_{{ contestant.id }}" value="" min="1" max="9999" size=4 onfocus="this.oldvalue = this.value;" onchange="green_bg(this)">
+                        <input id={{ contestant.bib }} type=number class="form-control" name="bib_{{ contestant.id }}" value="" min="1" max="9999" size=4 onfocus="this.oldvalue = this.value;" onchange="green_bg(this)">
                     {% endif %}
                     <input type="hidden" name="id_{{ contestant.id }}" value="{{ contestant.id }}">
                     <input type="hidden" name="old_bib_{{ contestant.id }}" value="{{ contestant.bib }}">
                 </td>
                 <td>
                     {% if  action == "seeding_points"%}
-                        <input id={{ contestant.bib }} type=number name="seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4 onfocus="this.oldvalue = this.value;">
+                        <input id={{ contestant.bib }} type=number class="form-control" name="seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4 onfocus="this.oldvalue = this.value;">
                         <input type="hidden" name="old_seeding_points_{{ contestant.id }}" value="{{ contestant.seeding_points }}">
                     {% else %}
                         {{ contestant.seeding_points }}
@@ -153,7 +149,7 @@
         </table>
         {% if valgt_klasse %}
           <div>
-            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  ">
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  " class="btn btn-default">
             <input type="hidden" name=action value={{ action }}>
             <input type="hidden" name="event_id" value="{{ event_id }}">
           </div>
@@ -164,7 +160,7 @@
         <td>
             <form action=/tasks method=get>
                 <input type="hidden" name=event_id value="{{ event_id }}">
-                <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
+                <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
               </form>
         </td>
         <td>Antall deltakere: {{ contestants|length }}</td>

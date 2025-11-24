@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="no">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <meta http-equiv="refresh" content="{% block refresh %}{% endblock %}">
+        <title>{% block titleheader %}{% endblock %}</title>
+        <link rel="stylesheet" href="../static/styles.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../static/styles_new.css">
+        {% if event.organiser[:5] == "Kjels" %}
+            <link rel="stylesheet" type="text/css" href="../static/styles_kjelsaas.css">
+        {% else %}
+            <link rel="stylesheet" type="text/css" href="../static/styles_lyn.css">
+        {% endif %}
+
+        <script type="text/javascript">
+            function event_gui_action(my_element, path) {
+                document.getElementById(my_element).action = "http://" + window.location.hostname + ":8080/" + path;
+            }
+            function event_gui_href(my_element, path) {
+                document.getElementById(my_element).href = "http://" + window.location.hostname + ":8080/" + path;
+            }
+            function result_gui_action(my_element, path) {
+                document.getElementById(my_element).action = "http://" + window.location.hostname + ":8090/" + path;
+            }
+            function result_gui_href(my_element, path) {
+                document.getElementById(my_element).href = "http://" + window.location.hostname + ":8090/" + path;
+            }
+            function confirm_delete(message) {
+                return window.confirm(message);
+            }
+
+            function naviger(id) {
+                var elmnt = document.getElementById(id);
+                elmnt.scrollIntoView();
+            }
+            function save_message(id) {
+                document.getElementById(id).value = "  Lagrer, vennligst vent... ";
+                return true;
+            }
+
+            async function savefile(inp)
+            {
+                let formData = new FormData();
+                let file = inp.files[0];
+
+                formData.append("file", file);
+
+                const ctrl = new AbortController()    // timeout
+                setTimeout(() => ctrl.abort(), 5000);
+
+                let r = await fetch('/contestants',
+                    {method: "POST", body: formData, signal: ctrl.signal});
+
+            }
+        </script>
+    </head>
+    <body>
+        <header class="container-fluid">
+            <div class="text-center">
+                <h2>{{ event.name }}&nbsp;<span class="event-logo-small"></span></h2>
+            </div>
+        </header>
+        <main class="container" id="main" role="main">
+            <div class="w3-container-sticky">
+            <ul>
+                <li class=dropdown>
+                <a href=javascript:void(0) class=dropbtn>...</a>
+                <div class=dropdown-content>
+                    <table>
+                        {% if not event_id %}
+                            <tr>
+                            <td>
+                                <nobr><a id="myIndex" onclick="event_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>&nbsp;</nobr>
+                            </td>
+                            </tr>
+                        {% else %}
+                            {% if username == "Gjest" %}
+                            <tr><td id="black">
+                                {{ event.name }}
+                            </td></tr>
+                            <tr><td>
+                                <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a>
+                            </td></tr>
+                            <tr><td>
+                                <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a>
+                            </td></tr>
+                            <tr><td>
+                                <nobr><a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater&nbsp;</a></nobr>
+                            </td></tr>
+                            <tr><td>
+                                <a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a>
+                            </td></tr>
+                            {% else %}
+                            <tr>
+                                <td id="black">{{ event.name }}</td>
+                                <td>&nbsp;</td>
+                                <td id="black">Renn-funksjoner</td>
+                                <td>&nbsp;</td>
+                                <td id="black">Admin-funksjoner</td>
+                            </tr>
+                            <tr>
+                                <td><a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a></td>
+                                <td>&nbsp;</td>
+                                <td><nobr><a id="myNewContestant" onclick="event_gui_href('myNewContestant', 'contestants?event_id={{ event_id }}&action=new_manual')" href=><img id=menu_icon src="../static/icon_new.png"> Etteranmelding</a></nobr></td>
+                                <td>&nbsp;</td>
+                                <td><a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_event.png"> Admin: Sette renn</a></td>
+                            </tr>
+                            <tr>
+                                <td><a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a></td>
+                                <td>&nbsp;</td>
+                                <td><a id="myDNS" onclick="result_gui_href('myDNS', 'timing?event_id={{ event_id }}&action=start')" href=><img id=menu_icon src="../static/icon_timing.png"> Start: DNS</a></td>
+                                <td>&nbsp;</td>
+                                <td><nobr><a id="myTimingDash" onclick="result_gui_href('myTimingDash', 'timing_dash?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Admin: Kjøre renn</a></nobr></td>
+                            </tr>
+                            <tr>
+                                <td><nobr><a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater&nbsp;</a></nobr></td>
+                                <td>&nbsp;</td>
+                                <td><a id="myStartEdit" onclick="result_gui_href('myStartEdit', 'start_edit?event_id={{ event_id }}&action=start')" href=><img id=menu_icon src="../static/icon_start.png"> Start: Endre</a></td>
+                                <td>&nbsp;</td>
+                                <td><a id="myAdmPhF" onclick="result_gui_href('myAdmPhF', 'config?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Admin: Målfoto</a></td>
+                            </tr>
+                            <tr>
+                                <td><a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a></td>
+                                <td>&nbsp;</td>
+                                <td><a id="myTimingNew" onclick="result_gui_href('myTimingNew', 'resultat_edit_new?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_timing.png"> Målpassering</a></td>
+                                <td>&nbsp;</td>
+                                <td></td>
+                                <td>&nbsp;</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>&nbsp;</td>
+                                <td><a id="myPF" onclick="result_gui_href('myPF', 'photo_finish?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Målfoto</a></td>
+                                <td>&nbsp;</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>&nbsp;</td>
+                                <td><a id="myPhotoEdit" onclick="result_gui_href('myPhotoEdit', 'photos_edit?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Foto redigering</a></td>
+                                <td>&nbsp;</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>&nbsp;</td>
+                                <td><a id="myPrint" onclick="result_gui_href('myPrint', 'print_dash?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Utskrifter</a></td>
+                                <td>&nbsp;</td>
+                                <td></td>
+                            </tr>
+                            {% endif %}
+                        {% endif %}
+
+                    </table>
+                </div>
+                </li>
+                <li id=topborder class=active>
+                {% block titlemain %}{% endblock %}
+                </li>
+                {% block menuitems %}{% endblock %}
+                <li class=dropdown id=topborder style="float:right">
+                    <a href=javascript:void(0) class=dropbtn><img id=menu_icon src="../static/icon_user.png">&nbsp;{{ username }}&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                    <div class=dropdown-content>
+                        {% if username == "Gjest" %}
+                        <a href=/login class=dropbtn>Logg inn</a>
+                        <a href="https://langrenn-sprint.github.io/docs/contestant.html" target="_blank">Docs</a>
+                        {% else %}
+                        <a id="myUsers" onclick="event_gui_href('myUsers', 'users')" href="/users">Brukere</a>
+                        <a href="https://langrenn-sprint.github.io/docs/" target="_blank">Docs</a>
+                        <a href="/logout">Logg ut</a>
+                        {% endif %}
+                    </div>
+                </li>
+            </ul>
+            </div>
+            <div class="w3-container" id=info>{{ informasjon }}</div>
+            {% block content %}{% endblock %}
+            <div id="spacer"></div>
+            <details class="info-box">
+                <summary>TIPS (klikk for å utvide)</summary>
+                <br>
+                {% block tips %}{% endblock %}
+            </details>
+
+        </main>
+        <br>
+        <footer class="container text-center" role="contentinfo">
+            <small><a href="https://github.com/langrenn-sprint">langrenn-sprint</a> — utviklet av Lyn ski og Kjelsås langrenn</small>
+        </footer>
+    </body>
+</html>

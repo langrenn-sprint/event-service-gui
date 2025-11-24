@@ -1,8 +1,4 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
-{% endblock %}
+{% extends "open_base_new.html" %}
 
 {% block titleheader %}
   {{ lopsinfo }}
@@ -11,51 +7,20 @@
 {% block titlemain %} <img id=menu_icon src="../static/icon_user.png"> {{ lopsinfo }}{% endblock %}
 {% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_user.png"> {% endblock %}
 {% block content %}
-    {% if action == "create_new" %}
-      <form action="/login?event_id={{ event_id }}" method="post">
-        <table cellpadding=4>
-          <tr>
-            <td colspan=2 id=headerblue>
-              <b>Ny bruker</b>
-            </td>
-          </tr>
-          <tr>
-            <td>Rolle</td>
-            <td><input type=text name="newrole" value=""></td>
-          </tr>
-          <tr>
-            <td width=150>Brukernavn</td>
-            <td><input type=text name="newusername" value=""></td>
-          </tr>
-          <tr>
-            <td>Passord</td>
-            <td><input type=password name="newpassword" value=""></td>
-          </tr>
-          <td colspan=2>
-            <input type="submit" name=create value="  Opprett  ">
-          </td>
-        </table>
-      </form>
-    {% else %}
-      <form action="/login?event_id={{ event_id }}&action=login" method="post">
-        <table cellpadding=4>
-          <tr>
-            <td colspan=2 id=headerblue>
-              <b>Innlogging</b>
-            </td>
-          </tr>
-          <tr>
-            <td width=150>Brukernavn</td>
-            <td><input type=text name="username" value=""></td>
-          </tr>
-          <tr>
-            <td width=150>Passord</td>
-            <td><input type=password name="password" value=""></td>
-          </tr>
-          <td colspan=2>
-            <input type="submit" name=Login value="Logg inn">
-          </td>
-        </table>
-      </form>
-    {% endif %}
+  <form action="/login?event_id={{ event_id }}" method="post">
+  <section class="row" aria-label="Innlogging">
+    <div class="col-sm-12">
+      <h2>Innlogging</h2>
+      <hr>
+      Brukernavn<br>
+      <input type=text class="form-control" name="username" value="">
+      <br>
+      Passord<br>
+      <input type=password class="form-control" name="password" value="">
+      <br>
+      <input type="submit" name=Login value="Logg inn" class="btn btn-default">
+      <hr>
+    </div>
+  </section>
+  </form>
 {% endblock %}

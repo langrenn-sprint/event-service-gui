@@ -1,8 +1,5 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
-{% endblock %}
+{% extends "open_base_new.html" %}
+
 {% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_new.png"> {{ lopsinfo }}{% endblock %}
 {% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_new.png"> {% endblock %}
@@ -30,39 +27,12 @@
   {% endif %}
 {% endblock %}
 
-{% block content %}
-  {% for info in info_list %}
-    <div class="w3-container" id=info>{{ info }}</div>
-  {% endfor %}
-  {% if username != "Gjest" and action != "new_manual" %}
-    <table>
-      <tr>
-        <td>
-          <form action=/tasks method=get>
-            <input type="hidden" name=event_id value="{{ event_id }}">
-            <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
-          </form>
-        </td>
-        <td>
-          <form action=/contestants method=get>
-            <input type="hidden" name=event_id value="{{ event_id }}">
-            <input type="hidden" name=klasse value={{ valgt_klasse }}>
-            {% if action in ["all_attributes"] %}
-              <input type="submit" name="to_tasks" value="  Normal visning  ">
-            {% elif not action %}
-              <input type="hidden" name=action value="all_attributes">
-              <input type="submit" name="to_tasks" value="  Vis alle attributter  ">
-            {% endif %}
-          </form>
-        </td>
-        <td>Antall deltakere: {{ contestants|length }}</td>
-      </tr>
-    </table>
-  {% endif %}
-    {% if action == "new_from_file" %}
-      <div id=spacer></div>
-      <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
-      <div id=info-zone class="collapse">
+{% block tips %}
+  {% if action == "new_manual" %}
+      <! --- Information --->
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/sixRb7-tF7Q?si=IorTeuvRpN56Wkap&amp;clip=UgkxqQg_OqUIiNueyUAiVPaHcrG_920bsezJ&amp;clipt=ENX-AxjdvQU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      <! --- End Information --->
+  {% elif action == "new_from_file" %}
       Det aksepteres 4 ulike filtyper<br>
       <b>1. Sportsadmin</b>: Last ned deltakerliste og lagre som kommaseparert (csv) fil <a href="../static/data/test_deltakerliste_sportsadmin.csv">(eksempelfil: test_deltakerliste_sportsadmin.csv)</a>.<br>
       &nbsp;&nbsp;&nbsp;Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a target=_blank href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.<br><br>
@@ -80,30 +50,63 @@
         <li>Seedet (valgfritt) - heltall der 1 er beste seeding</li><br>
         <li>Påmeldt (valgfritt) - krever isoformat: 2024-01-05T19:48:03</li><br>
       </ul>
-      <br><br>
-    </div>
-    <div id=spacer>&nbsp;</div>
-    <form action=/contestants method=post enctype="multipart/form-data" >
-      <table cellpadding=4>
-        <tr id=spacer></tr>
-        <tr>
-          <td colspan=2 id=headerblue>
-            <b>Importer deltakerliste fra fil</b>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <input type="file" name="file" onchange="savefile(this)">
-            <input type="hidden" name="event_id" value={{ event_id }}>
-          </td>
-          <td>
-            <input type="submit" id="create" name=create value="  Last opp  " onclick=save_message(this.id);>
-          </td>
-        </tr>
-        <tr id=spacer>
-        </tr>
-      </table>
-    </form>
+  {% endif %}
+{% endblock %}
+
+
+{% block content %}
+  {% for info in info_list %}
+    <div class="w3-container" id=info>{{ info }}</div>
+  {% endfor %}
+  {% if username != "Gjest" and action != "new_manual" %}
+    <table>
+      <tr>
+        <td>
+          <form action=/tasks method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
+          </form>
+        </td>
+        <td>
+          <form action=/contestants method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="hidden" name=klasse value={{ valgt_klasse }}>
+            {% if action in ["all_attributes"] %}
+              <input type="submit" name="to_tasks" value="  Normal visning  " class="btn btn-default">
+            {% elif not action %}
+              <input type="hidden" name=action value="all_attributes">
+              <input type="submit" name="to_tasks" value="  Vis alle attributter  " class="btn btn-default">
+            {% endif %}
+          </form>
+        </td>
+        <td>Antall deltakere: {{ contestants|length }}</td>
+      </tr>
+    </table>
+  {% endif %}
+    {% if action == "new_from_file" %}
+
+      <div id=spacer>&nbsp;</div>
+      <form action=/contestants method=post enctype="multipart/form-data" >
+        <table cellpadding=4>
+          <tr id=spacer></tr>
+          <tr>
+            <td colspan=2 id=headerblue>
+              <b>Importer deltakerliste fra fil</b>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input type="file" name="file" onchange="savefile(this)" class="btn btn-default">
+              <input type="hidden" name="event_id" value={{ event_id }}>
+            </td>
+            <td>
+              <input type="submit" id="create" name=create value="  Last opp  " onclick=save_message(this.id); class="btn btn-success">
+            </td>
+          </tr>
+          <tr id=spacer>
+          </tr>
+        </table>
+      </form>
     {% elif  action == "edit_mode" %}
         <table>
           <tr align=right>
@@ -111,7 +114,7 @@
               <form action=/contestants method=post>
                 Start på: <input type="text" name=start_bib value="1" size="2">
                 <input type="hidden" name=event_id value="{{ event_id }}">
-                <input type="submit" name=assign_bibs value="  Tildel startnummer  ">
+                <input type="submit" name=assign_bibs value="  Tildel startnummer  " class="btn btn-success">
               </form>
             </td>
             <td>
@@ -119,7 +122,7 @@
                 <input type="hidden" name=event_id value="{{ event_id }}">
                 <input type="hidden" name=action value="delete_select">
                 <input type="hidden" name=klasse value={{ valgt_klasse }}>
-                <input type="submit" name=delete_select value="  Slett deltakere  ">
+                <input type="submit" name=delete_select value="  Slett deltakere  " class="btn btn-default">
               </form>
             </td>
           </tr>
@@ -131,7 +134,7 @@
         {% if action == "delete_select" %}
           <form action=/contestants method=post>
           <div>
-            &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  " class="btn btn-warning">
             <input type="hidden" name=action value={{ action }}>
           </div>
           <div id=spacer>&nbsp;</div>
@@ -158,7 +161,7 @@
                 <td>{{ contestant.seeding_points }}</td>
                 <td>
                   <form action=/contestants method=get>
-                    <input type="submit" name=update_one value="  Rediger  ">
+                    <input type="submit" name=update_one value="  Rediger  " class="btn btn-default">
                     <input type="hidden" name=action value="update_one">
                     <input type="hidden" name="id" value="{{ contestant.id }}">
                     <input type="hidden" name="event_id" value="{{ event_id }}">
@@ -184,124 +187,82 @@
         </table>
         {% if action == "delete_select" %}
           <div>
-            &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  ">
+            &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  " class="btn btn-warning">
             <input type="hidden" name=action value="delete select">
             <input type="hidden" name="event_id" value="{{ event_id }}">
           </div>
           </form>
         {% endif %}
       {% elif action == "new_manual" %}
+        {% if available_bib < 2 %}<div id="info">Advarsel: Startnummer er ikke tildelt. Du bør ikke utføre etteranmeldinger nå.</div>{% endif %}
         <div id=spacer></div>
-        <! --- Information --->
-          <div id=spacer></div>
-          <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS - videoinstruksjoner</a></div>
-          {% if available_bib < 2 %}<div id="info">Advarsel: Startnummer er ikke tildelt. Du bør ikke utføre etteranmeldinger nå.</div>{% endif %}
-          <div id=info-zone class="collapse" align="center">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/sixRb7-tF7Q?si=IorTeuvRpN56Wkap&amp;clip=UgkxqQg_OqUIiNueyUAiVPaHcrG_920bsezJ&amp;clipt=ENX-AxjdvQU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-          </div>
-          <div id=spacer></div>
-        <! --- End Information --->
-          <form action=/contestants method=post>
-          <table cellpadding=4>
-            <tr id=spacer></tr>
-            <tr id=headerblue>
-              <td colspan=2>
-                <b>Etteranmelding / Opprett ny deltaker</b>
-              </td>
-              <td><b>Tips:</b></td>
-            </tr>
-            <tr>
-              <td>Startnummer</td>
-              <td><input type=number name="bib" value="" min="1" max="9999" size=4 {% if available_bib > 1 %}required{% endif %}></td>
-              <td rowspan="13" valign="top">
-                <table cellpadding=4>
-                  <tr>
-                    <td colspan="2">
-                      {% if available_bib > 1 %}Nr {{ available_bib }} er ledig (en over det høyeste som er tildelt){% else %}Tips: Optional - startnummer er ikke tildelt ennå.{% endif %}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td colspan="2">
-                      Antall ledige plasser:
-                    </td>
-                  </tr>
-                  <tr>
-                    {% for raceclass in ledige_plasser %}
-                      <td>
-                        {% for ageclass in raceclass.ageclasses %}
-                          {{ ageclass }}: <b>{{ raceclass.available_places }}</b>
-                        {% endfor %}
-                      </td>
-                      {% if loop.index % 2 == 0 %}</tr><tr>{% endif %}
-                    {% endfor %}
-                  </tr>
-                </table>
-            </td>
-              </tr>
-            <tr>
-              <td width=150>Fornavn *</td>
-              <td><input type=text name="first_name" value="" required></td>
-            </tr>
-            <tr>
-              <td>Etternavn *</td>
-              <td><input type=text name="last_name" value="" required></td>
-            </tr>
-            <tr>
-              <td>Fødseldato</td>
-              <td><input type=text name="birth_date" value="" placeholder="01.01.2001" pattern="[0-9]{2}.[0-9]{2}.[0-9]{4}"></td>
-            </tr>
-            <tr>
-              <td>Aldersklasse</td>
-              <td>
-                <select name="ageclass">
+        
+        <form action=/contestants method=post>
+          <section class="row" aria-label="Etteranmelding">
+            <div class="col-sm-12">
+              <h2>Etteranmelding / Opprett ny deltaker</h2>
+            </div>
+          </section>
+          <section class="row" aria-label="Etteranmelding">
+            <div class="col-sm-4">
+              <div class="status-card" role="status" aria-live="polite">
+                Startnummer<br>
+                <input type=number class="form-control" name="bib" value="" min="1" max="9999" size=4 {% if available_bib > 1 %}required{% endif %}><br>
+                <td width=150>Fornavn *<br>
+                <input type=text class="form-control" name="first_name" value="" required><br>
+                Etternavn *<br>
+                <input type=text class="form-control" name="last_name" value="" required><br>
+                Fødseldato<br>
+                <input type=text class="form-control" name="birth_date" value="" placeholder="01.01.2001" pattern="[0-9]{2}.[0-9]{2}.[0-9]{4}"><br>
+                Aldersklasse<br>
+                <select name="ageclass" class="form-control">
                   {% for klasse in raceclasses %}
                     {% for ac_name in klasse.ageclasses %}
                       <option value="{{ ac_name }}">{{ ac_name }}</option>
                     {% endfor %}
                   {% endfor %}
                 </select>
-                <input type=hidden name="gender" value="">
-              </td>
-            </tr>
-            <tr>
-              <td>Klubb *</td>
-              <td><input type=text name="club" value="" required></td>
-            </tr>
-            <tr>
-              <td>Team</td>
-              <td><input type=text name="team" value=""></td>
-            </tr>
-            <tr>
-              <td>Region</td>
-              <td><input type=text name="region" value=""></td>
-            </tr>
-            <tr>
-              <td>Epost</td>
-              <td><input type=text name="email" value=""></td>
-            </tr>
-            <tr>
-              <td>Seeding</td>
-              <td><input type=number name="seeding_points" value="" min="1" max="9999" size=4></td>
-            </tr>
-            <tr>
-              <td>Idrettsnummer</td>
-              <td><input type=text name="minidrett_id" value=""></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>
-                  <input type="hidden" name="event_id" value="{{ event_id }}">
-                  <input type="hidden" id=url name=url value="">
-                  <script>
-                    document.getElementById("url").value = "http://" + window.location.hostname + ":8090";
-                  </script>
-                  <input type="submit" id="create_one" name=create_one value="  Lagre  " onclick=save_message(this.id); >
-                </td>
-            </tr>
-            <tr id=bigspacer>
-              <td colspan="2"></td>
-            </tr>
-          </table>
+                <input type=hidden name="gender" value=""><br>
+                Klubb *<br>
+                <input type=text class="form-control" name="club" value="" required>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="status-card" role="status" aria-live="polite">
+                Team<br>
+                <input type=text class="form-control" name="team" value=""><br>
+                Region<br>
+                <input type=text class="form-control" name="region" value=""><br>
+                Epost<br>
+                <input type=text class="form-control" name="email" value=""><br>
+                Seeding<br>
+                <input type=number class="form-control" name="seeding_points" value="" min="1" max="9999" size=4><br>
+                Idrettsnummer<br>
+                <input type=text class="form-control" name="minidrett_id" value=""><br>
+                <input type="hidden" name="event_id" value="{{ event_id }}">
+                <input type="hidden" id=url name=url value="">
+                <script>
+                  document.getElementById("url").value = "http://" + window.location.hostname + ":8090";
+                </script>
+                <input type="submit" id="create_one" name=create_one value="  Lagre  " onclick=save_message(this.id); class="btn btn-success">
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="status-card" role="status" aria-live="polite">
+                <b>Info</b><br>
+                {% if available_bib > 1 %}Nr {{ available_bib }} er ledig (en over det høyeste som er tildelt){% else %}Tips: Optional - startnummer er ikke tildelt ennå.{% endif %}
+                <hr>
+                  Antall ledige plasser:
+                  {% for raceclass in ledige_plasser %}
+                      {% for ageclass in raceclass.ageclasses %}
+                        {{ ageclass }}: <b>{{ raceclass.available_places }}</b><br>
+                      {% endfor %}
+                  {% endfor %}
+              </div>
+            </div>
+          </section>
+          <hr>
+
         </form>
         {% elif action == "update_one" %}
           <div id=spacer></div>
@@ -315,29 +276,29 @@
               </tr>
               <tr>
                 <td width=150>Fornavn</td>
-                <td><input type=text name="first_name" value="{{ contestant.first_name }}"></td>
+                <td><input type=text class="form-control" name="first_name" value="{{ contestant.first_name }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Etternavn</td>
-                <td><input type=text name="last_name" value="{{ contestant.last_name }}"></td>
+                <td><input type=text class="form-control" name="last_name" value="{{ contestant.last_name }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Fødseldato</td>
-                <td><input type=text name="birth_date" value="{{ contestant.birth_date }}"></td>
+                <td><input type=text class="form-control" name="birth_date" value="{{ contestant.birth_date }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Kjønn</td>
-                <td><input type=text name="gender" value="{{ contestant.gender }}"></td>
+                <td><input type=text class="form-control" name="gender" value="{{ contestant.gender }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Aldersklasse</td>
                 <td>
                   {% if raceclasses %}
-                    <select name="ageclass">
+                    <select name="ageclass" class="form-control">
                       {% for klasse in raceclasses %}
                         {% for ac_name in klasse.ageclasses %}
                           <option value="{{ ac_name }}" {% if ac_name == contestant.ageclass %}selected{% endif %}>{{ ac_name }}</option>
@@ -345,49 +306,49 @@
                       {% endfor %}
                     </select>
                   {% else %}
-                    <input type=text name="ageclass" value="{{ contestant.ageclass }}"></td>
+                    <input type=text class="form-control" name="ageclass" value="{{ contestant.ageclass }}"></td>
                   {% endif %}
                 </td>
                 <td></td>
               </tr>
               <tr>
                 <td>Region</td>
-                <td><input type=text name="region" value="{{ contestant.region }}"></td>
+                <td><input type=text class="form-control" name="region" value="{{ contestant.region }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Klubb</td>
-                <td><input type=text name="club" value="{{ contestant.club }}"></td>
+                <td><input type=text class="form-control" name="club" value="{{ contestant.club }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Team</td>
-                <td><input type=text name="team" value="{{ contestant.team }}"></td>
+                <td><input type=text class="form-control" name="team" value="{{ contestant.team }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Epost</td>
-                <td><input type=text name="email" value="{{ contestant.email }}"></td>
+                <td><input type=text class="form-control" name="email" value="{{ contestant.email }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Startnummer</td>
-                <td><input type=text name="bib" value="{{ contestant.bib }}"></td>
+                <td><input type=text class="form-control" name="bib" value="{{ contestant.bib }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Seeding</td>
-                <td><input type=number name="seeding_points" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4></td>
+                <td><input type=number class="form-control" name="seeding_points" value="{{ contestant.seeding_points }}" min="1" max="9999" size=4></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Idrettsnummer</td>
-                <td><input type=text name="minidrett_id" value="{{ contestant.minidrett_id }}"></td>
+                <td><input type=text class="form-control" name="minidrett_id" value="{{ contestant.minidrett_id }}"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Påmedlt tid</td>
-                <td><input type=text name="registration_date_time" value="{{ contestant.registration_date_time }}"></td>
+                <td><input type=text class="form-control" name="registration_date_time" value="{{ contestant.registration_date_time }}"></td>
                 <td></td>
               </tr>
               <tr>
@@ -395,11 +356,10 @@
                   <td>
                     <input type="hidden" name="event_id" value="{{ event_id }}">
                     <input type="hidden" name="id" value="{{ contestant.id }}">
-                    <input type="submit" name=update_one value="  Lagre  ">
+                    <input type="submit" name=update_one value="  Lagre  " class="btn btn-success">
                   </td>
                   <td></td>
               </tr>
-              <tr id=spacer></tr>
             </table>
           </form>
       {% else %}
@@ -478,7 +438,7 @@
           <td>
             <form action=/tasks method=get>
               <input type="hidden" name=event_id value="{{ event_id }}">
-              <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
+              <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
             </form>
           </td>
           <td>Antall deltakere: {{ contestants|length }}</td>

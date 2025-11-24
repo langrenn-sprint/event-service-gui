@@ -1,8 +1,5 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
-{% endblock %}
+{% extends "open_base_new.html" %}
+
 {% block titleheader %}
   {{ lopsinfo }}
 {% endblock %}
@@ -14,6 +11,14 @@
     <a href=/raceclasses?event_id={{ event_id }}&action=edit_mode class=dropbtn>Rediger</a>
   </li>
 {% endblock %}
+
+{% block tips %}
+  - Løpsklasser i samme startgruppe går samtidig.<br>
+  - 80-100 løpere i hver startgruppe gir effektiv gjennomføring og 15 - 25 minutter pause mellom hver start for løperne.<br>
+  - Ved få deltakere påmeldt i en klasse (under 15) bør man vurdere å slå sammen flere årsklasser til en felles løpsklasse slik at alle får gått 3 runder.<br>
+{% endblock %}
+
+
 {% block content %}
   <div id=spacer></div>
   <table>
@@ -21,7 +26,7 @@
       <td>
         <form action=/tasks method=get>
           <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
+          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
         </form>
     </td>
     </tr>
@@ -35,34 +40,34 @@
         <td>
             <form action=/raceclasses method=post>
               <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="submit" name="refresh_no_of_contestants" value="  Refresh deltakerantall  ">
+              <input type="submit" name="refresh_no_of_contestants" value="  Refresh deltakerantall  " class="btn btn-default">
             </form>
           </td>
           <td>
             <form action=/raceclasses method=get>
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="hidden" name=action value="merge_ageclasses">
-              <input type="submit" name="merge_ageclasses" value="  Slå sammen klasser  ">
+              <input type="submit" name="merge_ageclasses" value="  Slå sammen klasser  " class="btn btn-default">
             </form>
           </td>
           <td>
             <form action=/raceclasses method=get>
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="hidden" name=action value="update_order">
-              <input type="submit" name="generate_raceclasses" value="  Rediger startrekkefølge  ">
+              <input type="submit" name="generate_raceclasses" value="  Rediger startrekkefølge  " class="btn btn-default">
             </form>
           </td>
           <td>
             <form action=/raceclasses method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle løpsklasser.');">
               <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="submit" name="delete_all" value="  Slett alle klasser  ">
+              <input type="submit" name="delete_all" value="  Slett alle klasser  " class="btn btn-default">
             </form>
           </td>
         {% else %}
             <td>
             <form action=/raceclasses method=post>
               <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="submit" name="generate_raceclasses" value="  Generer klasser  ">
+              <input type="submit" name="generate_raceclasses" value="  Generer klasser  " class="btn btn-default">
             </form>
           </td>
         {% endif %}
@@ -95,7 +100,7 @@
               <td>{{ klasse.no_of_contestants }}</td>
               <td>
                 <form action=/raceclasses method=get>
-                  <input type="submit" name=update_one value="  Rediger  ">
+                  <input type="submit" name=update_one value="  Rediger  " class="btn btn-default">
                   <input type="hidden" name=action value="update_one">
                   <input type="hidden" name="id" value="{{ klasse.id }}">
                   <input type="hidden" name="event_id" value="{{ event_id }}">
@@ -103,7 +108,7 @@
               </td>
               <td>
                 <form action=/raceclasses method=post>
-                  <input type="submit" name=delete_one value="  Slett  ">
+                  <input type="submit" name=delete_one value="  Slett  " class="btn btn-warning">
                   <input type="hidden" name="id" value="{{ klasse.id }}">
                   <input type="hidden" name="event_id" value="{{ event_id }}">
                 </form>
@@ -112,18 +117,11 @@
         {% endfor %}
       </table>
       {% elif  action == "update_order" %}
-        <div id=spacer></div>
-        <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
-        <div id=info-zone class="collapse">
-          - Løpsklasser i samme startgruppe går samtidig.<br>
-          - 80-100 løpere i hver startgruppe gir effektiv gjennomføring og 15 - 25 minutter pause mellom hver start for løperne.<br>
-          - Ved få deltakere påmeldt i en klasse (under 15) bør man vurdere å slå sammen flere årsklasser til en felles løpsklasse slik at alle får gått 3 runder.<br>
-        </div>
         <div id="spacer"></div>
         <form action=/raceclasses method=post>
           <table>
             <tr><td colspan="7" align="center">
-              <input type="submit" name=update_order value="  Lagre  ">
+              <input type="submit" name=update_order value="  Lagre  " class="btn btn-success">
             </td></tr>
             <tr id=headerblue>
               <td>Årsklasse</td>
@@ -144,10 +142,10 @@
                   <td>{{ klasse.distance }}</td>
                   <td>{{ klasse.name }}</td>
                   <td>
-                    <input type=number name="group_{{ klasse.id }}" value="{{ klasse.group }}" min="1" max="99" size=5>
+                    <input type=number class="form-control" name="group_{{ klasse.id }}" value="{{ klasse.group }}" min="1" max="99" size=5>
                   </td>
                   <td>
-                    <input type=number name="order_{{ klasse.id }}" value="{{ klasse.order }}" min="1" max="99" size=5>
+                    <input type=number class="form-control" name="order_{{ klasse.id }}" value="{{ klasse.order }}" min="1" max="99" size=5>
                     <input type="hidden" name="id_{{ klasse.id }}" value="{{ klasse.id }}">
                   </td>
                   <td><input type=checkbox name="ranking_{{ klasse.id }}" {% if klasse.ranking %}checked{% endif %}></td>
@@ -157,7 +155,7 @@
           </table>
           <div id=spacer></div>
           <div align=center>
-            <input type="submit" name=update_order value="  Lagre  ">
+            <input type="submit" name=update_order value="  Lagre  " class="btn btn-success">
             <input type="hidden" name="event_id" value="{{ event_id }}">
           </div>
         </form>
@@ -166,7 +164,7 @@
           <form action=/raceclasses method=post>
             <div id=orange>Velg årsklassene som skal slås sammen og skriv inn navn på den nye løpsklassen</div>
             <table>
-               <tr id=headerblue>
+              <tr id=headerblue>
                 <td>Velg</td>
                 <td>Årsklasse</td>
                 <td>Løype</td>
@@ -174,7 +172,7 @@
                 <td>Startgruppe</td>
                 <td>Startrekkefølge</td>
                 <td>Rangering</td>
-                <td>Deltakere</td>
+                <td>Deltakere</td>
               </tr>
               {% for klasse in raceclasses %}
                   <tr>
@@ -196,7 +194,7 @@
             <div id=spacer></div>
             <div>
               Nytt navn på felles løpsklasse: <input type="text" name=new_raceclass_name value="" required>
-              <input type="submit" name=merge_ageclasses value="  Slå sammen  ">
+              <input type="submit" name=merge_ageclasses value="  Slå sammen  " class="btn btn-default">
               <input type="hidden" name="event_id" value="{{ event_id }}">
             </div>
           </form>
@@ -222,22 +220,22 @@
             </tr>
             <tr>
               <td>Distanse</td>
-              <td><input type=text name="distance" value="{{ klasse.distance }}"></td>
+              <td><input type=text class="form-control" name="distance" value="{{ klasse.distance }}"></td>
               <td></td>
             </tr>
             <tr>
               <td>Startgruppe</td>
-              <td><input type=number name="group" value="{{ klasse.group }}" min="1" max="99"></td>
+              <td><input type=number class="form-control" name="group" value="{{ klasse.group }}" min="1" max="99"></td>
               <td></td>
             </tr>
             <tr>
               <td>Startrekkefølge</td>
-              <td><input type=number name="order" value="{{ klasse.order }}" min="1" max="99"></td>
+              <td><input type=number class="form-control" name="order" value="{{ klasse.order }}" min="1" max="99"></td>
               <td></td>
             </tr>
             <tr>
               <td>Løpsklasse</td>
-              <td><input type=text name="name" value="{{ klasse.name }}"></td>
+              <td><input type=text class="form-control" name="name" value="{{ klasse.name }}"></td>
               <td></td>
             </tr>
             <tr>
@@ -247,7 +245,7 @@
             </tr>
             <tr>
               <td>Deltakere</td>
-              <td><input type=text name="no_of_contestants" value="{{ klasse.no_of_contestants }}"></td>
+              <td><input type=text class="form-control" name="no_of_contestants" value="{{ klasse.no_of_contestants }}"></td>
               <td></td>
             </tr>
             <tr>
@@ -255,7 +253,7 @@
                 <td>
                   <input type="hidden" name="event_id" value="{{ event_id }}">
                   <input type="hidden" name="id" value="{{ klasse.id }}">
-                  <input type="submit" name=update_one value="  Lagre  ">
+                  <input type="submit" name=update_one value="  Lagre  " class="btn btn-success">
                 </td>
                 <td></td>
             </tr>
@@ -265,14 +263,14 @@
   {% else %}
     <div id=spacer></div>
     <table>
-       <tr id=headerblue>
+      <tr id=headerblue>
         <td>Årsklasse</td>
         <td>Løype</td>
         <td>Løpsklasse</td>
         <td>Startgruppe</td>
         <td>Startrekkefølge</td>
         <td>Rangering</td>
-        <td>Deltakere</td>
+        <td>Deltakere</td>
       </tr>
       {% for klasse in raceclasses %}
           <tr>
@@ -296,7 +294,7 @@
       <td>
         <form action=/tasks method=get>
           <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  ">
+          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
         </form>
     </td>
     </tr>

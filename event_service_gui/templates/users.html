@@ -1,8 +1,4 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
-{% endblock %}
+{% extends "open_base_new.html" %}
 
 {% block titleheader %}
   {{ lopsinfo }}
@@ -18,49 +14,38 @@
 {% block content %}
       {% if create_new %}
         <form action="/users" method="post">
-          <table cellpadding=4>
-            <tr id=spacer></tr>
-            <tr>
-              <td colspan=2 id=headerblue>
-                <b>Ny bruker</b>
-              </td>
-            </tr>
-            <tr>
-              <td>Rolle</td>
-              <td>
-                <select name="newrole">
+          <section class="row" aria-label="Ny_bruker">
+            <div class="col-sm-12">
+              <h2>Ny bruker</h2>
+              <hr>
+                <label for="newrole">Rolle</label>
+                <select name="newrole" class="form-control" id="newrole">
                     <option value="admin">Admin (alle rettigheter)</option>
                     <option value="event-admin">Event (sette opp arrangement)</option>
                     <option value="race-office">Rennkontor (registrere deltakere)</option>
                     <option value="race-result">Tidtaker (registrere resultater)</option>
                 </select>
-              </td>
-            </tr>
-            <tr>
-              <td width=150>Brukernavn</td>
-              <td><input type=text name="newusername" value=""></td>
-            </tr>
-            <tr>
-              <td>Passord</td>
-              <td><input type=password name="newpassword" value=""></td>
-            </tr>
-            <td colspan=2>
-              <input type="submit" name=create value="  Opprett  ">
-            </td>
-            <tr id=spacer></tr>
-          </table>
+                <br>
+                <label for="newusername">Brukernavn</label>
+                <input type=text class="form-control" name="newusername" id="newusername" value="">
+                <br>
+                <label for="newpassword">Passord</label>
+                <input type=password name="newpassword" class="form-control" id="newpassword" value="">
+                <br>
+                <input type="submit" name=create value="  Opprett  " class="btn btn-default">
+                <hr>
+            </div>
+          </section>
         </form>
       {% else %}
-          <table cellpadding=4>
-            <tr id=spacer></tr>
+          <section class="row" aria-label="Brukere">
+            <div class="col-sm-12">
+              <h2>Brukere</h2>
+              <hr>
+          <table class="table table-striped">
             <tr>
-              <td colspan=3 id=headerblue>
-                <b>Brukere</b>
-              </td>
-            </tr>
-            <tr>
-              <td>Rolle</td>
-              <td>Brukernavn</td>
+              <th>Rolle</th>
+              <th>Brukernavn</th>
               <td></td>
             </tr>
             {% for user in users %}
@@ -70,7 +55,7 @@
                 <td>
                   <form action=/users method=post>
                     <input type="hidden" name="id" value="{{ user.id }}">
-                    <input type="submit" name=delete value=Slett>
+                    <input type="submit" name=delete value="Slett" class="btn btn-default">
                   </form>
                 </td>
               </tr>

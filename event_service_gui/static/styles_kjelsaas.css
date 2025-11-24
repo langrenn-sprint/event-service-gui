@@ -34,14 +34,12 @@ color: white;
 #headerblue {
 color: white;
 background-color: #00247d;
-padding: 4px;
 font-weight: bold;
 }
 
 #headerblack {
 color: black;
 background-color: #ffb549;
-padding: 4px;
 font-weight: bold;
 }
 
@@ -64,4 +62,14 @@ background-color: #94b5e0;
 color: white;
 text-align: center;
 padding: 5px 5px 5px 5px;
+}
+
+/* details TIPS */
+.info-box { margin-bottom:12px; padding:6px; border-radius:6px; background-color: #94b5e0; color: white; }
+.content-box { margin-bottom:12px; padding:6px; border:1px solid #94b5e0; border-radius:6px; }
+
+.event-logo-small {
+  content: url('logo/kjelsaas_logo.png');
+  width: 25px;
+  height: 25px;
 }

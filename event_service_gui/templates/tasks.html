@@ -1,25 +1,19 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
-{% endblock %}
+{% extends "open_base_new.html" %}
 
 {% block titleheader %}{{ lopsinfo }}{% endblock %}
 {% block refresh %}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_settings.png"> {{ lopsinfo }}{% endblock %}
 {% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_settings.png"> {% endblock %}
 
-{% block content %}
 <! --- Information --->
-<div id=spacer></div>
-<div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
-<div id=info-zone class="collapse">
+{% block tips %}
   - Her settes hele rennet - innlasting av deltakere, opprettelse av klasser, kjøreplan, seeding og startliste.<br>
   - Dokumentasjon finnes her: <a href=https://langrenn-sprint.github.io/docs/before_race target="_blank">https://langrenn-sprint.github.io/docs/before_race</a><br>
   - Videoinstruksjoner finnes for hver funksjon (bruk <img src="../static/video.png" width="20" height="20"> ikonet). Alle videoer finnes på Youtube: <a href=https://youtu.be/By1KbuHGirQ target="_blank">YouTube, spilleliste "langrenn-sprint"</a><br>
-</div>
-<div id=spacer></div>
+{% endblock %}
 <! --- End Information --->
+
+{% block content %}
 <table>
     <tr id=subheader id=black>
       <td id=black>Arbeidsflyt - sette rennet</td>
@@ -57,7 +51,7 @@
         <td></td>
         <td>
             <form action=/settings method=get>
-              <input type="submit" value="  Rediger oppsett  ">
+              <input type="submit" value="  Rediger oppsett  " class="btn btn-default">
             </form>
         </td>
       {% endif %}
@@ -82,7 +76,7 @@
             <form onclick="result_gui_action('myAvmeld', 'start_edit')" id="myAvmeld" action=/start_edit method=get>
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="hidden" name="action" value="edit_mode">
-              <input type="submit" name="remove_start" value="  Melde av (fjerne fra startliste) ">
+              <input type="submit" name="remove_start" value="  Melde av (fjerne fra startliste) " class="btn btn-default">
             </form>
           {% endif %}
         </td>
@@ -93,7 +87,7 @@
             <form action=/contestants method=get>
               <input type="hidden" name=event_id value="{{ event_id }}">
               <input type="hidden" name=action value="new_from_file">
-              <input type="submit" name=new_from_file value="  Last inn deltakere fra fil  ">
+              <input type="submit" name=new_from_file value="  Last inn deltakere fra fil  " class="btn btn-default">
             </form>
         </td>
         <td></td>
@@ -116,7 +110,7 @@
             <form action=/raceclasses method=get>
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="hidden" name=action value="merge_ageclasses">
-              <input type="submit" name="merge_ageclasses" value="  Slå sammen klasser  ">
+              <input type="submit" name="merge_ageclasses" value="  Slå sammen klasser  " class="btn btn-default">
             </form>
           {% endif %}
         </td>
@@ -127,7 +121,7 @@
           {% if (task_status.done_2) %}
             <form action=/raceclasses method=post>
               <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="submit" id="generate_raceclasses" name="generate_raceclasses" value="  Generer klasser  " onclick=save_message(this.id);>
+              <input type="submit" id="generate_raceclasses" name="generate_raceclasses" value="  Generer klasser  " onclick=save_message(this.id); class="btn btn-success">
             </form>
           {% endif %}
         </td>
@@ -155,7 +149,7 @@
             <form action=/raceclasses method=get>
               <input type="hidden" name="event_id" value="{{ event_id }}">
               <input type="hidden" name=action value="update_order">
-              <input type="submit" name="generate_start" value="  Rediger startrekkefølge  ">
+              <input type="submit" name="generate_start" value="  Rediger startrekkefølge  " class="btn btn-default">
             </form>
           {% endif %}
         </td>
@@ -201,7 +195,7 @@
           {% if (task_status.done_4) %}
             <form action=/raceplans method=post>
               <input type="hidden" name="event_id" value="{{ event_id }}">
-              <input type="submit" id="generate_raceplan" name="generate_raceplan" value="  Generer kjøreplan  " onclick=save_message(this.id);>
+              <input type="submit" id="generate_raceplan" name="generate_raceplan" value="  Generer kjøreplan  " onclick=save_message(this.id); class="btn btn-success">
             </form>
           {% endif %}
         </td>
@@ -224,7 +218,7 @@
           <form action=/raceplans method=get>
             <input type="hidden" name="event_id" value="{{ event_id }}">
             <input type="hidden" name=action value="edit_time">
-            <input type="submit" name="edit_time" value="  Rediger starttid  ">
+            <input type="submit" name="edit_time" value="  Rediger starttid  " class="btn btn-default">
           </form>
         {% endif %}
       </td>
@@ -263,7 +257,7 @@
             {% if (task_status.done_2) %}
               <form action=/contestants method=post>
                 <input type="hidden" name=event_id value="{{ event_id }}">
-                <input type="submit" name=assign_bibs value="  Tildel startnummer  " onclick=save_message(this.id);>
+                <input type="submit" name=assign_bibs value="  Tildel startnummer  " onclick=save_message(this.id); class="btn btn-success">
               </form>
             </td>
             <td>For å starte på noe annet enn startnummer 1, <a href=/contestants?event_id={{ event_id }}&action=edit_mode>se her</a>.</td>
@@ -297,7 +291,7 @@
           <form action=/seeding method=get>
             <input type="hidden" name=event_id value="{{ event_id }}">
             <input type="hidden" name=action value="seeding_points">
-            <input type="submit" value="  Utfør seeding  ">
+            <input type="submit" value="  Utfør seeding  " class="btn btn-default">
           </form>
         </td>
         <td></td>
@@ -329,7 +323,7 @@
         {% if (task_status.done_6) %}
           <form action=/tasks method=post>
             <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="submit" id="generate_startlist" name="generate_startlist" value="  Generer startliste  " onclick=save_message(this.id);>
+            <input type="submit" id="generate_startlist" name="generate_startlist" value="  Generer startliste  " onclick=save_message(this.id); class="btn btn-success">
           </form>
         {% endif %}
       </td>
@@ -360,7 +354,7 @@
         {% if (task_status.done_6) %}
           <form action=/tasks method=post>
             <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="submit" id="generate_next_race" name="generate_next_race" value="  Generer videre til oppsett  " onclick=save_message(this.id);>
+            <input type="submit" id="generate_next_race" name="generate_next_race" value="  Generer videre til oppsett  " onclick=save_message(this.id); class="btn btn-success">
           </form>
         {% endif %}
       </td>
@@ -394,7 +388,7 @@
     <td>Mulighet til å eksportere lister på csv format.</td>
   </tr>
   <tr>
-    <td colspan=4 id=spacer></td>
+    <td colspan=4 id=spacer>&nbsp;</td>
   </tr>
   <tr id="danger-zone">
     <td>Opprydding</td>
@@ -405,39 +399,41 @@
       <div id=minispacer></div>
       <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Alle deltakere blir slettet!');">
         <input type="hidden" name="event_id" value="{{ event_id }}">
-        <input type="submit" id="delete_all_cont" name=delete_all_cont value="  Slett alle deltakere  " onclick=save_message(this.id);>
+        <input type="submit" id="delete_all_cont" name=delete_all_cont value="  Slett alle deltakere  " onclick=save_message(this.id); class="btn btn-warning">
       </form>
       {% else %}
+      <div id=minispacer></div>
       <form action=/events method=post>
         <input type="hidden" name="event_id" value="{{ event.id }}">
         <input type="submit" name=delete value="  Slett  ">
       </form>
       {% endif %}
       {% if (task_status.done_3) %}
+      <div id=minispacer></div>
       <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle løpsklasser.');">
         <input type="hidden" name="event_id" value="{{ event_id }}">
-        <input type="submit" id="delete_all_raceclasses" name="delete_all_raceclasses" value="  Slett alle klasser  " onclick=save_message(this.id);>
+        <input type="submit" id="delete_all_raceclasses" name="delete_all_raceclasses" value="  Slett alle klasser  " onclick=save_message(this.id); class="btn btn-warning">
       </form>
       {% endif %}
       {% if (task_status.done_6) %}
         <div id=minispacer></div>
         <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle kjøreplaner.');">
           <input type="hidden" name="event_id" value="{{ event_id }}">
-          <input type="submit" id="delete_all_raceplans" name="delete_all_raceplans" value="  Slett alle kjøreplaner  " onclick=save_message(this.id);>
+          <input type="submit" id="delete_all_raceplans" name="delete_all_raceplans" value="  Slett alle kjøreplaner  " onclick=save_message(this.id); class="btn btn-warning">
         </form>
       {% endif %}
       {% if task_status.done_8 %}
         <div id=minispacer></div>
         <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle startlister.');">
           <input type="hidden" name="event_id" value="{{ event_id }}">
-          <input type="submit" id="delete_start_lists" name="delete_start_lists" value="  Slett alle startlister  " onclick=save_message(this.id);>
+          <input type="submit" id="delete_start_lists" name="delete_start_lists" value="  Slett alle startlister  " onclick=save_message(this.id); class="btn btn-warning">
         </form>
         {% endif %}
         {% if (task_status.done_9) %}
         <div id=minispacer></div>
         <form action=/tasks method=post onsubmit="return confirm_delete('OBS: Dette vil slette alle passeringer.');">
           <input type="hidden" name="event_id" value="{{ event_id }}">
-          <input type="submit" id="delete_time_events" name="delete_time_events" value="  Slett alle passeringer  " onclick=save_message(this.id);>
+          <input type="submit" id="delete_time_events" name="delete_time_events" value="  Slett alle passeringer  " onclick=save_message(this.id); class="btn btn-warning">
         </form>
         {% endif %}
     </td>

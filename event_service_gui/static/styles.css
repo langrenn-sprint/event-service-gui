@@ -1,5 +1,5 @@
 /*****************************************
-* styles for langrenn sprint webpages    *
+* styles for langrenn sprint webpages    *
 * generic part                           *
 *****************************************/
 
@@ -9,10 +9,30 @@ body {
   background-color: #ddd;
 }
 
+/* Inline form control - styled input that stays inline */
+.form-control-inline {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #555;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.form-control-inline:focus {
+  border-color: #66afe9;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
 ul {
   list-style-type: none;
   margin: 0px;
-  padding: 0px;
+  padding: 1px;
+  border-radius:6px;
 }
 
 a {
@@ -78,8 +98,7 @@ height: auto;
 }
 
 table {
-width: 100%;
-border-spacing: 0;
+  width: 100%;
 }
 
 tr:nth-child(even) {
@@ -87,8 +106,7 @@ background-color: #f2f2f2;
 }
 
 td {
-border-bottom: 1px solid #ddd;
-padding: 2px 2px 2px 2px;
+  border-bottom: 1px solid #ddd;
 }
 
 #table_border {
@@ -148,22 +166,6 @@ border-right: 1px solid #ddd;
 
 #danger-zone {
   color: red;
-  padding: 4px;
-  vertical-align: top;
-}
-
-#info-header {
-  color: white;
-  font-weight: bold;
-  background-color: green;
-  padding: 4px;
-  vertical-align: top;
-}
-
-#info-zone {
-  color: white;
-  background-color: green;
-  padding: 4px;
   vertical-align: top;
 }
 
@@ -211,20 +213,17 @@ text-align: center;
 background-color: red;
 font-weight: bold;
 color: white;
-padding: 4px;
 }
 
 #table_header_orange {
 background-color: orange;
 font-weight: bold;
-padding: 4px;
 }
 
 #table_header_green {
   background-color: green;
   font-weight: bold;
   color: white;
-  padding: 4px;
 }
 
 #tablespacer {
@@ -272,12 +271,10 @@ vertical-align: bottom;
 /**** Responsivt design ****/
 .w3-container {
 background-color: white;
-padding:0.01em 0px;
 }
 
 .w3-container-sticky {
 background-color: white;
-padding: 0.01em 0px;
 position: -webkit-sticky;
 position: sticky;
 z-index: 99;
@@ -285,15 +282,11 @@ top: 0;
 }
 
 .w3-footer-sticky {
-  padding:0.01em 0px;
   position: fixed;
   width: 100%;
   bottom: 0;
 }
 
-.w3-third,.w3-twothird,.w3-quart,.w3-10,.w3-80,.w3-row-padding,.w3-half {
-padding:0.01em 2px;
-}
 .w3-container:after,.w3-container:before,.w3-row-padding:after,.w3-row-padding:before {
 content:"";
 display:table;
@@ -368,7 +361,6 @@ content: "";
 clear: both;
 display: table;
 }
-
 
 /* End responsive design */
 

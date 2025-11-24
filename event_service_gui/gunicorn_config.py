@@ -45,12 +45,12 @@ class StackdriverJsonFormatter(JsonFormatter):
             fmt=fmt,
         )
 
-    def process_log_record(self, log_record) -> dict:
+    def process_log_record(self, log_data) -> dict:
         """Process log record."""
-        log_record["severity"] = log_record["levelname"]
-        del log_record["levelname"]
-        log_record["serviceContext"] = {"service": "event-service-gui"}
-        return super().process_log_record(log_record)
+        log_data["severity"] = log_data["levelname"]
+        del log_data["levelname"]
+        log_data["serviceContext"] = {"service": "event-service-gui"}
+        return super().process_log_record(log_data)
 
 
 # Override the logger to remove healthcheck (ping) from the access log and format logs as json

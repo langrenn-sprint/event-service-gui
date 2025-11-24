@@ -1,8 +1,4 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
-{% endblock %}
+{% extends "open_base_new.html" %}
 
 {% block titleheader %}
   {{ lopsinfo }}
@@ -10,19 +6,15 @@
 {% block refresh %}{% endblock %}
 {% block titlemain %} <img id=menu_icon src="../static/icon_timing.png"> Rediger heat{% endblock %}
 {% block headercontainer %}Rediger heat <img id=header_icon src="../static/icon_timing.png"> {% endblock %}
+
+{% block tips %}
+  - Rediger heat informasjon. Merk at endringer ikke vil bli validert.<br>
+  - Maks antall startende (denne bør kun endres i finaleheat).<br>
+{% endblock %}
+
 {% block content %}
   <div id=spacer></div>
 
-  <! --- Information --->
-    <div id=spacer></div>
-    <div id=info-header><a id=info-header data-toggle="collapse" href="#info-zone">TIPS</a></div>
-    <div id=info-zone class="collapse">
-      - Rediger heat informasjon. Merk at endringer ikke vil bli validert.<br>
-      - Maks antall startende (denne bør kun endres i finaleheat).<br>
-    </div>
-  <! --- End Information --->
-
- 
   <! --- Display edit information --->
   {% for race in races %}
     <div id=spacer></div>
@@ -52,13 +44,13 @@
             <tr>
                 <td>Max startende</td>
                 <td>{{ race.max_no_of_contestants }}</td>
-                <td><input type=text name="new_max_no_of_contestants" value="" size=8></td>
+                <td><input type=text class="form-control" name="new_max_no_of_contestants" value="" size=8></td>
                 <td></td>
             </tr>
             <tr>
                 <td></td>
                 <td></td>
-                <td><input type="submit" name=update_one value="  Lagre  "></td>
+                <td><input type="submit" name=update_one value="  Lagre  " class="btn btn-default"></td>
                 <td></td>
             </tr>
         </table>

@@ -1,8 +1,4 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-10"></div>
-  <div class="w3-80">
-{% endblock %}
+{% extends "open_base_new.html" %}
 
 {% block titleheader %}
   Passeringer {{ valgt_klasse }}
@@ -38,6 +34,7 @@
       </div>
     </li>
 {% endblock %}
+
 {% block content %}
   <div id=spacer></div>
   {% if action != "c" %}
@@ -51,7 +48,7 @@
             <input type="hidden" name="action" value="{{ action }}">
             <input type="hidden" name="event_id" value="{{ event_id }}">
             <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
-            <input type="submit" name=resolve_error value=" Slett valgte ">
+            <input type="submit" name=resolve_error value=" Slett valgte " class="btn btn-default">
           </td>
         </tr>
         <tr id=headerblue>
@@ -91,7 +88,7 @@
             <input type="hidden" name="action" value="{{ action }}">
             <input type="hidden" name="event_id" value="{{ event_id }}">
             <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
-            <input type="submit" name=resolve_error value=" Slett valgte ">
+            <input type="submit" name=resolve_error value=" Slett valgte " class="btn btn-default">
           </td>
         </tr>
       </form>

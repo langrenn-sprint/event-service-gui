@@ -30,14 +30,12 @@ color: white;
 #headerblue {
 color: white;
 background-color: #75000e;
-padding: 4px;
 font-weight: bold;
 }
 
 #headerblack {
 color: white;
 background-color: #1f3d8e;
-padding: 4px;
 font-weight: bold;
 }
 
@@ -60,4 +58,14 @@ color: white;
 text-align: center;
 width: 100%;
 padding: 5px 5px 5px 5px;
+}
+
+/* details TIPS */
+.info-box { margin-bottom:12px; padding:6px; border-radius:6px; background-color: #A30013; color: white; }
+.content-box { margin-bottom:12px; padding:6px; border:1px solid #A30013; border-radius:6px; }
+
+.event-logo-small {
+  content: url('logo/lyn_ski_logo.png');
+  width: 25px;
+  height: 25px;
 }

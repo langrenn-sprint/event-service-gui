@@ -1,0 +1,22 @@
+/*****************************************
+* new styles for langrenn sprint webpages    *
+* generic part                           *
+*****************************************/
+
+/* page layout */
+.status-card { padding:12px; border-radius:6px; background:#f7f9fc; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+.preview-img { max-width:100%; height:auto; display:block; border-radius:4px; cursor:zoom-in; }
+.controls .btn { margin-right:8px; }
+
+/* responsive helpers */
+@media (min-width:900px) {
+  .preview-col { max-width:55%; }
+  .controls-col { max-width:45%; }
+}
+/* modal styles */
+.ve-modal { display:none; position:fixed; inset:0; z-index:1200; align-items:center; justify-content:center; }
+.ve-modal[aria-hidden="false"] { display:flex; }
+.ve-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); }
+.ve-modal-panel { position:relative; max-width:90vw; max-height:90vh; background:#fff; border-radius:6px; padding:12px; box-shadow:0 8px 24px rgba(0,0,0,.2); overflow:auto; }
+.ve-modal-panel img { max-width:100%; height:auto; display:block; margin:0 auto; }
+.ve-modal-close { position:absolute; top:8px; right:8px; background:transparent; border:0; font-size:26px; line-height:1; cursor:pointer; }

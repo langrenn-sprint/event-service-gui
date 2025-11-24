@@ -1,53 +1,80 @@
-{% extends "open_base.html" %}
-{% block titlecontainer %}
-  <div class="w3-quart"></div>
-  <div class="w3-half">
-{% endblock %}
+{% extends "open_base_new.html" %}
 
 {% block titleheader %}
   {{ lopsinfo }}
 {% endblock %}
-{% block refresh %}{% endblock %}
-{% block titlemain %} <img id=menu_icon src="../static/icon_event.png"> {{ lopsinfo }}{% endblock %}
 {% block headercontainer %}<img id=header_icon src="../static/icon_event.png"> {% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_event.png"> {{ lopsinfo }}{% endblock %}
 {% block content %}
   {% if username != "Gjest" %}
     <div align=right>
       <form action=/events method=get>
-        <input type="submit" name=new value="  Nytt arrangement  ">
+        <input type="submit" name=new value="  Nytt arrangement  " class="btn btn-default">
       </form>
     </div>
   {% endif %}
   <div id=spacer></div>
-  <table>
     {% for oneevent in events %}
-    <tr>
-      <td id=headerblue colspan=2>
-        <b>{{ oneevent.date_of_event }}: {{ oneevent.name }}, {{ oneevent.organiser }} <a id=white-text target=_new href="{{ oneevent.webpage }}">(mer info)</a></b>
-      </td>
-    </tr>
-    <tr>
-      <td align=center>
-        <a id="myStart{{ oneevent.id }}" onclick="result_gui_href('myStart{{ oneevent.id }}', 'start?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Startlister" src="../static/icon_start_txt.png"></a>
-        <a id="myLive{{ oneevent.id }}" onclick="result_gui_href('myLive{{ oneevent.id }}', 'live?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Live" src="../static/icon_live_txt.png"></a>
-        <a id="myResult{{ oneevent.id }}" onclick="result_gui_href('myResult{{ oneevent.id }}', 'resultat?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Resultater" src="../static/icon_result_txt.png"></a>
-        <a id="myPhotos{{ oneevent.id }}" onclick="result_gui_href('myPhotos{{ oneevent.id }}', 'photos?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Bildegalleri" src="../static/icon_photos_txt.png"></a>
-      </td>
-        {% if username != "Gjest" %}
-          <td align=center>
-            <a id="myAdmF{{ oneevent.id }}" onclick="event_gui_href('myAdmF{{ oneevent.id }}', 'tasks?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Sette rennet" src="../static/icon_event_txt.png"></a>
-            <a id="myNewContestant{{ oneevent.id }}" onclick="event_gui_href('myNewContestant{{ oneevent.id }}', 'contestants?event_id={{ oneevent.id }}&action=new_manual')" href=><img id=frontpage_icon title="Etteranmelding" src="../static/icon_new_txt.png"></a>
-            <a id="myTiming{{ oneevent.id }}" onclick="result_gui_href('myTiming{{ oneevent.id }}', 'resultat_edit_new?event_id={{ oneevent.id }}&heat=0')" href=><img id=frontpage_icon title="Tidtaking / registrere resultater" src="../static/icon_timing_txt.png"></a>
-            <a id="myPhotoAdm{{ oneevent.id }}" onclick="result_gui_href('myPhotoAdm{{ oneevent.id }}', 'photos_edit?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Foto" src="../static/icon_photos_adm_txt.png"></a>
-            <a id="myAdmU{{ oneevent.id }}" onclick="result_gui_href('myAdmU{{ oneevent.id }}', 'timing_dash?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Renndagen" src="../static/icon_renn_adm_txt.png"></a>
-        </td>
-        {% else %}
-          <td></td>
-        {% endif %}
-    </tr>
-    <tr>
-      <td colspan=2 id=spacer></td>
-    </tr>
+      <section class="row" aria-label="Event">
+        <div class="col-sm-12">
+          <h2>{{ oneevent.date_of_event }}: {{ oneevent.name }}, {{ oneevent.organiser }} <a target=_new href="{{ oneevent.webpage }}">(mer info)</a></h2>
+        </div>
+      </section>
+      <br>
+      <section class="row" aria-label="Event functions">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-2">
+          <div class="status-card" role="status" aria-live="polite" align="center">
+            <a id="myStart{{ oneevent.id }}" onclick="result_gui_href('myStart{{ oneevent.id }}', 'start?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Startlister" src="../static/icon_start_txt.png"></a>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <div class="status-card" role="status" aria-live="polite" align="center">
+            <a id="myLive{{ oneevent.id }}" onclick="result_gui_href('myLive{{ oneevent.id }}', 'live?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Live" src="../static/icon_live_txt.png"></a>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <div class="status-card" role="status" aria-live="polite" align="center">
+            <a id="myResult{{ oneevent.id }}" onclick="result_gui_href('myResult{{ oneevent.id }}', 'resultat?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Resultater" src="../static/icon_result_txt.png"></a>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <div class="status-card" role="status" aria-live="polite" align="center">
+            <a id="myPhotos{{ oneevent.id }}" onclick="result_gui_href('myPhotos{{ oneevent.id }}', 'photos?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Bildegalleri" src="../static/icon_photos_txt.png"></a>
+          </div>
+        </div>
+      </section>
+      <hr>
+      {% if username != "Gjest" %}
+        <section class="row" aria-label="Event admin functions">
+          <div class="col-sm-1"></div>
+          <div class="col-sm-2">
+            <div class="status-card" role="status" aria-live="polite" align="center">
+              <a id="myAdmF{{ oneevent.id }}" onclick="event_gui_href('myAdmF{{ oneevent.id }}', 'tasks?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Sette rennet" src="../static/icon_event_txt.png"></a>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="status-card" role="status" aria-live="polite" align="center">
+              <a id="myNewContestant{{ oneevent.id }}" onclick="event_gui_href('myNewContestant{{ oneevent.id }}', 'contestants?event_id={{ oneevent.id }}&action=new_manual')" href=><img id=frontpage_icon title="Etteranmelding" src="../static/icon_new_txt.png"></a>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="status-card" role="status" aria-live="polite" align="center">
+              <a id="myTiming{{ oneevent.id }}" onclick="result_gui_href('myTiming{{ oneevent.id }}', 'resultat_edit_new?event_id={{ oneevent.id }}&heat=0')" href=><img id=frontpage_icon title="Tidtaking / registrere resultater" src="../static/icon_timing_txt.png"></a>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="status-card" role="status" aria-live="polite" align="center">
+              <a id="myPhotoAdm{{ oneevent.id }}" onclick="result_gui_href('myPhotoAdm{{ oneevent.id }}', 'photos_edit?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Foto" src="../static/icon_photos_adm_txt.png"></a>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="status-card" role="status" aria-live="polite" align="center">
+              <a id="myAdmU{{ oneevent.id }}" onclick="result_gui_href('myAdmU{{ oneevent.id }}', 'timing_dash?event_id={{ oneevent.id }}')" href=><img id=frontpage_icon title="Admin: Renndagen" src="../static/icon_renn_adm_txt.png"></a>
+            </div>
+          </div>
+        </section>
+        <hr>
+      {% endif %}
     {% endfor %}
-  </table>
 {% endblock %}
