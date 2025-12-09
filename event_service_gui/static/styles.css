@@ -30,9 +30,9 @@ body {
 
 ul {
   list-style-type: none;
-  margin: 0px;
   padding: 1px;
-  border-radius:6px;
+  border-radius:4px;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
 }
 
 a {
@@ -60,7 +60,6 @@ display: none;
 position: absolute;
 background-color: #f9f9f9;
 min-width: 160px;
-box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
 }
 
 .dropdown-content a {
@@ -77,6 +76,22 @@ background-color: #f0f0f0;
 
 .dropdown:hover .dropdown-content {
 display: block;
+}
+
+.dropdown-content td {
+  padding: 1px 4px;
+}
+.w3-container td {
+  padding: 1px 4px;
+}
+.w3-container-sticky td {
+  padding: 1px 4px;
+}
+.w3-half td, .w3-third td, .w3-quart td, .w3-fifth td, .w3-sixth td, .w3-row-padding td {
+  padding: 1px 4px;
+}
+.w3-half, .w3-third, .w3-quart, .w3-fifth, .w3-sixth {
+  padding: 1px 1px;
 }
 
 /* tooltip that shows image, centered and covering 80% of the screen */
@@ -99,23 +114,24 @@ height: auto;
 
 table {
   width: 100%;
-}
-
-tr:nth-child(even) {
-background-color: #f2f2f2;
+  border-radius: 4px;
+  border-collapse: separate;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 td {
+  padding: 1px 4px;
   border-bottom: 1px solid #ddd;
 }
 
 #table_border {
-border-left: 1px solid #ddd;
-border-right: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
 }
 
 #table_border_l {
-border-left: 1px solid #ddd;
+  border-left: 1px solid #ddd;
 }
 
 #table_border_r {
@@ -151,9 +167,16 @@ border-right: 1px solid #ddd;
   color: red;
   font-weight: bold;
 }
+#grey {
+  color: grey;
+  font-weight:lighter
+}
 #black {
   color: black;
   font-weight: bold;
+}
+.black {
+  color: black;
 }
 #white-text {
   color: white;
@@ -266,6 +289,48 @@ vertical-align: bottom;
 width:16px;
 height:16px;
 vertical-align: bottom;
+}
+
+/**** Colors and tooltip for race dashboard - KPIs ****/
+.kpi0 {padding: 4px;}  /* 0 empty heat */
+.kpi1 {background-color: rgba(200, 200, 200, 0.7); padding: 4px;}  /* 1 not started */
+.kpi2 {background-image: linear-gradient(to right, rgba(200, 200, 200, 0.7), white, rgba(255, 255, 0, 0.7)); padding: 4px;}  /* 2 not started - with DNS */
+.kpi3 {background-color: rgba(255, 255, 0, 0.7); padding: 4px;}  /* 3 started - no results */
+.kpi4 {background-image: linear-gradient(to right, rgba(255, 255, 0, 0.7), white, rgba(0, 255, 0, 0.7)); padding: 4px;}  /* 4 partial results - with DNF */
+.kpi5 {background-color: rgba(0, 255, 0, 0.7); padding: 4px;}  /* 5 all results ok */
+.kpi6 {background-color: rgba(255, 0, 0, 0.7); padding: 4px;}  /* 6 other error */
+.kpix {background-color: rgba(155, 255, 0, 0.7); padding: 4px;}
+
+.tooltip_race {
+  position: relative;
+  display: inline-block;
+}
+.tooltip_race .tooltiptext_race {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 100;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -60px;
+}
+.tooltip_race .tooltiptext_race::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+.tooltip_race:hover .tooltiptext_race {
+  visibility: visible;
 }
 
 /**** Responsivt design ****/
@@ -430,3 +495,215 @@ left:100%;
 width:auto;
 }
 /* END: Tooltip - to show image - END */
+
+/* START: Style the Image Used to Trigger the Modal */
+#modalImg {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#modalImg:hover {opacity: 0.7;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+
+/* Modal Content (Image) */
+.modal-content {
+  margin: auto;
+  display: block;
+  width: 90%;
+}
+
+/* Caption of Modal Image (Image Text) - Same Width as the Image */
+#caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  height: 150px;
+}
+
+/* Add Animation - Zoom in the Modal */
+.modal-content, #caption {
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+@keyframes zoom {
+  from {transform:scale(0)}
+  to {transform:scale(1)}
+}
+
+/* The Close Button */
+.close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+  .modal-content {
+    width: 100%;
+  }
+}
+/* End: Style the Image Used to Trigger the Modal */
+
+/* START: Style the Image Used to Trigger the Lightbox */
+.lb_row > .lb_column {
+  padding: 0 4px;
+}
+
+.lb_row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.lb_column {
+  float: left;
+  width: 25%;
+}
+
+/* The Modal (background) */
+.lb_modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: black;
+}
+
+/* Modal Content */
+.lb_modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  width: 90%;
+  max-width: 1200px;
+}
+
+/* The Close Button */
+.lb_close {
+  color: white;
+  position: absolute;
+  top: 100px;
+  right: 25px;
+  font-size: 35px;
+  font-weight: bold;
+}
+
+.lb_close:hover,
+.lb_close:focus {
+  color: #999;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.lb_mySlides {
+  display: none;
+}
+
+.lb_cursor {
+  cursor: pointer;
+}
+
+/* Next & previous buttons */
+.lb_prev,
+.lb_next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  padding: 16px;
+  margin-top: -50px;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Position the "next button" to the right */
+.lb_next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background color with a little bit see-through */
+.lb_prev:hover,
+.lb_next:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Number text (1/3 etc) */
+.lb_numbertext {
+  color: #f2f2f2;
+  font-size: 12px;
+  padding: 8px 12px;
+  position: absolute;
+  top: 0;
+}
+
+img {
+  margin-bottom: 1px;
+}
+
+.lb_caption-container {
+  text-align: center;
+  background-color: black;
+  padding: 2px 16px;
+  color: white;
+}
+
+.lb_demo {
+  opacity: 0.6;
+}
+
+.lb_active,
+.lb_demo:hover {
+  opacity: 1;
+}
+
+img.hover-shadow {
+  transition: 0.3s;
+}
+
+.hover-shadow:hover {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}

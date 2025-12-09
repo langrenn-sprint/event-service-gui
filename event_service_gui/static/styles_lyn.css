@@ -44,12 +44,15 @@ font-weight: bold;
   font-size: 1.5em;
   color: white;
   background-color: #A30013;
+  padding: 1px 4px;
+  border-radius:6px;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
 }
 
 #adminpagetitle {
 text-align: center;
 color: white;
-font-size: 2.0em;
+font-size: 1.5em;
 background-color: #A30013;
 }
 #footeradmin {
@@ -61,7 +64,14 @@ padding: 5px 5px 5px 5px;
 }
 
 /* details TIPS */
-.info-box { margin-bottom:12px; padding:6px; border-radius:6px; background-color: #A30013; color: white; }
+.info-box {
+  margin-bottom:12px;
+  padding:6px;
+  border-radius:6px;
+  background-color: #A30013;
+  color: white;
+  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
+}
 .content-box { margin-bottom:12px; padding:6px; border:1px solid #A30013; border-radius:6px; }
 
 .event-logo-small {
