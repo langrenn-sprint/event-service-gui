@@ -57,12 +57,12 @@
         </script>
     </head>
     <body>
-        <header class="container-fluid">
+        <header>
             <div class="text-center">
                 <h2>{{ event.name }}&nbsp;<span class="event-logo-small"></span></h2>
             </div>
         </header>
-        <main class="container" id="main" role="main">
+        <main id="main" role="main" style="max-width: {% block max_width %}{% endblock %}px; margin: auto;">
             <div class="w3-container-sticky">
             <ul>
                 <li class=dropdown>
