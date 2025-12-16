@@ -10,8 +10,10 @@
         <link rel="stylesheet" href="../static/styles_new.css">
         {% if event.organiser[:5] == "Kjels" %}
             <link rel="stylesheet" type="text/css" href="../static/styles_kjelsaas.css">
-        {% else %}
+        {% elif event.organiser[:3] == "Lyn" %}
             <link rel="stylesheet" type="text/css" href="../static/styles_lyn.css">
+        {% else %}
+            <link rel="stylesheet" type="text/css" href="../static/styles_whitelabel.css">
         {% endif %}
 
         <script type="text/javascript">
