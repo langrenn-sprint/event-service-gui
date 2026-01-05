@@ -1,1 +1,7 @@
 2024-05-27 18:40:33,969 - ERROR - Club logo not found - N/A, error: 'N/A '
+2026-01-05 22:16:49,352 - ERROR - Error
+Traceback (most recent call last):
+  File "/home/hh/github/event-service-gui/event_service_gui/views/contestants.py", line 129, in post
+    event_id = str(form["event_id"])
+                   ~~~~^^^^^^^^^^^^
+KeyError: 'event_id'

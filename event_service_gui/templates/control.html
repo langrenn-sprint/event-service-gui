@@ -36,22 +36,29 @@
     </li>
 {% endblock %}
 
+{% block tips %}
+  Her kan registreringer slettes manuelt. Vær obs på at det ikke ligger noe logikk bak slettingen, så pass på eventuelle avhengigeter. <br>
+  Eksempelvis vil sletting av en passering i et passeringpunkt som er satt opp til å føre videre til et annet heat kunne føre til at løperen ikke blir flyttet videre som forventet.
+{% endblock %}
+
 {% block content %}
   <div id=spacer></div>
   {% if action != "c" %}
     <div class="w3-container" id=info>Funnet {{ passeringer|length }} events med error. (Pro tip: Hvis du vil se alle passeringer, klikk <a href="control?event_id={{ event_id }}&action=c">her</a>)</div>
   {% endif %}
   <div id=spacer></div>
+  <div class="w3-container">
+  <section class="row" aria-label="Control">
+    <div class="col-sm-12">
+      <h2>Passeringer - avansert</h2>
+    </div>
+  </section>
+  <form action=/control method=post>
+    <input type="hidden" name="action" value="{{ action }}">
+    <input type="hidden" name="event_id" value="{{ event_id }}">
+    <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
+    <input type="submit" name=resolve_error value=" Slett valgte " class="btn btn-warning"><br><br>
     <table>
-      <form action=/control method=post>
-        <tr>
-          <td id=spacer colspan=9>
-            <input type="hidden" name="action" value="{{ action }}">
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
-            <input type="submit" name=resolve_error value=" Slett valgte " class="btn btn-default">
-          </td>
-        </tr>
         <tr id=headerblue>
           <td></td>
           <td>Startnr</td>
@@ -84,17 +91,8 @@
             </tr>
           {% endif %}
         {% endfor %}
-        <tr>
-          <td id=spacer colspan=9>
-            <input type="hidden" name="action" value="{{ action }}">
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-            <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
-            <input type="submit" name=resolve_error value=" Slett valgte " class="btn btn-default">
-          </td>
-        </tr>
       </form>
-      <tr>
-        <td id=spacer colspan=9>&nbsp; </td>
-      </tr>
     </table>
+  </div>
+  <hr>
 {% endblock %}

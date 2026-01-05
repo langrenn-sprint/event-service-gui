@@ -14,9 +14,10 @@
 
 {% block content %}
   <div id=spacer></div>
+  <div class="w3-container">
   {% if create_new %}
     <form action=/events method=post>
-      <table cellpadding=4>
+      <table>
         <tr id=spacer></tr>
         <tr>
           <td colspan=3 id=headerblue>
@@ -91,7 +92,7 @@
         <td align="right">
           <form action=/events method=post>
             <input type="hidden" name="event_id" value="{{ event.id }}">
-            <input type="submit" name=delete value="  Slett  " class="btn btn-default">
+            <input type="submit" name=delete value="  Slett  " class="btn btn-warning">
           </form>
         </td>
       </tr>
@@ -106,81 +107,62 @@
           </td>
         </tr>
         <tr>
-          <td valign=top>
-            <table cellpadding=4>
-              <tr>
-                <td width=150>Navn</td>
-                <td><input type=text class="form-control" name=name value="{{ event.name }}"></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Dato</td>
-                <td><input type=text class="form-control" name=date_of_event value="{{ event.date_of_event }}"></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Tid</td>
-                <td><input type=text class="form-control" name=time_of_event value="{{ event.time_of_event }}"></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Tidssone</td>
-                <td><input type=text class="form-control" name=timezone value="{{ event.timezone }}"></td>
-                <td>Lokal tid er: {{ local_time_now }}</td>
-              </tr>
-              <tr>
-                <td>Format</td>
-                <td><input type=text class="form-control" name=competition_format value="{{ event.competition_format }}"></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Arrangør</td>
-                <td><input type=text class="form-control" name=organiser value="{{ event.organiser }}"></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Nettsted</td>
-                <td><input type=url name=webpage value="{{ event.webpage }}"></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Informasjon</td>
-                <td><input type=text class="form-control" name=information value="{{ event.information }}" size="40"></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td></td>
-                <td>
-                  <input type="submit" name=update value="  Lagre  " class="btn btn-default">
-                </td>
-                <td></td>
-            </tr>
-                </table>
-          </td>
-          <td width=50>
-          </td>
-          <td valign=top>
-              <table cellpadding=4>
-                {% if event.competition_format == "Interval Start" %}
-                  <tr>
-                    <td colspan="3"><input type=hidden name=intervals value="{{ event.intervals }}"></td>
-                  </tr>
-                {% elif event.competition_format == "Individual Sprint" %}
-                  <tr>
-                    <td colspan="3"><input type=hidden name=time_between_rounds value="{{ event.time_between_rounds }}"></td>
-                  </tr>
-                  <tr>
-                    <td colspan="3"><input type=hidden name=time_between_heats value="{{ event.time_between_heats }}"></td>
-                  </tr>
-                  <tr>
-                    <td colspan="3"><input type=hidden name=max_no_of_contestants_in_race value="{{ event.max_no_of_contestants_in_race }}"></td>
-                  </tr>
-                {% endif %}
-              </table>
-          </td>
+          <td width=150>Navn</td>
+          <td><input type=text class="form-control" name=name value="{{ event.name }}"></td>
+          <td></td>
+        </tr>
         <tr>
-        <tr id=spacer></tr>
+          <td>Dato</td>
+          <td><input type=text class="form-control" name=date_of_event value="{{ event.date_of_event }}"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Tid</td>
+          <td><input type=text class="form-control" name=time_of_event value="{{ event.time_of_event }}"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Tidssone</td>
+          <td><input type=text class="form-control" name=timezone value="{{ event.timezone }}"></td>
+          <td>Lokal tid er: {{ local_time_now }}</td>
+        </tr>
+        <tr>
+          <td>Format</td>
+          <td><input type=text class="form-control" name=competition_format value="{{ event.competition_format }}"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Arrangør</td>
+          <td><input type=text class="form-control" name=organiser value="{{ event.organiser }}"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Nettsted</td>
+          <td><input type=url name=webpage value="{{ event.webpage }}"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Informasjon</td>
+          <td><input type=text class="form-control" name=information value="{{ event.information }}" size="40"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <input type="submit" name=update value="  Lagre  " class="btn btn-default">
+          </td>
+          <td>
+            {% if event.competition_format == "Interval Start" %}
+              <input type=hidden name=intervals value="{{ event.intervals }}">
+            {% elif event.competition_format == "Individual Sprint" %}
+              <input type=hidden name=time_between_rounds value="{{ event.time_between_rounds }}">
+              <input type=hidden name=time_between_heats value="{{ event.time_between_heats }}">
+              <input type=hidden name=max_no_of_contestants_in_race value="{{ event.max_no_of_contestants_in_race }}">
+            {% endif %}
+          </td>
+        </tr>
       </table>
     </form>
     {% endif %}
+  </div>
 {% endblock %}

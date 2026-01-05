@@ -55,30 +55,16 @@
       <br>
     </div>
   {% endif %}
-  <table>
-    <tr>
-      <td>
-        <form action=/tasks method=get>
-          <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
-        </form>
-      </td>
-      <td width=150 align=center>
-        <ul>
-          <li class=dropdown>
-            <a href=javascript:void(0) class=dropbtn>Utskrift</a>
-            <div class=dropdown-content>
-                <a id="myPrint" target=_new onclick="result_gui_href('myPrint', 'print_lists?event_id={{ event_id }}&action=raceplan')" href=>Alle</a>
-              {% for klasse in raceclasses %}
-                  <a id="myPrint{{ klasse.name}}" target=_new onclick="result_gui_href('myPrint{{ klasse.name}}', 'print_lists?klasse={{ klasse.name }}&event_id={{ event_id }}&action=raceplan')" href=>{{ klasse.name}}</a>
-              {% endfor %}
-            </div>
-          </li>
-        </ul>
-      </td>
-    </tr>
-  </table>
-
+  <div class="w3-container">
+  <form action=/tasks method=get>
+    <input type="hidden" name=event_id value="{{ event_id }}">
+    <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
+  </form>
+  <section class="row" aria-label="Raceplans">
+    <div class="col-sm-12">
+      <h2>Kjøreplan</h2>
+    </div>
+  </section>
   <! --- Edit menu --->
   {% if action == "edit_mode" %}
     <div id=spacer20></div>
@@ -193,7 +179,7 @@
       {% endfor %}
     </table>
   <! --- End Display raceplan summary --->
-
+    <hr>
   <! --- Raceplan list --->
   <table>
     <tr id=headerblue>
@@ -263,14 +249,10 @@
       {% endif %}
     {% endfor %}
   </table>
-  <table>
-    <tr>
-      <td>
-        <form action=/tasks method=get>
-          <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
-        </form>
-      </td>
-    </tr>
-  </table>
+  <br>
+  <form action=/tasks method=get>
+    <input type="hidden" name=event_id value="{{ event_id }}">
+    <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
+  </form>
+  </div>
 {% endblock %}

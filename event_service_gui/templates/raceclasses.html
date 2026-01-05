@@ -22,16 +22,16 @@
 
 {% block content %}
   <div id=spacer></div>
-  <table>
-    <tr>
-      <td>
-        <form action=/tasks method=get>
-          <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
-        </form>
-    </td>
-    </tr>
-  </table>
+  <form action=/tasks method=get>
+    <input type="hidden" name=event_id value="{{ event_id }}">
+    <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
+  </form>
+  <section class="row" aria-label="Raceclasses">
+    <div class="col-sm-12">
+      <h2>Løpsklasser</h2>
+    </div>
+  </section>
+  <div class="w3-container">
   {% if  action == "edit_mode" %}
       <table>
         <tr align=right>
@@ -75,14 +75,14 @@
       </table>
     <div id=spacer></div>
       <table>
-         <tr id=headerblue>
+        <tr id=headerblue>
           <td>Årsklasse</td>
           <td>Løype</td>
           <td>Løpsklasse</td>
           <td>Startgruppe</td>
           <td>Startrekkefølge</td>
           <td>Rangering</td>
-          <td>Deltakere</td>
+          <td>Deltakere</td>
           <td></td>
           <td></td>
         </tr>
@@ -290,14 +290,10 @@
       {% endfor %}
     </table>
   {% endif %}
-  <table>
-    <tr>
-      <td>
-        <form action=/tasks method=get>
-          <input type="hidden" name=event_id value="{{ event_id }}">
-          <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
-        </form>
-    </td>
-    </tr>
-  </table>
+  <hr>
+  <form action=/tasks method=get>
+    <input type="hidden" name=event_id value="{{ event_id }}">
+    <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
+  </form>
+  </div>
 {% endblock %}

@@ -59,42 +59,45 @@
   {% for info in info_list %}
     <div class="w3-container" id=info>{{ info }}</div>
   {% endfor %}
-  {% if username != "Gjest" and action != "new_manual" %}
-    <table>
-      <tr>
-        <td>
-          <form action=/tasks method=get>
-            <input type="hidden" name=event_id value="{{ event_id }}">
-            <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
-          </form>
-        </td>
-        <td>
-          <form action=/contestants method=get>
-            <input type="hidden" name=event_id value="{{ event_id }}">
-            <input type="hidden" name=klasse value={{ valgt_klasse }}>
-            {% if action in ["all_attributes"] %}
-              <input type="submit" name="to_tasks" value="  Normal visning  " class="btn btn-default">
-            {% elif not action %}
-              <input type="hidden" name=action value="all_attributes">
-              <input type="submit" name="to_tasks" value="  Vis alle attributter  " class="btn btn-default">
-            {% endif %}
-          </form>
-        </td>
-        <td>Antall deltakere: {{ contestants|length }}</td>
-      </tr>
-    </table>
-  {% endif %}
+  <div class="w3-container">
+    {% if username != "Gjest" and action != "new_manual" %}
+      <table>
+        <tr>
+          <td>
+            <form action=/tasks method=get>
+              <input type="hidden" name=event_id value="{{ event_id }}">
+              <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
+            </form>
+          </td>
+          <td>
+            <form action=/contestants method=get>
+              <input type="hidden" name=event_id value="{{ event_id }}">
+              <input type="hidden" name=klasse value={{ valgt_klasse }}>
+              {% if action in ["all_attributes"] %}
+                <input type="submit" name="to_tasks" value="  Normal visning  " class="btn btn-default">
+              {% elif not action %}
+                <input type="hidden" name=action value="all_attributes">
+                <input type="submit" name="to_tasks" value="  Vis alle attributter  " class="btn btn-default">
+              {% endif %}
+            </form>
+          </td>
+          <td>Antall deltakere: {{ contestants|length }}</td>
+        </tr>
+      </table>
+    {% endif %}
     {% if action == "new_from_file" %}
-
-      <div id=spacer>&nbsp;</div>
-      <form action=/contestants method=post enctype="multipart/form-data" >
-        <table cellpadding=4>
-          <tr id=spacer></tr>
+        <section class="row" aria-label="Nye deltakere fra fil">
+          <div class="col-sm-12">
+            <h2>Importer deltakere</h2>
+          </div>
+        </section>
+        <table>
           <tr>
             <td colspan=2 id=headerblue>
               <b>Importer deltakerliste fra fil</b>
             </td>
           </tr>
+          <form action=/contestants method=post enctype="multipart/form-data">
           <tr>
             <td>
               <input type="file" name="file" onchange="savefile(this)" class="btn btn-default">
@@ -104,11 +107,15 @@
               <input type="submit" id="create" name=create value="  Last opp  " onclick=save_message(this.id); class="btn btn-success">
             </td>
           </tr>
-          <tr id=spacer>
-          </tr>
+          </form>
         </table>
-      </form>
+        <hr>
     {% elif  action == "edit_mode" %}
+        <section class="row" aria-label="Deltakere redigering">
+          <div class="col-sm-12">
+            <h2>Rediger deltakere</h2>
+          </div>
+        </section>
         <table>
           <tr align=right>
             <td>
@@ -133,6 +140,11 @@
     {% if  action in ["edit_mode", "delete_select"] %}
         <div id=spacer>&nbsp;</div>
         {% if action == "delete_select" %}
+        <section class="row" aria-label="Deltakere sletting">
+          <div class="col-sm-12">
+            <h2>Slette deltakere</h2>
+          </div>
+        </section>
           <form action=/contestants method=post>
           <div>
             &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  " class="btn btn-warning">
@@ -187,11 +199,6 @@
           {% endfor %}
         </table>
         {% if action == "delete_select" %}
-          <div>
-            &nbsp;&nbsp;&nbsp;<input type="submit" name=delete_select value="  Slett valgte  " class="btn btn-warning">
-            <input type="hidden" name=action value="delete select">
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-          </div>
           </form>
         {% endif %}
       {% elif action == "new_manual" %}
@@ -268,7 +275,7 @@
         {% elif action == "update_one" %}
           <div id=spacer></div>
           <form action=/contestants method=post>
-            <table cellpadding=4>
+            <table>
               <tr id=spacer></tr>
               <tr>
                 <td colspan=3 id=headerblue>
@@ -446,4 +453,5 @@
         </tr>
       </table>
     {% endif %}
+  </div>
   {% endblock %}

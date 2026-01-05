@@ -65,6 +65,12 @@
         <td>Antall deltakere: {{ contestants|length }}</td>
       </tr>
     </table>
+  <div class="w3-container">
+  <section class="row" aria-label="Seeding">
+    <div class="col-sm-12">
+      <h2>Seeding</h2>
+    </div>
+  </section>
     {% if valgt_klasse %}
         <table>
             <tr align=center>
@@ -156,15 +162,10 @@
           </div>
           </form>
         {% endif %}
-    <table>
-    <tr>
-        <td>
-            <form action=/tasks method=get>
-                <input type="hidden" name=event_id value="{{ event_id }}">
-                <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
-              </form>
-        </td>
-        <td>Antall deltakere: {{ contestants|length }}</td>
-    </tr>
-    </table>
+    <br>
+    <form action=/tasks method=get>
+      <input type="hidden" name=event_id value="{{ event_id }}">
+      <input type="submit" name="to_tasks" value="  Tilbake til oversikten (sette rennet)  " class="btn btn-default">
+    </form>
+  </div>
   {% endblock %}
