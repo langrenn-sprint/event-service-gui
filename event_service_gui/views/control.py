@@ -8,6 +8,7 @@ from aiohttp import web
 from event_service_gui.services import (
     RaceclassesAdapter,
     TimeEventsAdapter,
+    TimeEventsService,
 )
 
 from .utils import (
@@ -89,6 +90,11 @@ class Control(web.View):
             action = str(form["action"])
             if "resolve_error" in form:
                 informasjon = await delete_timing_events(user, dict(form))
+            if "shift_position" in form:
+                informasjon = await TimeEventsService().shuffle_semi_final_templates(
+                    user["token"], event_id
+                )
+
         except Exception as e:
             logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."

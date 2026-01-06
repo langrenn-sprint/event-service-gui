@@ -43,8 +43,8 @@
 
 {% block content %}
   <div id=spacer></div>
-  {% if action != "c" %}
-    <div class="w3-container" id=info>Funnet {{ passeringer|length }} events med error. (Pro tip: Hvis du vil se alle passeringer, klikk <a href="control?event_id={{ event_id }}&action=c">her</a>)</div>
+  {% if action not in ["Template", "c"] %}
+    <div class="w3-container" id=info>Funnet {{ passeringer|length }} events. (Pro tip: Hvis du vil se alle passeringer, klikk <a href="control?event_id={{ event_id }}&action=c">her</a>)</div>
   {% endif %}
   <div id=spacer></div>
   <div class="w3-container">
@@ -53,11 +53,27 @@
       <h2>Passeringer - avansert</h2>
     </div>
   </section>
-  <form action=/control method=post>
-    <input type="hidden" name="action" value="{{ action }}">
-    <input type="hidden" name="event_id" value="{{ event_id }}">
-    <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
-    <input type="submit" name=resolve_error value=" Slett valgte " class="btn btn-warning"><br><br>
+
+
+  <table>
+    <tr>
+      <td>
+        <form action=/control method=post>
+          <input type="hidden" name="action" value="{{ action }}">
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
+          <input type="submit" name=shift_position value=" Roter 2 plass til nye semi-heat " class="btn btn-success">
+        </form>
+      </td>
+      <td>
+        <form action=/control method=post>
+          <input type="hidden" name="action" value="{{ action }}">
+          <input type="hidden" name="event_id" value="{{ event_id }}">
+          <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
+          <input type="submit" name=resolve_error value=" Slett valgte " class="btn btn-warning"><br><br>
+      </td>
+    </tr>
+  </table>
     <table>
         <tr id=headerblue>
           <td></td>
@@ -70,7 +86,7 @@
           <td>Status</td>
           <td>Changelog</td>
         </tr>
-        {% for passering in passeringer %}
+        {% for passering in passeringer|sort(attribute='rank')|sort(attribute='race') %}
           {% if not valgt_heat or passering.race == valgt_heat %}
             <tr>
               <td>

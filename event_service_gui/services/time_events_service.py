@@ -11,6 +11,7 @@ from event_service_gui.services import (
     StartAdapter,
     TimeEventsAdapter,
 )
+from event_service_gui.services.raceclasses_adapter import RaceclassesAdapter
 
 
 class TimeEventsService:
@@ -77,6 +78,50 @@ class TimeEventsService:
                             logging.debug(f"Created template: {new_t_e['status']}")
                             i += 1
         return f"Suksess! Opprettet {i} templates. "
+
+    async def shuffle_semi_final_templates(self, token: str, event_id: str) -> str:
+        """Shift right in semi finals for all contestants with given qarter_final."""
+        shuffled_count = 0
+        raceclasses = await RaceclassesAdapter().get_raceclasses(
+            token, event_id
+        )
+
+        for raceclass in raceclasses:
+            races = await RaceplansAdapter().get_races_by_racesclass(token, event_id, raceclass["name"])
+            templates = await TimeEventsAdapter().get_time_events_by_event_id_and_timing_point(
+                token, event_id, "Template"
+            )
+            count_of_quarter_finals = 0
+            count_of_semi_finals_a = 0
+            for race in races:
+                if race["round"] == "S":
+                    if race["index"] == "A":
+                        count_of_semi_finals_a += 1
+                if race["round"] == "Q":
+                    count_of_quarter_finals += 1
+            # if number of semi finals is half the number of quarter finals - we can shuffle
+            if count_of_semi_finals_a == (count_of_quarter_finals // 2):
+                # get all template time events for semi finals A
+                # filter out pos 2 templates
+                semi_final_a_templates = [
+                    template for template in templates
+                    if (f"{raceclass['name']}-QA" in template["race"]) and (template["rank"] == 2)
+                ]
+                # now shift right the fields next_race, next_race_id, next_race_position
+                shifted_templates = shift_right_across_list_by(
+                    semi_final_a_templates,
+                    ["next_race", "next_race_id", "next_race_position"],
+                    shift=2
+                )
+                # update all shifted templates
+                for shifted_template in shifted_templates:
+                    w_id = await TimeEventsAdapter().update_time_event(
+                        token, shifted_template["id"], shifted_template
+                    )
+                    shuffled_count += 1
+                    logging.debug(f"Updated template time_event id {w_id}")
+
+        return f"Suksess! Shufflet {shuffled_count} templates."
 
     async def create_start_time_event(self, token: str, time_event: dict) -> str:
         """Validate, enrich and create new start time_event."""
@@ -190,6 +235,29 @@ class TimeEventsService:
                     )
 
         return informasjon
+
+
+def shift_right_across_list_by(data: list[dict], keys: list[str], shift: int = 1) -> list[dict]:
+    """Shift values to the right by N positions across list items for specified keys.
+
+    Args:
+        data: List of dictionaries to process
+        keys: List of keys whose values should be shifted across items
+        shift: Number of positions to shift (default: 1)
+
+    Returns:
+        New list of dictionaries with shifted values
+    """
+    if len(data) == 0:
+        return []
+
+    result = [item.copy() for item in data]
+
+    for key in keys:
+        for i in range(len(data)):
+            result[i][key] = data[(i - shift) % len(data)][key]
+
+    return result
 
 
 def get_next_start_entry(time_event: dict, races: list) -> dict:

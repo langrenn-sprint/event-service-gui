@@ -173,9 +173,7 @@ async def get_passeringer(
                     and passering["timing_point"] != "Template"
                 ):
                     passeringer.append(passering)
-    elif action in [
-        "Template",
-    ]:
+    elif action == "Template":
         passeringer.extend(
             passering for passering in tmp_passeringer
             if (valgt_klasse in passering["race"]) and (passering["timing_point"] == "Template")
@@ -183,7 +181,7 @@ async def get_passeringer(
     else:
         passeringer.extend(
             passering for passering in tmp_passeringer
-            if passering["timing_point"] not in ["Template", "Error"]
+            if passering["timing_point"] not in ["Template"]
         )
 
     # indentify last passering in race
