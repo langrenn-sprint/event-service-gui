@@ -23,11 +23,13 @@
             function event_gui_href(my_element, path) {
                 document.getElementById(my_element).href = "http://" + window.location.hostname + ":8080/" + path;
             }
+            const result_port = window.location.hostname.startsWith("result") ? "" : ":8090";
+            result_base_url = window.location.protocol + "//" + window.location.hostname + result_port + "/"
             function result_gui_action(my_element, path) {
-                document.getElementById(my_element).action = "http://" + window.location.hostname + ":8090/" + path;
+                document.getElementById(my_element).action = result_base_url + path;
             }
             function result_gui_href(my_element, path) {
-                document.getElementById(my_element).href = "http://" + window.location.hostname + ":8090/" + path;
+                document.getElementById(my_element).href = result_base_url + path;
             }
             function confirm_delete(message) {
                 return window.confirm(message);
@@ -181,11 +183,14 @@
             <div class="w3-container" id=info>{{ informasjon }}</div>
             {% block content %}{% endblock %}
             <div id="spacer"></div>
+            {% set tips_content %}{% block tips %}{% endblock %}{% endset %}
+            {% if tips_content.strip() %}
             <details class="info-box">
                 <summary>TIPS (klikk for å utvide)</summary>
                 <br>
-                {% block tips %}{% endblock %}
+                {{ tips_content }}
             </details>
+            {% endif %}
 
         </main>
         <br>
