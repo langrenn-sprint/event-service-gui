@@ -150,7 +150,7 @@ class TimeEventsService:
         shifted_templates = shift_right_across_list_by(
             semi_final_templates,
             ["next_race", "next_race_id", "next_race_position"],
-            shift=2
+            shift=1
         )
         # update all shifted templates
         for shifted_template in shifted_templates:
