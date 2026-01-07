@@ -92,7 +92,11 @@ class Control(web.View):
                 informasjon = await delete_timing_events(user, dict(form))
             if "shift_position" in form:
                 informasjon = await TimeEventsService().shuffle_semi_final_templates(
-                    user["token"], event_id
+                    user["token"], event_id, "default"
+                )
+            elif "shift_random" in form:
+                informasjon = await TimeEventsService().shuffle_semi_final_templates(
+                    user["token"], event_id, "random"
                 )
 
         except Exception as e:
