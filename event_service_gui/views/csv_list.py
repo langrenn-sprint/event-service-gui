@@ -46,13 +46,20 @@ class CsvList(web.View):
             try:
                 valgt_klasse = self.request.rel_url.query["klasse"]
             except Exception:
-                informasjon = "Ingen løpsklasse valgt. Kan ikke vise informasjon"
-                return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
-            results = await RaceclassResultsAdapter().get_raceclass_result(
-                event_id, valgt_klasse
-            )
-            if results:
-                csvdata = results["ranking_sequence"]
+                valgt_klasse = ""
+            if valgt_klasse:
+                results = await RaceclassResultsAdapter().get_raceclass_result(
+                    event_id, valgt_klasse
+                )
+                if results:
+                    csvdata = results["ranking_sequence"]
+            else:
+                results = await RaceclassResultsAdapter().get_all_raceclass_results(event_id)
+                if results:
+                    for raceclass in results:
+                        for entry in raceclass["ranking_sequence"]:
+                            entry["raceclass"] = raceclass["raceclass"]
+                            csvdata.append(entry)
             fields = get_fields_results()
 
         # convert to csv format
@@ -136,7 +143,8 @@ def get_fields_results() -> list:
         "bib",
         "name",
         "club",
+        "raceclass",
         "ageclass",
         "round",
-        # "minidrett_id",
+        "minidrett_id",
     ]
