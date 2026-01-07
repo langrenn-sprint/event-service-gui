@@ -105,6 +105,12 @@ class TimeEventsService:
                     token, templates, raceclass["name"], 2
                 )
                 informasjon += await self.shift_and_update_templates(
+                    token, templates, raceclass["name"], 3
+                )
+                informasjon += await self.shift_and_update_templates(
+                    token, templates, raceclass["name"], 3
+                )
+                informasjon += await self.shift_and_update_templates(
                     token, templates, raceclass["name"], 4
                 )
                 informasjon += await self.shift_and_update_templates(
