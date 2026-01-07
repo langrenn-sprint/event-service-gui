@@ -1,7 +1,6 @@
 """Module for time event service."""
 
 import logging
-import random
 
 from aiohttp import web
 
@@ -80,7 +79,7 @@ class TimeEventsService:
                             i += 1
         return f"Suksess! Opprettet {i} templates. "
 
-    async def shuffle_semi_final_templates(self, token: str, event_id: str, strategy: str) -> str:
+    async def shuffle_semi_final_templates(self, token: str, event_id: str) -> str:
         """Shift right in semi finals for all contestants with given qarter_final."""
         informasjon = ""
         raceclasses = await RaceclassesAdapter().get_raceclasses(
@@ -103,45 +102,25 @@ class TimeEventsService:
             # if number of semi finals is half the number of quarter finals - we can shuffle
             if count_of_semi_finals_a == (count_of_quarter_finals // 2):
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 2, strategy
+                    token, templates, raceclass["name"], 2
                 )
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 4, strategy
+                    token, templates, raceclass["name"], 4
                 )
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 6, strategy
+                    token, templates, raceclass["name"], 6
                 )
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 8, strategy
+                    token, templates, raceclass["name"], 8
                 )
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 10, strategy
+                    token, templates, raceclass["name"], 10
                 )
-                if count_of_semi_finals_a >= 3:
-                    informasjon += await self.shift_and_update_templates(
-                        token, templates, raceclass["name"], 3, strategy
-                    )
-                if strategy == "random":  # for random shuffle, also shift odd places
-                    informasjon += await self.shift_and_update_templates(
-                        token, templates, raceclass["name"], 1, strategy
-                    )
-                    informasjon += await self.shift_and_update_templates(
-                        token, templates, raceclass["name"], 3, strategy
-                    )
-                    informasjon += await self.shift_and_update_templates(
-                        token, templates, raceclass["name"], 5, strategy
-                    )
-                    informasjon += await self.shift_and_update_templates(
-                        token, templates, raceclass["name"], 7, strategy
-                    )
-                    informasjon += await self.shift_and_update_templates(
-                        token, templates, raceclass["name"], 9, strategy
-                    )
 
         return informasjon
 
     async def shift_and_update_templates(
-        self, token: str, templates: list, raceclass_name: str, race_position: int, strategy: str
+        self, token: str, templates: list, raceclass_name: str, race_position: int
     ) -> str:
         """Shuffle semi-final templates for given raceclass and position.
 
@@ -150,7 +129,6 @@ class TimeEventsService:
             templates: List of time event templates to filter and shift
             raceclass_name: Name of the raceclass (e.g., "G11")
             race_position: The rank/position to filter on (e.g., 2)
-            strategy: Strategy for shifting ("default" or "random")
 
         Returns:
             Number of templates updated
@@ -162,19 +140,12 @@ class TimeEventsService:
             template for template in templates
             if (f"{raceclass_name}-QA" in template["race"]) and (template["rank"] == race_position)
         ]
-        shifted_templates = []
-        if strategy == "random":
-            shifted_templates = shuffle_random_across_list(
-                semi_final_templates,
-                ["next_race", "next_race_id", "next_race_position"]
-            )
-        else:
-            # default - now shift right the fields next_race, next_race_id, next_race_position
-            shifted_templates = shift_right_across_list_by(
-                semi_final_templates,
-                ["next_race", "next_race_id", "next_race_position"],
-                shift=2
-            )
+        # default - now shift right the fields next_race, next_race_id, next_race_position
+        shifted_templates = shift_right_across_list_by(
+            semi_final_templates,
+            ["next_race", "next_race_id", "next_race_position"],
+            shift=2
+        )
         # update all shifted templates
         for shifted_template in shifted_templates:
             w_id = await TimeEventsAdapter().update_time_event(
@@ -183,7 +154,7 @@ class TimeEventsService:
             updated_count += 1
             logging.debug(f"Updated template time_event id {w_id}")
 
-        return f"{raceclass_name} {race_position} plass: {updated_count},  {strategy} sortert. -- "
+        return f"{raceclass_name} {race_position} plass: {updated_count}, rotert. -- "
 
 
     async def create_start_time_event(self, token: str, time_event: dict) -> str:
@@ -319,37 +290,6 @@ def shift_right_across_list_by(data: list[dict], keys: list[str], shift: int = 1
     for key in keys:
         for i in range(len(data)):
             result[i][key] = data[(i - shift) % len(data)][key]
-
-    return result
-
-
-def shuffle_random_across_list(data: list[dict], keys: list[str]) -> list[dict]:
-    """Randomly shuffle values across list items for specified keys.
-
-    All key-value pairs from the same source item are moved together to the same
-    random destination item, maintaining the relationship between the keys.
-
-    Args:
-        data: List of dictionaries to process
-        keys: List of keys whose values should be shuffled across items
-
-    Returns:
-        New list of dictionaries with randomly shuffled values
-    """
-    if len(data) == 0:
-        return []
-
-    result = [item.copy() for item in data]
-
-    # Create a random permutation of indices
-    indices = list(range(len(data)))
-    random.shuffle(indices)
-
-    # Apply the permutation: result[i] gets values from data[indices[i]]
-    for i in range(len(data)):
-        source_index = indices[i]
-        for key in keys:
-            result[i][key] = data[source_index][key]
 
     return result
 

@@ -40,7 +40,6 @@
   - Her kan registreringer slettes manuelt. Vær obs på at det ikke ligger noe logikk bak slettingen, så pass på eventuelle avhengigeter. <br>
   Eksempelvis vil sletting av en passering i et passeringpunkt som er satt opp til å føre videre til et annet heat kunne føre til at løperen ikke blir flyttet videre som forventet.<br>
   - Funksjonen <b>"Roter plasser til semi-heat"</b> vil justere templates slik at løpere fra kvartfnaler plasseres i ulike semifinaler. Strategien er at halvparten av løperne flyttes til neste heat.<br>
-  - Funksjonen <b>"Tilfeldig sortering til semi-heat"</b> vil justere templates slik at løpere fra kvartfnaler plasseres i ulike semifinaler med en tilfeldig strategi.<br>
 {% endblock %}
 
 {% block content %}
@@ -65,7 +64,6 @@
           <input type="hidden" name="event_id" value="{{ event_id }}">
           <input type="hidden" name="valgt_klasse" value="{{ valgt_klasse }}">
           <input type="submit" name=shift_position value=" Roter plasser til semi-heat " class="btn btn-success">
-          <input type="submit" name=shift_random value=" Tilfeldig sortering til semi-heat " class="btn btn-success">
         </form>
       </td>
       <td>

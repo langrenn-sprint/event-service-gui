@@ -595,3 +595,9 @@ Traceback (most recent call last):
     if self.quitting: raise BdbQuit
                       ^^^^^^^^^^^^^
 bdb.BdbQuit
+2026-01-07 23:56:57,619 - ERROR - Error
+Traceback (most recent call last):
+  File "/home/hh/github/event-service-gui/event_service_gui/views/contestants.py", line 129, in post
+    event_id = str(form["event_id"])
+                   ~~~~^^^^^^^^^^^^
+KeyError: 'event_id'
