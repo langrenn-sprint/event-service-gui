@@ -338,6 +338,22 @@
         <td></td>
       {% endif %}
     </tr>
+    <tr>
+      <td>6c. Roter semi oppsett</td>
+      <td>
+      </td>
+      <td></td>
+      <td>
+        {% if (task_status.done_6) %}
+          <form action=/control method=get>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name=action value="Template">
+            <input type="submit" name="edit_time" value="  Roter plasser til semi heat  " class="btn btn-default">
+          </form>
+        {% endif %}
+      </td>
+      <td>Justere templates slik at løpere fra kvartfnaler plasseres i ulike semifinaler.</td>
+    </tr>
     {% endif %}
     <tr>
       <td>Eksporter data</td>

@@ -81,7 +81,7 @@ class TimeEventsService:
 
     async def shuffle_semi_final_templates(self, token: str, event_id: str) -> str:
         """Shift right in semi finals for all contestants with given qarter_final."""
-        shuffled_count = 0
+        informasjon = ""
         raceclasses = await RaceclassesAdapter().get_raceclasses(
             token, event_id
         )
@@ -101,27 +101,54 @@ class TimeEventsService:
                     count_of_quarter_finals += 1
             # if number of semi finals is half the number of quarter finals - we can shuffle
             if count_of_semi_finals_a == (count_of_quarter_finals // 2):
-                # get all template time events for semi finals A
-                # filter out pos 2 templates
-                semi_final_a_templates = [
-                    template for template in templates
-                    if (f"{raceclass['name']}-QA" in template["race"]) and (template["rank"] == 2)
-                ]
-                # now shift right the fields next_race, next_race_id, next_race_position
-                shifted_templates = shift_right_across_list_by(
-                    semi_final_a_templates,
-                    ["next_race", "next_race_id", "next_race_position"],
-                    shift=2
+                informasjon += await self.shift_and_update_templates(
+                    token, templates, raceclass["name"], 2, shift=2
                 )
-                # update all shifted templates
-                for shifted_template in shifted_templates:
-                    w_id = await TimeEventsAdapter().update_time_event(
-                        token, shifted_template["id"], shifted_template
+                if count_of_semi_finals_a >= 3:
+                    informasjon += await self.shift_and_update_templates(
+                        token, templates, raceclass["name"], 3, shift=4
                     )
-                    shuffled_count += 1
-                    logging.debug(f"Updated template time_event id {w_id}")
 
-        return f"Suksess! Shufflet {shuffled_count} templates."
+        return informasjon
+
+    async def shift_and_update_templates(
+        self, token: str, templates: list, raceclass_name: str, race_position: int, shift: int
+    ) -> str:
+        """Shift and update semi-final templates for given raceclass and position.
+
+        Args:
+            token: Authentication token
+            templates: List of time event templates to filter and shift
+            raceclass_name: Name of the raceclass (e.g., "G11")
+            race_position: The rank/position to filter on (e.g., 2)
+            shift: Number of positions to shift (default: 2)
+
+        Returns:
+            Number of templates updated
+        """
+        updated_count = 0
+        # get all template time events for semi finals A
+        # filter out templates with specified position
+        semi_final_a_templates = [
+            template for template in templates
+            if (f"{raceclass_name}-QA" in template["race"]) and (template["rank"] == race_position)
+        ]
+        # now shift right the fields next_race, next_race_id, next_race_position
+        shifted_templates = shift_right_across_list_by(
+            semi_final_a_templates,
+            ["next_race", "next_race_id", "next_race_position"],
+            shift=shift
+        )
+        # update all shifted templates
+        for shifted_template in shifted_templates:
+            w_id = await TimeEventsAdapter().update_time_event(
+                token, shifted_template["id"], shifted_template
+            )
+            updated_count += 1
+            logging.debug(f"Updated template time_event id {w_id}")
+
+        return f"{raceclass_name} {race_position} plass: {updated_count} templates rotert. -- "
+
 
     async def create_start_time_event(self, token: str, time_event: dict) -> str:
         """Validate, enrich and create new start time_event."""
