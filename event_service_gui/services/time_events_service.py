@@ -102,31 +102,25 @@ class TimeEventsService:
             # if number of semi finals is half the number of quarter finals - we can shuffle
             if count_of_semi_finals_a == (count_of_quarter_finals // 2):
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 2
+                    token, templates, raceclass["name"], 2, 1
                 )
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 3
+                    token, templates, raceclass["name"], 3, 2
                 )
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 3
+                    token, templates, raceclass["name"], 4, 3
                 )
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 4
+                    token, templates, raceclass["name"], 6, 1
                 )
                 informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 6
-                )
-                informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 8
-                )
-                informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 10
+                    token, templates, raceclass["name"], 7, 2
                 )
 
         return informasjon
 
     async def shift_and_update_templates(
-        self, token: str, templates: list, raceclass_name: str, race_position: int
+        self, token: str, templates: list, raceclass_name: str, race_position: int, shift: int
     ) -> str:
         """Shuffle semi-final templates for given raceclass and position.
 
@@ -135,6 +129,7 @@ class TimeEventsService:
             templates: List of time event templates to filter and shift
             raceclass_name: Name of the raceclass (e.g., "G11")
             race_position: The rank/position to filter on (e.g., 2)
+            shift: Number of positions to shift right (e.g., 1)
 
         Returns:
             Number of templates updated
@@ -146,11 +141,14 @@ class TimeEventsService:
             template for template in templates
             if (f"{raceclass_name}-QA" in template["race"]) and (template["rank"] == race_position)
         ]
+        # Sort by race name
+        semi_final_templates = sorted(semi_final_templates, key=lambda x: x["race"])
+
         # default - now shift right the fields next_race, next_race_id, next_race_position
         shifted_templates = shift_right_across_list_by(
             semi_final_templates,
             ["next_race", "next_race_id", "next_race_position"],
-            shift=1
+            shift=shift
         )
         # update all shifted templates
         for shifted_template in shifted_templates:
