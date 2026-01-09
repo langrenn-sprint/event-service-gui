@@ -47,6 +47,9 @@ class StartAdapter:
                 raise web.HTTPBadRequest(
                     reason=f"{servicename} failed - {body['detail']}."
                 )
+        # shuffle urangerte - this function is intended to be moved to race-service
+        informasjon += await shuffle_round2(token, event_id)
+        
         return informasjon
 
     async def delete_start_entry(
