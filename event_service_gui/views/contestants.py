@@ -258,30 +258,23 @@ async def add_to_startlist(token: str, event_id: str, klasse: str, bib: int) -> 
 async def create_one_contestant(token: str, event: dict, form: dict) -> str:
     """Load contestants from form. Place in startlist if relevant."""
     informasjon = ""
-    klasse = ""
     request_body = get_contestant_from_form(event, form)
     bib = request_body["bib"]
     if "create_one" in form:
-        # 1. Add contestant.
+        # 1. Add contestant to event:
         c_id = await ContestantsAdapter().create_contestant(
             token, event["id"], request_body
         )
         logging.debug(f"Etteranmelding {c_id}")
         informasjon = f"Deltaker med startnr {bib} er lagt til."
-        # 2. Update number of contestants in raceclass
-        raceclasses = await RaceclassesAdapter().get_raceclasses(token, event["id"])
-        for raceclass in raceclasses:
-            if request_body["ageclass"] in raceclass["ageclasses"]:
-                klasse = raceclass["name"]
-                # update number of contestants in raceclass
-                raceclass["no_of_contestants"] += 1
-                result = await RaceclassesAdapter().update_raceclass(
-                    token, event["id"], raceclass["id"], raceclass
-                )
-                logging.debug(f"Participant count updated: {result}")
+        # 2. Add contestant to startlist in quarter final with lowest number of participants
+        raceclass = await RaceclassesAdapter().get_raceclass_by_ageclass(
+            token, event["id"], request_body["ageclass"]
+        )
 
-                # 3. Add contestant to startlist in quarter final with lowest number of participants
-                informasjon += await add_to_startlist(token, event["id"], klasse, bib)
+        informasjon += await add_to_startlist(
+            token, event["id"], raceclass["name"], bib
+        )
 
     # redirect user to correct page to add start entry
     info = f"event_id={event['id']}"
