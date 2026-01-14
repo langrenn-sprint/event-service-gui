@@ -175,12 +175,15 @@ async def get_passeringer(
                     passeringer.append(passering)
     elif action == "Template":
         passeringer.extend(
-            passering for passering in tmp_passeringer
-            if (valgt_klasse in passering["race"]) and (passering["timing_point"] == "Template")
+            passering
+            for passering in tmp_passeringer
+            if (valgt_klasse in passering["race"])
+            and (passering["timing_point"] == "Template")
         )
     else:
         passeringer.extend(
-            passering for passering in tmp_passeringer
+            passering
+            for passering in tmp_passeringer
             if passering["timing_point"] not in ["Template"]
         )
 
@@ -342,7 +345,10 @@ async def create_start(user: dict, form: dict) -> str:
                 and (time_event["bib"] == bib)
                 and (
                     (not latest_result)
-                    or (time_event["registration_time"] > latest_result["registration_time"])
+                    or (
+                        time_event["registration_time"]
+                        > latest_result["registration_time"]
+                    )
                 )
             ):
                 latest_result = time_event

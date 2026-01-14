@@ -150,7 +150,10 @@ class Raceplans(web.View):
             elif "update_time" in form:
                 logging.debug(f"update_time - form:{form}")
                 informasjon = await RaceplansAdapter().update_start_time(
-                    user["token"], event_id, int(str(form["order"])), str(form["new_time"])
+                    user["token"],
+                    event_id,
+                    int(str(form["order"])),
+                    str(form["new_time"]),
                 )
                 action = "edit_time"
             elif "set_rest_time" in form:
@@ -188,8 +191,8 @@ async def update_heat_time_interval(token: str, event_id: str, form: dict) -> st
     if races:
         # Initialize previous_race_time_obj with first value
         previous_race_time_obj = datetime.datetime.strptime(
-                    races[0]["start_time"], "%Y-%m-%dT%H:%M:%S"
-                )
+            races[0]["start_time"], "%Y-%m-%dT%H:%M:%S"
+        )
 
         for race in races:
             if first_heat == race["order"]:
@@ -415,7 +418,7 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
 
 def check_short_pause(pause_time) -> bool:
     """Return true if pause time is acceptable."""
-    return (pause_time < datetime.timedelta(minutes=12))
+    return pause_time < datetime.timedelta(minutes=12)
 
 
 def time_str_to_timedelta(time_str: str) -> datetime.timedelta:

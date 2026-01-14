@@ -123,9 +123,13 @@ class Seeding(web.View):
 
             # Do the stuff
             if action == "seeding_manual":
-                informasjon = await add_seeding_from_form(user["token"], event_id, dict(form))
+                informasjon = await add_seeding_from_form(
+                    user["token"], event_id, dict(form)
+                )
             elif action == "seeding_points":
-                informasjon = await add_seeding_points(user["token"], event_id, dict(form))
+                informasjon = await add_seeding_points(
+                    user["token"], event_id, dict(form)
+                )
                 informasjon += "<br>"
                 informasjon += await perform_seeding(
                     user["token"],
