@@ -10,7 +10,6 @@ from typing import Any
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
-from .raceclasses_adapter import RaceclassesAdapter
 from .start_adapter import StartAdapter
 
 EVENTS_HOST_SERVER = os.getenv("EVENTS_HOST_SERVER", "localhost")
@@ -186,21 +185,6 @@ class ContestantsAdapter:
                 raise web.HTTPBadRequest(
                     reason=f"Error - {resp.status}: {body['detail']}."
                 )
-        # update number of contestants in raceclass
-        try:
-            klasse = await RaceclassesAdapter().get_raceclass_by_ageclass(
-                token, event_id, contestant["ageclass"]
-            )
-            if klasse:
-                klasse["no_of_contestants"] = klasse["no_of_contestants"] - 1
-            result = await RaceclassesAdapter().update_raceclass(
-                token, event_id, klasse["id"], klasse
-            )
-            logging.debug(f"No_of_contestants updated - {result}")
-        except Exception:
-            logging.exception(
-                f"{servicename} failed on update no of contestants in raceclass - {contestant['ageclass']}"
-            )
         return str(res)
 
     async def get_all_contestants(self, token: str, event_id: str) -> list:
