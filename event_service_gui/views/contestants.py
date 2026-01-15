@@ -494,8 +494,7 @@ async def get_available_etteranmelding(token: str, event_id: str) -> list:
     The calculation differs based on whether the raceclass is ranked or unranked:
 
     - Ranked raceclasses: Checks semi-final C (SC) races first, then falls back
-      to finals (F) if no semi-final C exists. The bottleneck race determines
-      the available capacity.
+      to the first final (F) if no semi-final C exists.
     - Unranked raceclasses: Sums available places across all round 1 (R1) races.
 
     Args:
@@ -522,12 +521,12 @@ async def get_available_etteranmelding(token: str, event_id: str) -> list:
     races = await RaceplansAdapter().get_all_races(token, event_id)
 
     for raceclass in raceclasses:
+        # number of places in semi final C is limitation
         available_places = 0
 
         # Process ranked raceclasses (with seeding and advancement rules)
         if raceclass["ranking"]:
             # Semi-final C (SC) is the bottleneck for late registrations
-            # as new contestants typically enter at the quarter/semi-final stage
             found_semi_c = False
             for race in races:
                 if raceclass["name"] == race["raceclass"]:
@@ -538,18 +537,19 @@ async def get_available_etteranmelding(token: str, event_id: str) -> list:
                         )
                         found_semi_c = True
 
-            # Fallback: If no semi-final C exists, check finals
-            # This handles simpler competition formats without C semi-finals
+            # handle raceclasses without c semi-finals - first finale is limitation
             if not found_semi_c:
                 for race in races:
                     if raceclass["name"] == race["raceclass"]:
                         if race["round"] == "F":
-                            available_places += (
+                            available_places = (
                                 race["max_no_of_contestants"]
                                 - race["no_of_contestants"]
                             )
+                            # only the one (the first) final has open places
+                            break
 
-        # Process unranked raceclasses (no seeding, all compete in round 1)
+        # handle raceclasses - urangert
         else:
             # Sum available places across all round 1 races
             for race in races:
