@@ -77,6 +77,7 @@
       <table>
         <tr id=headerblue>
           <td>Årsklasse</td>
+          <td>Kjønn</td>
           <td>Løype</td>
           <td>Løpsklasse</td>
           <td>Startgruppe</td>
@@ -93,6 +94,7 @@
                   {{ ac_name }}<br>
                 {% endfor %}
               </td>
+              <td>{{ klasse.gender }}</td>
               <td>{{ klasse.distance }}</td>
               <td>{{ klasse.name }}</td>
               <td>{{ klasse.group }}</td>
@@ -126,6 +128,7 @@
             </td></tr>
             <tr id=headerblue>
               <td>Årsklasse</td>
+              <td>Kjønn</td>
               <td>Løype</td>
               <td>Løpsklasse</td>
               <td>Startgruppe</td>
@@ -140,6 +143,7 @@
                       {{ ac_name }}<br>
                     {% endfor %}
                   </td>
+                  <td>{{ klasse.gender }}</td>
                   <td>{{ klasse.distance }}</td>
                   <td>{{ klasse.name }}</td>
                   <td>
@@ -168,6 +172,7 @@
               <tr id=headerblue>
                 <td>Velg</td>
                 <td>Årsklasse</td>
+                <td>Kjønn</td>
                 <td>Løype</td>
                 <td>Løpsklasse</td>
                 <td>Startgruppe</td>
@@ -183,6 +188,7 @@
                         {{ ac_name }}<br>
                       {% endfor %}
                     </td>
+                    <td>{{ klasse.gender }}</td>
                     <td>{{ klasse.distance }}</td>
                     <td>{{ klasse.name }}</td>
                     <td>{{ klasse.group }}</td>
@@ -266,6 +272,7 @@
     <table>
       <tr id=headerblue>
         <td>Årsklasse</td>
+        <td>Kjønn</td>
         <td>Løype</td>
         <td>Løpsklasse</td>
         <td>Startgruppe</td>
@@ -280,6 +287,7 @@
                 {{ ac_name }}<br>
               {% endfor %}
             </td>
+            <td>{{ klasse.gender }}</td>
             <td>{{ klasse.distance }}</td>
             <td>{{ klasse.name }}</td>
             <td>{{ klasse.group }}</td>
