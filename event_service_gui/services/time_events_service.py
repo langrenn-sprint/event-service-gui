@@ -79,7 +79,7 @@ class TimeEventsService:
 
     async def shuffle_semi_final_templates(self, token: str, event_id: str) -> str:
         """Shift right in semi finals for all contestants with given qarter_final."""
-        informasjon = ""
+        informasjon = " Roterer semi-final templates: "
         raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
 
         for raceclass in raceclasses:
@@ -100,23 +100,22 @@ class TimeEventsService:
                 if race["round"] == "Q":
                     count_of_quarter_finals += 1
             # if number of semi finals is half the number of quarter finals - we can shuffle
+            shift_settings = []
+            shift_settings.append({"position": 2, "shift": 1})
+            shift_settings.append({"position": 3, "shift": 2})
+            shift_settings.append({"position": 5, "shift": 1})
+            shift_settings.append({"position": 6, "shift": 2})
+            shift_settings.append({"position": 7, "shift": 3})
+            shift_settings.append({"position": 8, "shift": 4})
             if count_of_semi_finals_a == (count_of_quarter_finals // 2):
-                informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 2, 1
-                )
-                informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 3, 2
-                )
-                informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 4, 3
-                )
-                informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 6, 1
-                )
-                informasjon += await self.shift_and_update_templates(
-                    token, templates, raceclass["name"], 7, 2
-                )
-
+                for setting in shift_settings:
+                    informasjon += await self.shift_and_update_templates(
+                        token,
+                        templates,
+                        raceclass["name"],
+                        setting["position"],
+                        setting["shift"],
+                    )
         return informasjon
 
     async def shift_and_update_templates(

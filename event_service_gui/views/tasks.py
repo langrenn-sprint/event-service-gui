@@ -73,6 +73,10 @@ class Tasks(web.View):
                 informasjon = await TimeEventsService().generate_next_race_templates(
                     user["token"], event
                 )
+                informasjon += await TimeEventsService().shuffle_semi_final_templates(
+                    user["token"], event_id
+                )
+
             elif "delete_all_cont" in form:
                 res = await ContestantsAdapter().delete_all_contestants(
                     user["token"], event_id
