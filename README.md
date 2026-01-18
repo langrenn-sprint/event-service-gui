@@ -56,7 +56,10 @@ source .venv/bin/activate
 ## Start the server locally
 
 ```Zsh
-% uv run adev runserver -p 8080 event_service_gui
+set -a
+source .env
+set +a
+uv run adev runserver -p 8080 event_service_gui
 ```
 
 ## Running the service in Docker

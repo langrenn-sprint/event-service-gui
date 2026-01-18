@@ -63,13 +63,14 @@ class PrintContestants(web.View):
 
             # get clubs
             clubs = []
-            if action == "klubb":
+            if "klubb" in action:
                 for contestant in contestants:
                     if contestant["club"] not in clubs:
                         clubs.append(contestant["club"])
-            elif action == "alfabetisk_fornavn":
+                clubs = sorted(clubs)
+            if "fornavn" in action:
                 contestants = sorted(contestants, key=itemgetter("first_name"))
-            elif action == "alfabetisk_etternavn":
+            elif "etternavn" in action:
                 contestants = sorted(contestants, key=itemgetter("last_name"))
 
             """Get route function."""

@@ -9,7 +9,6 @@
   <li class=dropdown id=topborder>
     <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
     <div class=dropdown-content>
-      <a href=/seeding?event_id={{ event_id }}&action={{ action }}>Alle</a>
       {% for klasse in raceclasses %}
         {% for ageclass_name in klasse.ageclasses %}
           <a href=/seeding?event_id={{ event_id }}&klasse={{ klasse.name }}&action={{ action }}>{{ ageclass_name }}</a>

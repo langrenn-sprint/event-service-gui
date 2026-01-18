@@ -227,10 +227,14 @@
             <li class=dropdown>
               <a href=javascript:void(0) class=dropbtn>Skriv ut deltakerlister</a>
               <div class=dropdown-content>
-                <a target=_blank href=print_contestants?event_id={{ event_id }}>Pr klasse</a>
+                <a target=_blank href=print_contestants?event_id={{ event_id }}&action=klasse>Pr klasse</a>
                 <a target=_blank href=print_contestants?event_id={{ event_id }}&action=klubb>Pr klubb</a>
-                <a target=_blank href=print_contestants?event_id={{ event_id }}&action=alfabetisk_fornavn>Sortert på fornavn</a>
-                <a target=_blank href=print_contestants?event_id={{ event_id }}&action=alfabetisk_etternavn>Sortert på etternavn</a>
+                <a target=_blank href=print_contestants?event_id={{ event_id }}&action=fornavn>Sortert på fornavn</a>
+                <a target=_blank href=print_contestants?event_id={{ event_id }}&action=etternavn>Sortert på etternavn</a>
+                <a target=_blank href=print_contestants?event_id={{ event_id }}&action=klubb_fornavn>Pr klubb og fornavn</a>
+                <a target=_blank href=print_contestants?event_id={{ event_id }}&action=klubb_etternavn>Pr klubb og etternavn</a>
+                <a target=_blank href=print_contestants?event_id={{ event_id }}&action=klasse_fornavn>Pr klasse og fornavn</a>
+                <a target=_blank href=print_contestants?event_id={{ event_id }}&action=klasse_etternavn>Pr klasse og etternavn</a>
               </div>
             </li>
           </ul>
