@@ -2,8 +2,8 @@
   "name": "Individual Sprint",
   "starting_order": "Draw",
   "start_procedure": "Heat Start",
-  "time_between_groups": "00:02:00",
-  "time_between_rounds": "00:03:00",
+  "time_between_groups": "00:03:00",
+  "time_between_rounds": "00:05:00",
   "time_between_heats": "00:01:30",
   "rounds_ranked_classes": [
     "Q",
@@ -14,8 +14,8 @@
     "R1",
     "R2"
   ],
-  "max_no_of_contestants_in_raceclass": 130,
-  "max_no_of_contestants_in_race": 12,
+  "max_no_of_contestants_in_raceclass": 113,
+  "max_no_of_contestants_in_race": 10,
   "datatype": "individual_sprint",
   "race_config_non_ranked": [
     {
@@ -277,7 +277,7 @@
       }
     },
     {
-      "max_no_of_contestants": 13,
+      "max_no_of_contestants": 14,
       "rounds": [
         "Q",
         "F"
@@ -309,26 +309,42 @@
       }
     },
     {
-      "max_no_of_contestants": 17,
+      "max_no_of_contestants": 16,
       "rounds": [
         "Q",
+        "S",
         "F"
       ],
       "no_of_heats": {
         "Q": {
-          "A": 2
+          "A": 3
+        },
+        "S": {
+          "A": 2,
+          "C": 0
         },
         "F": {
           "A": 1,
           "B": 1,
-          "C": 0
+          "C": 1
         }
       },
       "from_to": {
         "Q": {
           "A": {
+            "S": {
+              "A": 3,
+              "C": 0
+            },
             "F": {
-              "A": 4,
+              "C": "REST"
+            }
+          }
+        },
+        "S": {
+          "A": {
+            "F": {
+              "A": 2,
               "B": "REST"
             }
           },
@@ -341,7 +357,7 @@
       }
     },
     {
-      "max_no_of_contestants": 23,
+      "max_no_of_contestants": 21,
       "rounds": [
         "Q",
         "S",
@@ -434,7 +450,7 @@
       }
     },
     {
-      "max_no_of_contestants": 35,
+      "max_no_of_contestants": 33,
       "rounds": [
         "Q",
         "S",
@@ -479,7 +495,52 @@
       }
     },
     {
-      "max_no_of_contestants": 47,
+      "max_no_of_contestants": 35,
+      "rounds": [
+        "Q",
+        "S",
+        "F"
+      ],
+      "no_of_heats": {
+        "Q": {
+          "A": 5
+        },
+        "S": {
+          "A": 3,
+          "C": 3
+        },
+        "F": {
+          "A": 1,
+          "B": 1,
+          "C": 1
+        }
+      },
+      "from_to": {
+        "Q": {
+          "A": {
+            "S": {
+              "A": 3,
+              "C": "REST"
+            }
+          }
+        },
+        "S": {
+          "A": {
+            "F": {
+              "A": 2,
+              "B": 2
+            }
+          },
+          "C": {
+            "F": {
+              "C": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "max_no_of_contestants": 41,
       "rounds": [
         "Q",
         "S",
@@ -524,7 +585,52 @@
       }
     },
     {
-      "max_no_of_contestants": 59,
+      "max_no_of_contestants": 47,
+      "rounds": [
+        "Q",
+        "S",
+        "F"
+      ],
+      "no_of_heats": {
+        "Q": {
+          "A": 6
+        },
+        "S": {
+          "A": 3,
+          "C": 4
+        },
+        "F": {
+          "A": 1,
+          "B": 1,
+          "C": 1
+        }
+      },
+      "from_to": {
+        "Q": {
+          "A": {
+            "S": {
+              "A": 3,
+              "C": "REST"
+            }
+          }
+        },
+        "S": {
+          "A": {
+            "F": {
+              "A": 2,
+              "B": 2
+            }
+          },
+          "C": {
+            "F": {
+              "C": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "max_no_of_contestants": 53,
       "rounds": [
         "Q",
         "S",
@@ -569,7 +675,7 @@
       }
     },
     {
-      "max_no_of_contestants": 70,
+      "max_no_of_contestants": 59,
       "rounds": [
         "Q",
         "S",
@@ -577,7 +683,7 @@
       ],
       "no_of_heats": {
         "Q": {
-          "A": 10
+          "A": 8
         },
         "S": {
           "A": 4,
@@ -607,14 +713,14 @@
           },
           "C": {
             "F": {
-              "C": 2
+              "C": 1
             }
           }
         }
       }
     },
     {
-      "max_no_of_contestants": 80,
+      "max_no_of_contestants": 65,
       "rounds": [
         "Q",
         "S",
@@ -625,7 +731,52 @@
           "A": 10
         },
         "S": {
-          "A": 4,
+          "A": 5,
+          "C": 5
+        },
+        "F": {
+          "A": 1,
+          "B": 1,
+          "C": 1
+        }
+      },
+      "from_to": {
+        "Q": {
+          "A": {
+            "S": {
+              "A": 3,
+              "C": "REST"
+            }
+          }
+        },
+        "S": {
+          "A": {
+            "F": {
+              "A": 1,
+              "B": 1
+            }
+          },
+          "C": {
+            "F": {
+              "C": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "max_no_of_contestants": 71,
+      "rounds": [
+        "Q",
+        "S",
+        "F"
+      ],
+      "no_of_heats": {
+        "Q": {
+          "A": 11
+        },
+        "S": {
+          "A": 6,
           "C": 6
         },
         "F": {
@@ -646,52 +797,8 @@
         "S": {
           "A": {
             "F": {
-              "A": 2,
-              "B": 2
-            }
-          },
-          "C": {
-            "F": {
-              "C": 1
-            }
-          }
-        }
-      }
-    },    {
-      "max_no_of_contestants": 90,
-      "rounds": [
-        "Q",
-        "S",
-        "F"
-      ],
-      "no_of_heats": {
-        "Q": {
-          "A": 10
-        },
-        "S": {
-          "A": 4,
-          "C": 8
-        },
-        "F": {
-          "A": 1,
-          "B": 1,
-          "C": 1
-        }
-      },
-      "from_to": {
-        "Q": {
-          "A": {
-            "S": {
-              "A": 3,
-              "C": "REST"
-            }
-          }
-        },
-        "S": {
-          "A": {
-            "F": {
-              "A": 2,
-              "B": 2
+              "A": 1,
+              "B": 1
             }
           },
           "C": {
@@ -703,52 +810,7 @@
       }
     },
     {
-      "max_no_of_contestants": 100,
-      "rounds": [
-        "Q",
-        "S",
-        "F"
-      ],
-      "no_of_heats": {
-        "Q": {
-          "A": 11
-        },
-        "S": {
-          "A": 4,
-          "C": 8
-        },
-        "F": {
-          "A": 1,
-          "B": 1,
-          "C": 1
-        }
-      },
-      "from_to": {
-        "Q": {
-          "A": {
-            "S": {
-              "A": 3,
-              "C": "REST"
-            }
-          }
-        },
-        "S": {
-          "A": {
-            "F": {
-              "A": 2,
-              "B": 2
-            }
-          },
-          "C": {
-            "F": {
-              "C": 1
-            }
-          }
-        }
-      }
-    },
-    {
-      "max_no_of_contestants": 110,
+      "max_no_of_contestants": 77,
       "rounds": [
         "Q",
         "S",
@@ -759,7 +821,142 @@
           "A": 12
         },
         "S": {
-          "A": 4,
+          "A": 6,
+          "C": 6
+        },
+        "F": {
+          "A": 1,
+          "B": 1,
+          "C": 1
+        }
+      },
+      "from_to": {
+        "Q": {
+          "A": {
+            "S": {
+              "A": 3,
+              "C": "REST"
+            }
+          }
+        },
+        "S": {
+          "A": {
+            "F": {
+              "A": 1,
+              "B": 1
+            }
+          },
+          "C": {
+            "F": {
+              "C": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "max_no_of_contestants": 83,
+      "rounds": [
+        "Q",
+        "S",
+        "F"
+      ],
+      "no_of_heats": {
+        "Q": {
+          "A": 12
+        },
+        "S": {
+          "A": 6,
+          "C": 6
+        },
+        "F": {
+          "A": 1,
+          "B": 1,
+          "C": 1
+        }
+      },
+      "from_to": {
+        "Q": {
+          "A": {
+            "S": {
+              "A": 3,
+              "C": "REST"
+            }
+          }
+        },
+        "S": {
+          "A": {
+            "F": {
+              "A": 1,
+              "B": 1
+            }
+          },
+          "C": {
+            "F": {
+              "C": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "max_no_of_contestants": 95,
+      "rounds": [
+        "Q",
+        "S",
+        "F"
+      ],
+      "no_of_heats": {
+        "Q": {
+          "A": 14
+        },
+        "S": {
+          "A": 7,
+          "C": 7
+        },
+        "F": {
+          "A": 1,
+          "B": 1,
+          "C": 1
+        }
+      },
+      "from_to": {
+        "Q": {
+          "A": {
+            "S": {
+              "A": 3,
+              "C": "REST"
+            }
+          }
+        },
+        "S": {
+          "A": {
+            "F": {
+              "A": 1,
+              "B": 1
+            }
+          },
+          "C": {
+            "F": {
+              "C": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "max_no_of_contestants": 107,
+      "rounds": [
+        "Q",
+        "S",
+        "F"
+      ],
+      "no_of_heats": {
+        "Q": {
+          "A": 16
+        },
+        "S": {
+          "A": 8,
           "C": 8
         },
         "F": {
@@ -780,8 +977,8 @@
         "S": {
           "A": {
             "F": {
-              "A": 2,
-              "B": 2
+              "A": 1,
+              "B": 1
             }
           },
           "C": {
@@ -793,7 +990,7 @@
       }
     },
     {
-      "max_no_of_contestants": 130,
+      "max_no_of_contestants": 113,
       "rounds": [
         "Q",
         "S",
@@ -801,11 +998,11 @@
       ],
       "no_of_heats": {
         "Q": {
-          "A": 13
+          "A": 18
         },
         "S": {
-          "A": 4,
-          "C": 10
+          "A": 8,
+          "C": 8
         },
         "F": {
           "A": 1,
@@ -825,8 +1022,8 @@
         "S": {
           "A": {
             "F": {
-              "A": 2,
-              "B": 2
+              "A": 1,
+              "B": 1
             }
           },
           "C": {
