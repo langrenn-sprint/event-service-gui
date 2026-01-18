@@ -185,6 +185,7 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
     ageclasses = ast.literal_eval(ageclasses_str)
     request_body = {
         "name": str(form["name"]),
+        "gender": str(form["gender"]),
         "distance": str(form["distance"]),
         "event_id": event_id,
         "id": w_id,
