@@ -143,6 +143,7 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
     if len(old_raceclasses) > 1:
         request_body = {
             "name": new_raceclass_name,
+            "gender": old_raceclasses[0]["gender"],
             "distance": old_raceclasses[0]["distance"],
             "event_id": event_id,
             "id": old_raceclasses[0]["id"],
