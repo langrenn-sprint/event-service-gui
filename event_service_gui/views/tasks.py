@@ -176,9 +176,7 @@ async def get_task_status(token: str, event_id: str) -> dict:
         if len(raceplans) == 1:
             task_status[
                 "raceplan_validation"
-            ] = await RaceplansAdapter().validate_raceplan(
-                token, raceplans[0]["id"]
-            )
+            ] = await RaceplansAdapter().validate_raceplan(token, raceplans[0]["id"])
     else:
         task_status["done_6"] = False
 

@@ -61,9 +61,7 @@ class TimeEventsService:
                     # loop and simulate result for pos 1 to 10
                     for x in range(1, race["max_no_of_contestants"] + 1):
                         time_event["rank"] = x
-                        next_start_entry = get_next_start_entry(
-                            time_event, races
-                        )
+                        next_start_entry = get_next_start_entry(time_event, races)
                         logging.debug(f"Time_event: {time_event}")
                         logging.debug(f"Start_entry: {next_start_entry}")
                         if len(next_start_entry) > 0:
@@ -82,14 +80,16 @@ class TimeEventsService:
     async def shuffle_semi_final_templates(self, token: str, event_id: str) -> str:
         """Shift right in semi finals for all contestants with given qarter_final."""
         informasjon = ""
-        raceclasses = await RaceclassesAdapter().get_raceclasses(
-            token, event_id
-        )
+        raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
 
         for raceclass in raceclasses:
-            races = await RaceplansAdapter().get_races_by_racesclass(token, event_id, raceclass["name"])
-            templates = await TimeEventsAdapter().get_time_events_by_event_id_and_timing_point(
-                token, event_id, "Template"
+            races = await RaceplansAdapter().get_races_by_racesclass(
+                token, event_id, raceclass["name"]
+            )
+            templates = (
+                await TimeEventsAdapter().get_time_events_by_event_id_and_timing_point(
+                    token, event_id, "Template"
+                )
             )
             count_of_quarter_finals = 0
             count_of_semi_finals_a = 0
@@ -120,7 +120,12 @@ class TimeEventsService:
         return informasjon
 
     async def shift_and_update_templates(
-        self, token: str, templates: list, raceclass_name: str, race_position: int, shift: int
+        self,
+        token: str,
+        templates: list,
+        raceclass_name: str,
+        race_position: int,
+        shift: int,
     ) -> str:
         """Shuffle semi-final templates for given raceclass and position.
 
@@ -138,8 +143,10 @@ class TimeEventsService:
         # get all template time events for semi finals A
         # filter out templates with specified position
         semi_final_templates = [
-            template for template in templates
-            if (f"{raceclass_name}-QA" in template["race"]) and (template["rank"] == race_position)
+            template
+            for template in templates
+            if (f"{raceclass_name}-QA" in template["race"])
+            and (template["rank"] == race_position)
         ]
         # Sort by race name
         semi_final_templates = sorted(semi_final_templates, key=lambda x: x["race"])
@@ -148,7 +155,7 @@ class TimeEventsService:
         shifted_templates = shift_right_across_list_by(
             semi_final_templates,
             ["next_race", "next_race_id", "next_race_position"],
-            shift=shift
+            shift=shift,
         )
         # update all shifted templates
         for shifted_template in shifted_templates:
@@ -159,7 +166,6 @@ class TimeEventsService:
             logging.debug(f"Updated template time_event id {w_id}")
 
         return f"{raceclass_name} {race_position} plass: {updated_count}, rotert. -- "
-
 
     async def create_start_time_event(self, token: str, time_event: dict) -> str:
         """Validate, enrich and create new start time_event."""
@@ -268,14 +274,14 @@ class TimeEventsService:
                     elif new_t_e["changelog"]:
                         informasjon += f"{new_t_e['changelog'][-1]['comment']} <br>"
                 if time_event["next_race"] != "Ute" and result_ok:
-                    await StartAdapter().create_start_entry(
-                        token, next_start_entry
-                    )
+                    await StartAdapter().create_start_entry(token, next_start_entry)
 
         return informasjon
 
 
-def shift_right_across_list_by(data: list[dict], keys: list[str], shift: int = 1) -> list[dict]:
+def shift_right_across_list_by(
+    data: list[dict], keys: list[str], shift: int = 1
+) -> list[dict]:
     """Shift values to the right by N positions across list items for specified keys.
 
     Args:
@@ -319,17 +325,13 @@ def get_next_start_entry(time_event: dict, races: list) -> dict:
             race_item["current_contestant_qualified"] = True
             # now we have next round - get race id
             time_event["rank_qualified"] = time_event["rank"] - ilimitplace
-            start_entry = calculate_next_start_entry(
-                race_item, time_event, races
-            )
+            start_entry = calculate_next_start_entry(race_item, time_event, races)
             break
         ilimitplace = limit_rank
     return start_entry
 
 
-def calculate_next_start_entry(
-    race_item: dict, time_event: dict, races: list
-) -> dict:
+def calculate_next_start_entry(race_item: dict, time_event: dict, races: list) -> dict:
     """Identify next race_id and generate start entry data."""
     start_entry = {
         "bib": time_event["bib"],

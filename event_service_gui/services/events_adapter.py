@@ -31,9 +31,10 @@ class EventsAdapter:
             ]
         )
         url = f"{EVENT_SERVICE_URL}/events/{event_id}/generate-raceclasses"
-        async with ClientSession() as session, session.post(
-            url, headers=headers
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.post(url, headers=headers) as resp,
+        ):
             res = resp.status
             logging.debug(f"generate_raceclasses result - got response {resp}")
             if res == HTTPStatus.CREATED:
@@ -59,9 +60,10 @@ class EventsAdapter:
             ]
         )
 
-        async with ClientSession() as session, session.get(
-            f"{EVENT_SERVICE_URL}/events", headers=headers
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(f"{EVENT_SERVICE_URL}/events", headers=headers) as resp,
+        ):
             logging.debug(f"get_all_events - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 events = await resp.json()
@@ -84,9 +86,10 @@ class EventsAdapter:
             ]
         )
 
-        async with ClientSession() as session, session.get(
-            f"{EVENT_SERVICE_URL}/events/{my_id}", headers=headers
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(f"{EVENT_SERVICE_URL}/events/{my_id}", headers=headers) as resp,
+        ):
             logging.debug(f"get_event {my_id} - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 event = await resp.json()
@@ -209,9 +212,12 @@ class EventsAdapter:
         )
         request_body = copy.deepcopy(event)
 
-        async with ClientSession() as session, session.post(
-            f"{EVENT_SERVICE_URL}/events", headers=headers, json=request_body
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.post(
+                f"{EVENT_SERVICE_URL}/events", headers=headers, json=request_body
+            ) as resp,
+        ):
             if resp.status == HTTPStatus.CREATED:
                 logging.debug(f"result - got response {resp}")
                 location = resp.headers[hdrs.LOCATION]
@@ -237,9 +243,10 @@ class EventsAdapter:
             ]
         )
         url = f"{EVENT_SERVICE_URL}/events/{my_id}"
-        async with ClientSession() as session, session.delete(
-            url, headers=headers
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.delete(url, headers=headers) as resp,
+        ):
             if resp.status == HTTPStatus.NO_CONTENT:
                 logging.debug(f"result - got response {resp}")
             else:
@@ -260,9 +267,14 @@ class EventsAdapter:
             ]
         )
 
-        async with ClientSession() as session, session.put(
-            f"{EVENT_SERVICE_URL}/events/{my_id}", headers=headers, json=request_body
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.put(
+                f"{EVENT_SERVICE_URL}/events/{my_id}",
+                headers=headers,
+                json=request_body,
+            ) as resp,
+        ):
             result = resp.status
             if resp.status == HTTPStatus.NO_CONTENT:
                 logging.debug(f"update event - got response {resp}")
