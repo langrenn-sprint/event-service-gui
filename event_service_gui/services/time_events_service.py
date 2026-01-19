@@ -116,7 +116,9 @@ class TimeEventsService:
                         setting["position"],
                         setting["shift"],
                     )
-        return informasjon
+
+        logging.info(informasjon)
+        return "Rotering av semifinale templates fullført. "
 
     async def shift_and_update_templates(
         self,
@@ -139,6 +141,7 @@ class TimeEventsService:
             Number of templates updated
         """
         updated_count = 0
+        informasjon = ""
         # get all template time events for semi finals A
         # filter out templates with specified position
         semi_final_templates = [
@@ -164,7 +167,10 @@ class TimeEventsService:
             updated_count += 1
             logging.debug(f"Updated template time_event id {w_id}")
 
-        return f"{raceclass_name} {race_position} plass: {updated_count}, rotert. -- "
+        if updated_count > 0:
+            informasjon += f"{raceclass_name} {race_position} plass: {updated_count}, rotert. -- "
+
+        return informasjon
 
     async def create_start_time_event(self, token: str, time_event: dict) -> str:
         """Validate, enrich and create new start time_event."""

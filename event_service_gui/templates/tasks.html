@@ -29,6 +29,7 @@
         <td width=150>Status</td>
         <td>Funksjoner</td>
         <td>Informasjon</td>
+        <td>Restriksjoner</td>
       </tr>
       <tr>
         <td>1a. Arrangement: Opprett (<a href=/events?event_id={{ event_id }}>se/endre</a>)</td>
@@ -40,6 +41,7 @@
         <td id=green>Utført</td>
         <td></td>
         <td>Tid: {{ event.date_of_event }} kl. {{ event.time_of_event }}<br>Arrangør: {{ event.organiser }}{% if (event.webpage) %} <a href={{ event.webpage }}>Mer info</a>{% endif %}</td>
+        <td></td>
       </tr>
       <tr>
         <td>1b. Arrangement: Sprint oppsett</td>
@@ -60,6 +62,7 @@
           </td>
         {% endif %}
         <td>Mulighet for å tilpasse sprint oppsett, antall pr heat og tid-innstillinger</td>
+        <td></td>
       </tr>
       <tr>
         <td>
@@ -93,6 +96,7 @@
           </td>
           <td></td>
         {% endif %}
+        <td></td>
       </tr>
       <tr>
         <td>3a. Klasser: Opprett (<a href=/raceclasses?event_id={{ event_id }}>se/endre</a>)</td>
@@ -125,6 +129,7 @@
           </td>
           <td></td>
         {% endif %}
+        <td></td>
       </tr>
       <tr>
         <td>3b. Klasser: Startrekkefølge</td>
@@ -150,6 +155,7 @@
           </td>
           <td></td>
         {% endif %}
+        <td></td>
       </tr>
       <tr>
         <td>4a. Kjøreplan: Opprett (<a href=/raceplans?event_id={{ event_id }}>se/endre</a>)</td>
@@ -180,7 +186,6 @@
               {{ task_status.no_of_races}} heat er opprettet.
             {% endif %}
           </td>
-          </tr>
         {% else %}
           <td id=red>Mangler</td>
           <td>
@@ -193,6 +198,7 @@
           </td>
           <td></td>
         {% endif %}
+        <td>Ikke lov å endre deltakere</td>
       </tr>
       <tr>
         <td>4b. Kjøreplan: Tilpass tidsskjema (<a href=/raceplans?event_id={{ event_id }}&action=edit_time>se/endre</a>)</td>
@@ -212,6 +218,7 @@
           {% endif %}
         </td>
         <td>For å endre tid mellom heat, <a href=/raceplans?event_id={{ event_id }}&action=edit_heat_time_interval>se her</a>.</td>
+        <td>Ikke lov å endre deltakere</td>
     </tr>
     <tr>
       <td>5a. Deltakere: Startnummer (<a href=/contestants?event_id={{ event_id }}&action=edit_mode>se/endre</a>)</td>
@@ -261,6 +268,7 @@
             <td>{{ task_status.bib_missing}} deltakere mangler startnummer. </td>
           {% endif %}
         {% endif %}
+        <td>Ikke lov å endre deltakere (annet enn startnummer)</td>
       </tr>
       <tr>
         <td>5b. Deltakere: Seeding</td>
@@ -283,6 +291,7 @@
           </td>
           <td></td>
         {% endif %}
+        <td>Ikke lov å endre deltakere (annet enn seeding info)</td>
         </tr>
     <tr>
       <td>6a. Startliste: Opprett (<a id="mySeeStart" onclick="result_gui_href('mySeeStart', 'start_edit?event_id={{ event_id }}')" href=>se/endre</a>)</td>
@@ -300,7 +309,7 @@
             </li>
           </ul>
         </td>
-        <td> {{ task_status.no_of_starts }} starter er opprettet.</td>
+        <td> {{ task_status.no_of_starts }} starter er opprettet. Se også <a id="myStartL" onclick="result_gui_href('myStartL', 'start?event_id={{ event_id }}')" href=>startlister</a> for utskrifter.</td>
       {% else %}
         <td id=red>Mangler</td>
         <td>
@@ -313,6 +322,7 @@
         </td>
         <td></td>
       {% endif %}
+      <td>Ikke lov å endre deltakere</td>
     </tr>
     {% if event.competition_format == "Individual Sprint" %}
     <tr>
@@ -327,7 +337,7 @@
         <td>
         </td>
         <td>
-          {{ task_status.no_of_next_race }} <i>videre til</i> semi og finaler er opprettet.
+          {{ task_status.no_of_next_race }} <i>videre til</i> templates er opprettet.
         </td>
       {% else %}
         <td id=red>Mangler</td>
@@ -341,6 +351,7 @@
         </td>
         <td></td>
       {% endif %}
+      <td>Etteranmelding tillatt. Fjerne fra startliste tillatt, slette deltaker ikke tillatt.</td>
     </tr>
     {% endif %}
     <tr>
@@ -364,6 +375,7 @@
         </ul>
       </td>
       <td>Mulighet til å eksportere lister på csv format.</td>
+      <td></td>
     </tr>
     <tr><td colspan="5"><br><br><br><br></td></tr>
     <tr id="danger-zone">
@@ -413,7 +425,8 @@
           </form>
           {% endif %}
       </td>
-      <td>Mulighet til å slette all registrert informasjon på arrangementet.</td>
+      <td>Mulighet til å slette all registrert informasjon på arrangementet. Det anbefales å slette i rekkefølge nedenfra og opp: passeringer, startlister, kjøreplaner, løpsklasser, deltakere.</td>
+      <td></td>
     </tr>
     </table>
   </div>
