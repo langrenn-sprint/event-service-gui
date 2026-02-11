@@ -479,19 +479,50 @@ async def create_contestants_from_emit(token: str, event: dict, file) -> str:
 
 
 async def get_available_etteranmelding(token: str, event_id: str) -> list:
-    """Get number of available places per raceclass."""
+    """Calculate available late registration (etteranmelding) slots per raceclass.
+
+    This function determines how many additional contestants can be registered
+    for each raceclass in an event, based on available capacity in races.
+    The calculation differs based on whether the raceclass is ranked or unranked:
+
+    - Ranked raceclasses: Checks semi-final C (SC) races first, then falls back
+      to the first final (F) if no semi-final C exists.
+    - Unranked raceclasses: Sums available places across all round 1 (R1) races.
+
+    Args:
+        token: Authentication token for API access
+        event_id: Unique identifier for the event
+
+    Returns:
+        List of dictionaries containing availability information for each raceclass.
+        Each dictionary has:
+        - ageclasses (list): List of age classes in this raceclass
+        - available_places (int): Number of available registration slots
+
+    Example:
+        >>> await get_available_etteranmelding(token, "event-123")
+        [
+            {"ageclasses": ["G11", "G12"], "available_places": 5},
+            {"ageclasses": ["J11"], "available_places": 0}
+        ]
+    """
     event_availability = []
 
+    # Fetch all raceclasses and races for the event
     raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
     races = await RaceplansAdapter().get_all_races(token, event_id)
+
     for raceclass in raceclasses:
         # number of places in semi final C is limitation
         available_places = 0
 
+        # Process ranked raceclasses (with seeding and advancement rules)
         if raceclass["ranking"]:
+            # Semi-final C (SC) is the bottleneck for late registrations
             found_semi_c = False
             for race in races:
                 if raceclass["name"] == race["raceclass"]:
+                    # Check if this is a semi-final C race
                     if f"{race['round']}{race['index']}" == "SC":
                         available_places += (
                             race["max_no_of_contestants"] - race["no_of_contestants"]
@@ -512,6 +543,7 @@ async def get_available_etteranmelding(token: str, event_id: str) -> list:
 
         # handle raceclasses - urangert
         else:
+            # Sum available places across all round 1 races
             for race in races:
                 if raceclass["name"] == race["raceclass"]:
                     if race["round"] == "R1":
@@ -519,10 +551,12 @@ async def get_available_etteranmelding(token: str, event_id: str) -> list:
                             race["max_no_of_contestants"] - race["no_of_contestants"]
                         )
 
+        # Build result object for this raceclass
         raceclass_availability = {
             "ageclasses": raceclass["ageclasses"],
             "available_places": available_places,
         }
 
         event_availability.append(raceclass_availability)
+
     return event_availability
