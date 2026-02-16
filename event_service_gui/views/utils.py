@@ -184,7 +184,7 @@ async def get_passeringer(
         passeringer.extend(
             passering
             for passering in tmp_passeringer
-            if passering["timing_point"] not in ["Template"]
+            if passering["timing_point"] != "Template"
         )
 
     # indentify last passering in race

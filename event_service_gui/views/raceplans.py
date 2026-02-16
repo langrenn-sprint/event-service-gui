@@ -278,7 +278,7 @@ def get_raceplan_timing(races: list, raceclass: dict) -> dict:
                     if not (time_s_first):
                         time_s_first = race["start_time"]
                     time_s_last = race["start_time"]
-                elif race["round"] in ["F"]:
+                elif race["round"] == "F":
                     if race["index"] in ["A", "B", "B2", "B3", "B4"]:
                         if not (time_fab_first):
                             time_fab_first = race["start_time"]
@@ -363,7 +363,7 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
                         if not (time_s_first):
                             time_s_first = race["start_time"]
                         time_s_last = race["start_time"]
-                    elif race["round"] in ["F"]:
+                    elif race["round"] == "F":
                         if race["index"] in ["A", "B", "B2", "B3", "B4"]:
                             if not (time_fab_first):
                                 time_fab_first = race["start_time"]
