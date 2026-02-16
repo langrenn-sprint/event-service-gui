@@ -6,7 +6,7 @@ import aiohttp_jinja2
 import xmltodict
 from aiohttp import web
 
-from event_service_gui.services import (
+from event_service_gui.adapters import (
     ContestantsAdapter,
     EventsAdapter,
     RaceclassesAdapter,

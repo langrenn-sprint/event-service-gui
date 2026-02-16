@@ -5,7 +5,7 @@ import logging
 import aiohttp_jinja2
 from aiohttp import web
 
-from event_service_gui.services import CompetitionFormatAdapter, EventsAdapter
+from event_service_gui.adapters import CompetitionFormatAdapter, EventsAdapter
 
 from .utils import check_login, create_default_competition_format, get_event
 

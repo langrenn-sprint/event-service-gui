@@ -5,14 +5,14 @@ import logging
 import aiohttp_jinja2
 from aiohttp import web
 
-from event_service_gui.services import (
+from event_service_gui.adapters import (
     ContestantsAdapter,
     RaceclassesAdapter,
     RaceplansAdapter,
     StartAdapter,
     TimeEventsAdapter,
-    TimeEventsService,
 )
+from event_service_gui.services import TimeEventsService
 
 from .utils import check_login, get_event
 

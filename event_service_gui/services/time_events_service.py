@@ -4,14 +4,14 @@ import logging
 
 from aiohttp import web
 
-from event_service_gui.services import (
+from event_service_gui.adapters import (
     ContestantsAdapter,
     EventsAdapter,
+    RaceclassesAdapter,
     RaceplansAdapter,
     StartAdapter,
     TimeEventsAdapter,
 )
-from event_service_gui.services.raceclasses_adapter import RaceclassesAdapter
 
 
 class TimeEventsService:
@@ -168,7 +168,9 @@ class TimeEventsService:
             logging.debug(f"Updated template time_event id {w_id}")
 
         if updated_count > 0:
-            informasjon += f"{raceclass_name} {race_position} plass: {updated_count}, rotert. -- "
+            informasjon += (
+                f"{raceclass_name} {race_position} plass: {updated_count}, rotert. -- "
+            )
 
         return informasjon
 

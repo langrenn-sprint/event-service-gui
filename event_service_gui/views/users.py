@@ -6,7 +6,7 @@ from http import HTTPStatus
 import aiohttp_jinja2
 from aiohttp import web
 
-from event_service_gui.services import UserAdapter
+from event_service_gui.adapters import UserAdapter
 
 from .utils import check_login
 

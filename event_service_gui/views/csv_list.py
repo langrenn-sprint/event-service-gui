@@ -5,7 +5,7 @@ import io
 
 from aiohttp import web
 
-from event_service_gui.services import (
+from event_service_gui.adapters import (
     ContestantsAdapter,
     RaceclassResultsAdapter,
     RaceplansAdapter,
