@@ -243,7 +243,7 @@ async def add_to_startlist(token: str, event_id: str, klasse: str, bib: int) -> 
         # Handle R2 scenario
         if new_start["round"] == "R1":
             for race in races:
-                if race["round"] in ["R2"]:
+                if race["round"] == "R2":
                     if race["no_of_contestants"] <= start_min_count:
                         start_min_count = race["no_of_contestants"]
                         new_start["race_id"] = race["id"]
