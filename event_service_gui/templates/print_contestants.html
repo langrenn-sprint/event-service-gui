@@ -11,7 +11,7 @@
 {% block refresh %}0{% endblock %}
 
 {% block content %}
-  {% if action == "klubb" %}
+  {% if "klubb" in action %}
     {% for club in clubs %}
       {% if not loop.first %}
         <div id=pagebreak></div>
@@ -31,7 +31,13 @@
           {% if loper.club == club %}
             <tr>
               <td>{{ loper.bib }}</td>
-              <td>{{ loper.first_name }} {{ loper.last_name }}</td>
+              <td>
+                {% if "etternavn" in action %}
+                  {{ loper.last_name }}, {{ loper.first_name }}
+                {% else %}
+                  {{ loper.first_name }} {{ loper.last_name }}
+                {% endif %}
+              </td>
               <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
               <td>{{ loper.ageclass }}</td>
             </tr>
@@ -41,7 +47,7 @@
       <div id=spacer></div>
     {% endfor %}
 
-  {% elif action == "alfabetisk_fornavn" or action == "alfabetisk_etternavn" %}
+  {% elif action == "fornavn" or action == "etternavn" %}
       <div id=adminpagetitle>
           Deltakerliste {{ action }} <img id=header_icon src="../static/icon_new.png">
       </div>
@@ -57,8 +63,8 @@
             <tr>
               <td>{{ loper.bib }}</td>
               <td>
-                {% if action == "alfabetisk_etternavn" %}
-                {{ loper.last_name }}, {{ loper.first_name }}
+                {% if "etternavn" in action %}
+                  {{ loper.last_name }}, {{ loper.first_name }}
                 {% else %}
                   {{ loper.first_name }} {{ loper.last_name }}
                 {% endif %}
@@ -90,7 +96,13 @@
           {% if loper.ageclass in raceclass.ageclasses %}
             <tr>
               <td>{{ loper.bib }}</td>
-              <td>{{ loper.first_name }} {{ loper.last_name }}</td>
+              <td>
+                {% if "etternavn" in action %}
+                  {{ loper.last_name }}, {{ loper.first_name }}
+                {% else %}
+                  {{ loper.first_name }} {{ loper.last_name }}
+                {% endif %}
+              </td>
               <td>{{ loper.club }}{% if loper.team %} / {{ loper.team }}{% endif %}</td>
               <td>{{ loper.ageclass }}</td>
             </tr>

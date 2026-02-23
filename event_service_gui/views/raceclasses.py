@@ -143,6 +143,7 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
     if len(old_raceclasses) > 1:
         request_body = {
             "name": new_raceclass_name,
+            "gender": old_raceclasses[0]["gender"],
             "distance": old_raceclasses[0]["distance"],
             "event_id": event_id,
             "id": old_raceclasses[0]["id"],
@@ -184,6 +185,7 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
     ageclasses = ast.literal_eval(ageclasses_str)
     request_body = {
         "name": str(form["name"]),
+        "gender": str(form["gender"]),
         "distance": str(form["distance"]),
         "event_id": event_id,
         "id": w_id,

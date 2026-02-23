@@ -9,10 +9,9 @@
   <li class=dropdown id=topborder>
     <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
     <div class=dropdown-content>
-      <a href=/seeding?event_id={{ event_id }}&action={{ action }}>Alle</a>
       {% for klasse in raceclasses %}
         {% for ageclass_name in klasse.ageclasses %}
-          <a href=/seeding?event_id={{ event_id }}&klasse={{ klasse.name }}&action={{ action }}>{{ ageclass_name }}</a>
+          <a href=/seeding?event_id={{ event_id }}&klasse={{ klasse.name }}&action=>{{ ageclass_name }}</a>
         {% endfor %}
       {% endfor %}
     </div>
@@ -20,10 +19,10 @@
 {% endblock %}
 
 {% block tips %}
-  Seeding kan gjøres på to måter (1) automatisk ved å bruke seeding_informasjon eller (2) ved manuelt å flytte løpere mellom heat.<br>
-  1. Automatisk seeding - dette utføres ved at løpere tildeles startnummer i henhold til seeding. De med best seeding får posisjon 1 i heatene, deretter posisjon 2 osv...<br>
+  Seeding - lavest poeng er beste seeding -  kan gjøres på to måter (1) manuelt ved å legge inn seeding poeng eller (2) ved å laste inn fil med seeding poeng.<br>
+  1. Manuell seeding - dette gjøres ved å legge inn seeding poeng i skjemaet. De med best seeding får posisjon 1 i heatene, deretter posisjon 2 osv...<br>
   - Velg klasse først og utfør seeding for en klasse om gangen.<br>
-  2. Manuell innplassering - her er det mulig å flytte løpere mellom heat. Dette gjøres ved å skrive inn et startnummer i feltet "Nytt startnr" og trykke på "Lagre".<br>
+  2. Automatisk innlasting - fremtidig funksjonalitet<br>
 {% endblock %}
 
 {% block content %}
@@ -71,33 +70,21 @@
       <h2>Seeding</h2>
     </div>
   </section>
-    {% if valgt_klasse %}
-        <table>
-            <tr align=center>
-                <td>
-                    <form action=/seeding method=get>
-                        <input type="hidden" name=event_id value="{{ event_id }}">
-                        <input type="hidden" name=action value="seeding_points">
-                        <input type="hidden" name=klasse value={{ valgt_klasse }}>
-                        <input type="submit" name=seeding value="  Legg inn seeding-poeng  " class="btn btn-default">
-                    </form>
-                </td>
-                <td>
-                    <form action=/seeding method=get>
-                        <input type="hidden" name=event_id value="{{ event_id }}">
-                        <input type="hidden" name=action value="seeding_manual">
-                        <input type="hidden" name=klasse value={{ valgt_klasse }}>
-                        <input type="submit" name=seeding value="  Manuell innplassering i heat  " class="btn btn-default">
-                    </form>
-                </td>
-            </tr>
-        </table>
+    {% if valgt_klasse and action not in ['seeding_points']%}
+        <form action=/seeding method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="hidden" name=action value="seeding_points">
+            <input type="hidden" name=klasse value={{ valgt_klasse }}>
+            <input type="submit" name=seeding value="  Manuelt - legg inn seeding-poeng  " class="btn btn-default">
+        </form>
     {% endif %}
         <div id=spacer>&nbsp;</div>
           <form action=/seeding method=post>
-            {% if valgt_klasse %}
+            {% if valgt_klasse and action in ['seeding_points'] %}
                 <div>
-                    &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  " class="btn btn-default">
+                    &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  " class="btn btn-success">
+                    <input type="hidden" name=event_id value="{{ event_id }}">
+                    <input type="hidden" name=action value="seeding_points">
                     <input type="hidden" name=klasse value={{ valgt_klasse }}>
                 </div>
             {% endif %}
@@ -154,12 +141,7 @@
             {% endif %}
           {% endfor %}
         </table>
-        {% if valgt_klasse %}
-          <div>
-            &nbsp;&nbsp;&nbsp;<input type="submit" name=seeding value="  Lagre  " class="btn btn-default">
-            <input type="hidden" name=action value={{ action }}>
-            <input type="hidden" name="event_id" value="{{ event_id }}">
-          </div>
+        {% if valgt_klasse and action in ['seeding_points'] %}
           </form>
         {% endif %}
     <br>

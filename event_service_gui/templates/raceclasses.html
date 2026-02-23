@@ -77,6 +77,7 @@
       <table>
         <tr id=headerblue>
           <td>Årsklasse</td>
+          <td>Kjønn</td>
           <td>Løype</td>
           <td>Løpsklasse</td>
           <td>Startgruppe</td>
@@ -93,6 +94,7 @@
                   {{ ac_name }}<br>
                 {% endfor %}
               </td>
+              <td>{{ klasse.gender }}</td>
               <td>{{ klasse.distance }}</td>
               <td>{{ klasse.name }}</td>
               <td>{{ klasse.group }}</td>
@@ -121,11 +123,9 @@
         <div id="spacer"></div>
         <form action=/raceclasses method=post>
           <table>
-            <tr><td colspan="7" align="center">
-              <input type="submit" name=update_order value="  Lagre  " class="btn btn-success">
-            </td></tr>
             <tr id=headerblue>
               <td>Årsklasse</td>
+              <td>Kjønn</td>
               <td>Løype</td>
               <td>Løpsklasse</td>
               <td>Startgruppe</td>
@@ -140,6 +140,7 @@
                       {{ ac_name }}<br>
                     {% endfor %}
                   </td>
+                  <td>{{ klasse.gender }}</td>
                   <td>{{ klasse.distance }}</td>
                   <td>{{ klasse.name }}</td>
                   <td>
@@ -168,6 +169,7 @@
               <tr id=headerblue>
                 <td>Velg</td>
                 <td>Årsklasse</td>
+                <td>Kjønn</td>
                 <td>Løype</td>
                 <td>Løpsklasse</td>
                 <td>Startgruppe</td>
@@ -183,6 +185,7 @@
                         {{ ac_name }}<br>
                       {% endfor %}
                     </td>
+                    <td>{{ klasse.gender }}</td>
                     <td>{{ klasse.distance }}</td>
                     <td>{{ klasse.name }}</td>
                     <td>{{ klasse.group }}</td>
@@ -218,6 +221,11 @@
                 <input type=hidden name="ageclasses" value="{{ klasse.ageclasses }}">
               </td>
               <td>Info: Årsklasser hentes fra påmeldingssystemet og kan ikke endres.</td>
+            </tr>
+            <tr>
+              <td>Kjønn</td>
+              <td><input type=text class="form-control" name="gender" value="{{ klasse.gender }}"></td>
+              <td></td>
             </tr>
             <tr>
               <td>Distanse</td>
@@ -266,6 +274,7 @@
     <table>
       <tr id=headerblue>
         <td>Årsklasse</td>
+        <td>Kjønn</td>
         <td>Løype</td>
         <td>Løpsklasse</td>
         <td>Startgruppe</td>
@@ -280,6 +289,7 @@
                 {{ ac_name }}<br>
               {% endfor %}
             </td>
+            <td>{{ klasse.gender }}</td>
             <td>{{ klasse.distance }}</td>
             <td>{{ klasse.name }}</td>
             <td>{{ klasse.group }}</td>

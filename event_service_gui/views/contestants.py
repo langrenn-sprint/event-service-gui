@@ -243,7 +243,7 @@ async def add_to_startlist(token: str, event_id: str, klasse: str, bib: int) -> 
         # Handle R2 scenario
         if new_start["round"] == "R1":
             for race in races:
-                if race["round"] in ["R2"]:
+                if race["round"] == "R2":
                     if race["no_of_contestants"] <= start_min_count:
                         start_min_count = race["no_of_contestants"]
                         new_start["race_id"] = race["id"]
@@ -268,19 +268,11 @@ async def create_one_contestant(token: str, event: dict, form: dict) -> str:
         )
         logging.debug(f"Etteranmelding {c_id}")
         informasjon = f"Deltaker med startnr {bib} er lagt til."
-        # 2. Update number of contestants in raceclass
+        # 2. Add contestant to startlist in quarter final with lowest number of participants
         raceclasses = await RaceclassesAdapter().get_raceclasses(token, event["id"])
         for raceclass in raceclasses:
             if request_body["ageclass"] in raceclass["ageclasses"]:
                 klasse = raceclass["name"]
-                # update number of contestants in raceclass
-                raceclass["no_of_contestants"] += 1
-                result = await RaceclassesAdapter().update_raceclass(
-                    token, event["id"], raceclass["id"], raceclass
-                )
-                logging.debug(f"Participant count updated: {result}")
-
-                # 3. Add contestant to startlist in quarter final with lowest number of participants
                 informasjon += await add_to_startlist(token, event["id"], klasse, bib)
 
     # redirect user to correct page to add start entry

@@ -28,11 +28,14 @@ class StartAdapter:
             ]
         )
         request_body = {"event_id": event_id}
-        async with ClientSession() as session, session.post(
-            f"{RACE_SERVICE_URL}/startlists/generate-startlist-for-event",
-            headers=headers,
-            json=request_body,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.post(
+                f"{RACE_SERVICE_URL}/startlists/generate-startlist-for-event",
+                headers=headers,
+                json=request_body,
+            ) as resp,
+        ):
             if resp.status == HTTPStatus.CREATED:
                 logging.debug(f"generate_startlist_for_event - got response {resp}")
                 location = resp.headers[hdrs.LOCATION]
@@ -47,6 +50,9 @@ class StartAdapter:
                 raise web.HTTPBadRequest(
                     reason=f"{servicename} failed - {body['detail']}."
                 )
+        # shuffle urangerte - this function is intended to be moved to race-service
+        informasjon += await shuffle_round2(token, event_id)
+
         return informasjon
 
     async def delete_start_entry(
@@ -58,10 +64,13 @@ class StartAdapter:
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
 
-        async with ClientSession() as session, session.delete(
-            f"{RACE_SERVICE_URL}/races/{race_id}/start-entries/{start_entry_id}",
-            headers=headers,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.delete(
+                f"{RACE_SERVICE_URL}/races/{race_id}/start-entries/{start_entry_id}",
+                headers=headers,
+            ) as resp,
+        ):
             res = resp.status
             logging.debug(f"delete result - got response {resp}")
             if res == HTTPStatus.NO_CONTENT:
@@ -83,10 +92,13 @@ class StartAdapter:
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
-        async with ClientSession() as session, session.delete(
-            f"{RACE_SERVICE_URL}/startlists/{start_list_id}",
-            headers=headers,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.delete(
+                f"{RACE_SERVICE_URL}/startlists/{start_list_id}",
+                headers=headers,
+            ) as resp,
+        ):
             res = resp.status
             logging.debug(f"delete result - got response {resp}")
             if res == HTTPStatus.NO_CONTENT:
@@ -110,10 +122,13 @@ class StartAdapter:
             ]
         )
         start_entries = []
-        async with ClientSession() as session, session.get(
-            f"{RACE_SERVICE_URL}/races/{race_id}/start-entries",
-            headers=headers,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(
+                f"{RACE_SERVICE_URL}/races/{race_id}/start-entries",
+                headers=headers,
+            ) as resp,
+        ):
             logging.debug(f"get_start_entries_by_race_id - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 start_entries = await resp.json()
@@ -140,10 +155,13 @@ class StartAdapter:
             ]
         )
         start_entry = {}
-        async with ClientSession() as session, session.get(
-            f"{RACE_SERVICE_URL}/races/{race_id}/start-entries/{start_id}",
-            headers=headers,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(
+                f"{RACE_SERVICE_URL}/races/{race_id}/start-entries/{start_id}",
+                headers=headers,
+            ) as resp,
+        ):
             logging.debug(f"get_start_entry_by_id - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 start_entry = await resp.json()
@@ -172,10 +190,13 @@ class StartAdapter:
             ]
         )
 
-        async with ClientSession() as session, session.get(
-            f"{RACE_SERVICE_URL}/startlists?eventId={event_id}&bib={bib}",
-            headers=headers,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(
+                f"{RACE_SERVICE_URL}/startlists?eventId={event_id}&bib={bib}",
+                headers=headers,
+            ) as resp,
+        ):
             logging.debug(f"get_start_entries_by_bib - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 startlists = await resp.json()
@@ -199,9 +220,12 @@ class StartAdapter:
             ]
         )
         starts = []
-        async with ClientSession() as session, session.get(
-            f"{RACE_SERVICE_URL}/startlists?eventId={event_id}", headers=headers
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(
+                f"{RACE_SERVICE_URL}/startlists?eventId={event_id}", headers=headers
+            ) as resp,
+        ):
             logging.debug(f"get_all_starts_by_event - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 starts = await resp.json()
@@ -222,11 +246,14 @@ class StartAdapter:
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
         logging.debug(f"New start: {new_start}")
-        async with ClientSession() as session, session.post(
-            f"{RACE_SERVICE_URL}/races/{new_start['race_id']}/start-entries",
-            headers=headers,
-            json=new_start,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.post(
+                f"{RACE_SERVICE_URL}/races/{new_start['race_id']}/start-entries",
+                headers=headers,
+                json=new_start,
+            ) as resp,
+        ):
             logging.debug(f"create_start_entry - got response {resp.status}")
             if resp.status == HTTPStatus.CREATED:
                 pass
@@ -249,11 +276,14 @@ class StartAdapter:
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
         logging.debug(f"New start: {new_start}")
-        async with ClientSession() as session, session.put(
-            f"{RACE_SERVICE_URL}/races/{new_start['race_id']}/start-entries/{s_id}",
-            headers=headers,
-            json=new_start,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.put(
+                f"{RACE_SERVICE_URL}/races/{new_start['race_id']}/start-entries/{s_id}",
+                headers=headers,
+                json=new_start,
+            ) as resp,
+        ):
             logging.debug(f"update_start_entry - got response {resp.status}")
             if resp.status == HTTPStatus.CREATED:
                 pass

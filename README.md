@@ -56,14 +56,17 @@ source .venv/bin/activate
 ## Start the server locally
 
 ```Zsh
-% uv run adev runserver -p 8080 event_service_gui
+set -a
+source .env
+set +a
+uv run adev runserver -p 8080 event_service_gui
 ```
 
 ## Running the service in Docker
 
 ```Zsh
-% docker build -t langrenn-sprint/event-service-gui:latest .
-% docker run --env-file .env -p 8080:8080 -d langrenn-sprint/event-service-gui:latest
+% docker build -t ghcr.io/langrenn-sprint/event-service-gui:test .
+% docker run --env-file .env -p 8080:8080 -d ghcr.io/langrenn-sprint/event-service-gui:test
 ```
 
 The easier way would be with docker-compose:

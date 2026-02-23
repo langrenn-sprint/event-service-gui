@@ -22,10 +22,13 @@ class RaceplansAdapter:
         headers = {
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
-        async with ClientSession() as session, session.delete(
-            f"{RACE_SERVICE_URL}/races/{race_id}",
-            headers=headers,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.delete(
+                f"{RACE_SERVICE_URL}/races/{race_id}",
+                headers=headers,
+            ) as resp,
+        ):
             res = resp.status
             logging.debug(f"delete_race result - got response {resp}")
             if res == HTTPStatus.NO_CONTENT:
@@ -51,10 +54,13 @@ class RaceplansAdapter:
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
         logging.info(f"delete raceplans, id: {raceplan['id']}")
-        async with ClientSession() as session, session.delete(
-            f"{RACE_SERVICE_URL}/raceplans/{raceplan['id']}",
-            headers=headers,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.delete(
+                f"{RACE_SERVICE_URL}/raceplans/{raceplan['id']}",
+                headers=headers,
+            ) as resp,
+        ):
             res = resp.status
             logging.debug(f"delete raceplan result - got response {resp}")
             if res == HTTPStatus.NO_CONTENT:
@@ -80,9 +86,10 @@ class RaceplansAdapter:
         )
         request_body = {"event_id": event_id}
         url = f"{RACE_SERVICE_URL}/raceplans/generate-raceplan-for-event"
-        async with ClientSession() as session, session.post(
-            url, headers=headers, json=request_body
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.post(url, headers=headers, json=request_body) as resp,
+        ):
             res = resp.status
             logging.debug(f"generate_raceplan result - got response {resp}")
             if res == HTTPStatus.CREATED:
@@ -106,9 +113,12 @@ class RaceplansAdapter:
             ]
         )
         raceplans = []
-        async with ClientSession() as session, session.get(
-            f"{RACE_SERVICE_URL}/raceplans?eventId={event_id}", headers=headers
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(
+                f"{RACE_SERVICE_URL}/raceplans?eventId={event_id}", headers=headers
+            ) as resp,
+        ):
             logging.debug(f"get_all_raceplans - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 raceplans = await resp.json()
@@ -133,9 +143,12 @@ class RaceplansAdapter:
             ]
         )
         races = []
-        async with ClientSession() as session, session.get(
-            f"{RACE_SERVICE_URL}/races?eventId={event_id}", headers=headers
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(
+                f"{RACE_SERVICE_URL}/races?eventId={event_id}", headers=headers
+            ) as resp,
+        ):
             logging.debug(f"get_all_races - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 races = await resp.json()
@@ -166,9 +179,10 @@ class RaceplansAdapter:
             ]
         )
         race = {}
-        async with ClientSession() as session, session.get(
-            f"{RACE_SERVICE_URL}/races/{race_id}", headers=headers
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(f"{RACE_SERVICE_URL}/races/{race_id}", headers=headers) as resp,
+        ):
             logging.debug(f"get_race_by_id - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 race = await resp.json()
@@ -219,10 +233,13 @@ class RaceplansAdapter:
             ]
         )
         races = []
-        async with ClientSession() as session, session.get(
-            f"{RACE_SERVICE_URL}/races?eventId={event_id}&raceclass={valgt_klasse}",
-            headers=headers,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.get(
+                f"{RACE_SERVICE_URL}/races?eventId={event_id}&raceclass={valgt_klasse}",
+                headers=headers,
+            ) as resp,
+        ):
             logging.debug(f"get_all_races_by_racesclass - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 races = await resp.json()
@@ -263,11 +280,14 @@ class RaceplansAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        async with ClientSession() as session, session.put(
-            f"{RACE_SERVICE_URL}/raceplans/{my_id}",
-            headers=headers,
-            json=new_data,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.put(
+                f"{RACE_SERVICE_URL}/raceplans/{my_id}",
+                headers=headers,
+                json=new_data,
+            ) as resp,
+        ):
             returncode = resp.status
             logging.debug(f"update_raceplan - got response {resp.status}")
             if resp.status == HTTPStatus.NO_CONTENT:
@@ -293,11 +313,14 @@ class RaceplansAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        async with ClientSession() as session, session.put(
-            f"{RACE_SERVICE_URL}/races/{my_id}",
-            headers=headers,
-            json=new_data,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.put(
+                f"{RACE_SERVICE_URL}/races/{my_id}",
+                headers=headers,
+                json=new_data,
+            ) as resp,
+        ):
             returncode = resp.status
             logging.debug(f"update_race - got response {resp.status}")
             if resp.status == HTTPStatus.NO_CONTENT:
@@ -331,11 +354,14 @@ class RaceplansAdapter:
         }
         logging.info(f"New data - update time: {new_data}")
 
-        async with ClientSession() as session, session.put(
-            f"{RACE_SERVICE_URL}/raceplans/update-start-time/{event_id}",
-            headers=headers,
-            json=new_data,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.put(
+                f"{RACE_SERVICE_URL}/raceplans/update-start-time/{event_id}",
+                headers=headers,
+                json=new_data,
+            ) as resp,
+        ):
             returncode = resp.status
             logging.debug(f"update_race_start_time - got response {resp.status}")
             if resp.status == HTTPStatus.NO_CONTENT:
@@ -396,10 +422,13 @@ class RaceplansAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        async with ClientSession() as session, session.post(
-            f"{RACE_SERVICE_URL}/raceplans/{raceplan_id}/validate",
-            headers=headers,
-        ) as resp:
+        async with (
+            ClientSession() as session,
+            session.post(
+                f"{RACE_SERVICE_URL}/raceplans/{raceplan_id}/validate",
+                headers=headers,
+            ) as resp,
+        ):
             if resp.status == HTTPStatus.UNAUTHORIZED:
                 err_msg = f"401 Login expired - vennligst logg inn på nytt. Service {servicename}"
                 raise Exception(err_msg)

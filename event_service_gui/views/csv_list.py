@@ -54,7 +54,9 @@ class CsvList(web.View):
                 if results:
                     csvdata = results["ranking_sequence"]
             else:
-                results = await RaceclassResultsAdapter().get_all_raceclass_results(event_id)
+                results = await RaceclassResultsAdapter().get_all_raceclass_results(
+                    event_id
+                )
                 if results:
                     for raceclass in results:
                         for entry in raceclass["ranking_sequence"]:
@@ -74,9 +76,7 @@ class CsvList(web.View):
         return web.Response(text=informasjon)
 
 
-async def get_startlist_data(
-    event_id: str, race_round: str
-) -> list:
+async def get_startlist_data(event_id: str, race_round: str) -> list:
     """Return list of start-entries, filtered on round."""
     filtered_startlist = []
     startlist = await StartAdapter().get_all_starts_by_event("", event_id)
@@ -85,11 +85,14 @@ async def get_startlist_data(
         for race in races:
             if race["round"] == race_round:
                 filtered_startlist.extend(
-                    start for start in startlist[0]["start_entries"] if start["race_id"] == race["id"]
+                    start
+                    for start in startlist[0]["start_entries"]
+                    if start["race_id"] == race["id"]
                 )
     else:
         filtered_startlist = startlist[0]["start_entries"]
     return filtered_startlist
+
 
 def get_fields_raceplan() -> list:
     """Return field for display."""

@@ -44,13 +44,13 @@ class Settings(web.View):
                                 f"Q: {get_qualification_text(next_race_q)}"
                             )
                             next_race_sa = {"round": "SA", "rule": from_to["S"]["A"]}
-                            race_config[
-                                "next_race_desc"
-                            ] += f" -- SA: {get_qualification_text(next_race_sa)}"
+                            race_config["next_race_desc"] += (
+                                f" -- SA: {get_qualification_text(next_race_sa)}"
+                            )
                             next_race_sc = {"round": "SC", "rule": from_to["S"]["C"]}
-                            race_config[
-                                "next_race_desc"
-                            ] += f" -- SC: {get_qualification_text(next_race_sc)}"
+                            race_config["next_race_desc"] += (
+                                f" -- SC: {get_qualification_text(next_race_sc)}"
+                            )
                         except Exception as e:
                             logging.debug(e)
 
@@ -109,8 +109,12 @@ class Settings(web.View):
                 )
             elif "update" in form:
                 if form["datatype"] == "individual_sprint":
-                    rounds_ranked_classes = str(form["rounds_ranked_classes"]).replace("'", '"')
-                    rounds_non_ranked_classes = str(form["rounds_non_ranked_classes"]).replace("'", '"')
+                    rounds_ranked_classes = str(form["rounds_ranked_classes"]).replace(
+                        "'", '"'
+                    )
+                    rounds_non_ranked_classes = str(
+                        form["rounds_non_ranked_classes"]
+                    ).replace("'", '"')
                     request_body = {
                         "id": str(form["id"]),
                         "name": str(form["name"]),
@@ -130,8 +134,12 @@ class Settings(web.View):
                         "rounds_non_ranked_classes": json.loads(
                             rounds_non_ranked_classes
                         ),
-                        "race_config_ranked": get_config_from_form(dict(form), "ranked"),
-                        "race_config_non_ranked": get_config_from_form(dict(form), "non_ranked"),
+                        "race_config_ranked": get_config_from_form(
+                            dict(form), "ranked"
+                        ),
+                        "race_config_non_ranked": get_config_from_form(
+                            dict(form), "non_ranked"
+                        ),
                     }
                 elif form["datatype"] == "interval_start":
                     request_body = {
