@@ -53,29 +53,53 @@ Project Metrics:
 
 ## 🏛️ Architecture at a Glance
 
-```
-            Browser (User)
-                 ↓ HTTP/HTTPS
-         ┌─────────────────┐
-         │ Event Service   │
-         │ GUI (aiohttp)   │
-         └────────┬────────┘
-                  ↓
-      ┌───────────┼───────────┐
-      ↓           ↓           ↓
-   Views      Services    Adapters
-  (Routing)  (Logic)    (Integration)
-      ↓           ↓           ↓
-      └───────────┼───────────┘
-                  ↓
-    ┌─────────────┴─────────────┐
-    ↓           ↓       ↓   ↓   ↓
-  Event      User    Race  Photo Format
-  Service    Service Service Service Service
-    ↓           ↓       ↓   ↓   ↓
-    └─────────────┴─────────────┘
-               ↓
-           MongoDB
+```mermaid
+graph TB
+    subgraph Client["🌐 Client Layer"]
+        Browser["Web Browser"]
+    end
+    
+    subgraph AppLayer["🏢 Application Layer"]
+        Views["Views<br/>(Routing)"]
+        Services["Services<br/>(Logic)"]
+        Adapters["Adapters<br/>(Integration)"]
+    end
+    
+    subgraph BackendLayer["🔧 Backend Services"]
+        EventSvc["Event Service"]
+        UserSvc["User Service"]
+        RaceSvc["Race Service"]
+        PhotoSvc["Photo Service"]
+        FormatSvc["Format Service"]
+    end
+    
+    subgraph DataLayer["💾 Data Layer"]
+        MongoDB["MongoDB"]
+    end
+    
+    Browser -->|HTTP/HTTPS| Views
+    Views -->|calls| Services
+    Services -->|delegates| Adapters
+    Adapters -->|REST API| EventSvc
+    Adapters -->|REST API| UserSvc
+    Adapters -->|REST API| RaceSvc
+    Adapters -->|REST API| PhotoSvc
+    Adapters -->|REST API| FormatSvc
+    EventSvc -->|read/write| MongoDB
+    UserSvc -->|read/write| MongoDB
+    RaceSvc -->|read/write| MongoDB
+    PhotoSvc -->|read/write| MongoDB
+    FormatSvc -->|read/write| MongoDB
+    
+    classDef client fill:#9B59B6,stroke:#6C3A6F,stroke-width:2px,color:#fff
+    classDef app fill:#3498DB,stroke:#2874A6,stroke-width:2px,color:#fff
+    classDef backend fill:#E67E22,stroke:#A04000,stroke-width:2px,color:#fff
+    classDef data fill:#E74C3C,stroke:#A93226,stroke-width:2px,color:#fff
+    
+    class Browser client
+    class Views,Services,Adapters app
+    class EventSvc,UserSvc,RaceSvc,PhotoSvc,FormatSvc backend
+    class MongoDB data
 ```
 
 ## 📖 Reading Guide by Role

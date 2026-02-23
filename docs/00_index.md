@@ -33,18 +33,36 @@
 
 ### 🏛️ Architecture Pattern
 
-```
-User → Browser → Web Server (Gunicorn/aiohttp)
-                    ↓
-            Views (Request Handlers)
-                    ↓
-            Services (Business Logic)
-                    ↓
-            Adapters (Service Integration)
-                    ↓
-            Microservices (Event, User, Race, etc.)
-                    ↓
-            MongoDB (Shared Data Store)
+```mermaid
+graph LR
+    User["👤 User<br/>(Event Admin)"]
+    Browser["🌐 Browser"]
+    WebServer["🖥️ Web Server<br/>(Gunicorn/aiohttp)"]
+    Views["📄 Views<br/>(Request Handlers)"]
+    Services["⚙️ Services<br/>(Business Logic)"]
+    Adapters["🔗 Adapters<br/>(Service Integration)"]
+    Microservices["🔧 Microservices<br/>(Event, User,<br/>Race, etc.)"]
+    MongoDB["💾 MongoDB<br/>(Shared Data Store)"]
+    
+    User -->|interacts| Browser
+    Browser -->|HTTP/HTTPS| WebServer
+    WebServer -->|routes| Views
+    Views -->|calls| Services
+    Services -->|delegates| Adapters
+    Adapters -->|REST API| Microservices
+    Microservices -->|read/write| MongoDB
+    
+    classDef user fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
+    classDef client fill:#9B59B6,stroke:#6C3A6F,stroke-width:2px,color:#fff
+    classDef server fill:#3498DB,stroke:#2874A6,stroke-width:2px,color:#fff
+    classDef service fill:#E67E22,stroke:#A04000,stroke-width:2px,color:#fff
+    classDef data fill:#E74C3C,stroke:#A93226,stroke-width:2px,color:#fff
+    
+    class User user
+    class Browser client
+    class WebServer,Views,Services,Adapters server
+    class Microservices service
+    class MongoDB data
 ```
 
 ## 🛠️ Technology Stack

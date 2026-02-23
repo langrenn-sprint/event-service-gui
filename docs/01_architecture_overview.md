@@ -4,35 +4,46 @@
 
 The Event Service GUI follows a **layered architecture pattern** with clear separation of concerns across four distinct layers:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│           PRESENTATION LAYER (Templates)                │
-│    HTML, CSS, JavaScript, Jinja2 Template Rendering     │
-└─────────────────────────────────────────────────────────┘
-                            ↕
-┌─────────────────────────────────────────────────────────┐
-│           VIEWS LAYER (HTTP Routing)                    │
-│    Request handling, parameter validation, business     │
-│    logic orchestration via aiohttp View classes         │
-└─────────────────────────────────────────────────────────┘
-                            ↕
-┌─────────────────────────────────────────────────────────┐
-│           SERVICES LAYER (Business Logic)               │
-│    Validation, business rules, service composition,     │
-│    orchestration of Multiple adapters                   │
-└─────────────────────────────────────────────────────────┘
-                            ↕
-┌─────────────────────────────────────────────────────────┐
-│           ADAPTERS LAYER (Integration)                  │
-│    External service abstraction, HTTP clients,          │
-│    response transformation, error handling              │
-└─────────────────────────────────────────────────────────┘
-                            ↕
-┌─────────────────────────────────────────────────────────┐
-│       EXTERNAL MICROSERVICES & DATABASES                │
-│    Event, User, Race, Competition Format, Photo Svc    │
-│    MongoDB (shared data store)                          │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph Presentation["📱 PRESENTATION LAYER"]
+        Templates["HTML, CSS, JavaScript<br/>Jinja2 Template Rendering<br/>User Interface & Forms"]
+    end
+    
+    subgraph Views["🔀 VIEWS LAYER"]
+        Routing["Route Matching<br/>Request Handling<br/>Parameter Extraction<br/>aiohttp View Classes"]
+    end
+    
+    subgraph Services["⚙️ SERVICES LAYER"]
+        Business["Validation<br/>Business Rules<br/>Service Composition<br/>Adapter Orchestration"]
+    end
+    
+    subgraph Adapters["🔗 ADAPTERS LAYER"]
+        Integration["External Service Abstraction<br/>HTTP Clients<br/>Response Transformation<br/>Error Handling"]
+    end
+    
+    subgraph External["🌐 EXTERNAL SYSTEMS"]
+        Microservices["Event Service<br/>User Service<br/>Race Service<br/>Format Service<br/>Photo Service"]
+        Database["MongoDB<br/>Shared Data Store"]
+    end
+    
+    Templates -->|renders forms| Routing
+    Routing -->|orchestrates| Business
+    Business -->|delegates| Integration
+    Integration -->|communicates| Microservices
+    Microservices -->|persist to| Database
+    
+    classDef presentation fill:#FF6B6B,stroke:#C92A2A,stroke-width:2px,color:#fff
+    classDef viewslayer fill:#4ECDC4,stroke:#0A8A84,stroke-width:2px,color:#fff
+    classDef service fill:#95E1D3,stroke:#38A169,stroke-width:2px,color:#000
+    classDef adapter fill:#FFE66D,stroke:#DD6B20,stroke-width:2px,color:#000
+    classDef external fill:#95BDFF,stroke:#1971C2,stroke-width:2px,color:#fff
+    
+    class Templates presentation
+    class Routing viewslayer
+    class Business service
+    class Integration adapter
+    class Microservices,Database external
 ```
 
 ## Architectural Goals

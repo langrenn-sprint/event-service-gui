@@ -10,39 +10,58 @@ The **C4 Context diagram** shows:
 
 ## Context Overview
 
-```
-┌───────────────────────────────────────────────────────────────────┐
-│                                                                   │
-│  ┌─────────────┐                        ┌────────────────────┐   │
-│  │             │                        │ Web Browser        │   │
-│  │   Event     │◄───────HTTP/HTTPS─────►(Chrome, Firefox,   │   │
-│  │ Service GUI │  JSON/HTML responses   Safari, Edge)       │   │
-│  │             │                        │                    │   │
-│  └──────┬──────┘                        └────────────────────┘   │
-│         │                                                        │
-│  ┌──────┴──────────────────────────────┐                        │
-│  │                                     │                        │
-│  │  Communicates via REST APIs         │                        │
-│  │  (HTTP + JSON)                      │                        │
-│  │                                     │                        │
-│  ├─────────────┬──────────────┬────────┼────────┬────────────┐  │
-│  │             │              │        │        │            │  │
-│  ▼             ▼              ▼        ▼        ▼            ▼  │
-│┌──────────┐ ┌─────────────┐┌───────┐┌──────┐┌──────┐┌──────────┐
-││ Event    │ │ User Service││Race   ││Photo ││Comp. ││ MongoDB  │
-││ Service  │ │ (Auth)      ││Service││Svc   ││Format││ (Shared) │
-│└──────────┘ └─────────────┘└───────┘└──────┘└──────┘└──────────┘
-│                                                                  │
-│                    Microservices Ecosystem                       │
-│                                                                  │
-└───────────────────────────────────────────────────────────────────┘
-
-┌───────────────────────────────────────────────────────────────────┐
-│ Event Administrators (Race Directors, Organizers)                 │
-│                      │                                            │
-│  Manage events, create raceplans, register competitors, control   │
-│  live races, view results, manage users and settings             │
-└───────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph Users["👤 Users"]
+        Admin["Event Administrator<br/>(Race Director, Organizer)<br/>Manages events, raceplans,<br/>competitors, and results"]
+    end
+    
+    subgraph WebTech["🌐 Client Technology"]
+        Browser["Web Browser<br/>(Chrome, Firefox, Safari, Edge)"]
+    end
+    
+    subgraph SystemBoundary["🏢 Event Service GUI System"]
+        direction TB
+        GUI["<b>Event Service GUI</b><br/>Web-based Administration Interface<br/>aiohttp • Python 3.13+<br/>Jinja2 Templates • JWT Auth"]
+    end
+    
+    subgraph Services["🔧 Microservices Ecosystem"]
+        direction TB
+        EventSvc["📊 Event Service<br/>Core event & race data<br/>Port: 8082"]
+        UserSvc["👥 User Service<br/>Authentication & users<br/>Port: 8086"]
+        RaceSvc["🏁 Race Service<br/>Race execution & timing<br/>Port: 8088"]
+        FormatSvc["⚙️ Competition Format Service<br/>Rules & algorithms<br/>Port: 8094"]
+        PhotoSvc["📸 Photo Service<br/>Event photography<br/>Port: 8090"]
+    end
+    
+    subgraph DataStore["💾 Data Store"]
+        MongoDB["MongoDB<br/>Shared Data Repository<br/>Port: 27017"]
+    end
+    
+    Admin -->|"uses web browser"| Browser
+    Browser -->|"HTTP/HTTPS (Port 8080)"| GUI
+    GUI -->|"REST API (JSON)"| EventSvc
+    GUI -->|"REST API (JSON)"| UserSvc
+    GUI -->|"REST API (JSON)"| RaceSvc
+    GUI -->|"REST API (JSON)"| FormatSvc
+    GUI -->|"REST API (JSON)"| PhotoSvc
+    EventSvc -->|"reads/writes"| MongoDB
+    UserSvc -->|"reads/writes"| MongoDB
+    RaceSvc -->|"reads/writes"| MongoDB
+    FormatSvc -->|"reads/writes"| MongoDB
+    PhotoSvc -->|"reads/writes"| MongoDB
+    
+    classDef user fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
+    classDef system fill:#4A90E2,stroke:#2E5C8A,stroke-width:3px,color:#fff
+    classDef service fill:#FF9500,stroke:#994D00,stroke-width:2px,color:#fff
+    classDef database fill:#EE5A6F,stroke:#8A2335,stroke-width:2px,color:#fff
+    classDef browser fill:#9B59B6,stroke:#6C3A6F,stroke-width:2px,color:#fff
+    
+    class Admin user
+    class Browser browser
+    class GUI system
+    class EventSvc,UserSvc,RaceSvc,FormatSvc,PhotoSvc service
+    class MongoDB database
 ```
 
 ## Users/Actors
