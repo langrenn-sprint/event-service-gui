@@ -8,7 +8,71 @@ The **C4 Context diagram** shows:
 - What external systems it interacts with
 - High-level data flows
 
-## Context Overview
+## Functional Context (Business View)
+
+What does the system actually do? Here's the functional perspective without technical detail:
+
+```mermaid
+graph TB
+    subgraph Admin["👤 Event Administrator"]
+        Director["Race Director<br/>Event Organizer<br/>Competition Manager"]
+    end
+    
+    subgraph System["🎯 Event Service GUI<br/>Sports Event Administration Platform"]
+        direction TB
+        
+        subgraph EventMgmt["📅 Event Management"]
+            Events["Create & Configure Events"]
+            Settings["Event Settings & Rules"]
+        end
+        
+        subgraph ContestantMgmt["👥 Competitor Management"]
+            Register["Register Competitors"]
+            Assign["Assign to Race Classes"]
+            Seeding["Generate Seedings"]
+        end
+        
+        subgraph RaceMgmt["🏁 Race Execution"]
+            Planning["Plan Races & Schedules"]
+            Control["Control Races Live"]
+            Timing["Track Timing & Results"]
+        end
+        
+        subgraph ResultsMgmt["📊 Results & Reporting"]
+            Calculate["Calculate Results"]
+            Publish["Publish Standings"]
+            Reports["Generate Reports"]
+        end
+        
+        subgraph AdminTools["🔧 Administration"]
+            Users["Manage Users"]
+            Permissions["Control Permissions"]
+            Config["System Configuration"]
+        end
+    end
+    
+    Director -.uses.- System
+    
+    classDef user fill:#50C878,stroke:#2D7A4A,stroke-width:2px,color:#fff
+    classDef system fill:#4A90E2,stroke:#2E5C8A,stroke-width:3px,color:#fff
+    classDef feature fill:#95E1D3,stroke:#0A8A84,stroke-width:2px,color:#000
+    
+    class Director user
+    class System system
+    class Events,Settings,Register,Assign,Seeding,Planning,Control,Timing,Calculate,Publish,Reports,Users,Permissions,Config feature
+```
+
+**Key Capabilities**:
+- ✅ Complete event lifecycle management
+- ✅ Competitor registration and organization
+- ✅ Automated race scheduling and seeding
+- ✅ Live race monitoring and control
+- ✅ Real-time result calculation and publication
+- ✅ User and permissions management
+
+---
+
+## Technical Context (System Integration View)
 
 ```mermaid
 graph TB
