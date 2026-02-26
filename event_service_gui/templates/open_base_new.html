@@ -23,7 +23,7 @@
             function event_gui_href(my_element, path) {
                 document.getElementById(my_element).href = window.location.protocol + "//" + window.location.hostname + ":8080/" + path;
             }
-            const result_port = window.location.hostname.startsWith("result") ? "" : ":8090";
+            const result_port = window.location.hostname.includes("result") ? "" : ":8090";
             result_base_url = window.location.protocol + "//" + window.location.hostname + result_port + "/"
             function result_gui_action(my_element, path) {
                 document.getElementById(my_element).action = result_base_url + path;
