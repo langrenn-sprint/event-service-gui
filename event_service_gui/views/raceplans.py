@@ -418,7 +418,7 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
 
 def check_short_pause(pause_time) -> bool:
     """Return true if pause time is acceptable."""
-    return pause_time < datetime.timedelta(minutes=12)
+    return pause_time < datetime.timedelta(minutes=15)
 
 
 def time_str_to_timedelta(time_str: str) -> datetime.timedelta:
