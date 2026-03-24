@@ -211,7 +211,8 @@ class EventsAdapter:
             ]
         )
         request_body = copy.deepcopy(event)
-
+        # Exclude values that are empty strings or None, as the event service will set default values for these
+        request_body = {k: v for k, v in request_body.items() if v not in ["", None]}
         async with (
             ClientSession() as session,
             session.post(

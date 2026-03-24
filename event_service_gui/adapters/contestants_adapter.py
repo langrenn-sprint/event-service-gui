@@ -7,7 +7,7 @@ import urllib.parse
 from http import HTTPStatus
 from typing import Any
 
-from aiohttp import ClientSession, hdrs, web
+from aiohttp import ClientSession, FormData, hdrs, web
 from multidict import MultiDict
 
 from .start_adapter import StartAdapter
@@ -60,6 +60,8 @@ class ContestantsAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
+        # Exclude values that are empty or None - this allows for partial updates
+        request_body = {k: v for k, v in request_body.items() if v not in ("", None)}
         async with (
             ClientSession() as session,
             session.post(
@@ -85,16 +87,21 @@ class ContestantsAdapter:
         """Create new contestants function."""
         servicename = "create_contestants"
         headers = {
-            hdrs.CONTENT_TYPE: "text/csv",
             hdrs.AUTHORIZATION: f"Bearer {token}",
         }
         logging.debug(f"Create contestants - got file {inputfile}")
+        data = FormData()
+        data.add_field(
+            "file",
+            inputfile,
+            content_type="text/csv",
+        )
         async with (
             ClientSession() as session,
             session.post(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/file",
                 headers=headers,
-                data=inputfile,
+                data=data,
             ) as resp,
         ):
             res = resp.status
