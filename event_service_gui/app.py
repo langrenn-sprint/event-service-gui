@@ -61,7 +61,9 @@ async def create_app() -> web.Application:
 
     # Set up logging - errors to separate file
     logging.basicConfig(level=LOGGING_LEVEL)
-    logging.getLogger().setLevel(LOGGING_LEVEL)  # always applies, even if handlers pre-exist
+    logging.getLogger().setLevel(
+        LOGGING_LEVEL
+    )  # always applies, even if handlers pre-exist
     file_handler = RotatingFileHandler(ERROR_FILE, maxBytes=1024 * 1024, backupCount=5)
     file_handler.setLevel(logging.ERROR)
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")

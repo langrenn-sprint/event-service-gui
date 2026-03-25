@@ -15,6 +15,7 @@ from pathlib import Path
 @dataclass
 class ServiceIntegration:
     """Represents a microservice integration."""
+
     name: str
     host_env: str
     port_env: str
@@ -38,35 +39,35 @@ class ArchitectureDocumentationAgent:
                 host_env="EVENTS_HOST_SERVER",
                 port_env="EVENTS_HOST_PORT",
                 purpose="Core event and race data",
-                adapter_class="EventsAdapter"
+                adapter_class="EventsAdapter",
             ),
             ServiceIntegration(
                 name="User Service",
                 host_env="USERS_HOST_SERVER",
                 port_env="USERS_HOST_PORT",
                 purpose="Authentication and user management",
-                adapter_class="UserAdapter"
+                adapter_class="UserAdapter",
             ),
             ServiceIntegration(
                 name="Competition Format Service",
                 host_env="COMPETITION_FORMAT_HOST_SERVER",
                 port_env="COMPETITION_FORMAT_HOST_PORT",
                 purpose="Competition rules and formats",
-                adapter_class="CompetitionFormatAdapter"
+                adapter_class="CompetitionFormatAdapter",
             ),
             ServiceIntegration(
                 name="Race Service",
                 host_env="RACE_HOST_SERVER",
                 port_env="RACE_HOST_PORT",
                 purpose="Race execution and timing",
-                adapter_class="RaceService"
+                adapter_class="RaceService",
             ),
             ServiceIntegration(
                 name="Photo Service",
                 host_env="PHOTO_HOST_SERVER",
                 port_env="PHOTO_HOST_PORT",
                 purpose="Photo management",
-                adapter_class="PhotosAdapter"
+                adapter_class="PhotosAdapter",
             ),
         ]
 
@@ -120,12 +121,14 @@ class ArchitectureDocumentationAgent:
 
         integrations = []
         for service in self.services:
-            integrations.append({
-                "name": service.name,
-                "purpose": service.purpose,
-                "adapter": service.adapter_class,
-                "environment_vars": [service.host_env, service.port_env],
-            })
+            integrations.append(
+                {
+                    "name": service.name,
+                    "purpose": service.purpose,
+                    "adapter": service.adapter_class,
+                    "environment_vars": [service.host_env, service.port_env],
+                }
+            )
             print(f"  ✓ {service.name} → {service.adapter_class}")
 
         return integrations
@@ -137,28 +140,28 @@ class ArchitectureDocumentationAgent:
 
 ## Codebase Metrics
 
-- **Total Python Lines**: {analysis['total_python_lines']:,}
-- **View Components**: {analysis['views']}
-- **Service Adapters**: {analysis['services']}
-- **HTML Templates**: {analysis['templates']}
-- **Configuration Files**: {analysis['config_files']}
-- **Static Files**: {analysis['static_files']}
-- **Test Files**: {analysis['test_files']}
-- **External Microservices**: {analysis['external_services']}
+- **Total Python Lines**: {analysis["total_python_lines"]:,}
+- **View Components**: {analysis["views"]}
+- **Service Adapters**: {analysis["services"]}
+- **HTML Templates**: {analysis["templates"]}
+- **Configuration Files**: {analysis["config_files"]}
+- **Static Files**: {analysis["static_files"]}
+- **Test Files**: {analysis["test_files"]}
+- **External Microservices**: {analysis["external_services"]}
 
 ## Architecture Summary
 
 ### Layers Identified
-1. **Presentation Layer** (templates/) - {analysis['templates']} Jinja2 templates
-2. **View/Routing Layer** (views/) - {analysis['views']} HTTP request handlers
+1. **Presentation Layer** (templates/) - {analysis["templates"]} Jinja2 templates
+2. **View/Routing Layer** (views/) - {analysis["views"]} HTTP request handlers
 3. **Service/Business Logic** (services) - Orchestration and validation
-4. **Adapter/Integration Layer** (services/) - {analysis['services']} external service adapters
+4. **Adapter/Integration Layer** (services/) - {analysis["services"]} external service adapters
 
 ### External Dependencies
 - Flask/aiohttp web framework
 - JWT-based authentication
 - MongoDB via microservices
-- {analysis['external_services']} external microservices
+- {analysis["external_services"]} external microservices
 
 ## Key Patterns Identified
 

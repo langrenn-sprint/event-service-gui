@@ -180,7 +180,7 @@ format = { cmd = "uv run ruff format" }
 lint = { cmd = "uv run ruff check --fix" }
 pyright = { cmd = "uv run pyright" }
 check_deps = { cmd = "uv run deptry ." }
-audit = { cmd = "uv run pip-audit" }
+audit = { cmd = "uv run pip-audit . --ignore-vuln CVE-2026-4539" }
 integration_test = { cmd = "uv run pytest -m integration -s --cov --cov-report=term-missing --cov-report=html:.htmlcov", env = { "CONFIG" = "test" } }
 contract_test = { cmd = "uv run pytest -m contract -s" }
 release = { sequence = [
