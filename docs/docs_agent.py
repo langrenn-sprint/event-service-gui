@@ -15,7 +15,6 @@ from pathlib import Path
 @dataclass
 class ServiceIntegration:
     """Represents a microservice integration."""
-
     name: str
     host_env: str
     port_env: str
@@ -39,35 +38,32 @@ class ArchitectureDocumentationAgent:
                 host_env="EVENTS_HOST_SERVER",
                 port_env="EVENTS_HOST_PORT",
                 purpose="Core event and race data",
-                adapter_class="EventsAdapter",
             ),
             ServiceIntegration(
                 name="User Service",
                 host_env="USERS_HOST_SERVER",
                 port_env="USERS_HOST_PORT",
                 purpose="Authentication and user management",
-                adapter_class="UserAdapter",
             ),
             ServiceIntegration(
                 name="Competition Format Service",
                 host_env="COMPETITION_FORMAT_HOST_SERVER",
                 port_env="COMPETITION_FORMAT_HOST_PORT",
                 purpose="Competition rules and formats",
-                adapter_class="CompetitionFormatAdapter",
             ),
             ServiceIntegration(
                 name="Race Service",
                 host_env="RACE_HOST_SERVER",
                 port_env="RACE_HOST_PORT",
                 purpose="Race execution and timing",
-                adapter_class="RaceService",
+                adapter_class="RaceService"
             ),
             ServiceIntegration(
                 name="Photo Service",
                 host_env="PHOTO_HOST_SERVER",
                 port_env="PHOTO_HOST_PORT",
                 purpose="Photo management",
-                adapter_class="PhotosAdapter",
+                adapter_class="PhotosAdapter"
             ),
         ]
 
