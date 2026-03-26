@@ -31,7 +31,7 @@ services:
       - "user-service"
       - "mongodb"
   event-service:
-    image: ghcr.io/langrenn-sprint/event-service:test
+    image: ghcr.io/langrenn-sprint/event-service:latest
     ports:
       - 8082:8000
     environment:
