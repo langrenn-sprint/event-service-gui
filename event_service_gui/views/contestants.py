@@ -263,10 +263,11 @@ async def create_one_contestant(token: str, event: dict, form: dict) -> str:
     bib = request_body["bib"]
     if "create_one" in form:
         # 1. Add contestant.
-        c_id = await ContestantsAdapter().create_contestant(
+        result = await ContestantsAdapter().create_contestant(
             token, event["id"], request_body
         )
-        logging.debug(f"Etteranmelding {c_id}")
+        if result != "201":
+            raise Exception(f"Feil ved opprettelse av deltaker - {result}")
         informasjon = f"Deltaker med startnr {bib} er lagt til."
         # 2. Add contestant to startlist in quarter final with lowest number of participants
         raceclasses = await RaceclassesAdapter().get_raceclasses(token, event["id"])

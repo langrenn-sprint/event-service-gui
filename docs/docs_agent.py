@@ -19,7 +19,7 @@ class ServiceIntegration:
     host_env: str
     port_env: str
     purpose: str
-    adapter_class: str
+    adapter_class: str = ""
 
 
 class ArchitectureDocumentationAgent:
