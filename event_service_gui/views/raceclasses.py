@@ -6,7 +6,7 @@ import logging
 import aiohttp_jinja2
 from aiohttp import web
 
-from event_service_gui.services import EventsAdapter, RaceclassesAdapter
+from event_service_gui.adapters import EventsAdapter, RaceclassesAdapter
 
 from .utils import check_login, get_event
 

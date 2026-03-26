@@ -11,13 +11,13 @@ services:
       - HOST_PORT=8080
       - HOST_SERVER=event-service-gui
       - EVENTS_HOST_SERVER=event-service
-      - EVENTS_HOST_PORT=8080
+      - EVENTS_HOST_PORT=8000
       - RACE_HOST_SERVER=race-service
       - RACE_HOST_PORT=8080
       - COMPETITION_FORMAT_HOST_SERVER=competition-format-service
-      - COMPETITION_FORMAT_HOST_PORT=8080
+      - COMPETITION_FORMAT_HOST_PORT=8000
       - USERS_HOST_SERVER=user-service
-      - USERS_HOST_PORT=8080
+      - USERS_HOST_PORT=8000
       - LOGGING_LEVEL=${LOGGING_LEVEL}
       - ERROR_FILE=error.log
     volumes:
@@ -31,17 +31,17 @@ services:
       - "user-service"
       - "mongodb"
   event-service:
-    image: ghcr.io/langrenn-sprint/event-service:latest
+    image: ghcr.io/langrenn-sprint/event-service:test
     ports:
-      - 8082:8080
+      - 8082:8000
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - COMPETITION_FORMAT_HOST_SERVER=competition-format-service
-      - COMPETITION_FORMAT_HOST_PORT=8080
+      - COMPETITION_FORMAT_HOST_PORT=8000
       - USERS_HOST_SERVER=user-service
-      - USERS_HOST_PORT=8080
+      - USERS_HOST_PORT=8000
       - LOGGING_LEVEL=${LOGGING_LEVEL}
       - DB_HOST=mongodb
       - DB_PORT=27017
@@ -58,11 +58,11 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - COMPETITION_FORMAT_HOST_SERVER=competition-format-service
-      - COMPETITION_FORMAT_HOST_PORT=8080
+      - COMPETITION_FORMAT_HOST_PORT=8000
       - EVENTS_HOST_SERVER=event-service
-      - EVENTS_HOST_PORT=8080
+      - EVENTS_HOST_PORT=8000
       - USERS_HOST_SERVER=user-service
-      - USERS_HOST_PORT=8080
+      - USERS_HOST_PORT=8000
       - LOGGING_LEVEL=${LOGGING_LEVEL}
       - DB_HOST=mongodb
       - DB_PORT=27017
@@ -73,7 +73,7 @@ services:
   competition-format-service:
     image: ghcr.io/langrenn-sprint/competition-format-service:latest
     ports:
-      - 8094:8080
+      - 8094:8000
     environment:
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
@@ -84,13 +84,14 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - LOGGING_LEVEL=${LOGGING_LEVEL}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - user-service
       - mongodb
   user-service:
     image: ghcr.io/langrenn-sprint/user-service:latest
     ports:
-      - 8086:8080
+      - 8086:8000
     environment:
       - JWT_EXP_DELTA_SECONDS=${JWT_EXP_DELTA_SECONDS}
       - JWT_SECRET=${JWT_SECRET}
@@ -104,7 +105,7 @@ services:
     depends_on:
       - "mongodb"
   mongodb:
-    image: mongo:latest
+    image: mongo:7-jammy
     ports:
       - 27017:27017
     environment:

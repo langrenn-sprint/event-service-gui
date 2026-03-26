@@ -6,7 +6,7 @@ import logging
 from aiohttp import web
 from aiohttp_session import get_session
 
-from event_service_gui.services import (
+from event_service_gui.adapters import (
     CompetitionFormatAdapter,
     ContestantsAdapter,
     EventsAdapter,

@@ -8,7 +8,9 @@
         <link rel="stylesheet" href="../static/styles.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="../static/styles_new.css">
-        {% if event.organiser[:5] == "Kjels" %}
+        {% if not event.organiser %}
+            <link rel="stylesheet" type="text/css" href="../static/styles_whitelabel.css">
+        {% elif event.organiser[:5] == "Kjels" %}
             <link rel="stylesheet" type="text/css" href="../static/styles_kjelsaas.css">
         {% elif event.organiser[:3] == "Lyn" %}
             <link rel="stylesheet" type="text/css" href="../static/styles_lyn.css">

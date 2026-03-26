@@ -6,7 +6,7 @@ import aiohttp_jinja2
 from aiohttp import web
 from aiohttp_session import new_session
 
-from event_service_gui.services import UserAdapter
+from event_service_gui.adapters import UserAdapter
 
 
 class Login(web.View):
