@@ -209,6 +209,7 @@ class RaceplansAdapter:
         self, token: str, event_id: str, race_order: int
     ) -> dict:
         """Get one race for event function."""
+        logging.info("TODO: BE OPTIMISED issue #220")
         all_races = await RaceplansAdapter().get_all_races(token, event_id)
         race = {}
         for _race in all_races:
@@ -221,6 +222,7 @@ class RaceplansAdapter:
         else:
             race["round"] = "F"
             race["index"] = ""
+            race["id"] = ""
         return race
 
     async def get_races_by_racesclass(

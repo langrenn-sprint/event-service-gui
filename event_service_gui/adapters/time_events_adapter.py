@@ -37,18 +37,14 @@ class TimeEventsAdapter:
                     logging.debug(f"time-event - got response {resp}, {new_time_event}")
                 elif resp.status == 400:
                     functional_error = await resp.json()
-                    raise web.HTTPBadRequest(
-                        reason=f"400 - {functional_error['detail']}"
-                    )
+                    raise Exception(f"400 - {functional_error['detail']}")
                 elif resp.status == 401:
-                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+                    raise Exception(f"401 Unathorized - {servicename}")
                 else:
-                    logging.error(
-                        f"create_time_event failed - {resp.status}, {resp} input data: {time_event}"
-                    )
-                    raise web.HTTPBadRequest(
-                        reason=f"Create time_event failed Error: {resp}. Input data: {time_event}"
-                    )
+                    err_msg = await resp.json()
+                    error_message = f"{servicename} failed - {resp.status}-{err_msg} input data: {time_event}."
+                    logging.error(error_message)
+                    raise web.HTTPBadRequest(reason=error_message)
         return new_time_event
 
     async def delete_time_event(self, token: str, t_id: str) -> int:
@@ -63,17 +59,15 @@ class TimeEventsAdapter:
         url = f"{RACE_SERVICE_URL}/time-events/{t_id}"
         async with ClientSession() as session:
             async with session.delete(url, headers=headers) as resp:
-                logging.debug(f"Delete time_event: {t_id} - res {resp.status}")
                 if resp.status == 204:
                     logging.debug(f"result - got response {resp}")
                 elif resp.status == 401:
                     raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    body = await resp.json()
-                    logging.error(f"{servicename} failed - {resp.status} - {body}")
-                    raise web.HTTPBadRequest(
-                        reason=f"Error - {resp.status}: {body['detail']}."
-                    )
+                    err_msg = await resp.json()
+                    error_message = f"{servicename} failed - {resp.status}-{err_msg} input data: {id}."
+                    logging.error(error_message)
+                    raise web.HTTPBadRequest(reason=error_message)
         return resp.status
 
     async def update_time_event(self, token: str, t_id: str, time_event: dict) -> int:
@@ -97,13 +91,10 @@ class TimeEventsAdapter:
                 elif resp.status == 401:
                     raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
                 else:
-                    logging.error(
-                        f"update_time_event failed - {resp.status} input data: {time_event}"
-                    )
-                    raise web.HTTPBadRequest(
-                        reason=f"Update time_event failed - {resp.status} input data: {time_event}."
-                    )
-            logging.debug(f"Updated time_event: {t_id} - res {resp.status}")
+                    err_msg = await resp.json()
+                    error_message = f"{servicename} failed - {resp.status}-{err_msg} input data: {time_event}."
+                    logging.error(error_message)
+                    raise web.HTTPBadRequest(reason=error_message)
         return resp.status
 
     async def get_time_event_by_id(self, token: str, t_id: str) -> dict:

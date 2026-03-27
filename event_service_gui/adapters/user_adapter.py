@@ -2,6 +2,7 @@
 
 import logging
 import os
+from http import HTTPStatus
 
 from aiohttp import ClientSession, hdrs, web
 from aiohttp_session import Session
@@ -34,21 +35,25 @@ class UserAdapter:
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
-            ]
+            ],
         )
-        async with ClientSession() as session:
-            async with session.post(
-                f"{USER_SERVICE_URL}/users", headers=headers, json=request_body
-            ) as resp:
-                if resp.status == 201:
-                    logging.debug(f"create user - got response {resp}")
-                    location = resp.headers[hdrs.LOCATION]
-                    w_id = location.split(os.path.sep)[-1]
-                elif resp.status == 401:
-                    raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
-                else:
-                    logging.error(f"create_user failed - {resp.status}")
-                    raise web.HTTPBadRequest(reason="Create user failed.")
+        async with (
+            ClientSession() as session,
+            session.post(
+                f"{USER_SERVICE_URL}/users",
+                headers=headers,
+                json=request_body,
+            ) as resp,
+        ):
+            if resp.status == HTTPStatus.CREATED:
+                logging.debug(f"create user - got response {resp}")
+                location = resp.headers[hdrs.LOCATION]
+                w_id = location.split(os.path.sep)[-1]
+            elif resp.status == HTTPStatus.UNAUTHORIZED:
+                raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+            else:
+                logging.error(f"create_user failed - {resp.status}")
+                raise web.HTTPBadRequest(reason="Create user failed.")
 
         return w_id
 
@@ -59,16 +64,16 @@ class UserAdapter:
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
-            ]
+            ],
         )
         url = f"{USER_SERVICE_URL}/users/{w_id}"
         async with ClientSession() as session:
             async with session.delete(url, headers=headers) as resp:
                 pass
             logging.info(f"Delete user: {w_id} - res {resp.status}")
-            if resp.status == 204:
+            if resp.status == HTTPStatus.NO_CONTENT:
                 logging.debug(f"result - got response {resp}")
-            elif resp.status == 401:
+            elif resp.status == HTTPStatus.UNAUTHORIZED:
                 raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
             else:
                 logging.error(f"delete_user failed - {resp.status}, {resp}")
@@ -82,19 +87,22 @@ class UserAdapter:
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
-            ]
+            ],
         )
 
-        async with ClientSession() as session:
-            async with session.get(
-                f"{USER_SERVICE_URL}/users", headers=headers
-            ) as resp:
-                logging.info(f"get_all_users - got response {resp.status}")
-                if resp.status == 200:
-                    users = await resp.json()
-                    logging.debug(f"users - got response {users}")
-                else:
-                    logging.error(f"Error {resp.status} getting users: {resp} ")
+        async with (
+            ClientSession() as session,
+            session.get(
+                f"{USER_SERVICE_URL}/users",
+                headers=headers,
+            ) as resp,
+        ):
+            logging.info(f"get_all_users - got response {resp.status}")
+            if resp.status == HTTPStatus.OK:
+                users = await resp.json()
+                logging.debug(f"users - got response {users}")
+            else:
+                logging.error(f"Error {resp.status} getting users: {resp} ")
         return users
 
     async def login(self, username: str, password: str, cookiestorage: Session) -> int:
@@ -107,22 +115,26 @@ class UserAdapter:
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
-            ]
+            ],
         )
-        async with ClientSession() as session:
-            async with session.post(
-                f"{USER_SERVICE_URL}/login", headers=headers, json=request_body
-            ) as resp:
-                result = resp.status
-                logging.info(f"do login - got response {result}")
-                if result == 200:
-                    body = await resp.json()
-                    token = body["token"]
+        async with (
+            ClientSession() as session,
+            session.post(
+                f"{USER_SERVICE_URL}/login",
+                headers=headers,
+                json=request_body,
+            ) as resp,
+        ):
+            result = resp.status
+            logging.info(f"do login - got response {result}")
+            if result == HTTPStatus.OK:
+                body = await resp.json()
+                token = body["token"]
 
-                    # store token to session variable
-                    cookiestorage["token"] = token
-                    cookiestorage["name"] = username
-                    cookiestorage["loggedin"] = True
+                # store token to session variable
+                cookiestorage["token"] = token
+                cookiestorage["name"] = username
+                cookiestorage["loggedin"] = True
         return result
 
     def isloggedin(self, cookiestorage: Session) -> bool:
