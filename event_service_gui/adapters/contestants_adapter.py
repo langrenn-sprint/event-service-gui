@@ -4,6 +4,7 @@ import copy
 import logging
 import os
 import urllib.parse
+from datetime import datetime
 from http import HTTPStatus
 from typing import Any
 
@@ -19,6 +20,20 @@ EVENT_SERVICE_URL = f"http://{EVENTS_HOST_SERVER}:{EVENTS_HOST_PORT}"
 
 class ContestantsAdapter:
     """Class representing contestants."""
+
+    @staticmethod
+    def _parse_birth_date(value: str) -> str:
+        """Parse and normalise a birth_date string to YYYY-MM-DD.
+
+        Accepted input formats: DD.MM.YYYY, DD-MM-YYYY, YYYY-MM-DD, YYYY.MM.DD, YYYYMMDD, DDMMYYYY.
+        Raises ValueError if the value cannot be parsed.
+        """
+        for fmt in ("%d.%m.%Y", "%d-%m-%Y", "%Y-%m-%d", "%Y.%m.%d", "%Y%m%d", "%d%m%Y"):
+            try:
+                return datetime.strptime(value, fmt).strftime("%Y-%m-%d")
+            except ValueError:
+                continue
+        raise ValueError(f"Ugyldig fødselsdato '{value}'. Forventet format: DD.MM.YYYY.")
 
     async def assign_bibs(
         self, token: str, event_id: str, start_bib: int | None = None
@@ -60,6 +75,11 @@ class ContestantsAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
+
+        # validation - birth_date should be in format YYYY-MM-DD
+        if request_body.get("birth_date"):
+            request_body["birth_date"] = self._parse_birth_date(request_body["birth_date"])
+
         # Exclude values that are empty or None - this allows for partial updates
         request_body = {k: v for k, v in request_body.items() if v not in ("", None)}
         async with (
