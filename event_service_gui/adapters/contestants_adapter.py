@@ -82,6 +82,7 @@ class ContestantsAdapter:
 
         # Exclude values that are empty or None - this allows for partial updates
         request_body = {k: v for k, v in request_body.items() if v not in ("", None)}
+
         async with (
             ClientSession() as session,
             session.post(
@@ -96,9 +97,14 @@ class ContestantsAdapter:
                 err_msg = f"401 Unathorized - {servicename}"
                 raise web.HTTPBadRequest(reason=err_msg)
             else:
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
-                return body["detail"]
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
+                return informasjon
         return "201"
 
     async def create_contestants(
@@ -132,10 +138,15 @@ class ContestantsAdapter:
                 err_msg = f"401 Unathorized - {servicename}"
                 raise web.HTTPBadRequest(reason=err_msg)
             else:
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
         # trying to parse result - skip if it fails
         informasjon = ""
@@ -176,10 +187,15 @@ class ContestantsAdapter:
                 err_msg = f"401 Unathorized - {servicename}"
                 raise web.HTTPBadRequest(reason=err_msg)
             else:
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
         return str(res)
 
@@ -219,10 +235,15 @@ class ContestantsAdapter:
                 err_msg = f"401 Unathorized - {servicename}"
                 raise web.HTTPBadRequest(reason=err_msg)
             else:
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
         return str(res)
 
@@ -246,10 +267,15 @@ class ContestantsAdapter:
                 contestants = await resp.json()
             else:
                 servicename = "get_all_contestants"
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
         return contestants
 
@@ -278,10 +304,15 @@ class ContestantsAdapter:
                 contestants = await resp.json()
             else:
                 servicename = "get_all_contestants_by_ageclass"
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
         return contestants
 
@@ -311,12 +342,15 @@ class ContestantsAdapter:
                 contestants = await resp.json()
             else:
                 servicename = "get_all_contestants_by_raceclass"
-                body = await resp.json()
-                logging.error(
-                    f"{servicename} ({raceclass_name}) failed - {resp.status} - {body}"
-                )
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
         return contestants
 
@@ -341,10 +375,15 @@ class ContestantsAdapter:
                 contestant = await resp.json()
             else:
                 servicename = "get_contestants_by_bib"
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
         if len(contestant) == 0:
             return {}
@@ -374,10 +413,15 @@ class ContestantsAdapter:
                 contestants = await resp.json()
             else:
                 servicename = "get_contestants_by_raceclass"
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
         return contestants
 
@@ -404,10 +448,15 @@ class ContestantsAdapter:
                 contestant = await resp.json()
             else:
                 servicename = "get_contestant"
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
         return contestant
 
@@ -439,10 +488,15 @@ class ContestantsAdapter:
                 err_msg = f"401 Unathorized - {servicename}"
                 raise web.HTTPBadRequest(reason=err_msg)
             else:
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"{resp.status} Error - {body['detail']}"
+                    reason=informasjon
                 )
         return contestants
 
@@ -485,10 +539,15 @@ class ContestantsAdapter:
                 err_msg = f"401 Unathorized - {servicename}"
                 raise web.HTTPBadRequest(reason=err_msg)
             else:
-                body = await resp.json()
-                logging.error(f"{servicename} failed - {resp.status} - {body}")
+                if "application/json" in resp.content_type:
+                    body = await resp.json()
+                    detail = body.get("detail", body)
+                else:
+                    detail = await resp.text()
+                informasjon = f"{servicename} failed - {resp.status} - {detail}"
+                logging.error(informasjon)
                 raise web.HTTPBadRequest(
-                    reason=f"Error - {resp.status}: {body['detail']}."
+                    reason=informasjon
                 )
 
         return str(resp.status)
