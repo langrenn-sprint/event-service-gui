@@ -3,6 +3,7 @@
 import base64
 import datetime
 import json
+import time
 from pathlib import Path
 
 import pytest
@@ -446,7 +447,11 @@ async def login(client: _TestClient, role: str) -> None:
     with aioresponses(passthrough=["http://127.0.0.1"]) as m:
         m.post(
             f"{USER_SERVICE_URL}/login",
-            payload={"token": make_token({"username": "tester", "role": role})},
+            payload={
+                "token": make_token(
+                    {"username": "tester", "role": role, "exp": time.time() + 3600}
+                )
+            },
         )
         resp = await client.post(
             "/login",

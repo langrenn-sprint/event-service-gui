@@ -32,8 +32,8 @@ class PrintContestants(web.View):
         except Exception:
             action = ""
 
+        user = await check_login(self)
         try:
-            user = await check_login(self)
             event = await get_event(user["token"], event_id)
             try:
                 valgt_klasse = self.request.rel_url.query["klasse"]

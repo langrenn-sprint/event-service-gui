@@ -13,6 +13,7 @@ from .utils import (
     create_default_competition_format,
     get_event,
     get_qualification_text,
+    login_location,
 )
 
 
@@ -26,8 +27,8 @@ class Settings(web.View):
         except Exception:
             informasjon = ""
 
+        user = await check_login(self)
         try:
-            user = await check_login(self)
             event = await get_event(user["token"], "")
             event["name"] = "Globale innstillinger"
             competition_formats = (
@@ -169,7 +170,10 @@ class Settings(web.View):
             error_reason = str(e)
             if error_reason.startswith("401"):
                 return web.HTTPSeeOther(
-                    location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
+                    location=login_location(
+                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
+                        self.request.path_qs,
+                    )
                 )
 
         return web.HTTPSeeOther(location=f"/settings?informasjon={informasjon}")

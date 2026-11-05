@@ -15,6 +15,7 @@ from .utils import (
     check_login,
     get_event,
     get_qualification_text,
+    login_location,
 )
 
 
@@ -32,8 +33,8 @@ class Raceplans(web.View):
             informasjon = "Ingen event valgt."
             return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
+        user = await check_login(self)
         try:
-            user = await check_login(self)
             event = await get_event(user["token"], event_id)
 
             try:
@@ -172,7 +173,10 @@ class Raceplans(web.View):
             error_reason = str(e)
             if error_reason.startswith("401"):
                 return web.HTTPSeeOther(
-                    location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
+                    location=login_location(
+                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
+                        self.request.path_qs,
+                    )
                 )
         else:
             informasjon = f"Suksess! {informasjon}"

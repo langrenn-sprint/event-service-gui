@@ -3,6 +3,7 @@
 import datetime
 import json
 import logging
+from urllib.parse import urlencode, urlsplit
 
 from aiohttp import web
 from aiohttp_session import get_session
@@ -21,13 +22,52 @@ from event_service_gui.adapters import (
 ADMIN_ROLE = "admin"
 
 
+# Pages that must not be the target of a redirect after login.
+_NO_NEXT_PATHS = ("/login", "/logout")
+
+
+def safe_next_path(value: str | None) -> str | None:
+    """Return value if it is a safe relative path to redirect to, else None.
+
+    Only paths on this site are allowed ("/control?event_id=1"), to avoid an
+    open redirect. Rejected: absolute and scheme-relative URLs ("//host"),
+    backslashes and control characters (browsers may turn a path with those
+    into "//host"), and the login and logout pages.
+    """
+    if not value or not value.startswith("/") or value.startswith("//"):
+        return None
+    if "\\" in value or any(ord(c) < 32 or ord(c) == 127 for c in value):
+        return None
+    parts = urlsplit(value)
+    if parts.scheme or parts.netloc:
+        return None
+    if parts.path.rstrip("/") in _NO_NEXT_PATHS:
+        return None
+    return value
+
+
+def login_location(informasjon: str, next_path: str | None = None) -> str:
+    """Return the login page URL, with next= if next_path is safe."""
+    query = {"informasjon": informasjon}
+    safe_next = safe_next_path(next_path)
+    if safe_next:
+        query["next"] = safe_next
+    return f"/login?{urlencode(query)}"
+
+
 async def check_login(self) -> dict:
-    """Check login and return user credentials."""
+    """Check login and return user credentials.
+
+    A user that is not logged in, or whose token has expired, is sent to the
+    login page, and back to this page after login.
+    """
     session = await get_session(self.request)
     loggedin = UserAdapter().isloggedin(session)
     if not loggedin:
         informasjon = "Logg inn for å se denne siden"
-        raise web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")
+        raise web.HTTPSeeOther(
+            location=login_location(informasjon, self.request.path_qs)
+        )
 
     return {
         "name": session["name"],
@@ -42,7 +82,9 @@ async def check_admin(self) -> dict:
     user = await check_login(self)
     if user["role"] != ADMIN_ROLE:
         informasjon = "Kun admin har tilgang til denne siden. Logg inn som admin."
-        raise web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")
+        raise web.HTTPSeeOther(
+            location=login_location(informasjon, self.request.path_qs)
+        )
     return user
 
 

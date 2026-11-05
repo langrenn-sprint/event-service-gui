@@ -14,7 +14,7 @@ from event_service_gui.adapters import (
 )
 from event_service_gui.services import TimeEventsService
 
-from .utils import check_login, get_event
+from .utils import check_login, get_event, login_location
 
 
 class Tasks(web.View):
@@ -30,8 +30,8 @@ class Tasks(web.View):
             informasjon = self.request.rel_url.query["informasjon"]
         except Exception:
             informasjon = ""
+        user = await check_login(self)
         try:
-            user = await check_login(self)
             event = await get_event(user["token"], event_id)
 
             task_status = await get_task_status(user["token"], event_id)
@@ -50,7 +50,9 @@ class Tasks(web.View):
             )
         except Exception as e:
             if "401" in str(e):
-                return web.HTTPSeeOther(location=f"/login?informasjon={e}")
+                return web.HTTPSeeOther(
+                    location=login_location(str(e), self.request.path_qs)
+                )
             logging.exception("Error.. Redirect to main page.")
             return web.HTTPSeeOther(location=f"/?informasjon={e}")
 
@@ -99,7 +101,10 @@ class Tasks(web.View):
             error_reason = str(e)
             if error_reason.startswith("401"):
                 return web.HTTPSeeOther(
-                    location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
+                    location=login_location(
+                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
+                        self.request.path_qs,
+                    )
                 )
             logging.exception("Error")
 

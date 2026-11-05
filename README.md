@@ -30,7 +30,7 @@ DB_PASSWORD=secret
 EVENTS_HOST_SERVER=localhost
 EVENTS_HOST_PORT=8082
 ERROR_FILE=error.log
-FERNET_KEY=23EHUWpP_MyKey_MyKeyhxndWqyc0vO-MyKeySMyKey=
+FERNET_KEY=<generate, see below>
 JWT_EXP_DELTA_SECONDS=3600
 LOGGING_LEVEL=INFO
 RACE_HOST_SERVER=localhost
@@ -38,6 +38,25 @@ RACE_HOST_PORT=8088
 USERS_HOST_SERVER=localhost
 USERS_HOST_PORT=8086
 ```
+
+`FERNET_KEY` encrypts the session cookie and is required: the app does not start if it is missing or invalid. Generate one per environment and never reuse a key from an example:
+
+```Zsh
+echo "FERNET_KEY=$(python3 -c 'import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())')" >> .env
+```
+
+The tests use their own key, set in `[tool.pytest.ini_options]` in `pyproject.toml`.
+
+Optional session cookie settings:
+
+| Variable | Description |
+| --- | --- |
+| `JWT_MAX_SESSION_SECONDS` | `max_age` of the session cookie, so the session survives a browser restart. Same value as the maximum session length in user-service. Default `86400` (24 hours) |
+| `SESSION_COOKIE_SECURE` | `true` to only send the session cookie over https. Set this when the GUI runs behind https. Default `false` |
+
+When the token in the session has expired, pages that need login send the user to `/login?next=<page>`, and back to that page after login. `next` must be a relative path on this site.
+
+An active user stays logged in: when half the token's lifetime has passed, the next request renews it with `POST /token/renew` in user-service. A session without activity still expires with the token (`JWT_EXP_DELTA_SECONDS` in user-service), and renewal is refused after `JWT_MAX_SESSION_SECONDS`, which logs the user out. Static files, `/ping`, `/ready`, `/login` and `/logout` do not renew the token.
 
 Optional instance information, normally set by the [deploy](https://github.com/langrenn-sprint/deploy) repo:
 

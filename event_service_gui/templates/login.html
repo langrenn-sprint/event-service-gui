@@ -9,6 +9,7 @@
 {% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_user.png"> {% endblock %}
 {% block content %}
   <form action="/login?event_id={{ event_id }}" method="post">
+  <input type="hidden" name="next" value="{{ next|e }}">
   <section class="row" aria-label="Innlogging">
     <div class="col-sm-12">
       <h2>Innlogging</h2>

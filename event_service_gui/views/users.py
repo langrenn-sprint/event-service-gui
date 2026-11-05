@@ -8,7 +8,7 @@ from aiohttp import web
 
 from event_service_gui.adapters import UserAdapter
 
-from .utils import check_login
+from .utils import check_login, login_location
 
 
 class Users(web.View):
@@ -16,8 +16,8 @@ class Users(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
+        user = await check_login(self)
         try:
-            user = await check_login(self)
             users = []
 
             try:
@@ -91,7 +91,10 @@ class Users(web.View):
             error_reason = str(e)
             if error_reason.startswith("401"):
                 return web.HTTPSeeOther(
-                    location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
+                    location=login_location(
+                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
+                        self.request.path_qs,
+                    )
                 )
 
         return web.HTTPSeeOther(location=f"/users?informasjon={informasjon}")
