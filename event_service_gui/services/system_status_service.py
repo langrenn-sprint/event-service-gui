@@ -16,6 +16,9 @@ SUPPORTED_SCHEMA_VERSION = 1
 MAX_AGE = datetime.timedelta(minutes=15)
 DISK_FREE_WARNING_RATIO = 0.10
 DISK_FREE_ERROR_RATIO = 0.05
+MEMORY_USED_WARNING_RATIO = 0.85
+MEMORY_USED_ERROR_RATIO = 0.95
+SWAP_USED_WARNING_RATIO = 0.50
 DISPLAY_TIMEZONE = "Europe/Oslo"
 
 ROLE_LABELS = {
@@ -123,6 +126,13 @@ def _time_with_age(
     if time is None:
         return empty
     return f"{format_time(time)} ({format_age(age)} siden)"
+
+
+def _number(value: object) -> int | float | None:
+    """Return the value if it is a non-negative number (not bool), else None."""
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    return value if value >= 0 else None
 
 
 def _dict(value: object) -> dict:
@@ -242,6 +252,7 @@ class SystemStatusService:
         info["restore"] = self._restore_info(status.get("restore"))
         info["mongodb"] = self._mongodb_info(_dict(status.get("mongodb")), warnings)
         info["disk"] = self._disk_info(_dict(status.get("disk")), warnings)
+        info["memory"] = self._memory_info(status.get("memory"), warnings)
         info["services"] = self._merge_health(
             self._services_info(status.get("services"), warnings), health, warnings
         )
@@ -349,6 +360,77 @@ class SystemStatusService:
             "available": available,
             "version": mongodb.get("version") or "",
             "databases": databases,
+        }
+
+    @staticmethod
+    def _memory_info(memory: object, warnings: list[dict]) -> dict:
+        """Memory of the machine; used = total - available (deploy#13).
+
+        `memory` is null (or missing in older files) if it could not be read,
+        then everything is shown as "ukjent" without warning.
+        """
+        memory = _dict(memory)
+        total = _number(memory.get("total_bytes"))
+        available = _number(memory.get("available_bytes"))
+        swap_total = _number(memory.get("swap_total_bytes"))
+        swap_free = _number(memory.get("swap_free_bytes"))
+
+        used_text = "ukjent"
+        used_ratio = None
+        if total and available is not None:
+            used = min(max(total - available, 0), total)
+            used_ratio = used / total
+            used_text = (
+                f"{format_bytes(used)} av {format_bytes(total)} ({used_ratio:.0%})"
+            )
+            if used_ratio > MEMORY_USED_ERROR_RATIO:
+                level = LEVEL_ERROR
+            elif used_ratio > MEMORY_USED_WARNING_RATIO:
+                level = LEVEL_WARNING
+            else:
+                level = ""
+            if level:
+                warnings.append(
+                    {
+                        "level": level,
+                        "text": f"Lite ledig minne: {used_ratio:.0%} brukt "
+                        f"({format_bytes(total - used)} tilgjengelig).",
+                    }
+                )
+
+        swap_text = "ukjent"
+        swap_ratio = None
+        if swap_total == 0:
+            swap_text = "Ingen swap"
+        elif swap_total and swap_free is not None:
+            swap_used = min(max(swap_total - swap_free, 0), swap_total)
+            swap_ratio = swap_used / swap_total
+            swap_text = (
+                f"{format_bytes(swap_used)} av {format_bytes(swap_total)}"
+                f" ({swap_ratio:.0%})"
+            )
+            if swap_ratio > SWAP_USED_WARNING_RATIO:
+                warnings.append(
+                    {
+                        "level": LEVEL_WARNING,
+                        "text": f"Mye swap i bruk: {swap_ratio:.0%} - maskinen har "
+                        "for lite minne og kan bli treg.",
+                    }
+                )
+
+        return {
+            "known": used_ratio is not None,
+            "total": format_bytes(total) or "ukjent",
+            "used_text": used_text,
+            "used_percent": f"{used_ratio:.0%}" if used_ratio is not None else "",
+            "used_warning": used_ratio is not None
+            and MEMORY_USED_WARNING_RATIO < used_ratio <= MEMORY_USED_ERROR_RATIO,
+            "used_error": used_ratio is not None
+            and used_ratio > MEMORY_USED_ERROR_RATIO,
+            "swap_text": swap_text,
+            "swap_percent": f"{swap_ratio:.0%}" if swap_ratio is not None else "",
+            "swap_warning": swap_ratio is not None
+            and swap_ratio > SWAP_USED_WARNING_RATIO,
         }
 
     @staticmethod

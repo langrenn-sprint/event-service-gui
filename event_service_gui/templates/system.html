@@ -230,8 +230,8 @@
       </div>
     </section>
 
-    <section class="row" aria-label="Disk">
-      <div class="col-sm-12">
+    <section class="row" aria-label="Disk og minne">
+      <div class="col-sm-6">
         <h2>Disk</h2>
         <hr>
         <table class="table table-striped">
@@ -240,6 +240,21 @@
             <td data-field="disk.free_text" data-class="disk.low:warning" {% if system.disk.low %}class="warning"{% endif %}>{{ system.disk.free_text }}</td>
           </tr>
           <tr><th>Totalt</th><td data-field="disk.total" data-empty="ukjent">{{ system.disk.total or "ukjent" }}</td></tr>
+        </table>
+      </div>
+      <div class="col-sm-6">
+        <h2>Minne</h2>
+        <hr>
+        <table class="table table-striped" id="memory">
+          <tr>
+            <th>Brukt {{ info("Minne i bruk på maskinen: totalt minus det nye programmer kan bruke (cache som kan frigjøres regnes som ledig). Varsel over 85 %, feil over 95 %.") }}</th>
+            <td data-field="memory.used_text" data-class="memory.used_warning:warning memory.used_error:danger" {% if system.memory.used_error %}class="danger"{% elif system.memory.used_warning %}class="warning"{% endif %}>{{ system.memory.used_text }}</td>
+          </tr>
+          <tr>
+            <th>Swap i bruk {{ info("Swap er disk som brukes som nødminne. Mye swap i bruk betyr at maskinen har for lite minne og kan bli treg. Varsel over 50 %.") }}</th>
+            <td data-field="memory.swap_text" data-class="memory.swap_warning:warning" {% if system.memory.swap_warning %}class="warning"{% endif %}>{{ system.memory.swap_text }}</td>
+          </tr>
+          <tr><th>Totalt</th><td data-field="memory.total">{{ system.memory.total }}</td></tr>
         </table>
       </div>
     </section>

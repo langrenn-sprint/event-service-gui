@@ -31,6 +31,26 @@
     }
   });
 
+  // Open the explanation to the right if it fits, otherwise to the left.
+  // The best side depends on the layout (e.g. one or two columns), so it is
+  // chosen when the explanation is about to be shown. Without JavaScript the
+  // info-tip-left class from the template is used as is.
+  const TIP_WIDTH = 330; // max-width in system.html plus margin
+  function placeTip(event) {
+    const tip = event.target.closest && event.target.closest(".info-tip");
+    if (!tip) {
+      return;
+    }
+    const rect = tip.getBoundingClientRect();
+    const viewport = document.documentElement.clientWidth;
+    const fitsRight = rect.left + Math.min(TIP_WIDTH, viewport * 0.8) <= viewport;
+    const fitsLeft = rect.right - Math.min(TIP_WIDTH, viewport * 0.8) >= 0;
+    tip.classList.toggle("info-tip-left", !fitsRight && fitsLeft);
+  }
+  ["mouseover", "focusin", "pointerdown"].forEach(function (type) {
+    document.addEventListener(type, placeTip);
+  });
+
   if (!window.fetch) {
     return;
   }
@@ -84,10 +104,13 @@
       const empty = e.dataset.empty || "";
       e.textContent = value === undefined || value === null || value === "" ? empty : String(value);
     });
-    // data-class="path:className" toggles the class on a true value.
+    // data-class="path:className [path:className ...]" toggles each class
+    // on a true value.
     root.querySelectorAll("[data-class]").forEach(function (e) {
-      const parts = e.dataset.class.split(":");
-      e.classList.toggle(parts[1], Boolean(get(system, parts[0])));
+      e.dataset.class.trim().split(/\s+/).forEach(function (pair) {
+        const parts = pair.split(":");
+        e.classList.toggle(parts[1], Boolean(get(system, parts[0])));
+      });
     });
     root.querySelectorAll("[data-show]").forEach(function (e) {
       e.hidden = !get(system, e.dataset.show);

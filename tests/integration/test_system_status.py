@@ -54,10 +54,26 @@ def status_doc(**overrides) -> dict:
             ],
         },
         "disk": {"total_bytes": 26843545600, "free_bytes": 12884901888},
+        "memory": memory_doc(),
         "services": [
             service_doc("user-service"),
             service_doc("event-service"),
         ],
+    }
+    doc.update(overrides)
+    return doc
+
+
+GB = 1024**3
+
+
+def memory_doc(used_ratio: float = 0.5, swap_used_ratio: float = 0.0, **overrides):
+    """Return a `memory` section: 32 GB memory and 8 GB swap, used as given."""
+    doc = {
+        "total_bytes": 32 * GB,
+        "available_bytes": round(32 * GB * (1 - used_ratio)),
+        "swap_total_bytes": 8 * GB,
+        "swap_free_bytes": round(8 * GB * (1 - swap_used_ratio)),
     }
     doc.update(overrides)
     return doc
@@ -181,6 +197,11 @@ def test_system_info_all_ok(status_file, instance) -> None:
     ]
     assert info["disk"]["free_percent"] == "48%"
     assert info["disk"]["low"] is False
+    assert info["memory"]["known"] is True
+    assert info["memory"]["used_text"] == "16.0 GB av 32.0 GB (50%)"
+    assert info["memory"]["used_percent"] == "50%"
+    assert info["memory"]["swap_text"] == "0 B av 8.0 GB (0%)"
+    assert info["memory"]["total"] == "32.0 GB"
     assert [s["name"] for s in info["services"]] == ["event-service", "user-service"]
     service = info["services"][1]
     assert service["running"] is True
@@ -534,3 +555,136 @@ async def test_system_page_admin_invalid_status(
     resp = await client.get("/system", allow_redirects=False)
     assert resp.status == 200
     assert "Ingen statusinformasjon" in await resp.text()
+
+
+# --- Memory (deploy#13) -----------------------------------------------------
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    ("used_percent", "level"),
+    [
+        (85, None),  # limits are "above"
+        (86, "warning"),
+        (95, "warning"),
+        (96, "error"),
+    ],
+)
+def test_memory_used_thresholds(status_file, used_percent: int, level) -> None:
+    # Whole percentages of 100 MB, so 85 % is exactly 85 %.
+    mb = 1024**2
+    status_file(
+        status_doc(
+            memory=memory_doc(
+                total_bytes=100 * mb, available_bytes=(100 - used_percent) * mb
+            )
+        )
+    )
+    info = SystemStatusService().get_system_info(now=NOW)
+    memory = info["memory"]
+    memory_warnings = [w for w in info["warnings"] if "minne" in w["text"]]
+    if level is None:
+        assert memory_warnings == []
+    else:
+        assert [w["level"] for w in memory_warnings] == [level]
+        assert memory_warnings[0]["text"].startswith(
+            f"Lite ledig minne: {used_percent}% brukt"
+        )
+    assert memory["used_warning"] is (level == "warning")
+    assert memory["used_error"] is (level == "error")
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(("swap_used_ratio", "warn"), [(0.5, False), (0.51, True)])
+def test_memory_swap_threshold(status_file, swap_used_ratio: float, warn: bool) -> None:
+    status_file(status_doc(memory=memory_doc(swap_used_ratio=swap_used_ratio)))
+    info = SystemStatusService().get_system_info(now=NOW)
+    swap_warnings = [w for w in info["warnings"] if "swap" in w["text"]]
+    assert info["memory"]["swap_warning"] is warn
+    if warn:
+        assert swap_warnings == [
+            {
+                "level": "warning",
+                "text": "Mye swap i bruk: 51% - maskinen har for lite minne og kan bli treg.",
+            }
+        ]
+        assert info["memory"]["swap_text"] == "4.1 GB av 8.0 GB (51%)"
+    else:
+        assert swap_warnings == []
+
+
+@pytest.mark.integration
+def test_memory_no_swap(status_file) -> None:
+    status_file(status_doc(memory=memory_doc(swap_total_bytes=0, swap_free_bytes=0)))
+    info = SystemStatusService().get_system_info(now=NOW)
+    assert info["memory"]["swap_text"] == "Ingen swap"
+    assert info["memory"]["swap_warning"] is False
+    assert not any("swap" in t for t in warning_texts(info))
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("memory", ["null", "missing", "wrong types", "negative"])
+def test_memory_unknown(status_file, memory: str) -> None:
+    """memory is null if deploy could not read it: "ukjent", no warning."""
+    doc = status_doc()
+    if memory == "null":
+        doc["memory"] = None
+    elif memory == "missing":
+        del doc["memory"]  # status files from before memory was added
+    elif memory == "wrong types":
+        doc["memory"] = {
+            "total_bytes": "32",
+            "available_bytes": True,
+            "swap_total_bytes": None,
+            "swap_free_bytes": [],
+        }
+    else:
+        doc["memory"] = memory_doc(total_bytes=-1, swap_total_bytes=-1)
+    status_file(doc)
+    info = SystemStatusService().get_system_info(now=NOW)
+    assert info["memory"] == {
+        "known": False,
+        "total": "ukjent",
+        "used_text": "ukjent",
+        "used_percent": "",
+        "used_warning": False,
+        "used_error": False,
+        "swap_text": "ukjent",
+        "swap_percent": "",
+        "swap_warning": False,
+    }
+    assert info["warnings"] == []
+
+
+@pytest.mark.integration
+def test_memory_available_above_total(status_file) -> None:
+    """Inconsistent numbers give 0 % used, not a negative amount."""
+    status_file(status_doc(memory=memory_doc(available_bytes=40 * GB)))
+    info = SystemStatusService().get_system_info(now=NOW)
+    assert info["memory"]["used_text"] == "0 B av 32.0 GB (0%)"
+
+
+@pytest.mark.integration
+async def test_system_page_memory(client: _TestClient, status_file) -> None:
+    status_file(status_doc(memory=memory_doc(0.96, swap_used_ratio=0.6)))
+    await login(client, "admin")
+    resp = await client.get("/system", allow_redirects=False)
+    assert resp.status == 200
+    text = await resp.text()
+    assert 'id="memory"' in text
+    assert 'class="danger">30.7 GB av 32.0 GB (96%)</td>' in text
+    assert 'class="warning">4.8 GB av 8.0 GB (60%)</td>' in text
+    assert "Lite ledig minne: 96% brukt (1.3 GB tilgjengelig)." in text
+
+
+@pytest.mark.integration
+async def test_system_page_memory_unknown(client: _TestClient, status_file) -> None:
+    status_file(status_doc(memory=None))
+    await login(client, "admin")
+    resp = await client.get("/system", allow_redirects=False)
+    assert resp.status == 200
+    text = await resp.text()
+    assert (
+        '<td data-field="memory.used_text" data-class="memory.used_warning:warning memory.used_error:danger" >ukjent</td>'
+        in text
+    )

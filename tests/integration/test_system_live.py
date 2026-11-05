@@ -249,6 +249,7 @@ async def test_status_endpoint_admin(
         "restore",
         "mongodb",
         "disk",
+        "memory",
         "services",
     }
     assert data["has_status"] is True
@@ -264,6 +265,17 @@ async def test_status_endpoint_admin(
     }
     assert set(data["backup"]["upload"]) >= {"status_text", "time_text", "failed"}
     assert set(data["disk"]) >= {"free_text", "total", "low"}
+    assert data["memory"] == {
+        "known": True,
+        "total": "32.0 GB",
+        "used_text": "16.0 GB av 32.0 GB (50%)",
+        "used_percent": "50%",
+        "used_warning": False,
+        "used_error": False,
+        "swap_text": "0 B av 8.0 GB (0%)",
+        "swap_percent": "0%",
+        "swap_warning": False,
+    }
     assert data["mongodb"]["databases"][0]["collections"] == [
         ["contestants", 412],
         ["events", 3],
