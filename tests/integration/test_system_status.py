@@ -878,8 +878,8 @@ async def test_system_page_service_usage(client: _TestClient, status_file) -> No
     resp = await client.get("/system", allow_redirects=False)
     assert resp.status == 200
     text = await resp.text()
-    assert "<th>Minne " in text
-    assert "<th>CPU " in text
+    assert '<span class="sort-label">Minne</span>' in text
+    assert '<span class="sort-label">CPU</span>' in text
     # The share of the machine's memory is shown, not hidden in a tooltip
     assert '<td>523 MiB <span class="text-muted">(1.6%)</span></td>' in text
     assert "info-tip-value" not in text
@@ -906,3 +906,70 @@ async def test_system_page_service_own_limit(client: _TestClient, status_file) -
         '<td>300 MiB <span class="text-muted">(0.9%)</span>'
         '<br><small class="text-muted">59% av grensen (512 MiB)</small></td>'
     ) in await resp.text()
+
+
+# --- Sort keys for the services table ------------------------------------------
+
+
+def ordered(info: dict, key: str) -> list[str]:
+    """Service names sorted as system.js does: ascending by key, None last."""
+    services = info["services"]
+    with_key = [s for s in services if s["sort"][key] is not None]
+    without = [s for s in services if s["sort"][key] is None]
+    return [s["name"] for s in sorted(with_key, key=lambda s: s["sort"][key])] + [
+        s["name"] for s in without
+    ]
+
+
+@pytest.mark.integration
+def test_sort_keys(status_file) -> None:
+    status_file(
+        status_doc(
+            services=[
+                service_doc("User-Service", memory_bytes=100 * MIB, cpu_percent=5.0),
+                service_doc(
+                    "integration-service",
+                    state="exited",
+                    started_at="2026-11-05T10:00:00+01:00",
+                    memory_bytes=None,
+                    cpu_percent=None,
+                ),
+                service_doc(
+                    "mongodb",
+                    memory_bytes=900 * MIB,
+                    cpu_percent=0.5,
+                    image_created="2026-10-27T00:26:05+01:00",
+                    started_at="2026-11-05T11:00:00+01:00",
+                ),
+                {"name": "race-service", "state": "missing"},
+            ]
+        )
+    )
+    info = SystemStatusService().get_system_info(now=NOW)
+    mongodb = service_by_name(info, "mongodb")
+    assert mongodb["sort"] == {
+        "name": "mongodb",
+        "state": 2,
+        "health": [2, 0],
+        "memory": -900 * MIB,
+        "cpu": -0.5,
+        "image_created": -datetime.datetime.fromisoformat(
+            "2026-10-27T00:26:05+01:00"
+        ).timestamp(),
+        "started_at": -datetime.datetime.fromisoformat(
+            "2026-11-05T11:00:00+01:00"
+        ).timestamp(),
+    }
+    assert service_by_name(info, "User-Service")["sort"]["name"] == "user-service"
+    # Most interesting first, no value last
+    assert ordered(info, "state")[:2] == ["integration-service", "race-service"]
+    assert ordered(info, "memory") == [
+        "mongodb",
+        "User-Service",
+        "integration-service",
+        "race-service",
+    ]
+    assert ordered(info, "cpu")[:2] == ["User-Service", "mongodb"]
+    assert ordered(info, "started_at")[:2] == ["mongodb", "integration-service"]
+    assert ordered(info, "image_created")[-1] == "race-service"
+    json.dumps(info)  # the keys go to the browser as JSON

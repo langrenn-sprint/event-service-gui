@@ -162,6 +162,34 @@ def _service_usage(service: dict, machine_memory: float | None) -> dict:
     }
 
 
+def _sort_keys(name: str, running: bool | None, service: dict) -> dict:
+    """Keys for sorting the services table in the browser (system.js).
+
+    Ascending order puts the most interesting first: problems, the largest
+    and the newest. null (no value) is always sorted last by system.js.
+    Lists are compared element by element.
+    """
+
+    def negative(value: float | None) -> float | None:
+        return None if value is None else -value
+
+    def time_key(value: object) -> float | None:
+        time = parse_time(value)
+        return negative(time.timestamp()) if time else None
+
+    return {
+        "name": name.lower(),
+        # Not running first, then unknown, then running
+        "state": {False: 0, None: 1, True: 2}[running],
+        # Errors and timeouts, then the slowest; not checked last
+        "health": [2, 0],
+        "memory": negative(_number(service.get("memory_bytes"))),
+        "cpu": negative(_number(service.get("cpu_percent"))),
+        "image_created": time_key(service.get("image_created")),
+        "started_at": time_key(service.get("started_at")),
+    }
+
+
 def _time_with_age(
     time: datetime.datetime | None, age: datetime.timedelta | None, empty: str
 ) -> str:
@@ -601,6 +629,7 @@ class SystemStatusService:
                     "version": version,
                     **_service_usage(service, machine_memory),
                     "health": None,
+                    "sort": _sort_keys(name, running, service),
                 }
             )
         return sorted(result, key=lambda s: s["name"])
@@ -643,11 +672,13 @@ class SystemStatusService:
                         "is_revision": False,
                     },
                     **_service_usage({}, None),
+                    "sort": _sort_keys(name, None, {}),
                 }
                 result.append(service)
             status = check["status"]
             ok = status == HEALTH_OK
             response_ms = check.get("response_ms")
+            service["sort"]["health"] = [0 if not ok else 1, -(response_ms or 0)]
             service["health"] = {
                 "status": status,
                 "status_text": HEALTH_LABELS.get(status, status),

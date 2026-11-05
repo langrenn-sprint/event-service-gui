@@ -173,12 +173,120 @@
     return td;
   }
 
+  // Sorting of the services table. The server sends sort keys per service
+  // (service.sort), where ascending order puts the most interesting first.
+  // A click sorts by a column, the next click reverses it. No value (null)
+  // is always last. The choice is kept in localStorage.
+  const SORT_STORAGE = "system.servicesSort";
+  let sortState = { key: null, reversed: false };
+  let lastServices = null;
+  try {
+    sortState = JSON.parse(localStorage.getItem(SORT_STORAGE)) || sortState;
+  } catch (e) {
+    // ignore: no storage or invalid value
+  }
+
+  function compareKeys(a, b) {
+    if (Array.isArray(a) && Array.isArray(b)) {
+      for (let i = 0; i < Math.min(a.length, b.length); i++) {
+        const c = compareKeys(a[i], b[i]);
+        if (c !== 0) {
+          return c;
+        }
+      }
+      return a.length - b.length;
+    }
+    if (typeof a === "string" && typeof b === "string") {
+      return a.localeCompare(b, "nb");
+    }
+    return a < b ? -1 : a > b ? 1 : 0;
+  }
+
+  function sortServices(services) {
+    const key = sortState.key;
+    if (!key) {
+      return services;
+    }
+    return services.slice().sort(function (x, y) {
+      const a = x.sort ? x.sort[key] : null;
+      const b = y.sort ? y.sort[key] : null;
+      const aMissing = a === null || a === undefined;
+      const bMissing = b === null || b === undefined;
+      let c = 0;
+      if (aMissing !== bMissing) {
+        return aMissing ? 1 : -1; // no value last, in both directions
+      }
+      if (!aMissing) {
+        c = compareKeys(a, b);
+        if (sortState.reversed) {
+          c = -c;
+        }
+      }
+      return c !== 0 ? c : compareKeys(x.name || "", y.name || "");
+    });
+  }
+
+  function updateSortHeaders() {
+    document.querySelectorAll("#services th[data-sort]").forEach(function (th) {
+      const icon = th.querySelector(".sort-icon");
+      if (!icon) {
+        return;
+      }
+      if (th.dataset.sort !== sortState.key) {
+        th.removeAttribute("aria-sort");
+        icon.className = "glyphicon glyphicon-sort sort-icon";
+        return;
+      }
+      const flip = { ascending: "descending", descending: "ascending", other: "other" };
+      const first = th.dataset.first || "ascending";
+      th.setAttribute("aria-sort", sortState.reversed ? flip[first] : first);
+      icon.className = "glyphicon sort-icon " +
+        (sortState.reversed ? "glyphicon-triangle-top" : "glyphicon-triangle-bottom");
+    });
+  }
+
+  function setUpSortHeaders() {
+    document.querySelectorAll("#services th[data-sort]").forEach(function (th) {
+      const label = th.querySelector(".sort-label");
+      if (!label) {
+        return;
+      }
+      const button = el("button", null, "sort-btn");
+      button.type = "button";
+      button.title = "Sorter etter " + label.textContent.toLowerCase();
+      button.appendChild(el("span", label.textContent));
+      const icon = el("span", null, "glyphicon glyphicon-sort sort-icon");
+      icon.setAttribute("aria-hidden", "true");
+      button.appendChild(icon);
+      label.replaceWith(button);
+      button.addEventListener("click", function () {
+        const key = th.dataset.sort;
+        sortState = sortState.key === key
+          ? { key: key, reversed: !sortState.reversed }
+          : { key: key, reversed: false };
+        try {
+          localStorage.setItem(SORT_STORAGE, JSON.stringify(sortState));
+        } catch (e) {
+          // ignore: no storage
+        }
+        updateSortHeaders();
+        if (lastServices) {
+          renderServices(lastServices);
+        } else {
+          poll(); // the page was rendered by the server: get the sort keys
+        }
+      });
+    });
+    updateSortHeaders();
+  }
+
   function renderServices(services) {
     const body = document.getElementById("services-body");
     if (!body || !services) {
       return;
     }
-    const rows = services.map(function (s) {
+    lastServices = services;
+    const rows = sortServices(services).map(function (s) {
       const tr = el("tr");
       const name = el("td", s.name);
       name.title = s.image || "";
@@ -331,5 +439,10 @@
     }
   });
 
-  schedule();
+  setUpSortHeaders();
+  if (sortState.key) {
+    poll(); // sort the server-rendered table as chosen last time
+  } else {
+    schedule();
+  }
 })();

@@ -293,6 +293,7 @@ async def test_status_endpoint_admin(
         "started_at",
         "version",
         "health",
+        "sort",
         "memory_text",
         "memory_share",
         "memory_limit_text",
@@ -334,6 +335,18 @@ async def test_status_endpoint_same_as_page(
     assert '<noscript><meta http-equiv="refresh" content="60"></noscript>' in text
     assert 'data-status-url="/system/status"' in text
     assert 'id="live-refresh" href="/system"' in text
+    # Sortable columns; Versjon is not sortable
+    for key in (
+        "name",
+        "state",
+        "health",
+        "memory",
+        "cpu",
+        "image_created",
+        "started_at",
+    ):
+        assert f'data-sort="{key}"' in text
+    assert text.count("data-sort=") == 7
     # Explanations for inexperienced users, readable by screen readers
     assert text.count('class="info-tip') >= 15
     assert 'aria-label="Forklaring: Live sjekk hver gang siden oppdateres' in text
@@ -352,3 +365,38 @@ async def test_status_endpoint_without_status_file(
     data = await resp.json()
     assert data["has_status"] is False
     assert data["services"] is None
+
+
+@pytest.mark.integration
+def test_sort_key_health(status_file) -> None:
+    """Errors and timeouts first, then the slowest, not checked last."""
+    status_file(
+        status_doc(
+            services=[
+                service_doc("a-ok-fast"),
+                service_doc("b-ok-slow"),
+                service_doc("c-timeout"),
+                service_doc("d-failed"),
+                service_doc("e-not-checked"),
+            ]
+        )
+    )
+    info = SystemStatusService().get_system_info(
+        now=NOW,
+        health=[
+            health("a-ok-fast", "ok", 3),
+            health("b-ok-slow", "ok", 900),
+            health("c-timeout", "timeout", None, "Ingen svar innen 2 s"),
+            health("d-failed", "failed", 5, "/ready svarte 500"),
+        ],
+    )
+    keys = {s["name"]: s["sort"]["health"] for s in info["services"]}
+    assert keys == {
+        "a-ok-fast": [1, -3],
+        "b-ok-slow": [1, -900],
+        "c-timeout": [0, 0],
+        "d-failed": [0, -5],
+        "e-not-checked": [2, 0],
+    }
+    order = [name for name, _ in sorted(keys.items(), key=lambda kv: kv[1])]
+    assert order == ["d-failed", "c-timeout", "b-ok-slow", "a-ok-fast", "e-not-checked"]
