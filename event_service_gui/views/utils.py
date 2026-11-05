@@ -1,6 +1,7 @@
 """Utilities module for gui services."""
 
 import datetime
+import json
 import logging
 
 from aiohttp import web
@@ -43,6 +44,27 @@ async def check_admin(self) -> dict:
         informasjon = "Kun admin har tilgang til denne siden. Logg inn som admin."
         raise web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")
     return user
+
+
+async def check_admin_api(self) -> dict:
+    """Check admin login for JSON endpoints.
+
+    Same check as check_admin, but answers 401 with JSON instead of a redirect
+    to /login: fetch follows redirects silently and would get HTML back.
+    """
+    session = await get_session(self.request)
+    if not UserAdapter().isloggedin(session) or session.get("role", "") != ADMIN_ROLE:
+        raise web.HTTPUnauthorized(
+            text=json.dumps({"error": "unauthorized"}),
+            content_type="application/json",
+            headers={"Cache-Control": "no-store"},
+        )
+    return {
+        "name": session["name"],
+        "loggedin": True,
+        "token": session["token"],
+        "role": session["role"],
+    }
 
 
 async def check_login_open(self) -> dict:

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <meta http-equiv="refresh" content="{% block refresh %}{% endblock %}">
+        {% block refresh_meta %}<meta http-equiv="refresh" content="{% block refresh %}{% endblock %}">{% endblock %}
         <title>{% block titleheader %}{% endblock %}</title>
         <link rel="stylesheet" href="../static/styles.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">

@@ -29,6 +29,7 @@ from .views import (
     Seeding,
     Settings,
     System,
+    SystemStatus,
     Tasks,
     Users,
 )
@@ -115,6 +116,7 @@ async def create_app() -> web.Application:
             web.view("/seeding", Seeding),
             web.view("/settings", Settings),
             web.view("/system", System),
+            web.view("/system/status", SystemStatus),
             web.view("/tasks", Tasks),
             web.view("/users", Users),
         ]

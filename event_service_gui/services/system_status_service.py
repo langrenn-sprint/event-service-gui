@@ -9,13 +9,16 @@ import logging
 import re
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from event_service_gui.adapters import SystemStatusAdapter
+from event_service_gui.adapters import ServiceHealthAdapter, SystemStatusAdapter
 
 PRODUCTION_ROLE = "production"
 SUPPORTED_SCHEMA_VERSION = 1
 MAX_AGE = datetime.timedelta(minutes=15)
 DISK_FREE_WARNING_RATIO = 0.10
 DISK_FREE_ERROR_RATIO = 0.05
+MEMORY_USED_WARNING_RATIO = 0.85
+MEMORY_USED_ERROR_RATIO = 0.95
+SWAP_USED_WARNING_RATIO = 0.50
 DISPLAY_TIMEZONE = "Europe/Oslo"
 
 ROLE_LABELS = {
@@ -44,6 +47,11 @@ SERVICE_STATE_LABELS = {
     "removing": "Fjernes",
     "missing": "Mangler",
 }
+HEALTH_OK = "ok"
+HEALTH_LABELS = {"ok": "OK", "failed": "Feil", "timeout": "Tidsavbrudd"}
+BACKUP_RESULT_LABELS = {"ok": "OK", "failed": "FEILET"}
+UPLOAD_STATUS_LABELS = {"ok": "OK", "failed": "Feilet", "disabled": "Av"}
+NO_REVISION_TITLE = "Imaget mangler OCI-label org.opencontainers.image.revision"
 GITHUB_SOURCE = re.compile(r"^https://github\.com/[\w.-]+/[\w.-]+$")
 GIT_REVISION = re.compile(r"^[0-9a-f]{7,40}$")
 
@@ -111,6 +119,116 @@ def format_bytes(value: object) -> str:
     return ""  # pragma: no cover
 
 
+def _service_usage(service: dict, machine_memory: float | None) -> dict:
+    """Memory and CPU of a service (from docker stats), NO_VALUE if not running.
+
+    The memory is easiest to judge as a share of the machine's memory
+    (memory_share). docker's memory_percent is not used: it is relative to the
+    container's limit, which is the machine's memory unless the container has
+    its own. An own limit is shown as memory_limit_text.
+    """
+    memory = _number(service.get("memory_bytes"))
+    limit = _number(service.get("memory_limit_bytes"))
+    cpu = _number(service.get("cpu_percent"))
+
+    share = ""
+    limit_text = ""
+    if memory is not None:
+        if machine_memory:
+            share = format_percent(memory / machine_memory * 100)
+        # Without the machine's memory an own limit cannot be told apart, as
+        # docker gives the machine's memory as limit when there is none.
+        if limit and not machine_memory:
+            limit_text = (
+                f"{format_percent(memory / limit * 100)} av minnet"
+                f" containeren kan bruke ({format_mib(limit)})"
+            )
+        # An own limit differs from the machine's memory (docker rounds it).
+        elif (
+            limit
+            and machine_memory
+            and abs(limit - machine_memory) > 0.02 * machine_memory
+        ):
+            limit_text = (
+                f"{format_percent(memory / limit * 100)} av grensen"
+                f" ({format_mib(limit)})"
+            )
+
+    return {
+        "memory_text": format_mib(memory) or NO_VALUE,
+        "memory_share": share,
+        "memory_limit_text": limit_text,
+        "cpu_text": format_percent(cpu) if cpu is not None else NO_VALUE,
+    }
+
+
+def _sort_keys(name: str, running: bool | None, service: dict) -> dict:
+    """Keys for sorting the services table in the browser (system.js).
+
+    Ascending order puts the most interesting first: problems, the largest
+    and the newest. null (no value) is always sorted last by system.js.
+    Lists are compared element by element.
+    """
+
+    def negative(value: float | None) -> float | None:
+        return None if value is None else -value
+
+    def time_key(value: object) -> float | None:
+        time = parse_time(value)
+        return negative(time.timestamp()) if time else None
+
+    return {
+        "name": name.lower(),
+        # Not running first, then unknown, then running
+        "state": {False: 0, None: 1, True: 2}[running],
+        # Errors and timeouts, then the slowest; not checked last
+        "health": [2, 0],
+        "memory": negative(_number(service.get("memory_bytes"))),
+        "cpu": negative(_number(service.get("cpu_percent"))),
+        "image_created": time_key(service.get("image_created")),
+        "started_at": time_key(service.get("started_at")),
+    }
+
+
+def _time_with_age(
+    time: datetime.datetime | None, age: datetime.timedelta | None, empty: str
+) -> str:
+    """Format e.g. "05.11.2026 12:00:01 (4 min siden)", or empty if no time."""
+    if time is None:
+        return empty
+    return f"{format_time(time)} ({format_age(age)} siden)"
+
+
+NO_VALUE = "\u2013"  # en dash, shown when a service has no value
+MIB = 1024**2
+GIB = 1024**3
+
+
+def format_mib(value: object) -> str:
+    """Format a byte count as MiB or GiB, e.g. "523 MiB", "1.2 GiB"."""
+    number = _number(value)
+    if number is None:
+        return ""
+    if number == 0:
+        return "0 MiB"
+    if number >= GIB:
+        return f"{number / GIB:.1f} GiB"
+    mib = number / MIB
+    return f"{mib:.1f} MiB" if mib < 10 else f"{mib:.0f} MiB"
+
+
+def format_percent(value: float) -> str:
+    """Format a percentage (0-100+), one decimal below 10, e.g. "0.4%", "12%"."""
+    return f"{value:.1f}%" if value < 10 else f"{value:.0f}%"
+
+
+def _number(value: object) -> int | float | None:
+    """Return the value if it is a non-negative number (not bool), else None."""
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    return value if value >= 0 else None
+
+
 def _dict(value: object) -> dict:
     return value if isinstance(value, dict) else {}
 
@@ -118,9 +236,14 @@ def _dict(value: object) -> dict:
 class SystemStatusService:
     """Class representing service layer for instance and system status."""
 
-    def __init__(self, adapter: SystemStatusAdapter | None = None) -> None:
-        """Initialize the service, optionally with a custom adapter."""
+    def __init__(
+        self,
+        adapter: SystemStatusAdapter | None = None,
+        health_adapter: ServiceHealthAdapter | None = None,
+    ) -> None:
+        """Initialize the service, optionally with custom adapters."""
         self.adapter = adapter or SystemStatusAdapter()
+        self.health_adapter = health_adapter or ServiceHealthAdapter()
 
     def get_banner(self) -> dict | None:
         """Get the banner to show on all pages, or None in production.
@@ -144,8 +267,21 @@ class SystemStatusService:
 
         return {"role": role, "text": text}
 
-    def get_system_info(self, now: datetime.datetime | None = None) -> dict:
-        """Get everything the system page shows, including warnings."""
+    async def get_live_system_info(self, now: datetime.datetime | None = None) -> dict:
+        """Get the system info including a live health check of the services."""
+        health = await self.health_adapter.check_services()
+        return self.get_system_info(now=now, health=health)
+
+    def get_system_info(
+        self, now: datetime.datetime | None = None, health: list[dict] | None = None
+    ) -> dict:
+        """Get everything the system page shows, including warnings.
+
+        Args:
+            now: Current time, for calculating ages.
+            health: Result of the live health check (ServiceHealthAdapter),
+                merged into the services. None if not checked.
+        """
         now = now or datetime.datetime.now(datetime.UTC)
         instance = self.adapter.get_instance()
         info: dict = {
@@ -156,9 +292,12 @@ class SystemStatusService:
             },
             "has_status": False,
             "warnings": [],
+            "checked_at": format_time(now, "%H:%M:%S"),
+            "services": None,
         }
         status = self.adapter.get_status()
         if status is None:
+            info["services"] = self._merge_health(None, health, info["warnings"])
             return info
 
         info["has_status"] = True
@@ -187,6 +326,7 @@ class SystemStatusService:
         info["generated"] = {
             "time": format_time(generated_at),
             "age": format_age(generated_age),
+            "text": _time_with_age(generated_at, generated_age, "ukjent"),
             "stale": generated_age is None or generated_age > MAX_AGE,
         }
         if generated_age is None:
@@ -206,7 +346,13 @@ class SystemStatusService:
         info["restore"] = self._restore_info(status.get("restore"))
         info["mongodb"] = self._mongodb_info(_dict(status.get("mongodb")), warnings)
         info["disk"] = self._disk_info(_dict(status.get("disk")), warnings)
-        info["services"] = self._services_info(status.get("services"), warnings)
+        info["memory"] = self._memory_info(status.get("memory"), warnings)
+        machine_memory = _number(_dict(status.get("memory")).get("total_bytes"))
+        info["services"] = self._merge_health(
+            self._services_info(status.get("services"), warnings, machine_memory),
+            health,
+            warnings,
+        )
         return info
 
     @staticmethod
@@ -244,21 +390,34 @@ class SystemStatusService:
                 }
             )
 
+        upload_time = format_time(parse_time(upload.get("time")))
+        last_attempt = format_time(parse_time(backup.get("last_attempt")))
+        result_text = BACKUP_RESULT_LABELS.get(last_result, "")
         return {
-            "last_attempt": format_time(parse_time(backup.get("last_attempt"))),
+            "last_attempt": last_attempt,
+            "last_attempt_text": " \u2013 ".join(
+                t for t in (last_attempt, result_text) if t
+            ),
             "last_result": last_result,
+            "failed": last_result == "failed",
             "last_error": backup.get("last_error") or "",
             "last_success": {
                 "time": format_time(success_time),
                 "age": format_age(success_age),
                 "stale": success_age is None or success_age > MAX_AGE,
+                "text": _time_with_age(success_time, success_age, "Ingen"),
                 "file": last_success.get("file") or "",
                 "size": format_bytes(last_success.get("size_bytes")),
                 "duration_seconds": last_success.get("duration_seconds"),
             },
             "upload": {
                 "status": upload_status,
-                "time": format_time(parse_time(upload.get("time"))),
+                "status_text": UPLOAD_STATUS_LABELS.get(
+                    upload_status, upload_status or "Ukjent"
+                ),
+                "failed": upload_status == "failed",
+                "time": upload_time,
+                "time_text": f"({upload_time})" if upload_time else "",
             },
         }
 
@@ -301,6 +460,75 @@ class SystemStatusService:
         }
 
     @staticmethod
+    def _memory_info(memory: object, warnings: list[dict]) -> dict:
+        """Memory of the machine; used = total - available (deploy#13).
+
+        `memory` is null (or missing in older files) if it could not be read,
+        then everything is shown as "ukjent" without warning.
+        """
+        memory = _dict(memory)
+        total = _number(memory.get("total_bytes"))
+        available = _number(memory.get("available_bytes"))
+        swap_total = _number(memory.get("swap_total_bytes"))
+        swap_free = _number(memory.get("swap_free_bytes"))
+
+        used_text = "ukjent"
+        used_ratio = None
+        if total and available is not None:
+            used = min(max(total - available, 0), total)
+            used_ratio = used / total
+            used_text = f"{format_mib(used)} av {format_mib(total)} ({used_ratio:.0%})"
+            if used_ratio > MEMORY_USED_ERROR_RATIO:
+                level = LEVEL_ERROR
+            elif used_ratio > MEMORY_USED_WARNING_RATIO:
+                level = LEVEL_WARNING
+            else:
+                level = ""
+            if level:
+                warnings.append(
+                    {
+                        "level": level,
+                        "text": f"Lite ledig minne: {used_ratio:.0%} brukt "
+                        f"({format_mib(total - used)} tilgjengelig).",
+                    }
+                )
+
+        swap_text = "ukjent"
+        swap_ratio = None
+        if swap_total == 0:
+            swap_text = "Ingen swap"
+        elif swap_total and swap_free is not None:
+            swap_used = min(max(swap_total - swap_free, 0), swap_total)
+            swap_ratio = swap_used / swap_total
+            swap_text = (
+                f"{format_mib(swap_used)} av {format_mib(swap_total)}"
+                f" ({swap_ratio:.0%})"
+            )
+            if swap_ratio > SWAP_USED_WARNING_RATIO:
+                warnings.append(
+                    {
+                        "level": LEVEL_WARNING,
+                        "text": f"Mye swap i bruk: {swap_ratio:.0%} - maskinen har "
+                        "for lite minne og kan bli treg.",
+                    }
+                )
+
+        return {
+            "known": used_ratio is not None,
+            "total": format_mib(total) or "ukjent",
+            "used_text": used_text,
+            "used_percent": f"{used_ratio:.0%}" if used_ratio is not None else "",
+            "used_warning": used_ratio is not None
+            and MEMORY_USED_WARNING_RATIO < used_ratio <= MEMORY_USED_ERROR_RATIO,
+            "used_error": used_ratio is not None
+            and used_ratio > MEMORY_USED_ERROR_RATIO,
+            "swap_text": swap_text,
+            "swap_percent": f"{swap_ratio:.0%}" if swap_ratio is not None else "",
+            "swap_warning": swap_ratio is not None
+            and swap_ratio > SWAP_USED_WARNING_RATIO,
+        }
+
+    @staticmethod
     def _disk_info(disk: dict, warnings: list[dict]) -> dict:
         total = disk.get("total_bytes")
         free = disk.get("free_bytes")
@@ -324,15 +552,21 @@ class SystemStatusService:
                         "text": f"Lite ledig diskplass: {free_ratio:.0%} ({format_bytes(free)}).",
                     }
                 )
+        free_text = format_bytes(free) or "ukjent"
+        if free_ratio is not None:
+            free_text += f" ({free_ratio:.0%})"
         return {
             "total": format_bytes(total),
             "free": format_bytes(free),
             "free_percent": f"{free_ratio:.0%}" if free_ratio is not None else "",
+            "free_text": free_text,
             "low": free_ratio is not None and free_ratio < DISK_FREE_WARNING_RATIO,
         }
 
     @staticmethod
-    def _services_info(services: object, warnings: list[dict]) -> list[dict] | None:
+    def _services_info(
+        services: object, warnings: list[dict], machine_memory: float | None = None
+    ) -> list[dict] | None:
         """Containers in the deploy stack, or None if the file has no services.
 
         Every service that is not running gives an error, e.g. a container
@@ -368,6 +602,15 @@ class SystemStatusService:
             image = image if isinstance(image, str) else ""
             # Tag of e.g. "mongo:7-jammy"; a ":" before the last "/" is a port.
             tag = image.rpartition(":")[2] if ":" in image else ""
+            tag = "" if "/" in tag else tag
+            version: dict[str, str | bool]
+            if revision:
+                version = {"text": revision[:7], "url": revision_url, "title": ""}
+            elif tag:
+                version = {"text": tag, "url": "", "title": image}
+            else:
+                version = {"text": "ukjent", "url": "", "title": NO_REVISION_TITLE}
+            version["is_revision"] = bool(revision)
             result.append(
                 {
                     "name": name,
@@ -375,7 +618,7 @@ class SystemStatusService:
                     "state_text": SERVICE_STATE_LABELS.get(state, state),
                     "running": running,
                     "image": image,
-                    "image_tag": "" if "/" in tag else tag,
+                    "image_tag": tag,
                     "image_created": format_time(
                         parse_time(service.get("image_created"))
                     ),
@@ -383,6 +626,77 @@ class SystemStatusService:
                     "revision": revision[:7],
                     "revision_url": revision_url,
                     "source": source,
+                    "version": version,
+                    **_service_usage(service, machine_memory),
+                    "health": None,
+                    "sort": _sort_keys(name, running, service),
                 }
             )
+        return sorted(result, key=lambda s: s["name"])
+
+    @staticmethod
+    def _merge_health(
+        services: list[dict] | None, health: list[dict] | None, warnings: list[dict]
+    ) -> list[dict] | None:
+        """Add the live health check to the services from the status file.
+
+        A checked service that is not in the status file (or no status file)
+        gets a row with unknown container status. A service that does not
+        answer gives an error, unless the container is known not to run
+        (that already gives an error).
+        """
+        if not health:
+            return services
+        result = list(services or [])
+        by_name = {s["name"]: s for s in result}
+        for check in health:
+            name = check["name"]
+            service = by_name.get(name)
+            if service is None:
+                service = {
+                    "name": name,
+                    "state": "unknown",
+                    "state_text": "Ukjent",
+                    "running": None,
+                    "image": "",
+                    "image_tag": "",
+                    "image_created": "",
+                    "started_at": "",
+                    "revision": "",
+                    "revision_url": "",
+                    "source": "",
+                    "version": {
+                        "text": "",
+                        "url": "",
+                        "title": "",
+                        "is_revision": False,
+                    },
+                    **_service_usage({}, None),
+                    "sort": _sort_keys(name, None, {}),
+                }
+                result.append(service)
+            status = check["status"]
+            ok = status == HEALTH_OK
+            response_ms = check.get("response_ms")
+            service["sort"]["health"] = [0 if not ok else 1, -(response_ms or 0)]
+            service["health"] = {
+                "status": status,
+                "status_text": HEALTH_LABELS.get(status, status),
+                "ok": ok,
+                "response_ms": response_ms,
+                "text": (
+                    f"{HEALTH_LABELS.get(status, status)} ({response_ms} ms)"
+                    if response_ms is not None
+                    else HEALTH_LABELS.get(status, status)
+                ),
+                "detail": check.get("detail") or "",
+            }
+            if not ok and service["running"] is not False:
+                detail = check.get("detail") or HEALTH_LABELS.get(status, status)
+                warnings.append(
+                    {
+                        "level": LEVEL_ERROR,
+                        "text": f"Tjenesten {name} svarer ikke: {detail}.",
+                    }
+                )
         return sorted(result, key=lambda s: s["name"])

@@ -6,6 +6,7 @@ from .events_adapter import EventsAdapter
 from .raceclass_result_adapter import RaceclassResultsAdapter
 from .raceclasses_adapter import RaceclassesAdapter
 from .raceplans_adapter import RaceplansAdapter
+from .service_health_adapter import ServiceHealthAdapter
 from .start_adapter import StartAdapter
 from .system_status_adapter import SystemStatusAdapter
 from .time_events_adapter import TimeEventsAdapter
@@ -18,6 +19,7 @@ __all__ = [
     "RaceclassResultsAdapter",
     "RaceclassesAdapter",
     "RaceplansAdapter",
+    "ServiceHealthAdapter",
     "StartAdapter",
     "SystemStatusAdapter",
     "TimeEventsAdapter",
