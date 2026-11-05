@@ -14,6 +14,7 @@ from aiohttp_session import get_session, setup
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from dotenv import load_dotenv
 
+from .middleware import token_renewal_middleware
 from .services import SystemStatusService
 from .views import (
     Contestants,
@@ -125,6 +126,8 @@ async def create_app() -> web.Application:
 
     # session handling
     setup(app, get_session_storage())
+    # after the session middleware, so it can read and update the session
+    app.middlewares.append(token_renewal_middleware)
     app.router.add_get("/secret", handler)
 
     # Set up logging - errors to separate file

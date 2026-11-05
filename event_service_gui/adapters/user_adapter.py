@@ -7,8 +7,9 @@ import logging
 import os
 import time
 from http import HTTPStatus
+from typing import TypeGuard
 
-from aiohttp import ClientSession, hdrs, web
+from aiohttp import ClientError, ClientSession, hdrs, web
 from aiohttp_session import Session
 from multidict import MultiDict
 
@@ -140,11 +141,38 @@ class UserAdapter:
                 token = body["token"]
 
                 # store token to session variable
-                cookiestorage["token"] = token
+                store_token(cookiestorage, token)
                 cookiestorage["name"] = username
-                cookiestorage["role"] = get_role_from_token(token)
                 cookiestorage["loggedin"] = True
         return result
+
+    async def renew_token(self, token: str) -> tuple[int, str]:
+        """Renew a valid token with POST /token/renew in user-service.
+
+        Returns:
+            The HTTP status and the new token ("" unless the status is 200).
+            Status 0 means that user-service could not be reached.
+
+        """
+        headers = MultiDict([(hdrs.AUTHORIZATION, f"Bearer {token}")])
+        try:
+            async with (
+                ClientSession() as session,
+                session.post(
+                    f"{USER_SERVICE_URL}/token/renew", headers=headers
+                ) as resp,
+            ):
+                if resp.status != HTTPStatus.OK:
+                    return resp.status, ""
+                body = await resp.json()
+                new_token = body.get("token", "") if isinstance(body, dict) else ""
+                if not isinstance(new_token, str) or not new_token:
+                    logging.error("renew_token - no token in response")
+                    return 0, ""
+                return resp.status, new_token
+        except (ClientError, TimeoutError, ValueError):
+            logging.exception("renew_token - could not reach user-service")
+            return 0, ""
 
     def isloggedin(self, cookiestorage: Session) -> bool:
         """Check if user is logged in with a token that has not expired.
@@ -154,9 +182,39 @@ class UserAdapter:
         if not cookiestorage.get("loggedin"):
             return False
         exp = get_claims_from_token(str(cookiestorage.get("token", ""))).get("exp")
-        if not isinstance(exp, int | float) or isinstance(exp, bool):
+        if not _is_number(exp):
             return False
         return exp - TOKEN_EXPIRY_MARGIN_SECONDS > time.time()
+
+
+def store_token(cookiestorage: Session, token: str) -> None:
+    """Store a new token from user-service in the session.
+
+    The time the token was received is stored too: the token has no `iat`
+    claim, and the time is needed to know when half its lifetime has passed.
+    """
+    cookiestorage["token"] = token
+    cookiestorage["role"] = get_role_from_token(token)
+    cookiestorage["token_received_at"] = time.time()
+
+
+def token_needs_renewal(cookiestorage: Session) -> bool:
+    """Return True if half the lifetime of the token in the session has passed.
+
+    The lifetime is from when the token was received to its `exp`. A session
+    from before the receive time was stored is renewed once to get it.
+    """
+    exp = get_claims_from_token(str(cookiestorage.get("token", ""))).get("exp")
+    if not _is_number(exp):
+        return False
+    received_at = cookiestorage.get("token_received_at")
+    if not _is_number(received_at):
+        return True
+    return time.time() >= received_at + (exp - received_at) / 2
+
+
+def _is_number(value: object) -> TypeGuard[float]:
+    return isinstance(value, int | float) and not isinstance(value, bool)
 
 
 def get_claims_from_token(token: str) -> dict:
