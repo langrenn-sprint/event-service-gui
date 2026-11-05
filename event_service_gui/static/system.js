@@ -158,6 +158,21 @@
     return td;
   }
 
+  // Memory of a service, with its share of the machine's memory as tooltip.
+  function memoryCell(s) {
+    const td = el("td");
+    if (!s.memory_title) {
+      td.textContent = s.memory_text || "";
+      return td;
+    }
+    const button = el("button", s.memory_text, "info-tip info-tip-value");
+    button.type = "button";
+    button.dataset.tip = s.memory_title;
+    button.setAttribute("aria-label", s.memory_text + ": " + s.memory_title);
+    td.appendChild(button);
+    return td;
+  }
+
   function renderServices(services) {
     const body = document.getElementById("services-body");
     if (!body || !services) {
@@ -178,6 +193,8 @@
         health.title = "Ikke sjekket (ingen HTTP-endepunkt eller ikke konfigurert)";
       }
       tr.appendChild(health);
+      tr.appendChild(memoryCell(s));
+      tr.appendChild(el("td", s.cpu_text));
       tr.appendChild(versionCell(s.version));
       tr.appendChild(el("td", s.image_created));
       tr.appendChild(el("td", s.started_at));
@@ -186,7 +203,7 @@
     if (rows.length === 0) {
       const tr = el("tr");
       const td = el("td", "Ingen tjenester funnet.");
-      td.colSpan = 6;
+      td.colSpan = 8;
       tr.appendChild(td);
       rows.push(tr);
     }

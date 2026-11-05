@@ -267,12 +267,12 @@ async def test_status_endpoint_admin(
     assert set(data["disk"]) >= {"free_text", "total", "low"}
     assert data["memory"] == {
         "known": True,
-        "total": "32.0 GB",
-        "used_text": "16.0 GB av 32.0 GB (50%)",
+        "total": "32.0 GiB",
+        "used_text": "16.0 GiB av 32.0 GiB (50%)",
         "used_percent": "50%",
         "used_warning": False,
         "used_error": False,
-        "swap_text": "0 B av 8.0 GB (0%)",
+        "swap_text": "0 MiB av 8.0 GiB (0%)",
         "swap_percent": "0%",
         "swap_warning": False,
     }
@@ -293,7 +293,13 @@ async def test_status_endpoint_admin(
         "started_at",
         "version",
         "health",
+        "memory_text",
+        "memory_title",
+        "cpu_text",
     }
+    assert service["memory_text"] == "523 MiB"
+    assert service["memory_title"] == "1.6% av maskinens minne (32.0 GiB)"
+    assert service["cpu_text"] == "1.4%"
     assert set(service["version"]) == {"text", "url", "title", "is_revision"}
     assert service["health"]["text"] == "OK (5 ms)"
     assert service["health"]["ok"] is True

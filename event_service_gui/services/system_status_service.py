@@ -119,6 +119,52 @@ def format_bytes(value: object) -> str:
     return ""  # pragma: no cover
 
 
+def _service_usage(service: dict, machine_memory: float | None) -> dict:
+    """Memory and CPU of a service (from docker stats), NO_VALUE if not running.
+
+    The memory is easiest to judge as a share of the machine's memory, which
+    is the tooltip. docker's memory_percent is relative to the container's
+    limit, which is the machine's memory unless the container has its own.
+    """
+    memory = _number(service.get("memory_bytes"))
+    limit = _number(service.get("memory_limit_bytes"))
+    cpu = _number(service.get("cpu_percent"))
+
+    memory_title = ""
+    if memory is not None:
+        parts = []
+        if machine_memory:
+            parts.append(
+                f"{format_percent(memory / machine_memory * 100)} av maskinens"
+                f" minne ({format_mib(machine_memory)})"
+            )
+        # An own limit: differs from the machine's memory (docker rounds it).
+        # Without the machine's memory it cannot be told apart, as docker
+        # gives the machine's memory as limit when there is none.
+        if limit and not machine_memory:
+            parts.append(
+                f"{format_percent(memory / limit * 100)} av minnet"
+                f" containeren kan bruke ({format_mib(limit)})"
+            )
+        elif (
+            limit
+            and machine_memory
+            and abs(limit - machine_memory) > 0.02 * machine_memory
+        ):
+            parts.append(
+                f"{format_percent(memory / limit * 100)} av grensen"
+                f" for containeren ({format_mib(limit)})"
+            )
+        memory_title = ", ".join(parts)
+        memory_title = memory_title[:1].upper() + memory_title[1:]
+
+    return {
+        "memory_text": format_mib(memory) or NO_VALUE,
+        "memory_title": memory_title,
+        "cpu_text": format_percent(cpu) if cpu is not None else NO_VALUE,
+    }
+
+
 def _time_with_age(
     time: datetime.datetime | None, age: datetime.timedelta | None, empty: str
 ) -> str:
@@ -126,6 +172,29 @@ def _time_with_age(
     if time is None:
         return empty
     return f"{format_time(time)} ({format_age(age)} siden)"
+
+
+NO_VALUE = "\u2013"  # en dash, shown when a service has no value
+MIB = 1024**2
+GIB = 1024**3
+
+
+def format_mib(value: object) -> str:
+    """Format a byte count as MiB or GiB, e.g. "523 MiB", "1.2 GiB"."""
+    number = _number(value)
+    if number is None:
+        return ""
+    if number == 0:
+        return "0 MiB"
+    if number >= GIB:
+        return f"{number / GIB:.1f} GiB"
+    mib = number / MIB
+    return f"{mib:.1f} MiB" if mib < 10 else f"{mib:.0f} MiB"
+
+
+def format_percent(value: float) -> str:
+    """Format a percentage (0-100+), one decimal below 10, e.g. "0.4%", "12%"."""
+    return f"{value:.1f}%" if value < 10 else f"{value:.0f}%"
 
 
 def _number(value: object) -> int | float | None:
@@ -253,8 +322,11 @@ class SystemStatusService:
         info["mongodb"] = self._mongodb_info(_dict(status.get("mongodb")), warnings)
         info["disk"] = self._disk_info(_dict(status.get("disk")), warnings)
         info["memory"] = self._memory_info(status.get("memory"), warnings)
+        machine_memory = _number(_dict(status.get("memory")).get("total_bytes"))
         info["services"] = self._merge_health(
-            self._services_info(status.get("services"), warnings), health, warnings
+            self._services_info(status.get("services"), warnings, machine_memory),
+            health,
+            warnings,
         )
         return info
 
@@ -380,9 +452,7 @@ class SystemStatusService:
         if total and available is not None:
             used = min(max(total - available, 0), total)
             used_ratio = used / total
-            used_text = (
-                f"{format_bytes(used)} av {format_bytes(total)} ({used_ratio:.0%})"
-            )
+            used_text = f"{format_mib(used)} av {format_mib(total)} ({used_ratio:.0%})"
             if used_ratio > MEMORY_USED_ERROR_RATIO:
                 level = LEVEL_ERROR
             elif used_ratio > MEMORY_USED_WARNING_RATIO:
@@ -394,7 +464,7 @@ class SystemStatusService:
                     {
                         "level": level,
                         "text": f"Lite ledig minne: {used_ratio:.0%} brukt "
-                        f"({format_bytes(total - used)} tilgjengelig).",
+                        f"({format_mib(total - used)} tilgjengelig).",
                     }
                 )
 
@@ -406,7 +476,7 @@ class SystemStatusService:
             swap_used = min(max(swap_total - swap_free, 0), swap_total)
             swap_ratio = swap_used / swap_total
             swap_text = (
-                f"{format_bytes(swap_used)} av {format_bytes(swap_total)}"
+                f"{format_mib(swap_used)} av {format_mib(swap_total)}"
                 f" ({swap_ratio:.0%})"
             )
             if swap_ratio > SWAP_USED_WARNING_RATIO:
@@ -420,7 +490,7 @@ class SystemStatusService:
 
         return {
             "known": used_ratio is not None,
-            "total": format_bytes(total) or "ukjent",
+            "total": format_mib(total) or "ukjent",
             "used_text": used_text,
             "used_percent": f"{used_ratio:.0%}" if used_ratio is not None else "",
             "used_warning": used_ratio is not None
@@ -469,7 +539,9 @@ class SystemStatusService:
         }
 
     @staticmethod
-    def _services_info(services: object, warnings: list[dict]) -> list[dict] | None:
+    def _services_info(
+        services: object, warnings: list[dict], machine_memory: float | None = None
+    ) -> list[dict] | None:
         """Containers in the deploy stack, or None if the file has no services.
 
         Every service that is not running gives an error, e.g. a container
@@ -530,6 +602,7 @@ class SystemStatusService:
                     "revision_url": revision_url,
                     "source": source,
                     "version": version,
+                    **_service_usage(service, machine_memory),
                     "health": None,
                 }
             )
@@ -572,6 +645,7 @@ class SystemStatusService:
                         "title": "",
                         "is_revision": False,
                     },
+                    **_service_usage({}, None),
                 }
                 result.append(service)
             status = check["status"]

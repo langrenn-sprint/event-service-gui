@@ -12,6 +12,7 @@ from aioresponses import aioresponses
 from event_service_gui.adapters import ServiceHealthAdapter, SystemStatusAdapter
 from event_service_gui.adapters.user_adapter import get_role_from_token
 from event_service_gui.services import SystemStatusService
+from event_service_gui.services.system_status_service import format_mib, format_percent
 
 NOW = datetime.datetime(2026, 11, 5, 11, 5, 0, tzinfo=datetime.UTC)
 USER_SERVICE_URL = "http://user-service:8080"
@@ -91,6 +92,10 @@ def service_doc(name: str, **overrides) -> dict:
         "image_created": "2026-11-04T21:03:11+01:00",
         "revision": "4e183fd0c2b1a9e8d7f6a5b4c3d2e1f0a9b8c7d6",
         "source": f"https://github.com/langrenn-sprint/{name}",
+        "memory_bytes": 523 * 1024**2,
+        "memory_limit_bytes": 32 * GB,  # no own limit: the machine's memory
+        "memory_percent": 1.6,
+        "cpu_percent": 1.39,
     }
     doc.update(overrides)
     return doc
@@ -198,10 +203,10 @@ def test_system_info_all_ok(status_file, instance) -> None:
     assert info["disk"]["free_percent"] == "48%"
     assert info["disk"]["low"] is False
     assert info["memory"]["known"] is True
-    assert info["memory"]["used_text"] == "16.0 GB av 32.0 GB (50%)"
+    assert info["memory"]["used_text"] == "16.0 GiB av 32.0 GiB (50%)"
     assert info["memory"]["used_percent"] == "50%"
-    assert info["memory"]["swap_text"] == "0 B av 8.0 GB (0%)"
-    assert info["memory"]["total"] == "32.0 GB"
+    assert info["memory"]["swap_text"] == "0 MiB av 8.0 GiB (0%)"
+    assert info["memory"]["total"] == "32.0 GiB"
     assert [s["name"] for s in info["services"]] == ["event-service", "user-service"]
     service = info["services"][1]
     assert service["running"] is True
@@ -213,6 +218,9 @@ def test_system_info_all_ok(status_file, instance) -> None:
     )
     assert service["image_created"] == "04.11.2026 21:03:11"
     assert service["started_at"] == "05.11.2026 09:12:50"
+    assert service["memory_text"] == "523 MiB"
+    assert service["memory_title"] == "1.6% av maskinens minne (32.0 GiB)"
+    assert service["cpu_text"] == "1.4%"
 
 
 @pytest.mark.integration
@@ -608,7 +616,7 @@ def test_memory_swap_threshold(status_file, swap_used_ratio: float, warn: bool) 
                 "text": "Mye swap i bruk: 51% - maskinen har for lite minne og kan bli treg.",
             }
         ]
-        assert info["memory"]["swap_text"] == "4.1 GB av 8.0 GB (51%)"
+        assert info["memory"]["swap_text"] == "4.1 GiB av 8.0 GiB (51%)"
     else:
         assert swap_warnings == []
 
@@ -661,7 +669,7 @@ def test_memory_available_above_total(status_file) -> None:
     """Inconsistent numbers give 0 % used, not a negative amount."""
     status_file(status_doc(memory=memory_doc(available_bytes=40 * GB)))
     info = SystemStatusService().get_system_info(now=NOW)
-    assert info["memory"]["used_text"] == "0 B av 32.0 GB (0%)"
+    assert info["memory"]["used_text"] == "0 MiB av 32.0 GiB (0%)"
 
 
 @pytest.mark.integration
@@ -672,9 +680,9 @@ async def test_system_page_memory(client: _TestClient, status_file) -> None:
     assert resp.status == 200
     text = await resp.text()
     assert 'id="memory"' in text
-    assert 'class="danger">30.7 GB av 32.0 GB (96%)</td>' in text
-    assert 'class="warning">4.8 GB av 8.0 GB (60%)</td>' in text
-    assert "Lite ledig minne: 96% brukt (1.3 GB tilgjengelig)." in text
+    assert 'class="danger">30.7 GiB av 32.0 GiB (96%)</td>' in text
+    assert 'class="warning">4.8 GiB av 8.0 GiB (60%)</td>' in text
+    assert "Lite ledig minne: 96% brukt (1.3 GiB tilgjengelig)." in text
 
 
 @pytest.mark.integration
@@ -688,3 +696,193 @@ async def test_system_page_memory_unknown(client: _TestClient, status_file) -> N
         '<td data-field="memory.used_text" data-class="memory.used_warning:warning memory.used_error:danger" >ukjent</td>'
         in text
     )
+
+
+# --- Memory and CPU per service (deploy#13) ----------------------------------
+
+MIB = 1024**2
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    ("value", "text"),
+    [
+        (None, ""),
+        (0, "0 MiB"),
+        (0.3 * MIB, "0.3 MiB"),
+        (5 * MIB, "5.0 MiB"),
+        (523 * MIB, "523 MiB"),
+        (1023 * MIB, "1023 MiB"),
+        (GB, "1.0 GiB"),
+        (1.5 * GB, "1.5 GiB"),
+        (32 * GB, "32.0 GiB"),
+        (-1, ""),
+        (True, ""),
+        ("523", ""),
+    ],
+)
+def test_format_mib(value, text: str) -> None:
+    assert format_mib(value) == text
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    ("value", "text"),
+    [(0, "0.0%"), (0.18, "0.2%"), (9.94, "9.9%"), (12.4, "12%"), (250, "250%")],
+)
+def test_format_percent(value: float, text: str) -> None:
+    assert format_percent(value) == text
+
+
+def service_by_name(info: dict, name: str) -> dict:
+    return next(s for s in info["services"] if s["name"] == name)
+
+
+@pytest.mark.integration
+def test_service_usage_not_running(status_file) -> None:
+    """docker stats are null for a service that is not running."""
+    status_file(
+        status_doc(
+            services=[
+                service_doc(
+                    "integration-service",
+                    state="exited",
+                    memory_bytes=None,
+                    memory_limit_bytes=None,
+                    memory_percent=None,
+                    cpu_percent=None,
+                )
+            ]
+        )
+    )
+    service = service_by_name(
+        SystemStatusService().get_system_info(now=NOW), "integration-service"
+    )
+    assert service["memory_text"] == "–"
+    assert service["memory_title"] == ""
+    assert service["cpu_text"] == "–"
+
+
+@pytest.mark.integration
+def test_service_usage_missing_and_wrong_types(status_file) -> None:
+    """Status files from before the stats, and invalid values: "–"."""
+    old = service_doc("old")
+    for key in ("memory_bytes", "memory_limit_bytes", "memory_percent", "cpu_percent"):
+        del old[key]
+    wrong = service_doc("wrong", memory_bytes="523", cpu_percent=True)
+    status_file(status_doc(services=[old, wrong]))
+    info = SystemStatusService().get_system_info(now=NOW)
+    for name in ("old", "wrong"):
+        service = service_by_name(info, name)
+        assert (
+            service["memory_text"],
+            service["memory_title"],
+            service["cpu_text"],
+        ) == (
+            "–",
+            "",
+            "–",
+        )
+
+
+@pytest.mark.integration
+def test_service_usage_own_limit(status_file) -> None:
+    """A container with its own limit also gets the share of that limit."""
+    status_file(
+        status_doc(
+            services=[
+                service_doc(
+                    "mongodb",
+                    memory_bytes=300 * MIB,
+                    memory_limit_bytes=512 * MIB,
+                    cpu_percent=250.0,
+                )
+            ]
+        )
+    )
+    service = service_by_name(SystemStatusService().get_system_info(now=NOW), "mongodb")
+    assert service["memory_text"] == "300 MiB"
+    assert service["memory_title"] == (
+        "0.9% av maskinens minne (32.0 GiB), 59% av grensen for containeren (512 MiB)"
+    )
+    assert service["cpu_text"] == "250%"
+
+
+@pytest.mark.integration
+def test_service_usage_limit_rounded_by_docker(status_file) -> None:
+    """docker rounds the limit; within 2 % it is the machine's memory, not a limit."""
+    status_file(
+        status_doc(
+            services=[service_doc("event-service", memory_limit_bytes=round(32.4 * GB))]
+        )
+    )
+    service = service_by_name(
+        SystemStatusService().get_system_info(now=NOW), "event-service"
+    )
+    assert "grensen" not in service["memory_title"]
+
+
+@pytest.mark.integration
+def test_service_usage_machine_memory_unknown(status_file) -> None:
+    """Without the machine's memory, only the share of docker's limit is known.
+
+    That limit is the machine's memory unless the container has its own, so
+    the text must not claim it is a container limit.
+    """
+    status_file(status_doc(memory=None))
+    service = service_by_name(
+        SystemStatusService().get_system_info(now=NOW), "user-service"
+    )
+    assert service["memory_text"] == "523 MiB"
+    assert service["memory_title"] == "1.6% av minnet containeren kan bruke (32.0 GiB)"
+
+
+@pytest.mark.integration
+def test_service_usage_health_only_row(status_file) -> None:
+    """A service only known from the health check has no stats."""
+    status_file(status_doc(services=[]))
+    info = SystemStatusService().get_system_info(
+        now=NOW,
+        health=[
+            {"name": "race-service", "status": "ok", "response_ms": 3, "detail": ""}
+        ],
+    )
+    service = service_by_name(info, "race-service")
+    assert (service["memory_text"], service["memory_title"], service["cpu_text"]) == (
+        "–",
+        "",
+        "–",
+    )
+
+
+@pytest.mark.integration
+async def test_system_page_service_usage(client: _TestClient, status_file) -> None:
+    status_file(
+        status_doc(
+            services=[
+                service_doc("user-service"),
+                service_doc(
+                    "integration-service",
+                    state="exited",
+                    memory_bytes=None,
+                    memory_limit_bytes=None,
+                    memory_percent=None,
+                    cpu_percent=None,
+                ),
+            ]
+        )
+    )
+    await login(client, "admin")
+    resp = await client.get("/system", allow_redirects=False)
+    assert resp.status == 200
+    text = await resp.text()
+    assert "<th>Minne " in text
+    assert "<th>CPU " in text
+    assert (
+        '<button type="button" class="info-tip info-tip-value" '
+        'aria-label="523 MiB: 1.6% av maskinens minne (32.0 GiB)" '
+        'data-tip="1.6% av maskinens minne (32.0 GiB)">523 MiB</button>'
+    ) in text
+    assert "<td>1.4%</td>" in text
+    assert "<td>–</td>" in text  # memory and CPU of the stopped service
+    assert 'colspan="8"' not in text
