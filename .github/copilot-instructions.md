@@ -190,6 +190,12 @@ Required environment variables:
 - `ERROR_FILE`: Path to error log file
 - `LOGGING_LEVEL`: Logging level (default: INFO)
 
+Optional (set by the deploy repo, see langrenn-sprint/deploy#13):
+
+- `INSTANCE_NAME`: Name of the instance, shown in the banner and on `/system`
+- `INSTANCE_ROLE`: `production`, `standby`, `test` (not set = `unknown`); banner on all pages unless `production`
+- `SYSTEM_STATUS_FILE`: Path to the system status JSON file shown on `/system` (admin only)
+
 Keep this list in sync with `README.md` when adding new variables.
 Create a `.env` file in the project root for local development.
 

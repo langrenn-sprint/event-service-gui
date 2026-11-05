@@ -13,6 +13,7 @@ from aiohttp_session import get_session, setup
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from dotenv import load_dotenv
 
+from .services import SystemStatusService
 from .views import (
     Contestants,
     Control,
@@ -27,9 +28,11 @@ from .views import (
     Raceplans,
     Seeding,
     Settings,
+    System,
     Tasks,
     Users,
 )
+from .views.utils import ADMIN_ROLE
 
 load_dotenv()
 LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
@@ -49,6 +52,22 @@ async def handler(request) -> web.Response:
     return web.Response(text=text)
 
 
+async def instance_context_processor(request: web.Request) -> dict:
+    """Add instance banner and admin flag to the context of all templates."""
+    instance_banner = None
+    try:
+        instance_banner = SystemStatusService().get_banner()
+    except Exception:
+        logging.exception("Error creating instance banner")
+    is_admin = False
+    try:
+        session = await get_session(request)
+        is_admin = session.get("role") == ADMIN_ROLE
+    except Exception:
+        logging.exception("Error reading role from session")
+    return {"instance_banner": instance_banner, "is_admin": is_admin}
+
+
 async def create_app() -> web.Application:
     """Create an web application."""
     app = web.Application()
@@ -61,7 +80,9 @@ async def create_app() -> web.Application:
 
     # Set up logging - errors to separate file
     logging.basicConfig(level=LOGGING_LEVEL)
-    logging.getLogger().setLevel(LOGGING_LEVEL)  # always applies, even if handlers pre-exist
+    logging.getLogger().setLevel(
+        LOGGING_LEVEL
+    )  # always applies, even if handlers pre-exist
     file_handler = RotatingFileHandler(ERROR_FILE, maxBytes=1024 * 1024, backupCount=5)
     file_handler.setLevel(logging.ERROR)
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -74,6 +95,7 @@ async def create_app() -> web.Application:
         app,
         enable_async=True,
         loader=jinja2.FileSystemLoader(str(template_path)),
+        context_processors=[instance_context_processor],
     )
     logging.debug(f"template_path: {template_path}")
 
@@ -92,6 +114,7 @@ async def create_app() -> web.Application:
             web.view("/raceplans", Raceplans),
             web.view("/seeding", Seeding),
             web.view("/settings", Settings),
+            web.view("/system", System),
             web.view("/tasks", Tasks),
             web.view("/users", Users),
         ]

@@ -17,6 +17,8 @@ from event_service_gui.adapters import (
     UserAdapter,
 )
 
+ADMIN_ROLE = "admin"
+
 
 async def check_login(self) -> dict:
     """Check login and return user credentials."""
@@ -30,7 +32,17 @@ async def check_login(self) -> dict:
         "name": session["name"],
         "loggedin": True,
         "token": session["token"],
+        "role": session.get("role", ""),
     }
+
+
+async def check_admin(self) -> dict:
+    """Check that the user is logged in as admin and return user credentials."""
+    user = await check_login(self)
+    if user["role"] != ADMIN_ROLE:
+        informasjon = "Kun admin har tilgang til denne siden. Logg inn som admin."
+        raise web.HTTPSeeOther(location=f"/login?informasjon={informasjon}")
+    return user
 
 
 async def check_login_open(self) -> dict:

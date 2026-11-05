@@ -37,6 +37,15 @@ RACE_HOST_SERVER=localhost
 RACE_HOST_PORT=8088
 USERS_HOST_SERVER=localhost
 USERS_HOST_PORT=8086
+```
+
+Optional instance information, normally set by the [deploy](https://github.com/langrenn-sprint/deploy) repo:
+
+| Variable | Description |
+| --- | --- |
+| `INSTANCE_NAME` | Name of the instance, e.g. `UpCloud prod` |
+| `INSTANCE_ROLE` | `production`, `standby` or `test`. A banner is shown on all pages unless the role is `production` (not set = `unknown`, which also shows the banner) |
+| `SYSTEM_STATUS_FILE` | Path to `system.json` with backup, restore and database status (typically `/app/status/system.json`). Shown on the admin-only page `/system`. If missing or invalid, the page says there is no status information |
 
 ## Requirement for development
 
