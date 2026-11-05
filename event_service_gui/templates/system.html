@@ -12,6 +12,9 @@
     <a id="mySystemHome" onclick="event_gui_href('mySystemHome', '')" href="/" class=dropbtn><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>
   </li>
 {% endblock %}
+{% macro info(text, align="") -%}
+<button type="button" class="info-tip{% if align %} info-tip-{{ align }}{% endif %}" aria-label="Forklaring: {{ text }}" data-tip="{{ text }}"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>
+{%- endmacro %}
 {% block content %}
 <style>
   /* Status line with refresh button; page specific, so not in the shared (cached) CSS. */
@@ -20,6 +23,17 @@
   .live-bar .busy .glyphicon-refresh { animation: live-spin 0.8s linear infinite; }
   @keyframes live-spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .live-bar .busy .glyphicon-refresh { animation: none; } }
+  /* Small (i) with explanation, shown on hover, keyboard focus and tap. */
+  .info-tip { position: relative; display: inline-block; border: 0; background: none; padding: 6px 5px; margin: -6px -2px; color: #31708f; cursor: help; font-size: 0.85em; vertical-align: baseline; }
+  .info-tip:focus { outline: 2px solid #31708f; outline-offset: 1px; border-radius: 50%; }
+  .info-tip::after {
+    content: attr(data-tip); display: none; position: absolute; z-index: 20; top: 1.8em; left: -8px;
+    width: max-content; max-width: min(320px, 80vw); padding: 8px 10px; border-radius: 4px;
+    background: #333; color: #fff; font-size: 13px; font-weight: normal; line-height: 1.4; text-align: left; white-space: normal;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+  .info-tip-left::after { left: auto; right: -8px; }
+  .info-tip:hover::after, .info-tip:focus::after, .info-tip.open::after { display: block; }
 </style>
 <div id="system" data-has-status="{{ 'true' if system.has_status else 'false' }}" data-status-url="/system/status">
   <section class="row" aria-label="Oppdatering">
@@ -44,7 +58,7 @@
       <table class="table table-striped">
         <tr><th>Navn</th><td>{{ system.instance.name or "(ikke satt)" }}</td></tr>
         <tr>
-          <th>Rolle</th>
+          <th>Rolle {{ info("Produksjon er instansen som brukes under rennet. Reserve og test viser et banner øverst på alle sider, så ingen registrerer på feil instans ved en feiltakelse.") }}</th>
           <td>
             {% if system.instance and not system.instance.is_production %}
               <span class="label label-danger">{{ system.instance.role_text }}</span>
@@ -55,7 +69,7 @@
         </tr>
         {% if system.file_instance and (system.file_instance.name != system.instance.name or system.file_instance.role != system.instance.role) %}
           <tr>
-            <th>I statusfila</th>
+            <th>I statusfila {{ info("Navn og rolle slik deploy-skriptene ser dem. Avvik fra linjene over betyr at GUI-et og skriptene er satt opp med ulike innstillinger.") }}</th>
             <td>{{ system.file_instance.name or "(ikke satt)" }} / {{ system.file_instance.role or "(ikke satt)" }}</td>
           </tr>
         {% endif %}
@@ -85,7 +99,7 @@
     </div>
     {% if system.has_status %}
       <div class="col-sm-12">
-        <p>Status generert: <span data-field="generated.text">{{ system.generated.text }}</span></p>
+        <p>Status generert {{ info("Når deploy-skriptene sist skrev statusfila. Den skrives hvert 30. sekund; eldre enn 15 minutter gir varsel.") }}: <span data-field="generated.text">{{ system.generated.text }}</span></p>
       </div>
     {% endif %}
   </section>
@@ -97,7 +111,7 @@
       <p data-hide="services" {% if system.services is not none %}hidden{% endif %}>Statusfila har ingen informasjon om tjenestene.</p>
       <table class="table table-striped" id="services" data-show="services" {% if system.services is none %}hidden{% endif %}>
         <thead>
-          <tr><th>Tjeneste</th><th>Container</th><th>Svar</th><th>Versjon</th><th>Image bygget</th><th>Startet</th></tr>
+          <tr><th>Tjeneste</th><th>Container {{ info("Status fra Docker, lest fra statusfila (oppdateres hvert 30. sekund). «Kjører» betyr at programmet er startet, ikke nødvendigvis at det svarer – se kolonnen Svar.") }}</th><th>Svar {{ info("Live sjekk hver gang siden oppdateres: serveren spør tjenesten (/ping og /ready), og den må svare innen 2 sekunder. Tallet er svartiden. «–» betyr at tjenesten ikke har noe å spørre, f.eks. databasen.") }}</th><th>Versjon {{ info("Hvilken versjon av koden (commit) som kjører. Klikk for å se den på GitHub. Mangler denne informasjonen, vises taggen til imaget, f.eks. «latest».") }}</th><th>Image bygget {{ info("Når programpakken (Docker-imaget) ble bygget, altså hvor ny versjonen er.") }}</th><th>Startet {{ info("Når containeren sist ble startet. Et nytt tidspunkt uten at noen har startet den på nytt kan bety at tjenesten har krasjet og startet seg selv igjen.", "left") }}</th></tr>
         </thead>
         <tbody id="services-body">
           {% for service in system.services or [] %}
@@ -136,13 +150,13 @@
         <hr>
         <table class="table table-striped">
           <tr>
-            <th>Siste vellykkede backup</th>
+            <th>Siste vellykkede backup {{ info("Det tas automatisk backup av databasen hvert 5. minutt. Rødt betyr at siste vellykkede backup er eldre enn 15 minutter.") }}</th>
             <td data-field="backup.last_success.text" data-class="backup.last_success.stale:danger" {% if system.backup.last_success.stale %}class="danger"{% endif %}>{{ system.backup.last_success.text }}</td>
           </tr>
-          <tr><th>Fil</th><td data-field="backup.last_success.file">{{ system.backup.last_success.file }}</td></tr>
+          <tr><th>Fil {{ info("Navnet på backupfila. Det er denne fila som brukes ved restore.") }}</th><td data-field="backup.last_success.file">{{ system.backup.last_success.file }}</td></tr>
           <tr><th>Størrelse</th><td data-field="backup.last_success.size">{{ system.backup.last_success.size }}</td></tr>
           <tr>
-            <th>Siste forsøk</th>
+            <th>Siste forsøk {{ info("Siste gang backup ble forsøkt, og om det gikk bra. Feiler den, står feilmeldingen her.") }}</th>
             <td data-class="backup.failed:danger" {% if system.backup.failed %}class="danger"{% endif %}>
               <span data-field="backup.last_attempt_text">{{ system.backup.last_attempt_text }}</span>
               <br data-show="backup.last_error" {% if not system.backup.last_error %}hidden{% endif %}>
@@ -150,7 +164,7 @@
             </td>
           </tr>
           <tr>
-            <th>Opplasting til sky</th>
+            <th>Opplasting til sky {{ info("En kopi av backupen lastes opp til skyen, så den finnes selv om denne maskinen går tapt. «Av» betyr at opplasting ikke er satt opp.") }}</th>
             <td data-class="backup.upload.failed:warning" {% if system.backup.upload.failed %}class="warning"{% endif %}>
               <span data-field="backup.upload.status_text">{{ system.backup.upload.status_text }}</span>
               <span data-field="backup.upload.time_text">{{ system.backup.upload.time_text }}</span>
@@ -166,10 +180,10 @@
         <hr>
         <table class="table table-striped" data-show="restore" {% if not system.restore %}hidden{% endif %}>
           <tr><th>Restoret fra</th><td data-field="restore.archive">{{ system.restore.archive if system.restore }}</td></tr>
-          <tr><th>Backup tatt</th><td data-field="restore.archive_time">{{ system.restore.archive_time if system.restore }}</td></tr>
+          <tr><th>Backup tatt {{ info("Tidspunktet backupen ble tatt. Data registrert etter dette finnes ikke på denne instansen, med mindre de er lagt inn på nytt.") }}</th><td data-field="restore.archive_time">{{ system.restore.archive_time if system.restore }}</td></tr>
           <tr><th>Restoret</th><td data-field="restore.restored_at">{{ system.restore.restored_at if system.restore }}</td></tr>
-          <tr><th>Restoret på</th><td data-field="restore.restored_on">{{ system.restore.restored_on if system.restore }}</td></tr>
-          <tr><th>SHA-256</th><td><small data-field="restore.archive_sha256">{{ system.restore.archive_sha256 if system.restore }}</small></td></tr>
+          <tr><th>Restoret på {{ info("Instansen restoren ble gjort på. Er det en annen instans enn denne, er dataene kopiert hit sammen med en senere backup.") }}</th><td data-field="restore.restored_on">{{ system.restore.restored_on if system.restore }}</td></tr>
+          <tr><th>SHA-256 {{ info("Fingeravtrykk av backupfila. Kan sammenlignes med fila for å sjekke at det er riktig fil som ble restoret.") }}</th><td><small data-field="restore.archive_sha256">{{ system.restore.archive_sha256 if system.restore }}</small></td></tr>
         </table>
         <p data-hide="restore" {% if system.restore %}hidden{% endif %}>Aldri restoret.</p>
       </div>
@@ -183,7 +197,7 @@
           <p>MongoDB <span data-field="mongodb.version">{{ system.mongodb.version }}</span></p>
           <table class="table table-striped">
             <thead>
-              <tr><th>Database</th><th>Størrelse</th><th>Collection</th><th>Antall dokumenter</th></tr>
+              <tr><th>Database</th><th>Størrelse</th><th>Collection {{ info("En collection tilsvarer en tabell, f.eks. deltakere eller klasser.") }}</th><th>Antall dokumenter {{ info("Antall poster i hver collection, f.eks. antall deltakere. Nyttig for å sjekke at dataene er med etter en restore.", "left") }}</th></tr>
             </thead>
             <tbody id="databases-body">
               {% for db in system.mongodb.databases %}
@@ -211,7 +225,7 @@
         <hr>
         <table class="table table-striped">
           <tr>
-            <th>Ledig</th>
+            <th>Ledig {{ info("Ledig plass på disken der backupene lagres. Varsel under 10 % ledig, feil under 5 %. Blir disken full, stopper backup.") }}</th>
             <td data-field="disk.free_text" data-class="disk.low:warning" {% if system.disk.low %}class="warning"{% endif %}>{{ system.disk.free_text }}</td>
           </tr>
           <tr><th>Totalt</th><td data-field="disk.total" data-empty="ukjent">{{ system.disk.total or "ukjent" }}</td></tr>

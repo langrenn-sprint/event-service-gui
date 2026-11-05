@@ -13,7 +13,25 @@
   const MIN_BUSY_MS = 600;
 
   const root = document.getElementById("system");
-  if (!root || !window.fetch) {
+  if (!root) {
+    return;
+  }
+
+  // Explanations (i): some mobile browsers do not focus a tapped button, so
+  // toggle them on click too. Tapping elsewhere closes them.
+  document.addEventListener("click", function (event) {
+    const tip = event.target.closest(".info-tip");
+    root.querySelectorAll(".info-tip.open").forEach(function (e) {
+      if (e !== tip) {
+        e.classList.remove("open");
+      }
+    });
+    if (tip) {
+      tip.classList.toggle("open");
+    }
+  });
+
+  if (!window.fetch) {
     return;
   }
   const statusUrl = root.dataset.statusUrl;

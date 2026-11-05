@@ -314,6 +314,9 @@ async def test_status_endpoint_same_as_page(
     assert '<noscript><meta http-equiv="refresh" content="60"></noscript>' in text
     assert 'data-status-url="/system/status"' in text
     assert 'id="live-refresh" href="/system"' in text
+    # Explanations for inexperienced users, readable by screen readers
+    assert text.count('class="info-tip') >= 15
+    assert 'aria-label="Forklaring: Live sjekk hver gang siden oppdateres' in text
 
 
 @pytest.mark.integration
