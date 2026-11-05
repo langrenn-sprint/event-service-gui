@@ -1,5 +1,8 @@
 """Module for user adapter."""
 
+import base64
+import binascii
+import json
 import logging
 import os
 from http import HTTPStatus
@@ -134,6 +137,7 @@ class UserAdapter:
                 # store token to session variable
                 cookiestorage["token"] = token
                 cookiestorage["name"] = username
+                cookiestorage["role"] = get_role_from_token(token)
                 cookiestorage["loggedin"] = True
         return result
 
@@ -144,3 +148,22 @@ class UserAdapter:
         except Exception:
             result = False
         return result
+
+
+def get_role_from_token(token: str) -> str:
+    """Return the role claim of a JWT, or empty string if not found.
+
+    The signature is not verified: the token comes directly from user-service
+    in the login response, and the session cookie it is stored in is encrypted.
+    The role is only used to decide what the GUI shows; the backend services
+    still authorize every request with the token.
+    """
+    try:
+        payload = token.split(".")[1]
+        payload += "=" * (-len(payload) % 4)
+        claims = json.loads(base64.urlsafe_b64decode(payload))
+        role = claims.get("role", "")
+        return role if isinstance(role, str) else ""
+    except (IndexError, ValueError, binascii.Error, AttributeError):
+        logging.warning("Could not read role from token")
+        return ""

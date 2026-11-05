@@ -1,0 +1,169 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}
+  {{ lopsinfo }}
+{% endblock %}
+{% block refresh %}60{% endblock %}
+{% block max_width %}1200{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_settings.png"> {{ lopsinfo }}{% endblock %}
+{% block menuitems %}
+  <li id=topborder>
+    <a id="mySystemHome" onclick="event_gui_href('mySystemHome', '')" href="/" class=dropbtn><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>
+  </li>
+{% endblock %}
+{% block content %}
+  <section class="row" aria-label="Instans">
+    <div class="col-sm-12">
+      <h2>Instans</h2>
+      <hr>
+      <table class="table table-striped">
+        <tr><th>Navn</th><td>{{ system.instance.name or "(ikke satt)" }}</td></tr>
+        <tr>
+          <th>Rolle</th>
+          <td>
+            {% if system.instance and not system.instance.is_production %}
+              <span class="label label-danger">{{ system.instance.role_text }}</span>
+            {% else %}
+              {{ system.instance.role_text }}
+            {% endif %}
+          </td>
+        </tr>
+        {% if system.file_instance and (system.file_instance.name != system.instance.name or system.file_instance.role != system.instance.role) %}
+          <tr>
+            <th>I statusfila</th>
+            <td>{{ system.file_instance.name or "(ikke satt)" }} / {{ system.file_instance.role or "(ikke satt)" }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    </div>
+  </section>
+
+  {% if not system.has_status %}
+    <section class="row" aria-label="Ingen_status">
+      <div class="col-sm-12">
+        <div class="alert alert-warning">
+          <strong>Ingen statusinformasjon.</strong>
+          Statusfila (SYSTEM_STATUS_FILE) mangler eller er ugyldig, f.eks. ved lokal kjøring uten backup.
+          {% if system.error %}<br>{{ system.error }}{% endif %}
+        </div>
+      </div>
+    </section>
+  {% else %}
+    <section class="row" aria-label="Varsler">
+      <div class="col-sm-12">
+        {% for warning in system.warnings %}
+          <div class="alert {% if warning.level == 'error' %}alert-danger{% else %}alert-warning{% endif %}">
+            {{ warning.text }}
+          </div>
+        {% else %}
+          <div class="alert alert-success">Ingen varsler.</div>
+        {% endfor %}
+        <p>Status generert: {{ system.generated.time or "ukjent" }}{% if system.generated.age %} ({{ system.generated.age }} siden){% endif %}</p>
+      </div>
+    </section>
+
+    <section class="row" aria-label="Backup">
+      <div class="col-sm-12">
+        <h2>Backup</h2>
+        <hr>
+        <table class="table table-striped">
+          <tr>
+            <th>Siste vellykkede backup</th>
+            <td {% if system.backup.last_success.stale %}class="danger"{% endif %}>
+              {% if system.backup.last_success.time %}
+                {{ system.backup.last_success.time }} ({{ system.backup.last_success.age }} siden)
+              {% else %}
+                Ingen
+              {% endif %}
+            </td>
+          </tr>
+          <tr><th>Fil</th><td>{{ system.backup.last_success.file }}</td></tr>
+          <tr><th>Størrelse</th><td>{{ system.backup.last_success.size }}</td></tr>
+          <tr>
+            <th>Siste forsøk</th>
+            <td {% if system.backup.last_result == "failed" %}class="danger"{% endif %}>
+              {{ system.backup.last_attempt }}
+              {% if system.backup.last_result == "ok" %}– OK{% elif system.backup.last_result == "failed" %}– FEILET{% endif %}
+              {% if system.backup.last_error %}<br>{{ system.backup.last_error }}{% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th>Opplasting til sky</th>
+            <td {% if system.backup.upload.status == "failed" %}class="warning"{% endif %}>
+              {% if system.backup.upload.status == "ok" %}OK
+              {% elif system.backup.upload.status == "failed" %}Feilet
+              {% elif system.backup.upload.status == "disabled" %}Av
+              {% else %}{{ system.backup.upload.status or "Ukjent" }}{% endif %}
+              {% if system.backup.upload.time %}({{ system.backup.upload.time }}){% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+    <section class="row" aria-label="Restore">
+      <div class="col-sm-12">
+        <h2>Restore</h2>
+        <hr>
+        {% if system.restore %}
+          <table class="table table-striped">
+            <tr><th>Restoret fra</th><td>{{ system.restore.archive }}</td></tr>
+            <tr><th>Backup tatt</th><td>{{ system.restore.archive_time }}</td></tr>
+            <tr><th>Restoret</th><td>{{ system.restore.restored_at }}</td></tr>
+            <tr><th>Restoret på</th><td>{{ system.restore.restored_on }}</td></tr>
+            <tr><th>SHA-256</th><td><small>{{ system.restore.archive_sha256 }}</small></td></tr>
+          </table>
+        {% else %}
+          <p>Aldri restoret.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="row" aria-label="Database">
+      <div class="col-sm-12">
+        <h2>Database</h2>
+        <hr>
+        {% if system.mongodb.available %}
+          <p>MongoDB {{ system.mongodb.version }}</p>
+          <table class="table table-striped">
+            <tr><th>Database</th><th>Størrelse</th><th>Collection</th><th>Antall dokumenter</th></tr>
+            {% for db in system.mongodb.databases %}
+              {% for name, count in db.collections %}
+                <tr>
+                  <td>{% if loop.first %}{{ db.name }}{% endif %}</td>
+                  <td>{% if loop.first %}{{ db.size }}{% endif %}</td>
+                  <td>{{ name }}</td>
+                  <td>{{ count }}</td>
+                </tr>
+              {% else %}
+                <tr><td>{{ db.name }}</td><td>{{ db.size }}</td><td colspan="2">Ingen collections</td></tr>
+              {% endfor %}
+            {% endfor %}
+          </table>
+        {% else %}
+          <div class="alert alert-danger">Databasen svarer ikke.</div>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="row" aria-label="Disk">
+      <div class="col-sm-12">
+        <h2>Disk</h2>
+        <hr>
+        <table class="table table-striped">
+          <tr>
+            <th>Ledig</th>
+            <td {% if system.disk.low %}class="warning"{% endif %}>
+              {{ system.disk.free or "ukjent" }}{% if system.disk.free_percent %} ({{ system.disk.free_percent }}){% endif %}
+            </td>
+          </tr>
+          <tr><th>Totalt</th><td>{{ system.disk.total or "ukjent" }}</td></tr>
+        </table>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}
+{% block tips %}
+  Siden oppdateres automatisk hvert minutt. Statusfila skrives av deploy-skriptene (backup hvert 5. minutt).
+  Backup og status regnes som utdatert etter 15 minutter.
+{% endblock %}

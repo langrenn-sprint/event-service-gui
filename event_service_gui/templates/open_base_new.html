@@ -63,6 +63,7 @@
         </script>
     </head>
     <body>
+        {% include "_instance_banner.html" %}
         <header>
             <div class="text-center">
                 <h2>{{ event.name }}&nbsp;<span class="event-logo-small"></span></h2>
@@ -182,6 +183,9 @@
                         <a href="https://langrenn-sprint.github.io/docs/contestant.html" target="_blank">Docs</a>
                         {% else %}
                         <a id="myUsers" onclick="event_gui_href('myUsers', 'users')" href="/users">Brukere</a>
+                        {% if is_admin %}
+                        <a id="mySystem" onclick="event_gui_href('mySystem', 'system')" href="/system">System</a>
+                        {% endif %}
                         <a href="https://langrenn-sprint.github.io/docs/" target="_blank">Docs</a>
                         <a href="/logout">Logg ut</a>
                         {% endif %}

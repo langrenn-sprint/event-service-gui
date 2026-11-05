@@ -1,0 +1,6 @@
+{% if instance_banner %}
+<div id="instance-banner" role="alert"
+     style="background-color: {% if instance_banner.role == 'test' %}#e67e00{% else %}#c0392b{% endif %}; color: #fff; font-weight: bold; font-size: 1.3em; text-align: center; padding: 10px; position: sticky; top: 0; z-index: 1000;">
+    {{ instance_banner.text }}
+</div>
+{% endif %}
