@@ -18,6 +18,7 @@
     <div class="col-sm-12">
       <p id="live-status" aria-live="polite">
         Sist oppdatert <strong data-field="checked_at">{{ system.checked_at }}</strong>
+        <a id="live-refresh" href="/system" class="btn btn-default btn-xs" role="button">Oppdater nå</a>
         <span id="live-error" class="label label-danger" hidden></span>
         <a id="live-login" href="/login?informasjon=Innloggingen er utløpt. Logg inn som admin." hidden>Logg inn på nytt</a>
       </p>

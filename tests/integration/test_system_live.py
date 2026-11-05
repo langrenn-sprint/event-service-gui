@@ -313,6 +313,7 @@ async def test_status_endpoint_same_as_page(
     assert 'src="../static/system.js"' in text
     assert '<noscript><meta http-equiv="refresh" content="60"></noscript>' in text
     assert 'data-status-url="/system/status"' in text
+    assert 'id="live-refresh" href="/system"' in text
 
 
 @pytest.mark.integration

@@ -18,6 +18,7 @@
   const initialHasStatus = root.dataset.hasStatus === "true";
   const errorLabel = document.getElementById("live-error");
   const loginLink = document.getElementById("live-login");
+  const refreshButton = document.getElementById("live-refresh");
 
   let interval = INTERVAL_MS;
   let timer = null;
@@ -193,6 +194,8 @@
       return;
     }
     inFlight = true;
+    refreshButton.setAttribute("aria-disabled", "true");
+    refreshButton.classList.add("disabled");
     const controller = new AbortController();
     const abortTimer = setTimeout(function () { controller.abort(); }, FETCH_TIMEOUT_MS);
     try {
@@ -222,9 +225,27 @@
     } finally {
       clearTimeout(abortTimer);
       inFlight = false;
+      refreshButton.removeAttribute("aria-disabled");
+      refreshButton.classList.remove("disabled");
       schedule();
     }
   }
+
+  // "Oppdater nå": fetch at once and reset the backoff. After a 401 the link
+  // works as a normal reload (which redirects to the login page), as it does
+  // without JavaScript.
+  refreshButton.addEventListener("click", function (event) {
+    if (stopped) {
+      return;
+    }
+    event.preventDefault();
+    if (inFlight) {
+      return;
+    }
+    clearTimeout(timer);
+    interval = INTERVAL_MS;
+    poll();
+  });
 
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible") {
