@@ -122,45 +122,42 @@ def format_bytes(value: object) -> str:
 def _service_usage(service: dict, machine_memory: float | None) -> dict:
     """Memory and CPU of a service (from docker stats), NO_VALUE if not running.
 
-    The memory is easiest to judge as a share of the machine's memory, which
-    is the tooltip. docker's memory_percent is relative to the container's
-    limit, which is the machine's memory unless the container has its own.
+    The memory is easiest to judge as a share of the machine's memory
+    (memory_share). docker's memory_percent is not used: it is relative to the
+    container's limit, which is the machine's memory unless the container has
+    its own. An own limit is shown as memory_limit_text.
     """
     memory = _number(service.get("memory_bytes"))
     limit = _number(service.get("memory_limit_bytes"))
     cpu = _number(service.get("cpu_percent"))
 
-    memory_title = ""
+    share = ""
+    limit_text = ""
     if memory is not None:
-        parts = []
         if machine_memory:
-            parts.append(
-                f"{format_percent(memory / machine_memory * 100)} av maskinens"
-                f" minne ({format_mib(machine_memory)})"
-            )
-        # An own limit: differs from the machine's memory (docker rounds it).
-        # Without the machine's memory it cannot be told apart, as docker
-        # gives the machine's memory as limit when there is none.
+            share = format_percent(memory / machine_memory * 100)
+        # Without the machine's memory an own limit cannot be told apart, as
+        # docker gives the machine's memory as limit when there is none.
         if limit and not machine_memory:
-            parts.append(
+            limit_text = (
                 f"{format_percent(memory / limit * 100)} av minnet"
                 f" containeren kan bruke ({format_mib(limit)})"
             )
+        # An own limit differs from the machine's memory (docker rounds it).
         elif (
             limit
             and machine_memory
             and abs(limit - machine_memory) > 0.02 * machine_memory
         ):
-            parts.append(
+            limit_text = (
                 f"{format_percent(memory / limit * 100)} av grensen"
-                f" for containeren ({format_mib(limit)})"
+                f" ({format_mib(limit)})"
             )
-        memory_title = ", ".join(parts)
-        memory_title = memory_title[:1].upper() + memory_title[1:]
 
     return {
         "memory_text": format_mib(memory) or NO_VALUE,
-        "memory_title": memory_title,
+        "memory_share": share,
+        "memory_limit_text": limit_text,
         "cpu_text": format_percent(cpu) if cpu is not None else NO_VALUE,
     }
 

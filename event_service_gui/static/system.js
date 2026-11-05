@@ -158,18 +158,18 @@
     return td;
   }
 
-  // Memory of a service, with its share of the machine's memory as tooltip.
+  // Memory of a service: amount, share of the machine's memory and, if the
+  // container has its own limit, the share of that limit on a second line.
   function memoryCell(s) {
-    const td = el("td");
-    if (!s.memory_title) {
-      td.textContent = s.memory_text || "";
-      return td;
+    const td = el("td", s.memory_text);
+    if (s.memory_share) {
+      td.appendChild(document.createTextNode(" "));
+      td.appendChild(el("span", "(" + s.memory_share + ")", "text-muted"));
     }
-    const button = el("button", s.memory_text, "info-tip info-tip-value");
-    button.type = "button";
-    button.dataset.tip = s.memory_title;
-    button.setAttribute("aria-label", s.memory_text + ": " + s.memory_title);
-    td.appendChild(button);
+    if (s.memory_limit_text) {
+      td.appendChild(el("br"));
+      td.appendChild(el("small", s.memory_limit_text, "text-muted"));
+    }
     return td;
   }
 

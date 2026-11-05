@@ -294,11 +294,13 @@ async def test_status_endpoint_admin(
         "version",
         "health",
         "memory_text",
-        "memory_title",
+        "memory_share",
+        "memory_limit_text",
         "cpu_text",
     }
     assert service["memory_text"] == "523 MiB"
-    assert service["memory_title"] == "1.6% av maskinens minne (32.0 GiB)"
+    assert service["memory_share"] == "1.6%"
+    assert service["memory_limit_text"] == ""
     assert service["cpu_text"] == "1.4%"
     assert set(service["version"]) == {"text", "url", "title", "is_revision"}
     assert service["health"]["text"] == "OK (5 ms)"

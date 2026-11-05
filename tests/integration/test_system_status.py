@@ -219,7 +219,8 @@ def test_system_info_all_ok(status_file, instance) -> None:
     assert service["image_created"] == "04.11.2026 21:03:11"
     assert service["started_at"] == "05.11.2026 09:12:50"
     assert service["memory_text"] == "523 MiB"
-    assert service["memory_title"] == "1.6% av maskinens minne (32.0 GiB)"
+    assert service["memory_share"] == "1.6%"
+    assert service["memory_limit_text"] == ""
     assert service["cpu_text"] == "1.4%"
 
 
@@ -759,7 +760,8 @@ def test_service_usage_not_running(status_file) -> None:
         SystemStatusService().get_system_info(now=NOW), "integration-service"
     )
     assert service["memory_text"] == "–"
-    assert service["memory_title"] == ""
+    assert service["memory_share"] == ""
+    assert service["memory_limit_text"] == ""
     assert service["cpu_text"] == "–"
 
 
@@ -776,13 +778,10 @@ def test_service_usage_missing_and_wrong_types(status_file) -> None:
         service = service_by_name(info, name)
         assert (
             service["memory_text"],
-            service["memory_title"],
+            service["memory_share"],
+            service["memory_limit_text"],
             service["cpu_text"],
-        ) == (
-            "–",
-            "",
-            "–",
-        )
+        ) == ("–", "", "", "–")
 
 
 @pytest.mark.integration
@@ -802,9 +801,8 @@ def test_service_usage_own_limit(status_file) -> None:
     )
     service = service_by_name(SystemStatusService().get_system_info(now=NOW), "mongodb")
     assert service["memory_text"] == "300 MiB"
-    assert service["memory_title"] == (
-        "0.9% av maskinens minne (32.0 GiB), 59% av grensen for containeren (512 MiB)"
-    )
+    assert service["memory_share"] == "0.9%"
+    assert service["memory_limit_text"] == "59% av grensen (512 MiB)"
     assert service["cpu_text"] == "250%"
 
 
@@ -819,7 +817,7 @@ def test_service_usage_limit_rounded_by_docker(status_file) -> None:
     service = service_by_name(
         SystemStatusService().get_system_info(now=NOW), "event-service"
     )
-    assert "grensen" not in service["memory_title"]
+    assert service["memory_limit_text"] == ""
 
 
 @pytest.mark.integration
@@ -834,7 +832,10 @@ def test_service_usage_machine_memory_unknown(status_file) -> None:
         SystemStatusService().get_system_info(now=NOW), "user-service"
     )
     assert service["memory_text"] == "523 MiB"
-    assert service["memory_title"] == "1.6% av minnet containeren kan bruke (32.0 GiB)"
+    assert service["memory_share"] == ""
+    assert service["memory_limit_text"] == (
+        "1.6% av minnet containeren kan bruke (32.0 GiB)"
+    )
 
 
 @pytest.mark.integration
@@ -848,11 +849,12 @@ def test_service_usage_health_only_row(status_file) -> None:
         ],
     )
     service = service_by_name(info, "race-service")
-    assert (service["memory_text"], service["memory_title"], service["cpu_text"]) == (
-        "–",
-        "",
-        "–",
-    )
+    assert (
+        service["memory_text"],
+        service["memory_share"],
+        service["memory_limit_text"],
+        service["cpu_text"],
+    ) == ("–", "", "", "–")
 
 
 @pytest.mark.integration
@@ -878,11 +880,29 @@ async def test_system_page_service_usage(client: _TestClient, status_file) -> No
     text = await resp.text()
     assert "<th>Minne " in text
     assert "<th>CPU " in text
-    assert (
-        '<button type="button" class="info-tip info-tip-value" '
-        'aria-label="523 MiB: 1.6% av maskinens minne (32.0 GiB)" '
-        'data-tip="1.6% av maskinens minne (32.0 GiB)">523 MiB</button>'
-    ) in text
+    # The share of the machine's memory is shown, not hidden in a tooltip
+    assert '<td>523 MiB <span class="text-muted">(1.6%)</span></td>' in text
+    assert "info-tip-value" not in text
     assert "<td>1.4%</td>" in text
     assert "<td>–</td>" in text  # memory and CPU of the stopped service
     assert 'colspan="8"' not in text
+
+
+@pytest.mark.integration
+async def test_system_page_service_own_limit(client: _TestClient, status_file) -> None:
+    status_file(
+        status_doc(
+            services=[
+                service_doc(
+                    "mongodb", memory_bytes=300 * MIB, memory_limit_bytes=512 * MIB
+                )
+            ]
+        )
+    )
+    await login(client, "admin")
+    resp = await client.get("/system", allow_redirects=False)
+    assert resp.status == 200
+    assert (
+        '<td>300 MiB <span class="text-muted">(0.9%)</span>'
+        '<br><small class="text-muted">59% av grensen (512 MiB)</small></td>'
+    ) in await resp.text()
