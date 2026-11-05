@@ -8,6 +8,8 @@ from aiohttp_session import new_session
 
 from event_service_gui.adapters import UserAdapter
 
+from .utils import safe_next_path
+
 
 class Login(web.View):
     """Class representing the main view."""
@@ -23,6 +25,8 @@ class Login(web.View):
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
             event_id = ""
+        # page to return to after login, see check_login
+        next_path = safe_next_path(self.request.rel_url.query.get("next")) or ""
 
         event = {"name": "Administrasjon", "organiser": "Ikke valgt"}
 
@@ -34,6 +38,7 @@ class Login(web.View):
                 "event": event,
                 "event_id": event_id,
                 "informasjon": informasjon,
+                "next": next_path,
                 "username": username,
             },
         )
@@ -43,6 +48,7 @@ class Login(web.View):
         informasjon = ""
         result = 0
         form = await self.request.post()
+        next_path = safe_next_path(str(form.get("next", "")))
         try:
             event_id = self.request.rel_url.query["event_id"]
             logging.debug(f"Event: {event_id}")
@@ -73,6 +79,9 @@ class Login(web.View):
                     "event": event,
                     "event_id": event_id,
                     "informasjon": informasjon,
+                    "next": next_path or "",
                 },
             )
+        if next_path:
+            return web.HTTPSeeOther(location=next_path)
         return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

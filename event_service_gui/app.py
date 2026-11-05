@@ -1,6 +1,7 @@
 """Package for exposing validation endpoint."""
 
 import base64
+import binascii
 import logging
 import os
 from logging.handlers import RotatingFileHandler
@@ -44,6 +45,56 @@ ERROR_FILE = str(os.getenv("ERROR_FILE"))
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 PROJECT_ROOT = f"{Path.cwd()}/event_service_gui"
 
+FERNET_KEY_LENGTH = 32
+FERNET_KEY_HELP = (
+    "Set FERNET_KEY to 32 url-safe base64-encoded bytes, e.g. generated with: "
+    "python3 -c 'import base64, os; "
+    "print(base64.urlsafe_b64encode(os.urandom(32)).decode())'"
+)
+
+
+def get_session_secret_key() -> bytes:
+    """Return the key that encrypts the session cookie, from FERNET_KEY.
+
+    There is no default: a key in the source code would let anyone make a
+    valid session cookie. A missing or invalid key stops the app.
+    """
+    fernet_key = os.getenv("FERNET_KEY", "").strip()
+    if not fernet_key:
+        msg = f"FERNET_KEY is not set. {FERNET_KEY_HELP}"
+        raise RuntimeError(msg)
+    try:
+        secret_key = base64.urlsafe_b64decode(fernet_key)
+    except (binascii.Error, ValueError):
+        secret_key = b""
+    if len(secret_key) != FERNET_KEY_LENGTH:
+        msg = f"FERNET_KEY is not valid. {FERNET_KEY_HELP}"
+        raise RuntimeError(msg)
+    return secret_key
+
+
+def get_session_storage() -> EncryptedCookieStorage:
+    """Return the session cookie storage.
+
+    max_age is the maximum session length (JWT_MAX_SESSION_SECONDS, same as in
+    user-service), so the session survives a browser restart. The cookie is
+    only sent over https when SESSION_COOKIE_SECURE is true, which should be
+    set when the GUI runs behind https.
+    """
+    max_age = int(os.getenv("JWT_MAX_SESSION_SECONDS", "86400"))
+    secure = os.getenv("SESSION_COOKIE_SECURE", "false").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+    return EncryptedCookieStorage(
+        get_session_secret_key(),
+        max_age=max_age,
+        secure=secure,
+        httponly=True,
+        samesite="Lax",
+    )
+
 
 async def handler(request) -> web.Response:
     """Create a session handler."""
@@ -72,10 +123,8 @@ async def create_app() -> web.Application:
     """Create an web application."""
     app = web.Application()
 
-    # sesson handling - secret_key must be 32 url-safe base64-encoded bytes
-    fernet_key = os.getenv("FERNET_KEY", "23EHUWpP_tpleR_RjuX5hxndWqyc0vO-cjNUMSzbjN4=")
-    secret_key = base64.urlsafe_b64decode(fernet_key)
-    setup(app, EncryptedCookieStorage(secret_key))
+    # session handling
+    setup(app, get_session_storage())
     app.router.add_get("/secret", handler)
 
     # Set up logging - errors to separate file

@@ -7,7 +7,12 @@ from aiohttp import web
 
 from event_service_gui.adapters import CompetitionFormatAdapter, EventsAdapter
 
-from .utils import check_login, create_default_competition_format, get_event
+from .utils import (
+    check_login,
+    create_default_competition_format,
+    get_event,
+    login_location,
+)
 
 
 class Events(web.View):
@@ -28,9 +33,8 @@ class Events(web.View):
         except Exception:
             action = ""
 
+        user = await check_login(self)
         try:
-            user = await check_login(self)
-
             event = await get_event(user["token"], event_id)
             local_time_now = ""
             if event:
@@ -129,7 +133,10 @@ class Events(web.View):
             error_reason = str(e)
             if error_reason.startswith("401"):
                 return web.HTTPSeeOther(
-                    location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
+                    location=login_location(
+                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
+                        self.request.path_qs,
+                    )
                 )
 
         info = f"action={action}&informasjon={informasjon}"

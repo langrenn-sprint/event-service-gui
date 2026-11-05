@@ -17,6 +17,7 @@ from .utils import (
     check_login_open,
     get_event,
     get_heat_separators,
+    login_location,
     perform_seeding,
 )
 
@@ -142,7 +143,10 @@ class Seeding(web.View):
             error_reason = str(e)
             if error_reason.startswith("401"):
                 return web.HTTPSeeOther(
-                    location=f"/login?informasjon=Ingen tilgang, vennligst logg inn på nytt. {e}"
+                    location=login_location(
+                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
+                        self.request.path_qs,
+                    )
                 )
 
         info = f"action={action}&informasjon={informasjon}&klasse={valgt_klasse}"

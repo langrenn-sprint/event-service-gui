@@ -20,6 +20,7 @@ services:
       - USERS_HOST_PORT=8000
       - LOGGING_LEVEL=${LOGGING_LEVEL}
       - ERROR_FILE=error.log
+      - FERNET_KEY=${FERNET_KEY}
     volumes:
       - type: bind
         source: ./error.log
