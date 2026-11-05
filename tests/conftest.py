@@ -55,6 +55,20 @@ def docker_compose_file(pytestconfig: Any) -> Any:
 
 
 @pytest.fixture(scope="session")
+def docker_setup() -> list[str]:
+    """Start the services, building the image unless CI has prebuilt it.
+
+    In CI the image is built in a separate step (with OCI labels) and
+    tagged as the image in docker-compose.yml. Setting IMAGE_PREBUILT=1
+    makes the tests use that image, so the published image is exactly
+    the one that was tested.
+    """
+    if os.environ.get("IMAGE_PREBUILT") == "1":
+        return ["up --wait"]
+    return ["up --build --wait"]
+
+
+@pytest.fixture(scope="session")
 def docker_cleanup(pytestconfig: Any) -> Any:
     """Override default location of docker-compose.yml file."""
     return "stop"
