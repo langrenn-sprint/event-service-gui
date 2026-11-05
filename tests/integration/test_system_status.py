@@ -54,6 +54,27 @@ def status_doc(**overrides) -> dict:
             ],
         },
         "disk": {"total_bytes": 26843545600, "free_bytes": 12884901888},
+        "services": [
+            service_doc("user-service"),
+            service_doc("event-service"),
+        ],
+    }
+    doc.update(overrides)
+    return doc
+
+
+def service_doc(name: str, **overrides) -> dict:
+    """Return a running service as in the `services` section of system.json."""
+    doc = {
+        "name": name,
+        "state": "running",
+        "started_at": "2026-11-05T09:12:50+01:00",
+        "image": f"ghcr.io/langrenn-sprint/{name}:latest",
+        "image_id": "sha256:1111",
+        "image_digest": "sha256:2222",
+        "image_created": "2026-11-04T21:03:11+01:00",
+        "revision": "4e183fd0c2b1a9e8d7f6a5b4c3d2e1f0a9b8c7d6",
+        "source": f"https://github.com/langrenn-sprint/{name}",
     }
     doc.update(overrides)
     return doc
@@ -150,6 +171,17 @@ def test_system_info_all_ok(status_file, instance) -> None:
     ]
     assert info["disk"]["free_percent"] == "48%"
     assert info["disk"]["low"] is False
+    assert [s["name"] for s in info["services"]] == ["event-service", "user-service"]
+    service = info["services"][1]
+    assert service["running"] is True
+    assert service["state_text"] == "Kjører"
+    assert service["revision"] == "4e183fd"
+    assert service["revision_url"] == (
+        "https://github.com/langrenn-sprint/user-service/commit/"
+        "4e183fd0c2b1a9e8d7f6a5b4c3d2e1f0a9b8c7d6"
+    )
+    assert service["image_created"] == "04.11.2026 21:03:11"
+    assert service["started_at"] == "05.11.2026 09:12:50"
 
 
 @pytest.mark.integration
@@ -210,6 +242,86 @@ def test_system_info_partial_document(status_file) -> None:
     assert "Statusfila mangler tidspunkt." in texts
     assert "Ingen vellykket backup er registrert." in texts
     assert info["restore"] is None
+    assert info["services"] is None
+
+
+@pytest.mark.integration
+def test_system_info_services_not_running(status_file) -> None:
+    status_file(
+        status_doc(
+            services=[
+                service_doc("user-service"),
+                service_doc("integration-service", state="exited"),
+                service_doc("photo-service", state="restarting"),
+                {"name": "race-service", "state": "missing"},
+            ]
+        )
+    )
+    info = SystemStatusService().get_system_info(now=NOW)
+    errors = warning_texts(info, "error")
+    assert "Tjenesten integration-service kjører ikke (status: exited)." in errors
+    assert "Tjenesten photo-service kjører ikke (status: restarting)." in errors
+    assert "Tjenesten race-service mangler (ingen container)." in errors
+    assert not any("user-service" in t for t in errors)
+    by_name = {s["name"]: s for s in info["services"]}
+    assert by_name["integration-service"]["state_text"] == "Stoppet"
+    assert by_name["integration-service"]["running"] is False
+    missing = by_name["race-service"]
+    assert missing["state_text"] == "Mangler"
+    assert missing["revision"] == ""
+    assert missing["started_at"] == ""
+
+
+@pytest.mark.integration
+def test_system_info_services_revision_link_only_for_github(status_file) -> None:
+    status_file(
+        status_doc(
+            services=[
+                service_doc("no-labels", revision=None, source=None),
+                service_doc("other-host", source="https://example.com/a/b"),
+                service_doc("bad-revision", revision="main"),
+                service_doc("injection", source='https://github.com/a/b"><script>'),
+            ]
+        )
+    )
+    info = SystemStatusService().get_system_info(now=NOW)
+    by_name = {s["name"]: s for s in info["services"]}
+    assert all(s["revision_url"] == "" for s in info["services"])
+    assert by_name["no-labels"]["revision"] == ""
+    assert by_name["other-host"]["revision"] == "4e183fd"
+    assert by_name["bad-revision"]["revision"] == "main"
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    ("image", "tag"),
+    [
+        ("mongo:7-jammy", "7-jammy"),
+        ("ghcr.io/langrenn-sprint/user-service:latest", "latest"),
+        ("registry:5000/mongo", ""),
+        ("mongo", ""),
+        (None, ""),
+    ],
+)
+def test_system_info_services_image_tag(status_file, image, tag: str) -> None:
+    """Images without OCI labels (e.g. mongo) show the image tag instead."""
+    status_file(
+        status_doc(
+            services=[service_doc("db", image=image, revision=None, source=None)]
+        )
+    )
+    info = SystemStatusService().get_system_info(now=NOW)
+    assert info["services"][0]["image_tag"] == tag
+
+
+@pytest.mark.integration
+def test_system_info_services_wrong_types(status_file) -> None:
+    """Wrongly typed entries are skipped, not raised on."""
+    status_file(status_doc(services=["x", None, {"state": "running", "revision": 1}]))
+    info = SystemStatusService().get_system_info(now=NOW)
+    assert len(info["services"]) == 1
+    assert info["services"][0]["name"] == "(uten navn)"
+    assert info["services"][0]["revision"] == ""
 
 
 # --- Banner logic -----------------------------------------------------------
@@ -351,6 +463,44 @@ async def test_system_page_admin(client: _TestClient, instance, status_file) -> 
     assert "contestants" in text
     assert 'id="mySystem"' in text  # menu link for admin
     assert 'id="mySystemHome"' in text  # link back to main page
+    assert 'id="services"' in text
+    assert (
+        'href="https://github.com/langrenn-sprint/user-service/commit/'
+        '4e183fd0c2b1a9e8d7f6a5b4c3d2e1f0a9b8c7d6"'
+    ) in text
+
+
+@pytest.mark.integration
+async def test_system_page_services_not_running(
+    client: _TestClient, status_file
+) -> None:
+    status_file(
+        status_doc(
+            services=[
+                service_doc("integration-service", state="exited"),
+                service_doc("<b>evil</b>", revision=None, source=None),
+            ]
+        )
+    )
+    await login(client, "admin")
+    resp = await client.get("/system", allow_redirects=False)
+    assert resp.status == 200
+    text = await resp.text()
+    assert "Tjenesten integration-service kjører ikke (status: exited)." in text
+    assert "Stoppet" in text
+    assert "<b>evil</b>" not in text  # values from the file are escaped
+    assert "&lt;b&gt;evil&lt;/b&gt;" in text
+
+
+@pytest.mark.integration
+async def test_system_page_without_services(client: _TestClient, status_file) -> None:
+    doc = status_doc()
+    del doc["services"]
+    status_file(doc)
+    await login(client, "admin")
+    resp = await client.get("/system", allow_redirects=False)
+    assert resp.status == 200
+    assert "Statusfila har ingen informasjon om tjenestene." in await resp.text()
 
 
 @pytest.mark.integration

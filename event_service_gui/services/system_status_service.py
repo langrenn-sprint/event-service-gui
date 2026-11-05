@@ -6,6 +6,7 @@ status file format defined in langrenn-sprint/deploy#13.
 
 import datetime
 import logging
+import re
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from event_service_gui.adapters import SystemStatusAdapter
@@ -31,6 +32,20 @@ BANNER_LABELS = {
 
 LEVEL_ERROR = "error"
 LEVEL_WARNING = "warning"
+
+SERVICE_RUNNING = "running"
+SERVICE_STATE_LABELS = {
+    "running": "Kjører",
+    "exited": "Stoppet",
+    "restarting": "Restarter",
+    "paused": "Pauset",
+    "created": "Ikke startet",
+    "dead": "Død",
+    "removing": "Fjernes",
+    "missing": "Mangler",
+}
+GITHUB_SOURCE = re.compile(r"^https://github\.com/[\w.-]+/[\w.-]+$")
+GIT_REVISION = re.compile(r"^[0-9a-f]{7,40}$")
 
 
 def _display_tz() -> datetime.tzinfo | None:
@@ -191,6 +206,7 @@ class SystemStatusService:
         info["restore"] = self._restore_info(status.get("restore"))
         info["mongodb"] = self._mongodb_info(_dict(status.get("mongodb")), warnings)
         info["disk"] = self._disk_info(_dict(status.get("disk")), warnings)
+        info["services"] = self._services_info(status.get("services"), warnings)
         return info
 
     @staticmethod
@@ -314,3 +330,59 @@ class SystemStatusService:
             "free_percent": f"{free_ratio:.0%}" if free_ratio is not None else "",
             "low": free_ratio is not None and free_ratio < DISK_FREE_WARNING_RATIO,
         }
+
+    @staticmethod
+    def _services_info(services: object, warnings: list[dict]) -> list[dict] | None:
+        """Containers in the deploy stack, or None if the file has no services.
+
+        Every service that is not running gives an error, e.g. a container
+        that has exited or a service in docker-compose.yml without container.
+        """
+        if not isinstance(services, list):
+            return None
+        result = []
+        for service in services:
+            if not isinstance(service, dict):
+                continue
+            name = service.get("name") or "(uten navn)"
+            state = service.get("state") or "unknown"
+            running = state == SERVICE_RUNNING
+            if not running:
+                text = (
+                    f"Tjenesten {name} mangler (ingen container)."
+                    if state == "missing"
+                    else f"Tjenesten {name} kjører ikke (status: {state})."
+                )
+                warnings.append({"level": LEVEL_ERROR, "text": text})
+
+            revision = service.get("revision")
+            revision = revision if isinstance(revision, str) else ""
+            source = service.get("source")
+            source = source if isinstance(source, str) else ""
+            revision_url = (
+                f"{source}/commit/{revision}"
+                if GITHUB_SOURCE.match(source) and GIT_REVISION.match(revision)
+                else ""
+            )
+            image = service.get("image")
+            image = image if isinstance(image, str) else ""
+            # Tag of e.g. "mongo:7-jammy"; a ":" before the last "/" is a port.
+            tag = image.rpartition(":")[2] if ":" in image else ""
+            result.append(
+                {
+                    "name": name,
+                    "state": state,
+                    "state_text": SERVICE_STATE_LABELS.get(state, state),
+                    "running": running,
+                    "image": image,
+                    "image_tag": "" if "/" in tag else tag,
+                    "image_created": format_time(
+                        parse_time(service.get("image_created"))
+                    ),
+                    "started_at": format_time(parse_time(service.get("started_at"))),
+                    "revision": revision[:7],
+                    "revision_url": revision_url,
+                    "source": source,
+                }
+            )
+        return sorted(result, key=lambda s: s["name"])
