@@ -9,7 +9,7 @@ import logging
 import re
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from event_service_gui.adapters import SystemStatusAdapter
+from event_service_gui.adapters import ServiceHealthAdapter, SystemStatusAdapter
 
 PRODUCTION_ROLE = "production"
 SUPPORTED_SCHEMA_VERSION = 1
@@ -44,6 +44,11 @@ SERVICE_STATE_LABELS = {
     "removing": "Fjernes",
     "missing": "Mangler",
 }
+HEALTH_OK = "ok"
+HEALTH_LABELS = {"ok": "OK", "failed": "Feil", "timeout": "Tidsavbrudd"}
+BACKUP_RESULT_LABELS = {"ok": "OK", "failed": "FEILET"}
+UPLOAD_STATUS_LABELS = {"ok": "OK", "failed": "Feilet", "disabled": "Av"}
+NO_REVISION_TITLE = "Imaget mangler OCI-label org.opencontainers.image.revision"
 GITHUB_SOURCE = re.compile(r"^https://github\.com/[\w.-]+/[\w.-]+$")
 GIT_REVISION = re.compile(r"^[0-9a-f]{7,40}$")
 
@@ -111,6 +116,15 @@ def format_bytes(value: object) -> str:
     return ""  # pragma: no cover
 
 
+def _time_with_age(
+    time: datetime.datetime | None, age: datetime.timedelta | None, empty: str
+) -> str:
+    """Format e.g. "05.11.2026 12:00:01 (4 min siden)", or empty if no time."""
+    if time is None:
+        return empty
+    return f"{format_time(time)} ({format_age(age)} siden)"
+
+
 def _dict(value: object) -> dict:
     return value if isinstance(value, dict) else {}
 
@@ -118,9 +132,14 @@ def _dict(value: object) -> dict:
 class SystemStatusService:
     """Class representing service layer for instance and system status."""
 
-    def __init__(self, adapter: SystemStatusAdapter | None = None) -> None:
-        """Initialize the service, optionally with a custom adapter."""
+    def __init__(
+        self,
+        adapter: SystemStatusAdapter | None = None,
+        health_adapter: ServiceHealthAdapter | None = None,
+    ) -> None:
+        """Initialize the service, optionally with custom adapters."""
         self.adapter = adapter or SystemStatusAdapter()
+        self.health_adapter = health_adapter or ServiceHealthAdapter()
 
     def get_banner(self) -> dict | None:
         """Get the banner to show on all pages, or None in production.
@@ -144,8 +163,21 @@ class SystemStatusService:
 
         return {"role": role, "text": text}
 
-    def get_system_info(self, now: datetime.datetime | None = None) -> dict:
-        """Get everything the system page shows, including warnings."""
+    async def get_live_system_info(self, now: datetime.datetime | None = None) -> dict:
+        """Get the system info including a live health check of the services."""
+        health = await self.health_adapter.check_services()
+        return self.get_system_info(now=now, health=health)
+
+    def get_system_info(
+        self, now: datetime.datetime | None = None, health: list[dict] | None = None
+    ) -> dict:
+        """Get everything the system page shows, including warnings.
+
+        Args:
+            now: Current time, for calculating ages.
+            health: Result of the live health check (ServiceHealthAdapter),
+                merged into the services. None if not checked.
+        """
         now = now or datetime.datetime.now(datetime.UTC)
         instance = self.adapter.get_instance()
         info: dict = {
@@ -156,9 +188,12 @@ class SystemStatusService:
             },
             "has_status": False,
             "warnings": [],
+            "checked_at": format_time(now, "%H:%M:%S"),
+            "services": None,
         }
         status = self.adapter.get_status()
         if status is None:
+            info["services"] = self._merge_health(None, health, info["warnings"])
             return info
 
         info["has_status"] = True
@@ -187,6 +222,7 @@ class SystemStatusService:
         info["generated"] = {
             "time": format_time(generated_at),
             "age": format_age(generated_age),
+            "text": _time_with_age(generated_at, generated_age, "ukjent"),
             "stale": generated_age is None or generated_age > MAX_AGE,
         }
         if generated_age is None:
@@ -206,7 +242,9 @@ class SystemStatusService:
         info["restore"] = self._restore_info(status.get("restore"))
         info["mongodb"] = self._mongodb_info(_dict(status.get("mongodb")), warnings)
         info["disk"] = self._disk_info(_dict(status.get("disk")), warnings)
-        info["services"] = self._services_info(status.get("services"), warnings)
+        info["services"] = self._merge_health(
+            self._services_info(status.get("services"), warnings), health, warnings
+        )
         return info
 
     @staticmethod
@@ -244,21 +282,34 @@ class SystemStatusService:
                 }
             )
 
+        upload_time = format_time(parse_time(upload.get("time")))
+        last_attempt = format_time(parse_time(backup.get("last_attempt")))
+        result_text = BACKUP_RESULT_LABELS.get(last_result, "")
         return {
-            "last_attempt": format_time(parse_time(backup.get("last_attempt"))),
+            "last_attempt": last_attempt,
+            "last_attempt_text": " \u2013 ".join(
+                t for t in (last_attempt, result_text) if t
+            ),
             "last_result": last_result,
+            "failed": last_result == "failed",
             "last_error": backup.get("last_error") or "",
             "last_success": {
                 "time": format_time(success_time),
                 "age": format_age(success_age),
                 "stale": success_age is None or success_age > MAX_AGE,
+                "text": _time_with_age(success_time, success_age, "Ingen"),
                 "file": last_success.get("file") or "",
                 "size": format_bytes(last_success.get("size_bytes")),
                 "duration_seconds": last_success.get("duration_seconds"),
             },
             "upload": {
                 "status": upload_status,
-                "time": format_time(parse_time(upload.get("time"))),
+                "status_text": UPLOAD_STATUS_LABELS.get(
+                    upload_status, upload_status or "Ukjent"
+                ),
+                "failed": upload_status == "failed",
+                "time": upload_time,
+                "time_text": f"({upload_time})" if upload_time else "",
             },
         }
 
@@ -324,10 +375,14 @@ class SystemStatusService:
                         "text": f"Lite ledig diskplass: {free_ratio:.0%} ({format_bytes(free)}).",
                     }
                 )
+        free_text = format_bytes(free) or "ukjent"
+        if free_ratio is not None:
+            free_text += f" ({free_ratio:.0%})"
         return {
             "total": format_bytes(total),
             "free": format_bytes(free),
             "free_percent": f"{free_ratio:.0%}" if free_ratio is not None else "",
+            "free_text": free_text,
             "low": free_ratio is not None and free_ratio < DISK_FREE_WARNING_RATIO,
         }
 
@@ -368,6 +423,15 @@ class SystemStatusService:
             image = image if isinstance(image, str) else ""
             # Tag of e.g. "mongo:7-jammy"; a ":" before the last "/" is a port.
             tag = image.rpartition(":")[2] if ":" in image else ""
+            tag = "" if "/" in tag else tag
+            version: dict[str, str | bool]
+            if revision:
+                version = {"text": revision[:7], "url": revision_url, "title": ""}
+            elif tag:
+                version = {"text": tag, "url": "", "title": image}
+            else:
+                version = {"text": "ukjent", "url": "", "title": NO_REVISION_TITLE}
+            version["is_revision"] = bool(revision)
             result.append(
                 {
                     "name": name,
@@ -375,7 +439,7 @@ class SystemStatusService:
                     "state_text": SERVICE_STATE_LABELS.get(state, state),
                     "running": running,
                     "image": image,
-                    "image_tag": "" if "/" in tag else tag,
+                    "image_tag": tag,
                     "image_created": format_time(
                         parse_time(service.get("image_created"))
                     ),
@@ -383,6 +447,72 @@ class SystemStatusService:
                     "revision": revision[:7],
                     "revision_url": revision_url,
                     "source": source,
+                    "version": version,
+                    "health": None,
                 }
             )
+        return sorted(result, key=lambda s: s["name"])
+
+    @staticmethod
+    def _merge_health(
+        services: list[dict] | None, health: list[dict] | None, warnings: list[dict]
+    ) -> list[dict] | None:
+        """Add the live health check to the services from the status file.
+
+        A checked service that is not in the status file (or no status file)
+        gets a row with unknown container status. A service that does not
+        answer gives an error, unless the container is known not to run
+        (that already gives an error).
+        """
+        if not health:
+            return services
+        result = list(services or [])
+        by_name = {s["name"]: s for s in result}
+        for check in health:
+            name = check["name"]
+            service = by_name.get(name)
+            if service is None:
+                service = {
+                    "name": name,
+                    "state": "unknown",
+                    "state_text": "Ukjent",
+                    "running": None,
+                    "image": "",
+                    "image_tag": "",
+                    "image_created": "",
+                    "started_at": "",
+                    "revision": "",
+                    "revision_url": "",
+                    "source": "",
+                    "version": {
+                        "text": "",
+                        "url": "",
+                        "title": "",
+                        "is_revision": False,
+                    },
+                }
+                result.append(service)
+            status = check["status"]
+            ok = status == HEALTH_OK
+            response_ms = check.get("response_ms")
+            service["health"] = {
+                "status": status,
+                "status_text": HEALTH_LABELS.get(status, status),
+                "ok": ok,
+                "response_ms": response_ms,
+                "text": (
+                    f"{HEALTH_LABELS.get(status, status)} ({response_ms} ms)"
+                    if response_ms is not None
+                    else HEALTH_LABELS.get(status, status)
+                ),
+                "detail": check.get("detail") or "",
+            }
+            if not ok and service["running"] is not False:
+                detail = check.get("detail") or HEALTH_LABELS.get(status, status)
+                warnings.append(
+                    {
+                        "level": LEVEL_ERROR,
+                        "text": f"Tjenesten {name} svarer ikke: {detail}.",
+                    }
+                )
         return sorted(result, key=lambda s: s["name"])

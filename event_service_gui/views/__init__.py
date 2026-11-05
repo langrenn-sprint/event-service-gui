@@ -13,7 +13,7 @@ from .raceclasses import Raceclasses
 from .raceplans import Raceplans
 from .seeding import Seeding
 from .settings import Settings
-from .system import System
+from .system import System, SystemStatus
 from .tasks import Tasks
 from .users import Users
 
@@ -33,6 +33,7 @@ __all__ = [
     "Seeding",
     "Settings",
     "System",
+    "SystemStatus",
     "Tasks",
     "Users",
 ]

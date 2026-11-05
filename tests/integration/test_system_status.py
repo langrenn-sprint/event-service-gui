@@ -9,7 +9,7 @@ import pytest
 from aiohttp.test_utils import TestClient as _TestClient
 from aioresponses import aioresponses
 
-from event_service_gui.adapters import SystemStatusAdapter
+from event_service_gui.adapters import ServiceHealthAdapter, SystemStatusAdapter
 from event_service_gui.adapters.user_adapter import get_role_from_token
 from event_service_gui.services import SystemStatusService
 
@@ -105,6 +105,16 @@ def instance(monkeypatch: pytest.MonkeyPatch):
                 monkeypatch.setenv(key, value)
 
     return set_instance
+
+
+@pytest.fixture(autouse=True)
+def no_health_checks(monkeypatch: pytest.MonkeyPatch) -> None:
+    """No live health checks in the page tests, unless a test mocks them."""
+
+    async def check_services(self) -> list[dict]:
+        return []
+
+    monkeypatch.setattr(ServiceHealthAdapter, "check_services", check_services)
 
 
 def warning_texts(info: dict, level: str | None = None) -> list[str]:

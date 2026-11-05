@@ -47,6 +47,8 @@ Optional instance information, normally set by the [deploy](https://github.com/l
 | `INSTANCE_ROLE` | `production`, `standby` or `test`. A banner is shown on all pages unless the role is `production` (not set = `unknown`, which also shows the banner) |
 | `SYSTEM_STATUS_FILE` | Path to `system.json` with backup, restore and database status (typically `/app/status/system.json`). Shown on the admin-only page `/system`. If missing or invalid, the page says there is no status information |
 
+The system page updates itself every 15 seconds from `GET /system/status` (JSON, admin only, `401` otherwise), without reloading. On each update the GUI server also pings the backend services (`/ping`, and `/ready` where it exists) with a 2 second timeout. Only services with `*_HOST_SERVER` set are checked: `COMPETITION_FORMAT`, `EVENTS`, `PHOTOS`, `RACE`, `RESULT_GUI` and `USERS`.
+
 ## Requirement for development
 
 Install [uv](https://docs.astral.sh/uv/), e.g.:
