@@ -131,3 +131,6 @@ dmypy.json
 # application data files
 /files
 error.log
+
+# Container logs from failed contract tests
+docker-compose-logs.txt
