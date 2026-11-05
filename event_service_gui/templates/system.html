@@ -13,15 +13,27 @@
   </li>
 {% endblock %}
 {% block content %}
+<style>
+  /* Status line with refresh button; page specific, so not in the shared (cached) CSS. */
+  .live-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
+  .live-bar p { margin: 0; font-size: 1.1em; }
+  .live-bar .busy .glyphicon-refresh { animation: live-spin 0.8s linear infinite; }
+  @keyframes live-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .live-bar .busy .glyphicon-refresh { animation: none; } }
+</style>
 <div id="system" data-has-status="{{ 'true' if system.has_status else 'false' }}" data-status-url="/system/status">
   <section class="row" aria-label="Oppdatering">
     <div class="col-sm-12">
-      <p id="live-status" aria-live="polite">
-        Sist oppdatert <strong data-field="checked_at">{{ system.checked_at }}</strong>
-        <a id="live-refresh" href="/system" class="btn btn-default btn-xs" role="button">Oppdater nå</a>
-        <span id="live-error" class="label label-danger" hidden></span>
-        <a id="live-login" href="/login?informasjon=Innloggingen er utløpt. Logg inn som admin." hidden>Logg inn på nytt</a>
-      </p>
+      <div class="live-bar">
+        <p id="live-status" aria-live="polite">
+          Sist oppdatert <strong data-field="checked_at">{{ system.checked_at }}</strong>
+          <span id="live-error" class="label label-danger" hidden></span>
+          <a id="live-login" href="/login?informasjon=Innloggingen er utløpt. Logg inn som admin." hidden>Logg inn på nytt</a>
+        </p>
+        <a id="live-refresh" href="/system" class="btn btn-primary" role="button">
+          <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Oppdater nå
+        </a>
+      </div>
     </div>
   </section>
 

@@ -9,6 +9,8 @@
   const INTERVAL_MS = 15000;
   const MAX_INTERVAL_MS = 120000;
   const FETCH_TIMEOUT_MS = 10000;
+  // Keep the refresh icon spinning a little, so a fast fetch is still seen.
+  const MIN_BUSY_MS = 600;
 
   const root = document.getElementById("system");
   if (!root || !window.fetch) {
@@ -24,6 +26,22 @@
   let timer = null;
   let stopped = false;
   let inFlight = false;
+  let busySince = 0;
+
+  function setBusy(busy) {
+    if (busy) {
+      busySince = Date.now();
+      refreshButton.classList.add("busy", "disabled");
+      refreshButton.setAttribute("aria-disabled", "true");
+      return;
+    }
+    setTimeout(function () {
+      if (!inFlight) {
+        refreshButton.classList.remove("busy", "disabled");
+        refreshButton.removeAttribute("aria-disabled");
+      }
+    }, Math.max(0, MIN_BUSY_MS - (Date.now() - busySince)));
+  }
 
   function get(obj, path) {
     return path.split(".").reduce(function (o, key) {
@@ -194,8 +212,7 @@
       return;
     }
     inFlight = true;
-    refreshButton.setAttribute("aria-disabled", "true");
-    refreshButton.classList.add("disabled");
+    setBusy(true);
     const controller = new AbortController();
     const abortTimer = setTimeout(function () { controller.abort(); }, FETCH_TIMEOUT_MS);
     try {
@@ -225,8 +242,7 @@
     } finally {
       clearTimeout(abortTimer);
       inFlight = false;
-      refreshButton.removeAttribute("aria-disabled");
-      refreshButton.classList.remove("disabled");
+      setBusy(false);
       schedule();
     }
   }
