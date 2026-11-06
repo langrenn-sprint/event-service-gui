@@ -11,6 +11,7 @@ from typing import Any
 from aiohttp import ClientSession, FormData, hdrs, web
 from multidict import MultiDict
 
+from .ids import require_id
 from .start_adapter import StartAdapter
 
 EVENTS_HOST_SERVER = os.getenv("EVENTS_HOST_SERVER", "localhost")
@@ -223,7 +224,7 @@ class ContestantsAdapter:
         async with (
             ClientSession() as session,
             session.delete(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{contestant['id']}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{require_id(contestant['id'])}",
                 headers=headers,
             ) as resp,
         ):
@@ -439,7 +440,7 @@ class ContestantsAdapter:
         async with (
             ClientSession() as session,
             session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{contestant_id}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{require_id(contestant_id)}",
                 headers=headers,
             ) as resp,
         ):
@@ -520,7 +521,7 @@ class ContestantsAdapter:
                 reason=f"Startnr {current_contestant['bib']} kan ikke endres fordi løper er i startliste."
             )
 
-        url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{contestant['id']}"
+        url = f"{EVENT_SERVICE_URL}/events/{event_id}/contestants/{require_id(contestant['id'])}"
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),

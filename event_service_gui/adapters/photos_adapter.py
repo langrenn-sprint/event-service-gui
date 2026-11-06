@@ -8,6 +8,8 @@ from http import HTTPStatus
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
+from .ids import require_id
+
 PHOTOS_HOST_SERVER = os.getenv("PHOTOS_HOST_SERVER", "localhost")
 PHOTOS_HOST_PORT = os.getenv("PHOTOS_HOST_PORT", "8092")
 PHOTO_SERVICE_URL = f"http://{PHOTOS_HOST_SERVER}:{PHOTOS_HOST_PORT}"
@@ -60,7 +62,9 @@ class PhotosAdapter:
 
         async with (
             ClientSession() as session,
-            session.get(f"{PHOTO_SERVICE_URL}/photos/{my_id}", headers=headers) as resp,
+            session.get(
+                f"{PHOTO_SERVICE_URL}/photos/{require_id(my_id)}", headers=headers
+            ) as resp,
         ):
             logging.debug(f"get_photo {my_id} - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
@@ -222,7 +226,7 @@ class PhotosAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = f"{PHOTO_SERVICE_URL}/photos/{my_id}"
+        url = f"{PHOTO_SERVICE_URL}/photos/{require_id(my_id)}"
         async with (
             ClientSession() as session,
             session.delete(url, headers=headers) as resp,
@@ -249,7 +253,7 @@ class PhotosAdapter:
         async with (
             ClientSession() as session,
             session.put(
-                f"{PHOTO_SERVICE_URL}/photos/{my_id}",
+                f"{PHOTO_SERVICE_URL}/photos/{require_id(my_id)}",
                 headers=headers,
                 json=request_body,
             ) as resp,

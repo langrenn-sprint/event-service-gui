@@ -7,6 +7,7 @@ from http import HTTPStatus
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
+from .ids import require_id
 from .raceclasses_adapter import RaceclassesAdapter
 from .raceplans_adapter import RaceplansAdapter
 
@@ -67,7 +68,7 @@ class StartAdapter:
         async with (
             ClientSession() as session,
             session.delete(
-                f"{RACE_SERVICE_URL}/races/{race_id}/start-entries/{start_entry_id}",
+                f"{RACE_SERVICE_URL}/races/{race_id}/start-entries/{require_id(start_entry_id)}",
                 headers=headers,
             ) as resp,
         ):
@@ -95,7 +96,7 @@ class StartAdapter:
         async with (
             ClientSession() as session,
             session.delete(
-                f"{RACE_SERVICE_URL}/startlists/{start_list_id}",
+                f"{RACE_SERVICE_URL}/startlists/{require_id(start_list_id)}",
                 headers=headers,
             ) as resp,
         ):
@@ -158,7 +159,7 @@ class StartAdapter:
         async with (
             ClientSession() as session,
             session.get(
-                f"{RACE_SERVICE_URL}/races/{race_id}/start-entries/{start_id}",
+                f"{RACE_SERVICE_URL}/races/{race_id}/start-entries/{require_id(start_id)}",
                 headers=headers,
             ) as resp,
         ):
@@ -279,13 +280,13 @@ class StartAdapter:
         async with (
             ClientSession() as session,
             session.put(
-                f"{RACE_SERVICE_URL}/races/{new_start['race_id']}/start-entries/{s_id}",
+                f"{RACE_SERVICE_URL}/races/{new_start['race_id']}/start-entries/{require_id(s_id)}",
                 headers=headers,
                 json=new_start,
             ) as resp,
         ):
             logging.debug(f"update_start_entry - got response {resp.status}")
-            if resp.status == HTTPStatus.CREATED:
+            if resp.status in (HTTPStatus.OK, HTTPStatus.NO_CONTENT):
                 pass
             elif resp.status == HTTPStatus.UNAUTHORIZED:
                 err_msg = f"401 Unathorized - {servicename}"
@@ -328,21 +329,19 @@ async def shuffle_round2(token: str, event_id: str) -> str:
                 if first:
                     first = False
                 elif r2_race["heat"] % 2 == 1:
-                    await swap_starts(
+                    swap_count += await swap_starts(
                         token,
                         r2_race["race_id"],
                         r2_race["previous_race_id"],
                         [1, 3],
                     )
-                    swap_count += 2
                 else:
-                    await swap_starts(
+                    swap_count += await swap_starts(
                         token,
                         r2_race["race_id"],
                         r2_race["previous_race_id"],
                         [0, 2, 4],
                     )
-                    swap_count += 3
     if swap_count > 0:
         informasjon = f" R2 for urangerte er stokket - {swap_count} flyttinger."
     return informasjon
@@ -350,60 +349,52 @@ async def shuffle_round2(token: str, event_id: str) -> str:
 
 async def swap_starts(
     token: str, from_race_id: str, to_race_id: str, start_indexes: list
-) -> str:
-    """Shuffle round 2 start-lists to avoid same heat twice."""
+) -> int:
+    """Swap the contestants at the given places between two races.
+
+    Each start entry keeps its race and position; only bib, name and club are
+    swapped, so no contestant is ever missing from the start list. If the
+    second update fails, the first is undone. Returns the number of swaps.
+    """
     from_race = await RaceplansAdapter().get_race_by_id(token, from_race_id)
     to_race = await RaceplansAdapter().get_race_by_id(token, to_race_id)
+    swap_count = 0
     for start_index in start_indexes:
         try:
             start1 = from_race["start_entries"][start_index]
             start2 = to_race["start_entries"][start_index]
-            new_start1 = {
-                "startlist_id": start1["startlist_id"],
-                "race_id": start1["race_id"],
-                "bib": start2["bib"],
-                "starting_position": start1["starting_position"],
-                "scheduled_start_time": start1["scheduled_start_time"],
-                "name": start2["name"],
-                "club": start2["club"],
-            }
-            new_start2 = {
-                "startlist_id": start2["startlist_id"],
-                "race_id": start2["race_id"],
-                "bib": start1["bib"],
-                "starting_position": start2["starting_position"],
-                "scheduled_start_time": start2["scheduled_start_time"],
-                "name": start1["name"],
-                "club": start1["club"],
-            }
-            await delete_start(token, start1)
-            await delete_start(token, start2)
-            await create_start(token, new_start1)
-            await create_start(token, new_start2)
+        except IndexError:
+            continue  # one of the heats has fewer starts
+        new_start1 = {**start1, **contestant_of(start2)}
+        new_start2 = {**start2, **contestant_of(start1)}
+        try:
+            await StartAdapter().update_start_entry(token, start1["id"], new_start1)
         except Exception:
-            # if error dont change anytning
-            logging.debug("Error: Skipping swap of urangert starts")
-    return "swapped_starts"
+            logging.exception(f"Could not swap bib {start1['bib']} and {start2['bib']}")
+            continue
+        try:
+            await StartAdapter().update_start_entry(token, start2["id"], new_start2)
+        except Exception:
+            logging.exception(f"Could not swap bib {start1['bib']} and {start2['bib']}")
+            await undo_swap(token, start1, start2)
+            continue
+        swap_count += 1
+    return swap_count
 
 
-async def delete_start(token: str, form: dict) -> str:
-    """Extract form data and delete one start event."""
-    w_id = await StartAdapter().delete_start_entry(token, form["race_id"], form["id"])
-    logging.debug(f"delete_start {w_id} - {form}")
-    return "Slettet start."
+def contestant_of(start: dict) -> dict:
+    """Return the fields that tell who the start is for."""
+    return {"bib": start["bib"], "name": start["name"], "club": start["club"]}
 
 
-async def create_start(token: str, form: dict) -> str:
-    """Extract form data and create one start."""
-    new_start = {
-        "startlist_id": form["startlist_id"],
-        "race_id": form["race_id"],
-        "bib": int(form["bib"]),
-        "starting_position": int(form["starting_position"]),
-        "scheduled_start_time": form["scheduled_start_time"],
-        "name": form["name"],
-        "club": form["club"],
-    }
-    w_id = await StartAdapter().create_start_entry(token, new_start)
-    logging.debug(f"create_start {w_id} - {new_start}")
-    return f"Lagt til nr {new_start['bib']}"
+async def undo_swap(token: str, start1: dict, start2: dict) -> None:
+    """Give start1 back its own contestant after a failed swap."""
+    try:
+        await StartAdapter().update_start_entry(token, start1["id"], start1)
+    except Exception as e:
+        logging.exception("Could not undo swap of starts")
+        err_msg = (
+            f"Stokking av runde 2 feilet: nr {start1['bib']} mangler, og nr "
+            f"{start2['bib']} står i to heat. Rett startlisten for hånd."
+        )
+        raise Exception(err_msg) from e

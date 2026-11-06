@@ -8,6 +8,8 @@ from http import HTTPStatus
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
+from .ids import require_id
+
 RACE_HOST_SERVER = os.getenv("RACE_HOST_SERVER", "localhost")
 RACE_HOST_PORT = os.getenv("RACE_HOST_PORT", "8088")
 RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
@@ -25,7 +27,7 @@ class RaceplansAdapter:
         async with (
             ClientSession() as session,
             session.delete(
-                f"{RACE_SERVICE_URL}/races/{race_id}",
+                f"{RACE_SERVICE_URL}/races/{require_id(race_id)}",
                 headers=headers,
             ) as resp,
         ):
@@ -57,7 +59,7 @@ class RaceplansAdapter:
         async with (
             ClientSession() as session,
             session.delete(
-                f"{RACE_SERVICE_URL}/raceplans/{raceplan['id']}",
+                f"{RACE_SERVICE_URL}/raceplans/{require_id(raceplan['id'])}",
                 headers=headers,
             ) as resp,
         ):
@@ -181,7 +183,9 @@ class RaceplansAdapter:
         race = {}
         async with (
             ClientSession() as session,
-            session.get(f"{RACE_SERVICE_URL}/races/{race_id}", headers=headers) as resp,
+            session.get(
+                f"{RACE_SERVICE_URL}/races/{require_id(race_id)}", headers=headers
+            ) as resp,
         ):
             logging.debug(f"get_race_by_id - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
@@ -285,7 +289,7 @@ class RaceplansAdapter:
         async with (
             ClientSession() as session,
             session.put(
-                f"{RACE_SERVICE_URL}/raceplans/{my_id}",
+                f"{RACE_SERVICE_URL}/raceplans/{require_id(my_id)}",
                 headers=headers,
                 json=new_data,
             ) as resp,
@@ -318,7 +322,7 @@ class RaceplansAdapter:
         async with (
             ClientSession() as session,
             session.put(
-                f"{RACE_SERVICE_URL}/races/{my_id}",
+                f"{RACE_SERVICE_URL}/races/{require_id(my_id)}",
                 headers=headers,
                 json=new_data,
             ) as resp,
@@ -359,7 +363,7 @@ class RaceplansAdapter:
         async with (
             ClientSession() as session,
             session.put(
-                f"{RACE_SERVICE_URL}/raceplans/update-start-time/{event_id}",
+                f"{RACE_SERVICE_URL}/raceplans/update-start-time/{require_id(event_id)}",
                 headers=headers,
                 json=new_data,
             ) as resp,

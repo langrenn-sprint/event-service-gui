@@ -13,6 +13,7 @@ from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
 from .competition_format_adapter import CompetitionFormatAdapter
+from .ids import require_id
 
 EVENTS_HOST_SERVER = os.getenv("EVENTS_HOST_SERVER", "localhost")
 EVENTS_HOST_PORT = os.getenv("EVENTS_HOST_PORT", "8082")
@@ -88,7 +89,9 @@ class EventsAdapter:
 
         async with (
             ClientSession() as session,
-            session.get(f"{EVENT_SERVICE_URL}/events/{my_id}", headers=headers) as resp,
+            session.get(
+                f"{EVENT_SERVICE_URL}/events/{require_id(my_id)}", headers=headers
+            ) as resp,
         ):
             logging.debug(f"get_event {my_id} - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
@@ -243,7 +246,7 @@ class EventsAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = f"{EVENT_SERVICE_URL}/events/{my_id}"
+        url = f"{EVENT_SERVICE_URL}/events/{require_id(my_id)}"
         async with (
             ClientSession() as session,
             session.delete(url, headers=headers) as resp,
@@ -271,7 +274,7 @@ class EventsAdapter:
         async with (
             ClientSession() as session,
             session.put(
-                f"{EVENT_SERVICE_URL}/events/{my_id}",
+                f"{EVENT_SERVICE_URL}/events/{require_id(my_id)}",
                 headers=headers,
                 json=request_body,
             ) as resp,

@@ -8,6 +8,8 @@ import urllib.parse
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
+from .ids import require_id
+
 EVENTS_HOST_SERVER = os.getenv("EVENTS_HOST_SERVER", "localhost")
 EVENTS_HOST_PORT = os.getenv("EVENTS_HOST_PORT", "8082")
 EVENT_SERVICE_URL = f"http://{EVENTS_HOST_SERVER}:{EVENTS_HOST_PORT}"
@@ -62,7 +64,7 @@ class RaceclassResultsAdapter:
 
         async with ClientSession() as session:
             async with session.delete(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/results/{raceclass_url}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/results/{require_id(raceclass_url)}",
                 headers=headers,
             ) as resp:
                 res = resp.status
@@ -91,7 +93,7 @@ class RaceclassResultsAdapter:
         raceclass_url = urllib.parse.quote(raceclass, safe="")
         async with ClientSession() as session:
             async with session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/results/{raceclass_url}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/results/{require_id(raceclass_url)}",
                 headers=headers,
             ) as resp:
                 logging.debug(f"{servicename} - got response {resp.status}")

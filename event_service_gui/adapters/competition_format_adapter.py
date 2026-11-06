@@ -9,6 +9,8 @@ from pathlib import Path
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
+from .ids import require_id
+
 COMPETITION_FORMAT_HOST_SERVER = os.getenv(
     "COMPETITION_FORMAT_HOST_SERVER", "localhost"
 )
@@ -58,7 +60,9 @@ class CompetitionFormatAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = f"{COMPETITION_FORMAT_SERVICE_URL}/competition-formats/{my_id}"
+        url = (
+            f"{COMPETITION_FORMAT_SERVICE_URL}/competition-formats/{require_id(my_id)}"
+        )
         async with (
             ClientSession() as session,
             session.delete(url, headers=headers) as resp,
@@ -148,9 +152,7 @@ class CompetitionFormatAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = (
-            f"{COMPETITION_FORMAT_SERVICE_URL}/competition-formats/{request_body['id']}"
-        )
+        url = f"{COMPETITION_FORMAT_SERVICE_URL}/competition-formats/{require_id(request_body['id'])}"
         async with (
             ClientSession() as session,
             session.put(url, headers=headers, json=request_body) as resp,
@@ -207,7 +209,7 @@ class CompetitionFormatAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = f"{COMPETITION_FORMAT_SERVICE_URL}/race-configs/{my_id}"
+        url = f"{COMPETITION_FORMAT_SERVICE_URL}/race-configs/{require_id(my_id)}"
         async with (
             ClientSession() as session,
             session.delete(url, headers=headers) as resp,
@@ -268,7 +270,7 @@ class CompetitionFormatAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = f"{COMPETITION_FORMAT_SERVICE_URL}/race-configs/{request_body['id']}"
+        url = f"{COMPETITION_FORMAT_SERVICE_URL}/race-configs/{require_id(request_body['id'])}"
         async with (
             ClientSession() as session,
             session.put(url, headers=headers, json=request_body) as resp,
