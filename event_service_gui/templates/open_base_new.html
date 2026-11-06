@@ -5,17 +5,17 @@
         <meta name="viewport" content="width=device-width,initial-scale=1">
         {% block refresh_meta %}<meta http-equiv="refresh" content="{% block refresh %}{% endblock %}">{% endblock %}
         <title>{% block titleheader %}{% endblock %}</title>
-        <link rel="stylesheet" href="../static/styles.css">
+        <link rel="stylesheet" href="{{ url('static', filename='styles.css') }}">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <link rel="stylesheet" href="../static/styles_new.css">
+        <link rel="stylesheet" href="{{ url('static', filename='styles_new.css') }}">
         {% if not event.organiser %}
-            <link rel="stylesheet" type="text/css" href="../static/styles_whitelabel.css">
+            <link rel="stylesheet" type="text/css" href="{{ url('static', filename='styles_whitelabel.css') }}">
         {% elif event.organiser[:5] == "Kjels" %}
-            <link rel="stylesheet" type="text/css" href="../static/styles_kjelsaas.css">
+            <link rel="stylesheet" type="text/css" href="{{ url('static', filename='styles_kjelsaas.css') }}">
         {% elif event.organiser[:3] == "Lyn" %}
-            <link rel="stylesheet" type="text/css" href="../static/styles_lyn.css">
+            <link rel="stylesheet" type="text/css" href="{{ url('static', filename='styles_lyn.css') }}">
         {% else %}
-            <link rel="stylesheet" type="text/css" href="../static/styles_whitelabel.css">
+            <link rel="stylesheet" type="text/css" href="{{ url('static', filename='styles_whitelabel.css') }}">
         {% endif %}
 
         <script type="text/javascript">

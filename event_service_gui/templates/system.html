@@ -271,7 +271,7 @@
     </section>
   {% endif %}
 </div>
-<script src="../static/system.js" defer></script>
+<script src="{{ url('static', filename='system.js') }}" defer></script>
 {% endblock %}
 {% block tips %}
   Siden oppdateres automatisk hvert 15. sekund, og tjenestene sjekkes (ping) hver gang.
