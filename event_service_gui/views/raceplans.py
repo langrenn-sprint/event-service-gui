@@ -31,7 +31,7 @@ class Raceplans(web.View):
             event_id = self.request.rel_url.query["event_id"]
         except Exception:
             informasjon = "Ingen event valgt."
-            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}") from None
 
         user = await check_login(self)
         try:
@@ -107,7 +107,7 @@ class Raceplans(web.View):
             )
         except Exception as e:
             logging.exception("Error.. Redirect to main page.")
-            return web.HTTPSeeOther(location=f"/?informasjon={e}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""
@@ -140,7 +140,7 @@ class Raceplans(web.View):
                     user["token"], event_id
                 )
                 informasjon = f"Opprettet kjøreplan - {result}"
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
             elif "delete_all" in form:
@@ -167,21 +167,23 @@ class Raceplans(web.View):
                     user["token"], event_id, dict(form)
                 )
 
+        except web.HTTPException:
+            raise  # redirects from the try body, not errors
         except Exception as e:
             logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=login_location(
                         f"Ingen tilgang, vennligst logg inn på nytt. {e}",
                         self.request.path_qs,
                     )
-                )
+                ) from e
         else:
             informasjon = f"Suksess! {informasjon}"
         info = f"action={action}&informasjon={informasjon}"
-        return web.HTTPSeeOther(location=f"/raceplans?event_id={event_id}&{info}")
+        raise web.HTTPSeeOther(location=f"/raceplans?event_id={event_id}&{info}")
 
 
 async def update_heat_time_interval(token: str, event_id: str, form: dict) -> str:

@@ -36,7 +36,7 @@ class Contestants(web.View):
             event_id = ""
         if event_id == "":
             informasjon = "Ingen event valgt."
-            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
         try:
             user = await check_login_open(self)
@@ -111,7 +111,7 @@ class Contestants(web.View):
             )
         except Exception as e:
             logging.exception("Error.. Redirect to main page.")
-            return web.HTTPSeeOther(location=f"/?informasjon={e}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
 
     async def post(self) -> web.Response:
         """Post route function that creates deltakerliste."""
@@ -144,7 +144,7 @@ class Contestants(web.View):
                 informasjon += await perform_seeding(
                     user["token"], event_id, valgt_klasse
                 )
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
 
@@ -167,12 +167,12 @@ class Contestants(web.View):
                     )
                 else:
                     raise Exception(f"Ugyldig filtype {file.content_type}")  # type: ignore[attr-defined]
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=f"/contestants?event_id={event_id}&informasjon={informasjon}"
                 )
             if "create_one" in form:
                 url = await create_one_contestant(user["token"], event, dict(form))
-                return web.HTTPSeeOther(location=url)
+                raise web.HTTPSeeOther(location=url)
             if "update_one" in form:
                 request_body = get_contestant_from_form(event, dict(form))
                 request_body["id"] = str(form["id"])
@@ -201,20 +201,22 @@ class Contestants(web.View):
                     user["token"], event_id
                 )
                 informasjon = f"Deltakerne er slettet - {result}"
+        except web.HTTPException:
+            raise  # redirects from the try body, not errors
         except Exception as e:
             logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=login_location(
                         f"Ingen tilgang, vennligst logg inn på nytt. {e}",
                         self.request.path_qs,
                     )
-                )
+                ) from e
 
         info = f"action={action}&informasjon={informasjon}&klasse={valgt_klasse}"
-        return web.HTTPSeeOther(location=f"/contestants?event_id={event_id}&{info}")
+        raise web.HTTPSeeOther(location=f"/contestants?event_id={event_id}&{info}")
 
 
 async def add_to_startlist(token: str, event_id: str, klasse: str, bib: int) -> str:

@@ -90,4 +90,4 @@ class PrintContestants(web.View):
             )
         except Exception as e:
             logging.exception("Error.. Redirect to main page.")
-            return web.HTTPSeeOther(location=f"/?informasjon={e}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e

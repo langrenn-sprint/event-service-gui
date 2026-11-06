@@ -67,7 +67,7 @@ class Events(web.View):
             )
         except Exception as e:
             logging.exception("Error.. Redirect to main page.")
-            return web.HTTPSeeOther(location=f"/?informasjon={e}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
 
     async def post(self) -> web.Response:
         """Post route function that creates a collection of klasses."""
@@ -98,7 +98,7 @@ class Events(web.View):
                 informasjon = f"Opprettet nytt arrangement,  event_id {event_id}"
                 action = "next_contestants"
                 info = f"action={action}&informasjon={informasjon}"
-                return web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
+                raise web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
             if "update" in form:
                 # Update event
                 event_id = str(form["event_id"])
@@ -126,21 +126,23 @@ class Events(web.View):
                 event_id = str(form["event_id"])
                 res = await EventsAdapter().delete_event(user["token"], event_id)
                 informasjon = f"Arrangement er slettet {res}."
-                return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+                raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+        except web.HTTPException:
+            raise  # redirects from the try body, not errors
         except Exception as e:
             logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=login_location(
                         f"Ingen tilgang, vennligst logg inn på nytt. {e}",
                         self.request.path_qs,
                     )
-                )
+                ) from e
 
         info = f"action={action}&informasjon={informasjon}"
-        return web.HTTPSeeOther(location=f"/events?event_id={event_id}&{info}")
+        raise web.HTTPSeeOther(location=f"/events?event_id={event_id}&{info}")
 
 
 async def get_competition_formats(token: str) -> list:

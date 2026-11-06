@@ -53,4 +53,4 @@ class Main(web.View):
             )
         except Exception as e:
             logging.exception("Error.. Redirect to login page.")
-            return web.HTTPSeeOther(location=f"/login?informasjon={e}")
+            raise web.HTTPSeeOther(location=f"/login?informasjon={e}") from e

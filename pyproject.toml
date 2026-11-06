@@ -170,6 +170,11 @@ env = [
 ]
 
 asyncio_mode = "auto"
+# A returned (not raised) HTTP exception fails the test, see #208. Only this
+# warning: other deprecations in dependencies should not break the build.
+filterwarnings = [
+    "error:returning HTTPException object is deprecated:DeprecationWarning",
+]
 markers = [
     "integration: marks tests as integration (slower)",
     "contract: marks test as contract (slow)",

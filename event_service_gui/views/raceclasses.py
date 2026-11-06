@@ -63,7 +63,7 @@ class Raceclasses(web.View):
             )
         except Exception as e:
             logging.exception("Error.. Redirect to main page.")
-            return web.HTTPSeeOther(location=f"/?informasjon={e}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""
@@ -94,7 +94,7 @@ class Raceclasses(web.View):
                 informasjon += (
                     " Neste steg: Velg slå sammen klasser eller rediger statrekkefølge."
                 )
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=f"/raceclasses?event_id={event_id}&action=edit_mode&informasjon={informasjon}"
                 )
             elif "merge_ageclasses" in form:
@@ -105,24 +105,26 @@ class Raceclasses(web.View):
                 informasjon = await update_one(user, event_id, dict(form))
             elif "update_order" in form:
                 informasjon = await update_order(user, event_id, dict(form))
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
 
+        except web.HTTPException:
+            raise  # redirects from the try body, not errors
         except Exception as e:
             logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=login_location(
                         f"Ingen tilgang, vennligst logg inn på nytt. {e}",
                         self.request.path_qs,
                     )
-                )
+                ) from e
 
         info = f"action={action}&informasjon={informasjon}"
-        return web.HTTPSeeOther(location=f"/raceclasses?event_id={event_id}&{info}")
+        raise web.HTTPSeeOther(location=f"/raceclasses?event_id={event_id}&{info}")
 
 
 async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
