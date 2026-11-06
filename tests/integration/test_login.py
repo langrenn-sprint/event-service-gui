@@ -178,8 +178,11 @@ async def test_login_ignores_unsafe_next(client: _TestClient, next_path: str) ->
 
 @pytest.mark.integration
 async def test_logged_in_user_gets_page(client: _TestClient) -> None:
-    """A valid token is not sent to login (the page itself may redirect)."""
-    await login(client, valid_token())
+    """A valid token is not sent to login (the page itself may redirect).
+
+    /users is admin-only (#199), so the user is admin.
+    """
+    await login(client, valid_token(role="admin"))
     with aioresponses(passthrough=["http://127.0.0.1"]) as m:
         m.get(f"{USER_SERVICE_URL}/users", payload=[])
         resp = await client.get("/users", allow_redirects=False)

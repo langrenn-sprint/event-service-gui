@@ -8,7 +8,9 @@ from aiohttp import web
 
 from event_service_gui.adapters import UserAdapter
 
-from .utils import check_login, login_location
+from .utils import check_admin, login_location
+
+NO_ACCESS = "Du har ikke tilgang til brukeradministrasjon. Krever rollen admin."
 
 
 class Users(web.View):
@@ -16,7 +18,7 @@ class Users(web.View):
 
     async def get(self) -> web.Response:
         """Get route function that return the index page."""
-        user = await check_login(self)
+        user = await check_admin(self, NO_ACCESS)
         try:
             users = []
 
@@ -35,7 +37,10 @@ class Users(web.View):
                 create_new = False
 
             if not create_new:
-                users = await UserAdapter().get_all_users(user["token"])
+                try:
+                    users = await UserAdapter().get_all_users(user["token"])
+                except web.HTTPForbidden as e:
+                    informasjon = e.reason
                 logging.info(f"Users: {users}")
 
             event = {"name": "Administrasjon", "organiser": "Ikke valgt"}
@@ -55,12 +60,19 @@ class Users(web.View):
             )
         except Exception as e:
             logging.exception("Error: Redirecting to main page.")
+            if str(e).startswith("401"):
+                raise web.HTTPSeeOther(
+                    location=login_location(
+                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
+                        self.request.path_qs,
+                    )
+                ) from e
             raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
 
     async def post(self) -> web.Response:
         """Get route function that return the index page."""
         informasjon = ""
-        user = await check_login(self)
+        user = await check_admin(self, NO_ACCESS)
 
         try:
             form = await self.request.post()
@@ -85,6 +97,8 @@ class Users(web.View):
             else:
                 informasjon = "Ingen endringer utført"
 
+        except web.HTTPForbidden as e:
+            informasjon = e.reason
         except Exception as e:
             logging.exception("Error in users.py")
             informasjon = f"Det har oppstått en feil - {e.args}."
