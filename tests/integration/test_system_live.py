@@ -331,7 +331,7 @@ async def test_status_endpoint_same_as_page(
     text = await resp.text()
     assert "Tjenesten event-service svarer ikke: /ready svarte 500." in text
     assert 'title="/ready svarte 500">Feil (3 ms)</td>' in text
-    assert 'src="../static/system.js"' in text
+    assert '<script src="/static/system.js?v=' in text
     assert '<noscript><meta http-equiv="refresh" content="60"></noscript>' in text
     assert 'data-status-url="/system/status"' in text
     assert 'id="live-refresh" href="/system"' in text

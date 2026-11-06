@@ -177,6 +177,11 @@ async def create_app() -> web.Application:
     # Set up static path
     static_dir = Path(PROJECT_ROOT) / "static"
     logging.debug(f"static_dir: {static_dir}")
-    app.router.add_static("/static/", path=str(static_dir), name="static")
+    # append_version: url('static', filename=...) in the templates adds
+    # ?v=<hash of the file>, so browsers fetch a changed file after a deploy
+    # instead of using a cached copy.
+    app.router.add_static(
+        "/static/", path=str(static_dir), name="static", append_version=True
+    )
 
     return app
