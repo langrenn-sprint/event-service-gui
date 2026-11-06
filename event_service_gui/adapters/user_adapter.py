@@ -21,6 +21,11 @@ USER_SERVICE_URL = f"http://{USERS_HOST_SERVER}:{USERS_HOST_PORT}"
 # request does not reach the backend with a token that runs out on the way.
 TOKEN_EXPIRY_MARGIN_SECONDS = 10
 
+# Messages when user-service answers 403: only admin may manage users.
+NO_ACCESS_CREATE = "Du har ikke tilgang til å opprette brukere. Krever rollen admin."
+NO_ACCESS_DELETE = "Du har ikke tilgang til å slette brukere. Krever rollen admin."
+NO_ACCESS_READ = "Du har ikke tilgang til å se brukere. Krever rollen admin."
+
 
 class UserAdapter:
     """Class representing user."""
@@ -60,6 +65,8 @@ class UserAdapter:
                 w_id = location.split(os.path.sep)[-1]
             elif resp.status == HTTPStatus.UNAUTHORIZED:
                 raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+            elif resp.status == HTTPStatus.FORBIDDEN:
+                raise web.HTTPForbidden(reason=NO_ACCESS_CREATE)
             else:
                 logging.error(f"create_user failed - {resp.status}")
                 raise web.HTTPBadRequest(reason="Create user failed.")
@@ -84,13 +91,20 @@ class UserAdapter:
                 logging.debug(f"result - got response {resp}")
             elif resp.status == HTTPStatus.UNAUTHORIZED:
                 raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+            elif resp.status == HTTPStatus.FORBIDDEN:
+                raise web.HTTPForbidden(reason=NO_ACCESS_DELETE)
             else:
                 logging.error(f"delete_user failed - {resp.status}, {resp}")
                 raise web.HTTPBadRequest(reason="Delete user failed.")
         return resp.status
 
     async def get_all_users(self, token: str) -> list:
-        """Get all users function."""
+        """Get all users function.
+
+        Raises an error instead of returning an empty list when the users
+        cannot be read, e.g. web.HTTPForbidden when the user is not admin.
+        """
+        servicename = "get_all_users"
         users = []
         headers = MultiDict(
             [
@@ -110,8 +124,13 @@ class UserAdapter:
             if resp.status == HTTPStatus.OK:
                 users = await resp.json()
                 logging.debug(f"users - got response {users}")
+            elif resp.status == HTTPStatus.UNAUTHORIZED:
+                raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+            elif resp.status == HTTPStatus.FORBIDDEN:
+                raise web.HTTPForbidden(reason=NO_ACCESS_READ)
             else:
                 logging.error(f"Error {resp.status} getting users: {resp} ")
+                raise web.HTTPBadRequest(reason="Get users failed.")
         return users
 
     async def login(self, username: str, password: str, cookiestorage: Session) -> int:

@@ -77,11 +77,16 @@ async def check_login(self) -> dict:
     }
 
 
-async def check_admin(self) -> dict:
-    """Check that the user is logged in as admin and return user credentials."""
+async def check_admin(
+    self,
+    informasjon: str = "Kun admin har tilgang til denne siden. Logg inn som admin.",
+) -> dict:
+    """Check that the user is logged in as admin and return user credentials.
+
+    Other users are sent to the login page with the message `informasjon`.
+    """
     user = await check_login(self)
     if user["role"] != ADMIN_ROLE:
-        informasjon = "Kun admin har tilgang til denne siden. Logg inn som admin."
         raise web.HTTPSeeOther(
             location=login_location(informasjon, self.request.path_qs)
         )
