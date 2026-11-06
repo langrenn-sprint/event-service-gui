@@ -113,7 +113,7 @@ class Raceclasses(web.View):
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
 
-        except web.HTTPException:
+        except web.HTTPRedirection:
             raise  # redirects from the try body, not errors
         except Exception as e:
             informasjon = error_message(self, e)

@@ -3,7 +3,7 @@
 The views raise redirects (web.HTTPSeeOther) instead of returning them, as
 returning is deprecated in aiohttp. A redirect raised inside a
 `try: ... except Exception` would be caught as an error, so the views that
-have one let web.HTTPException through first. These tests take an action
+have one let redirects (web.HTTPRedirection) through first. These tests take an action
 whose redirect comes from inside such a try, and check that it arrives.
 """
 

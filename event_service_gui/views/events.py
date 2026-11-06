@@ -127,7 +127,7 @@ class Events(web.View):
                 res = await EventsAdapter().delete_event(user["token"], event_id)
                 informasjon = f"Arrangement er slettet {res}."
                 raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
-        except web.HTTPException:
+        except web.HTTPRedirection:
             raise  # redirects from the try body, not errors
         except Exception as e:
             informasjon = error_message(self, e)

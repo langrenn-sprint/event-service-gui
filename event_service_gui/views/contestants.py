@@ -206,7 +206,7 @@ class Contestants(web.View):
                     user["token"], event_id
                 )
                 informasjon = f"Deltakerne er slettet - {result}"
-        except web.HTTPException:
+        except web.HTTPRedirection:
             raise  # redirects from the try body, not errors
         except Exception as e:
             informasjon = error_message(self, e)

@@ -241,6 +241,11 @@ def test_error_message() -> None:
             Exception("Arrangementet finnes ikke"),
             "Det har oppstått en feil: Arrangementet finnes ikke",
         ),
+        # An HTTP error from a backend service, which before became a 400 page:
+        (
+            web.HTTPBadRequest(reason="Error - 404: Event not found."),
+            "Det har oppstått en feil: Error - 404: Event not found.",
+        ),
     ],
 )
 async def test_events_post_error_stays_on_the_page(

@@ -167,7 +167,7 @@ class Raceplans(web.View):
                     user["token"], event_id, dict(form)
                 )
 
-        except web.HTTPException:
+        except web.HTTPRedirection:
             raise  # redirects from the try body, not errors
         except Exception as e:
             informasjon = error_message(self, e)
