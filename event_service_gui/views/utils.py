@@ -104,6 +104,24 @@ def raise_error(view: web.View, e: Exception, location: str = "/") -> NoReturn:
     raise web.HTTPSeeOther(location=f"{location}?{query}") from e
 
 
+def error_message(view: web.View, e: Exception) -> str:
+    """Handle an error in a view where the user stays on the page.
+
+    Like raise_error, but returns the message for the page instead of
+    redirecting: redirects pass through, the error is logged, and a missing
+    or expired login sends the user to the login page.
+    """
+    if isinstance(e, web.HTTPRedirection):
+        raise e
+    request = view.request
+    logging.error("Error in %s %s", request.method, request.path_qs, exc_info=e)
+    if is_login_error(e):
+        raise web.HTTPSeeOther(
+            location=login_location(LOGIN_AGAIN, request.path_qs)
+        ) from e
+    return error_text(e)
+
+
 async def check_login(self) -> dict:
     """Check login and return user credentials.
 

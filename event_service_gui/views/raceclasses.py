@@ -8,7 +8,12 @@ from aiohttp import web
 
 from event_service_gui.adapters import EventsAdapter, RaceclassesAdapter
 
-from .utils import check_login, get_event, login_location, raise_error
+from .utils import (
+    check_login,
+    error_message,
+    get_event,
+    raise_error,
+)
 
 
 class Raceclasses(web.View):
@@ -108,19 +113,10 @@ class Raceclasses(web.View):
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
 
-        except web.HTTPException:
+        except web.HTTPRedirection:
             raise  # redirects from the try body, not errors
         except Exception as e:
-            logging.exception("Error")
-            informasjon = f"Det har oppstått en feil - {e.args}."
-            error_reason = str(e)
-            if error_reason.startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
+            informasjon = error_message(self, e)
 
         info = f"action={action}&informasjon={informasjon}"
         raise web.HTTPSeeOther(location=f"/raceclasses?event_id={event_id}&{info}")

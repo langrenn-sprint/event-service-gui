@@ -5,6 +5,8 @@ import logging
 from aiohttp import web
 from aiohttp_session import get_session
 
+from .utils import error_text
+
 
 class Logout(web.View):
     """Class representing the main view."""
@@ -18,6 +20,6 @@ class Logout(web.View):
 
         except Exception as e:
             logging.exception("Error")
-            informasjon = f"Det har oppstått en feil - {e.args}."
+            informasjon = error_text(e)
 
         raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

@@ -10,8 +10,8 @@ from event_service_gui.adapters import CompetitionFormatAdapter, EventsAdapter
 from .utils import (
     check_login,
     create_default_competition_format,
+    error_message,
     get_event,
-    login_location,
     raise_error,
 )
 
@@ -127,19 +127,10 @@ class Events(web.View):
                 res = await EventsAdapter().delete_event(user["token"], event_id)
                 informasjon = f"Arrangement er slettet {res}."
                 raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
-        except web.HTTPException:
+        except web.HTTPRedirection:
             raise  # redirects from the try body, not errors
         except Exception as e:
-            logging.exception("Error")
-            informasjon = f"Det har oppstått en feil - {e.args}."
-            error_reason = str(e)
-            if error_reason.startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
+            informasjon = error_message(self, e)
 
         info = f"action={action}&informasjon={informasjon}"
         raise web.HTTPSeeOther(location=f"/events?event_id={event_id}&{info}")

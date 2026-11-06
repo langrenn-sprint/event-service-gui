@@ -17,6 +17,7 @@ from event_service_gui.adapters import EventsAdapter
 from event_service_gui.views.utils import (
     LOGIN_AGAIN,
     UNEXPECTED_ERROR,
+    error_message,
     error_text,
     is_login_error,
     raise_error,
@@ -171,9 +172,7 @@ async def test_expired_login_sends_to_login_page(
 
 
 @pytest.mark.integration
-async def test_main_page_error_shows_error_page(
-    client: _TestClient, main_page
-) -> None:
+async def test_main_page_error_shows_error_page(client: _TestClient, main_page) -> None:
     """The other pages send errors to the main page, so it does not redirect."""
     main_page.error = TypeError("'NoneType' object is not subscriptable")
     await login(client, "admin")
@@ -206,3 +205,82 @@ async def test_event_without_organiser(client: _TestClient, main_page) -> None:
     resp = await client.get("/", allow_redirects=False)
     assert resp.status == HTTPStatus.OK
     assert "styles_whitelabel.css" in await resp.text()
+
+
+# --- Errors where the user stays on the page (follow-up to #240) ---------------------------
+
+
+@pytest.mark.integration
+def test_error_message() -> None:
+    """Returns the message; redirects pass through, 401 goes to login."""
+
+    class Request:
+        method = "POST"
+        path_qs = "/events"
+
+    class View:
+        request = Request()
+
+    view = View()
+    assert error_message(view, TypeError("x")) == UNEXPECTED_ERROR  # type: ignore[arg-type]
+    with pytest.raises(web.HTTPSeeOther) as e:
+        error_message(view, Exception("401 Unathorized - x"))  # type: ignore[arg-type]
+    assert URL(e.value.location).path == "/login"
+    redirect = web.HTTPSeeOther(location="/somewhere")
+    with pytest.raises(web.HTTPSeeOther) as e:
+        error_message(view, redirect)  # type: ignore[arg-type]
+    assert e.value is redirect
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    ("error", "message"),
+    [
+        (TypeError("'NoneType' object is not subscriptable"), UNEXPECTED_ERROR),
+        (
+            Exception("Arrangementet finnes ikke"),
+            "Det har oppstått en feil: Arrangementet finnes ikke",
+        ),
+        # An HTTP error from a backend service, which before became a 400 page:
+        (
+            web.HTTPBadRequest(reason="Error - 404: Event not found."),
+            "Det har oppstått en feil: Error - 404: Event not found.",
+        ),
+    ],
+)
+async def test_events_post_error_stays_on_the_page(
+    client: _TestClient, monkeypatch: pytest.MonkeyPatch, error: Exception, message: str
+) -> None:
+    """Before, the message was the raw error, e.g. "('…',)"."""
+
+    async def fail(*_) -> int:
+        raise error
+
+    monkeypatch.setattr(EventsAdapter, "delete_event", fail)
+    await login(client, "admin")
+    resp = await client.post(
+        "/events", data={"delete": "1", "event_id": "e1"}, allow_redirects=False
+    )
+    assert resp.status == HTTPStatus.SEE_OTHER
+    path, query = location(resp)
+    assert path == "/events"
+    assert query["informasjon"] == message
+
+
+@pytest.mark.integration
+async def test_login_error_message(
+    client: _TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A login that fails with an error shows a message, not the raw error."""
+    from event_service_gui.adapters import UserAdapter
+
+    async def fail(*_) -> int:
+        raise TypeError("'NoneType' object is not subscriptable")
+
+    monkeypatch.setattr(UserAdapter, "login", fail)
+    resp = await client.post(
+        "/login", data={"username": "u", "password": "p"}, allow_redirects=False
+    )
+    text = await resp.text()
+    assert f"Innlogging feilet. {UNEXPECTED_ERROR}" in text
+    assert "NoneType" not in text

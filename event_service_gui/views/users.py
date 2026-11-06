@@ -8,7 +8,11 @@ from aiohttp import web
 
 from event_service_gui.adapters import UserAdapter
 
-from .utils import check_admin, login_location
+from .utils import (
+    check_admin,
+    error_message,
+    raise_error,
+)
 
 NO_ACCESS = "Du har ikke tilgang til brukeradministrasjon. Krever rollen admin."
 
@@ -59,15 +63,7 @@ class Users(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error: Redirecting to main page.")
-            if str(e).startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
     async def post(self) -> web.Response:
         """Get route function that return the index page."""
@@ -100,15 +96,6 @@ class Users(web.View):
         except web.HTTPForbidden as e:
             informasjon = e.reason
         except Exception as e:
-            logging.exception("Error in users.py")
-            informasjon = f"Det har oppstått en feil - {e.args}."
-            error_reason = str(e)
-            if error_reason.startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
+            informasjon = error_message(self, e)
 
         raise web.HTTPSeeOther(location=f"/users?informasjon={informasjon}")
