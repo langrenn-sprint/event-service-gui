@@ -16,11 +16,22 @@
       <hr>
       <p id="missing_code" class="alert alert-warning" hidden>Lenken mangler aktiveringskoden. Be admin om en ny lenke.</p>
       <p>Passordet må ha minst {{ min_password_length }} tegn. Lenken kan brukes én gang.</p>
+      {% if account %}
+      <label for="username">Brukernavn</label>
+      <input type=text class="form-control" name="username" id="username" value="{{ account }}" readonly autocomplete="username">
+      <br>
+      {% endif %}
       <label for="password">Passord</label>
-      <input type=password class="form-control" name="password" id="password" value="" required minlength="{{ min_password_length }}" autocomplete="new-password">
+      <div class="input-group">
+        <input type=password class="form-control" name="password" id="password" value="" required minlength="{{ min_password_length }}" autocomplete="new-password">
+        <span class="input-group-btn"><button type="button" class="btn btn-default" data-target="password" onclick="toggle_password(this)" aria-pressed="false" aria-label="Vis passord" title="Vis passord"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button></span>
+      </div>
       <br>
       <label for="confirm">Gjenta passordet</label>
-      <input type=password class="form-control" name="confirm" id="confirm" value="" required minlength="{{ min_password_length }}" autocomplete="new-password">
+      <div class="input-group">
+        <input type=password class="form-control" name="confirm" id="confirm" value="" required minlength="{{ min_password_length }}" autocomplete="new-password">
+        <span class="input-group-btn"><button type="button" class="btn btn-default" data-target="confirm" onclick="toggle_password(this)" aria-pressed="false" aria-label="Vis passord" title="Vis passord"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button></span>
+      </div>
       <br>
       <input type="submit" value="Lagre passord" class="btn btn-default" id="save_password">
       <hr>

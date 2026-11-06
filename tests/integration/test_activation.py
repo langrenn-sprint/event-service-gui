@@ -22,7 +22,11 @@ from event_service_gui.adapters.user_adapter import (
     PASSWORD_TOO_SHORT,
 )
 from event_service_gui.views.activate import ACTIVATED, MISSING_CODE, NOT_EQUAL
-from event_service_gui.views.users import activation_status
+from event_service_gui.views.users import (
+    CANNOT_DELETE_SELF,
+    activation_status,
+    new_link,
+)
 
 from .test_system_status import USER_SERVICE_URL, login
 
@@ -88,7 +92,7 @@ async def test_create_user_without_password_shows_link_once(
     assert requests_to(mocked, USERS_URL) == [
         {"role": "event-admin", "username": "ola"}
     ]
-    assert 'data-path="/activate#hemmelig-kode"' in first
+    assert 'data-path="/activate?username=ola#hemmelig-kode"' in first
     assert "Aktiveringslenke for ola" in first
     assert "08.11.2026 kl. 15:00" in first  # Oslo time
     assert "hemmelig-kode" not in second
@@ -141,7 +145,7 @@ async def test_new_activation_link(client: _TestClient) -> None:
         page = await (await client.get("/users")).text()
 
     assert location(resp)[1] == {"informasjon": "Ny aktiveringslenke for ola er laget."}
-    assert 'data-path="/activate#hemmelig-kode"' in page
+    assert 'data-path="/activate?username=ola#hemmelig-kode"' in page
 
 
 @pytest.mark.integration
@@ -310,3 +314,89 @@ async def test_adapter_create_activation_errors() -> None:
         mocked.post(f"{USERS_URL}/u1/activation", status=404)
         with pytest.raises(Exception, match="Fant ikke brukeren"):
             await UserAdapter().create_activation("token", "u1")
+
+
+# --- Username on the activation page, show password, deleting yourself -----------
+
+
+@pytest.mark.integration
+async def test_link_has_the_username_in_the_query() -> None:
+    """The username is shown on the page; the code stays in the fragment."""
+
+    link = new_link("ola@example.com", ACTIVATION)
+    assert link["path"] == "/activate?username=ola%40example.com#hemmelig-kode"
+
+
+@pytest.mark.integration
+async def test_activation_page_shows_username_for_the_browser(
+    client: _TestClient,
+) -> None:
+    """With a username field, the browser can suggest and save a password."""
+    resp = await client.get("/activate?username=ola%40example.com")
+    text = await resp.text()
+    assert 'value="ola@example.com" readonly autocomplete="username"' in text
+    assert text.count('autocomplete="new-password"') == 2
+    assert text.count('onclick="toggle_password(this)"') == 2
+
+
+@pytest.mark.integration
+async def test_activate_with_username(client: _TestClient) -> None:
+    with mock_user_service() as mocked:
+        mocked.post(ACTIVATE_URL, status=204)
+        resp = await activate(
+            client,
+            code="kode",
+            username="ola@example.com",
+            password="et-langt-passord",
+            confirm="et-langt-passord",
+        )
+
+    assert location(resp) == (
+        "/login",
+        {"informasjon": ACTIVATED, "username": "ola@example.com"},
+    )
+    assert requests_to(mocked, ACTIVATE_URL) == [
+        {"code": "kode", "password": "et-langt-passord", "username": "ola@example.com"}
+    ]
+
+
+@pytest.mark.integration
+async def test_login_page_fills_in_username(client: _TestClient) -> None:
+    resp = await client.get("/login?username=ola%40example.com")
+    assert 'value="ola@example.com" autocomplete="username"' in await resp.text()
+
+
+@pytest.mark.integration
+async def test_users_page_has_no_delete_button_for_yourself(
+    client: _TestClient,
+) -> None:
+    await login(client, "admin")  # logs in as "tester"
+    users = [
+        {"id": "u1", "username": "tester", "role": "admin", "activated": True},
+        {"id": "u2", "username": "kari", "role": "admin", "activated": True},
+    ]
+    with mock_user_service() as mocked:
+        mocked.get(USERS_URL, payload=users)
+        page = await (await client.get("/users")).text()
+
+    assert page.count('name=delete value="Slett"') == 1
+    assert 'onclick="toggle_password(this)"' not in page  # only in the form
+
+
+@pytest.mark.integration
+async def test_delete_yourself_refused_by_user_service(client: _TestClient) -> None:
+    await login(client, "admin")
+    with mock_user_service() as mocked:
+        mocked.delete(f"{USERS_URL}/u1", status=409)
+        resp = await client.post(
+            "/users", data={"delete": "1", "id": "u1"}, allow_redirects=False
+        )
+
+    assert location(resp)[1] == {"informasjon": CANNOT_DELETE_SELF}
+
+
+@pytest.mark.integration
+async def test_new_user_form_can_show_password(client: _TestClient) -> None:
+    await login(client, "admin")
+    page = await (await client.get("/users?new=1")).text()
+    assert 'data-target="newpassword" onclick="toggle_password(this)"' in page

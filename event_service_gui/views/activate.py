@@ -31,12 +31,14 @@ class Activate(web.View):
 
     async def get(self) -> web.Response:
         """Show the form. The page reads the code from the fragment."""
-        return await render(self.request, code="", informasjon="")
+        account = self.request.rel_url.query.get("username", "")
+        return await render(self.request, code="", account=account, informasjon="")
 
     async def post(self) -> web.Response:
         """Set the password, and send the user to the login page."""
         form = await self.request.post()
         code = str(form.get("code", "")).strip()
+        account = str(form.get("username", "")).strip()
         password = str(form.get("password", ""))
         if not code:
             informasjon = MISSING_CODE
@@ -47,13 +49,16 @@ class Activate(web.View):
         else:
             informasjon = ""
             try:
-                status = await UserAdapter().activate(code, password)
+                status = await UserAdapter().activate(code, password, account)
             except Exception as e:
                 logging.exception("Error in POST /activate")
                 status = 0
                 informasjon = error_text(e)
             if status == HTTPStatus.NO_CONTENT:
-                query = urlencode({"informasjon": ACTIVATED})
+                query = urlencode(
+                    {"informasjon": ACTIVATED}
+                    | ({"username": account} if account else {})
+                )
                 raise web.HTTPSeeOther(location=f"/login?{query}")
             if status == HTTPStatus.BAD_REQUEST:
                 informasjon = INVALID_ACTIVATION
@@ -61,11 +66,19 @@ class Activate(web.View):
                 informasjon = PASSWORD_TOO_SHORT
             elif status:
                 informasjon = "Det har oppstått en feil. Prøv igjen senere."
-        return await render(self.request, code=code, informasjon=informasjon)
+        return await render(
+            self.request, code=code, account=account, informasjon=informasjon
+        )
 
 
-async def render(request: web.Request, code: str, informasjon: str) -> web.Response:
-    """Render the activation page; the code is kept when the form is shown again."""
+async def render(
+    request: web.Request, code: str, account: str, informasjon: str
+) -> web.Response:
+    """Render the activation page; the code is kept when the form is shown again.
+
+    account is the username the link was made for. It is shown, so the
+    browser saves the new password for it.
+    """
     response = await aiohttp_jinja2.render_template_async(
         "activate.html",
         request,
@@ -76,6 +89,7 @@ async def render(request: web.Request, code: str, informasjon: str) -> web.Respo
             "informasjon": informasjon,
             "username": "",
             "code": code,
+            "account": account,
             "min_password_length": MIN_PASSWORD_LENGTH,
         },
     )

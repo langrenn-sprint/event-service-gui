@@ -3,6 +3,7 @@
 import logging
 from datetime import UTC, datetime
 from http import HTTPStatus
+from urllib.parse import urlencode
 from zoneinfo import ZoneInfo
 
 import aiohttp_jinja2
@@ -22,6 +23,7 @@ from .utils import (
 )
 
 NO_ACCESS = "Du har ikke tilgang til brukeradministrasjon. Krever rollen admin."
+CANNOT_DELETE_SELF = "Du kan ikke slette brukeren du er logget inn som."
 LOCAL_TIMEZONE = ZoneInfo("Europe/Oslo")
 # Session key for a new activation link, shown once on the next page.
 ACTIVATION_KEY = "new_activation"
@@ -57,12 +59,14 @@ def new_link(username: str, activation: dict) -> dict:
     """Return what is shown about a new activation link.
 
     The code is in the fragment (#), which browsers never send to a server, so
-    it is not written to access logs. The page adds the address the admin
-    sees in the browser, so the link works behind a proxy.
+    it is not written to access logs. The username is not secret: the page
+    shows it, so the browser can save the new password for it. The page adds
+    the address the admin sees in the browser, so the link works behind a
+    proxy.
     """
     return {
         "username": username,
-        "path": f"/activate#{activation['code']}",
+        "path": f"/activate?{urlencode({'username': username})}#{activation['code']}",
         "expires": format_time(activation["expires"]),
     }
 
@@ -159,6 +163,8 @@ class Users(web.View):
                 res = await UserAdapter().delete_user(user["token"], w_id)
                 if res == HTTPStatus.NO_CONTENT:
                     informasjon = "Bruker er slettet."
+                elif res == HTTPStatus.CONFLICT:
+                    informasjon = CANNOT_DELETE_SELF
                 else:
                     informasjon = f"En feil oppstod {res}."
             else:

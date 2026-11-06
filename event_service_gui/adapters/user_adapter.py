@@ -129,8 +129,10 @@ class UserAdapter:
             logging.error(f"{servicename} failed - {resp.status}")
             raise web.HTTPBadRequest(reason="Kunne ikke lage aktiveringslenke.")
 
-    async def activate(self, code: str, password: str) -> int:
+    async def activate(self, code: str, password: str, username: str = "") -> int:
         """Set the password with an activation code. Needs no token.
+
+        With a username, user-service only accepts the code for that user.
 
         Returns:
             The status from user-service: 204 when the password is set, 400
@@ -141,7 +143,8 @@ class UserAdapter:
             ClientSession() as session,
             session.post(
                 f"{USER_SERVICE_URL}/activate",
-                json={"code": code, "password": password},
+                json={"code": code, "password": password}
+                | ({"username": username} if username else {}),
             ) as resp,
         ):
             if resp.status not in (
@@ -153,7 +156,13 @@ class UserAdapter:
             return resp.status
 
     async def delete_user(self, token: str, w_id: str) -> int:
-        """Delete user function."""
+        """Delete a user.
+
+        Returns:
+            204 when deleted, or 409 when it is the user who is logged in:
+            user-service does not let a user delete themselves.
+
+        """
         servicename = "delete_user"
         headers = MultiDict(
             [
@@ -166,7 +175,7 @@ class UserAdapter:
             async with session.delete(url, headers=headers) as resp:
                 pass
             logging.info(f"Delete user: {w_id} - res {resp.status}")
-            if resp.status == HTTPStatus.NO_CONTENT:
+            if resp.status in (HTTPStatus.NO_CONTENT, HTTPStatus.CONFLICT):
                 logging.debug(f"result - got response {resp}")
             elif resp.status == HTTPStatus.UNAUTHORIZED:
                 raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")

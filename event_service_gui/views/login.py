@@ -45,6 +45,8 @@ class Login(web.View):
                 "informasjon": informasjon,
                 "next": next_path,
                 "username": username,
+                # filled in after activation, so the browser can fill in the password:
+                "login_username": self.request.rel_url.query.get("username", ""),
             },
         )
 

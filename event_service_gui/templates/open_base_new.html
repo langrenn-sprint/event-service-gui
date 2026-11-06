@@ -36,6 +36,17 @@
             function confirm_delete(message) {
                 return window.confirm(message);
             }
+            // Show or hide the password in the field the button belongs to.
+            function toggle_password(button) {
+                var field = document.getElementById(button.dataset.target);
+                var show = field.type === "password";
+                field.type = show ? "text" : "password";
+                button.setAttribute("aria-pressed", show ? "true" : "false");
+                button.setAttribute("aria-label", show ? "Skjul passord" : "Vis passord");
+                button.title = show ? "Skjul passord" : "Vis passord";
+                button.firstElementChild.className =
+                    "glyphicon " + (show ? "glyphicon-eye-close" : "glyphicon-eye-open");
+            }
 
             function naviger(id) {
                 var elmnt = document.getElementById(id);

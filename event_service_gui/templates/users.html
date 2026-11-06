@@ -31,7 +31,10 @@
                 <input type=text class="form-control" name="newusername" id="newusername" value="">
                 <br>
                 <label for="newpassword">Passord (valgfritt)</label>
-                <input type=password name="newpassword" class="form-control" id="newpassword" value="" minlength="{{ min_password_length }}" autocomplete="new-password" aria-describedby="newpassword_help">
+                <div class="input-group">
+                  <input type=password name="newpassword" class="form-control" id="newpassword" value="" minlength="{{ min_password_length }}" autocomplete="new-password" aria-describedby="newpassword_help">
+                  <span class="input-group-btn"><button type="button" class="btn btn-default" data-target="newpassword" onclick="toggle_password(this)" aria-pressed="false" aria-label="Vis passord" title="Vis passord"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button></span>
+                </div>
                 <p id="newpassword_help" class="help-block">
                   La feltet stå tomt, så får du en aktiveringslenke å gi til brukeren.
                   Brukeren velger da passordet selv. Lenken gjelder i 48 timer.
@@ -99,7 +102,9 @@
                     <input type="hidden" name="id" value="{{ user.id }}">
                     <input type="hidden" name="username" value="{{ user.username }}">
                     <input type="submit" name=new_activation value="{% if user.activated is defined and not user.activated %}Ny aktiveringslenke{% else %}Nullstill passord{% endif %}" class="btn btn-default">
+                    {% if user.username != username %}
                     <input type="submit" name=delete value="Slett" class="btn btn-default">
+                    {% endif %}
                   </form>
                 </td>
               </tr>
