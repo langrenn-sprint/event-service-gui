@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 from .middleware import token_renewal_middleware
 from .services import SystemStatusService
 from .views import (
+    Activate,
     Contestants,
     Control,
     CsvList,
@@ -147,6 +148,7 @@ async def create_app() -> web.Application:
     app.add_routes(
         [
             web.view("/", Main),
+            web.view("/activate", Activate),
             web.view("/csv", CsvList),
             web.view("/contestants", Contestants),
             web.view("/control", Control),

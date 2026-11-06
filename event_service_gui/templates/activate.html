@@ -1,0 +1,54 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}
+  {{ lopsinfo }}
+{% endblock %}
+{% block refresh %}{% endblock %}
+{% block max_width %}1200{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_user.png"> {{ lopsinfo }}{% endblock %}
+{% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_user.png"> {% endblock %}
+{% block content %}
+  <form action="/activate" method="post" id="activate_form">
+  <input type="hidden" name="code" id="code" value="{{ code }}">
+  <section class="row" aria-label="Velg passord">
+    <div class="col-sm-12">
+      <h2>Velg passord</h2>
+      <hr>
+      <p id="missing_code" class="alert alert-warning" hidden>Lenken mangler aktiveringskoden. Be admin om en ny lenke.</p>
+      <p>Passordet må ha minst {{ min_password_length }} tegn. Lenken kan brukes én gang.</p>
+      <label for="password">Passord</label>
+      <input type=password class="form-control" name="password" id="password" value="" required minlength="{{ min_password_length }}" autocomplete="new-password">
+      <br>
+      <label for="confirm">Gjenta passordet</label>
+      <input type=password class="form-control" name="confirm" id="confirm" value="" required minlength="{{ min_password_length }}" autocomplete="new-password">
+      <br>
+      <input type="submit" value="Lagre passord" class="btn btn-default" id="save_password">
+      <hr>
+    </div>
+  </section>
+  </form>
+  <script type="text/javascript">
+    (function () {
+      var code = document.getElementById("code");
+      // The link is /activate#<code>: browsers never send the part after # to a
+      // server. Read it, and remove it from the address bar and the history.
+      if (!code.value && window.location.hash.length > 1) {
+        code.value = decodeURIComponent(window.location.hash.slice(1));
+        history.replaceState(null, "", window.location.pathname);
+      }
+      if (!code.value) {
+        document.getElementById("missing_code").hidden = false;
+        document.getElementById("save_password").disabled = true;
+      }
+      var password = document.getElementById("password");
+      var confirm = document.getElementById("confirm");
+      function check_equal() {
+        confirm.setCustomValidity(
+          confirm.value && confirm.value !== password.value ? "Passordene er ikke like." : ""
+        );
+      }
+      password.addEventListener("input", check_equal);
+      confirm.addEventListener("input", check_equal);
+    })();
+  </script>
+{% endblock %}

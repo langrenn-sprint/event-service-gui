@@ -30,15 +30,54 @@
                 <label for="newusername">Brukernavn</label>
                 <input type=text class="form-control" name="newusername" id="newusername" value="">
                 <br>
-                <label for="newpassword">Passord</label>
-                <input type=password name="newpassword" class="form-control" id="newpassword" value="">
-                <br>
+                <label for="newpassword">Passord (valgfritt)</label>
+                <input type=password name="newpassword" class="form-control" id="newpassword" value="" minlength="{{ min_password_length }}" autocomplete="new-password" aria-describedby="newpassword_help">
+                <p id="newpassword_help" class="help-block">
+                  La feltet stå tomt, så får du en aktiveringslenke å gi til brukeren.
+                  Brukeren velger da passordet selv. Lenken gjelder i 48 timer.
+                  Et passord du setter selv må ha minst {{ min_password_length }} tegn.
+                </p>
                 <input type="submit" name=create value="  Opprett  " class="btn btn-default">
                 <hr>
             </div>
           </section>
         </form>
       {% else %}
+          {% if activation_link %}
+          <section class="row" aria-label="Aktiveringslenke">
+            <div class="col-sm-12">
+              <div class="alert alert-info">
+                <h2>Aktiveringslenke for {{ activation_link.username }}</h2>
+                <p>Gi lenken til brukeren, f.eks. på SMS eller chat. Brukeren velger passord selv.
+                Lenken kan brukes én gang og gjelder til {{ activation_link.expires }}.
+                <strong>Den vises bare nå.</strong> Hvis den blir borte, lag en ny.</p>
+                <input type=text readonly class="form-control" id="activation_link" value="{{ activation_link.path }}" data-path="{{ activation_link.path }}" aria-label="Aktiveringslenke">
+                <br>
+                <button type="button" class="btn btn-default" id="copy_activation_link">Kopier lenken</button>
+                <span id="copy_activation_status" role="status"></span>
+              </div>
+            </div>
+          </section>
+          <script type="text/javascript">
+            (function () {
+              // The link uses the address the admin sees, also behind a proxy:
+              var field = document.getElementById("activation_link");
+              field.value = window.location.origin + field.dataset.path;
+              document.getElementById("copy_activation_link").addEventListener("click", function () {
+                var status = document.getElementById("copy_activation_status");
+                field.select();
+                if (navigator.clipboard) {
+                  navigator.clipboard.writeText(field.value).then(
+                    function () { status.textContent = " Kopiert."; },
+                    function () { status.textContent = " Marker lenken og kopier den selv."; }
+                  );
+                } else {
+                  status.textContent = " Marker lenken og kopier den selv.";
+                }
+              });
+            })();
+          </script>
+          {% endif %}
           <section class="row" aria-label="Brukere">
             <div class="col-sm-12">
               <h2>Brukere</h2>
@@ -47,15 +86,19 @@
             <tr>
               <th>Rolle</th>
               <th>Brukernavn</th>
+              <th>Status</th>
               <td></td>
             </tr>
             {% for user in users %}
               <tr>
                 <td>{{ user.role }}</td>
                 <td>{{ user.username }}</td>
+                <td>{{ user.status }}</td>
                 <td>
                   <form action=/users method=post>
                     <input type="hidden" name="id" value="{{ user.id }}">
+                    <input type="hidden" name="username" value="{{ user.username }}">
+                    <input type="submit" name=new_activation value="{% if user.activated is defined and not user.activated %}Ny aktiveringslenke{% else %}Nullstill passord{% endif %}" class="btn btn-default">
                     <input type="submit" name=delete value="Slett" class="btn btn-default">
                   </form>
                 </td>
