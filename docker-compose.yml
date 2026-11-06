@@ -2,8 +2,11 @@ services:
   event-service-gui:
     build: .
     image: ghcr.io/langrenn-sprint/event-service-gui:test
+    # Only the container port: Docker picks a free port on the host, so the
+    # tests do not collide with the deploy stack or another repo's tests.
+    # conftest.py finds it with docker_services.port_for().
     ports:
-      - 8080:8080
+      - 8080
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
@@ -33,8 +36,6 @@ services:
       - "mongodb"
   event-service:
     image: ghcr.io/langrenn-sprint/event-service:latest
-    ports:
-      - 8082:8000
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
@@ -52,8 +53,6 @@ services:
       - "mongodb"
   race-service:
     image: ghcr.io/langrenn-sprint/race-service:latest
-    ports:
-      - 8088:8080
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
@@ -73,8 +72,6 @@ services:
       - "mongodb"
   competition-format-service:
     image: ghcr.io/langrenn-sprint/competition-format-service:latest
-    ports:
-      - 8094:8000
     environment:
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
@@ -91,8 +88,6 @@ services:
       - mongodb
   user-service:
     image: ghcr.io/langrenn-sprint/user-service:latest
-    ports:
-      - 8086:8000
     environment:
       - JWT_EXP_DELTA_SECONDS=${JWT_EXP_DELTA_SECONDS}
       - JWT_SECRET=${JWT_SECRET}
@@ -107,8 +102,6 @@ services:
       - "mongodb"
   mongodb:
     image: mongo:7-jammy
-    ports:
-      - 27017:27017
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}

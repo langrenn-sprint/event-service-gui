@@ -99,10 +99,13 @@ uv run adev runserver -p 8080 event_service_gui
 % docker run --env-file .env -p 8080:8080 -d ghcr.io/langrenn-sprint/event-service-gui:test
 ```
 
-The easier way would be with docker-compose:
+To run the whole stack (GUIs, backend services and MongoDB) on fixed ports, use the [deploy](https://github.com/langrenn-sprint/deploy) repo.
+
+The `docker-compose.yml` in this repo is for the contract tests. It publishes no fixed ports on the host, so the tests can run while the deploy stack is running. If you start it yourself, Docker picks a free port for the GUI:
 
 ```Zsh
-docker compose up --build
+docker compose up --build -d
+docker compose port event-service-gui 8080   # e.g. 0.0.0.0:55012
 ```
 
 ## Running tests
