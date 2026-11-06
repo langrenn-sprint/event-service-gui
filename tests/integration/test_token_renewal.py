@@ -240,5 +240,7 @@ async def test_not_logged_in_does_not_renew(
     client: _TestClient, mocked: aioresponses
 ) -> None:
     resp = await client.get("/", allow_redirects=False)
-    assert resp.status in (200, 303)
+    # There is no event-service in this test, so the main page shows its error
+    # page (500) instead of sending the user to the login page (#240):
+    assert resp.status in (200, 303, 500)
     assert calls(mocked, "POST", RENEW_URL) == []

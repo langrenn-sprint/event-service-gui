@@ -1,6 +1,5 @@
 """Resource module for live resources."""
 
-import logging
 from operator import itemgetter
 
 import aiohttp_jinja2
@@ -14,6 +13,7 @@ from event_service_gui.adapters import (
 from .utils import (
     check_login,
     get_event,
+    raise_error,
 )
 
 
@@ -89,5 +89,4 @@ class PrintContestants(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error.. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)

@@ -19,6 +19,7 @@ from .utils import (
     get_heat_separators,
     login_location,
     perform_seeding,
+    raise_error,
 )
 
 
@@ -102,8 +103,7 @@ class Seeding(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error.. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
     async def post(self) -> web.Response:
         """Post route function that creates deltakerliste."""

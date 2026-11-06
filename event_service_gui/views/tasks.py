@@ -14,7 +14,7 @@ from event_service_gui.adapters import (
 )
 from event_service_gui.services import TimeEventsService
 
-from .utils import check_login, get_event, login_location
+from .utils import check_login, get_event, login_location, raise_error
 
 
 class Tasks(web.View):
@@ -49,12 +49,7 @@ class Tasks(web.View):
                 },
             )
         except Exception as e:
-            if "401" in str(e):
-                raise web.HTTPSeeOther(
-                    location=login_location(str(e), self.request.path_qs)
-                ) from e
-            logging.exception("Error.. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""
