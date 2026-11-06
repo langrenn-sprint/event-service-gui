@@ -8,7 +8,7 @@ from aiohttp import web
 
 from event_service_gui.adapters import EventsAdapter
 
-from .utils import check_login_open, get_event
+from .utils import check_login_open, error_text, get_event, is_login_error, raise_error
 
 
 class Main(web.View):
@@ -52,5 +52,13 @@ class Main(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error.. Redirect to login page.")
-            raise web.HTTPSeeOther(location=f"/login?informasjon={e}") from e
+            if is_login_error(e):
+                raise_error(self, e)
+            # The other pages send errors here, so show an error page instead:
+            logging.exception("Error on the main page")
+            return await aiohttp_jinja2.render_template_async(
+                "error.html",
+                self.request,
+                {"informasjon": error_text(e)},
+                status=web.HTTPInternalServerError.status_code,
+            )

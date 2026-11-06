@@ -12,6 +12,7 @@ from .utils import (
     create_default_competition_format,
     get_event,
     login_location,
+    raise_error,
 )
 
 
@@ -66,8 +67,7 @@ class Events(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error.. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
     async def post(self) -> web.Response:
         """Post route function that creates a collection of klasses."""

@@ -16,6 +16,7 @@ from .utils import (
     get_event,
     get_qualification_text,
     login_location,
+    raise_error,
 )
 
 
@@ -106,8 +107,7 @@ class Raceplans(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error.. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""
