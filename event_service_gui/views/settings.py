@@ -11,9 +11,9 @@ from event_service_gui.adapters import CompetitionFormatAdapter
 from .utils import (
     check_login,
     create_default_competition_format,
+    error_message,
     get_event,
     get_qualification_text,
-    login_location,
     raise_error,
 )
 
@@ -165,16 +165,7 @@ class Settings(web.View):
                     )
                 )
         except Exception as e:
-            logging.exception("Error")
-            informasjon = f"Det har oppstått en feil - {e}."
-            error_reason = str(e)
-            if error_reason.startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
+            informasjon = error_message(self, e)
 
         raise web.HTTPSeeOther(location=f"/settings?informasjon={informasjon}")
 

@@ -8,7 +8,10 @@ from aiohttp_session import new_session
 
 from event_service_gui.adapters import UserAdapter
 
-from .utils import safe_next_path
+from .utils import (
+    error_text,
+    safe_next_path,
+)
 
 
 class Login(web.View):
@@ -66,7 +69,7 @@ class Login(web.View):
 
         except Exception as e:
             logging.exception("Error")
-            informasjon = f"Det har oppstått en feil - {e.args}."
+            informasjon = f"Innlogging feilet. {error_text(e)}"
             result = 400
 
         event = {"name": "Langrenn", "organiser": "Ikke valgt"}

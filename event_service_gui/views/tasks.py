@@ -14,7 +14,12 @@ from event_service_gui.adapters import (
 )
 from event_service_gui.services import TimeEventsService
 
-from .utils import check_login, get_event, login_location, raise_error
+from .utils import (
+    check_login,
+    error_message,
+    get_event,
+    raise_error,
+)
 
 
 class Tasks(web.View):
@@ -92,16 +97,7 @@ class Tasks(web.View):
             elif "delete_start_lists" in form:
                 informasjon = await delete_start_lists(user["token"], event_id)
         except Exception as e:
-            informasjon = f"Det har oppstått en feil - {e.args}."
-            error_reason = str(e)
-            if error_reason.startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
-            logging.exception("Error")
+            informasjon = error_message(self, e)
 
         info = f"action={action}&informasjon={informasjon}"
         raise web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")

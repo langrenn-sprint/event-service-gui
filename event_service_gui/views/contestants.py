@@ -17,8 +17,10 @@ from .utils import (
     check_login,
     check_login_open,
     create_start,
+    error_message,
+    error_text,
     get_event,
-    login_location,
+    is_login_error,
     perform_seeding,
     raise_error,
 )
@@ -194,7 +196,10 @@ class Contestants(web.View):
                             )
                             informasjon += f"OK:{key} "
                         except Exception as e:
-                            informasjon += f"Feil:{key}({e}) "
+                            if is_login_error(e):
+                                raise
+                            logging.exception("Error deleting contestant")
+                            informasjon += f"Feil:{key}({error_text(e)}) "
 
             elif "delete_all" in form:
                 result = await ContestantsAdapter().delete_all_contestants(
@@ -204,16 +209,7 @@ class Contestants(web.View):
         except web.HTTPException:
             raise  # redirects from the try body, not errors
         except Exception as e:
-            logging.exception("Error")
-            informasjon = f"Det har oppstått en feil - {e.args}."
-            error_reason = str(e)
-            if error_reason.startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
+            informasjon = error_message(self, e)
 
         info = f"action={action}&informasjon={informasjon}&klasse={valgt_klasse}"
         raise web.HTTPSeeOther(location=f"/contestants?event_id={event_id}&{info}")

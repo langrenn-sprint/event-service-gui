@@ -15,9 +15,9 @@ from .utils import (
     add_seeding_points,
     check_login,
     check_login_open,
+    error_message,
     get_event,
     get_heat_separators,
-    login_location,
     perform_seeding,
     raise_error,
 )
@@ -138,16 +138,7 @@ class Seeding(web.View):
                     valgt_klasse,
                 )
         except Exception as e:
-            logging.exception("Error")
-            informasjon = f"Det har oppstått en feil - {e.args}."
-            error_reason = str(e)
-            if error_reason.startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
+            informasjon = error_message(self, e)
 
         info = f"action={action}&informasjon={informasjon}&klasse={valgt_klasse}"
         raise web.HTTPSeeOther(location=f"/seeding?event_id={event_id}&{info}")
