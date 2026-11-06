@@ -1,5 +1,6 @@
 """Package for all views."""
 
+from .activate import Activate
 from .contestants import Contestants
 from .control import Control
 from .csv_list import CsvList
@@ -18,6 +19,7 @@ from .tasks import Tasks
 from .users import Users
 
 __all__ = [
+    "Activate",
     "Contestants",
     "Control",
     "CsvList",

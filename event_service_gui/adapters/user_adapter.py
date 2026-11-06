@@ -27,6 +27,18 @@ TOKEN_EXPIRY_MARGIN_SECONDS = 10
 NO_ACCESS_CREATE = "Du har ikke tilgang til å opprette brukere. Krever rollen admin."
 NO_ACCESS_DELETE = "Du har ikke tilgang til å slette brukere. Krever rollen admin."
 NO_ACCESS_READ = "Du har ikke tilgang til å se brukere. Krever rollen admin."
+NO_ACCESS_ACTIVATION = (
+    "Du har ikke tilgang til å lage aktiveringslenker. Krever rollen admin."
+)
+
+# The shortest password user-service accepts for a new password.
+MIN_PASSWORD_LENGTH = 10
+PASSWORD_TOO_SHORT = f"Passordet må ha minst {MIN_PASSWORD_LENGTH} tegn."
+# Answer to POST /login when the user has not set a password yet.
+NOT_ACTIVATED = "Brukeren er ikke aktivert. Bruk aktiveringslenken du har fått."
+INVALID_ACTIVATION = (
+    "Aktiveringslenken er ugyldig, brukt eller utløpt. Be admin om en ny lenke."
+)
 
 
 class UserAdapter:
@@ -38,15 +50,23 @@ class UserAdapter:
         role: str,
         username: str,
         password: str,
-    ) -> str:
-        """Create user function."""
+    ) -> tuple[str, dict | None]:
+        """Create a user, with a password or with an activation code.
+
+        Without password, user-service makes an activation code, so the user
+        can set the password.
+
+        Returns:
+            The id of the new user, and for a user without password the
+            activation: {"user_id", "code", "expires"}.
+
+        """
         servicename = "create_user"
         w_id = ""
-        request_body = {
-            "role": role,
-            "username": username,
-            "password": password,
-        }
+        activation = None
+        request_body = {"role": role, "username": username}
+        if password:
+            request_body["password"] = password
         headers = MultiDict(
             [
                 (hdrs.CONTENT_TYPE, "application/json"),
@@ -62,21 +82,87 @@ class UserAdapter:
             ) as resp,
         ):
             if resp.status == HTTPStatus.CREATED:
-                logging.debug(f"create user - got response {resp}")
+                logging.debug(f"create user - got response {resp.status}")
                 location = resp.headers[hdrs.LOCATION]
                 w_id = location.split(os.path.sep)[-1]
+                if not password:
+                    activation = await resp.json()
             elif resp.status == HTTPStatus.UNAUTHORIZED:
                 raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
             elif resp.status == HTTPStatus.FORBIDDEN:
                 raise web.HTTPForbidden(reason=NO_ACCESS_CREATE)
+            elif resp.status == HTTPStatus.UNPROCESSABLE_ENTITY:
+                raise web.HTTPBadRequest(reason=PASSWORD_TOO_SHORT)
             else:
                 logging.error(f"create_user failed - {resp.status}")
                 raise web.HTTPBadRequest(reason="Create user failed.")
 
-        return w_id
+        return w_id, activation
+
+    async def create_activation(self, token: str, user_id: str) -> dict:
+        """Give the user a new activation code, e.g. to reset the password.
+
+        Earlier codes stop working; a password the user has keeps working
+        until the new one is set.
+
+        Returns:
+            The activation: {"user_id", "code", "expires"}.
+
+        """
+        servicename = "create_activation"
+        headers = MultiDict([(hdrs.AUTHORIZATION, f"Bearer {token}")])
+        async with (
+            ClientSession() as session,
+            session.post(
+                f"{USER_SERVICE_URL}/users/{require_id(user_id)}/activation",
+                headers=headers,
+            ) as resp,
+        ):
+            if resp.status == HTTPStatus.CREATED:
+                return await resp.json()
+            if resp.status == HTTPStatus.UNAUTHORIZED:
+                raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")
+            if resp.status == HTTPStatus.FORBIDDEN:
+                raise web.HTTPForbidden(reason=NO_ACCESS_ACTIVATION)
+            if resp.status == HTTPStatus.NOT_FOUND:
+                raise web.HTTPBadRequest(reason="Fant ikke brukeren.")
+            logging.error(f"{servicename} failed - {resp.status}")
+            raise web.HTTPBadRequest(reason="Kunne ikke lage aktiveringslenke.")
+
+    async def activate(self, code: str, password: str, username: str = "") -> int:
+        """Set the password with an activation code. Needs no token.
+
+        With a username, user-service only accepts the code for that user.
+
+        Returns:
+            The status from user-service: 204 when the password is set, 400
+            for an unknown, used or expired code, 422 for a too short password.
+
+        """
+        async with (
+            ClientSession() as session,
+            session.post(
+                f"{USER_SERVICE_URL}/activate",
+                json={"code": code, "password": password}
+                | ({"username": username} if username else {}),
+            ) as resp,
+        ):
+            if resp.status not in (
+                HTTPStatus.NO_CONTENT,
+                HTTPStatus.BAD_REQUEST,
+                HTTPStatus.UNPROCESSABLE_ENTITY,
+            ):
+                logging.error(f"activate failed - {resp.status}")
+            return resp.status
 
     async def delete_user(self, token: str, w_id: str) -> int:
-        """Delete user function."""
+        """Delete a user.
+
+        Returns:
+            204 when deleted, or 409 when it is the user who is logged in:
+            user-service does not let a user delete themselves.
+
+        """
         servicename = "delete_user"
         headers = MultiDict(
             [
@@ -89,7 +175,7 @@ class UserAdapter:
             async with session.delete(url, headers=headers) as resp:
                 pass
             logging.info(f"Delete user: {w_id} - res {resp.status}")
-            if resp.status == HTTPStatus.NO_CONTENT:
+            if resp.status in (HTTPStatus.NO_CONTENT, HTTPStatus.CONFLICT):
                 logging.debug(f"result - got response {resp}")
             elif resp.status == HTTPStatus.UNAUTHORIZED:
                 raise web.HTTPBadRequest(reason=f"401 Unathorized - {servicename}")

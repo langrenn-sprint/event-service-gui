@@ -15,10 +15,10 @@
       <h2>Innlogging</h2>
       <hr>
       Brukernavn<br>
-      <input type=text class="form-control" name="username" value="">
+      <input type=text class="form-control" name="username" value="{{ login_username|default('') }}" autocomplete="username">
       <br>
       Passord<br>
-      <input type=password class="form-control" name="password" value="">
+      <input type=password class="form-control" name="password" value="" autocomplete="current-password">
       <br>
       <input type="submit" name=Login value="Logg inn" class="btn btn-default">
       <hr>

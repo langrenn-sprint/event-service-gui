@@ -1,12 +1,14 @@
 """Resource module for login view."""
 
 import logging
+from http import HTTPStatus
 
 import aiohttp_jinja2
 from aiohttp import web
 from aiohttp_session import new_session
 
 from event_service_gui.adapters import UserAdapter
+from event_service_gui.adapters.user_adapter import NOT_ACTIVATED
 
 from .utils import (
     error_text,
@@ -43,6 +45,8 @@ class Login(web.View):
                 "informasjon": informasjon,
                 "next": next_path,
                 "username": username,
+                # filled in after activation, so the browser can fill in the password:
+                "login_username": self.request.rel_url.query.get("username", ""),
             },
         )
 
@@ -64,6 +68,8 @@ class Login(web.View):
             )
             if result == 200:
                 informasjon = "Innlogget!"
+            elif result == HTTPStatus.FORBIDDEN:
+                informasjon = NOT_ACTIVATED
             else:
                 informasjon = f"Innlogging feilet - {result}"
 

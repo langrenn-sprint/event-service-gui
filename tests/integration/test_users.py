@@ -115,7 +115,12 @@ async def test_users_page_rejected_for_other_roles(
 @pytest.mark.parametrize(
     "form",
     [
-        {"create": "1", "newrole": "admin", "newusername": "u", "newpassword": "p"},
+        {
+            "create": "1",
+            "newrole": "admin",
+            "newusername": "u",
+            "newpassword": "p" * 10,
+        },
         {"delete": "1", "id": "u1"},
     ],
 )
@@ -201,7 +206,12 @@ async def test_users_page_error_from_user_service(client: _TestClient) -> None:
     ("form", "method", "url", "message"),
     [
         (
-            {"create": "1", "newrole": "admin", "newusername": "u", "newpassword": "p"},
+            {
+                "create": "1",
+                "newrole": "admin",
+                "newusername": "u",
+                "newpassword": "p" * 10,
+            },
             "post",
             USERS_URL,
             NO_ACCESS_CREATE,
