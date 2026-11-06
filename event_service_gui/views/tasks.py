@@ -50,11 +50,11 @@ class Tasks(web.View):
             )
         except Exception as e:
             if "401" in str(e):
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=login_location(str(e), self.request.path_qs)
-                )
+                ) from e
             logging.exception("Error.. Redirect to main page.")
-            return web.HTTPSeeOther(location=f"/?informasjon={e}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
 
     async def post(self) -> web.Response:
         """Post route function that updates a collection of klasses."""
@@ -100,16 +100,16 @@ class Tasks(web.View):
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=login_location(
                         f"Ingen tilgang, vennligst logg inn på nytt. {e}",
                         self.request.path_qs,
                     )
-                )
+                ) from e
             logging.exception("Error")
 
         info = f"action={action}&informasjon={informasjon}"
-        return web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
+        raise web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
 
 
 async def delete_start_lists(token: str, event_id: str) -> str:

@@ -35,7 +35,7 @@ class Seeding(web.View):
             event_id = ""
         if event_id == "":
             informasjon = "Ingen event valgt."
-            return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
 
         try:
             user = await check_login_open(self)
@@ -103,7 +103,7 @@ class Seeding(web.View):
             )
         except Exception as e:
             logging.exception("Error.. Redirect to main page.")
-            return web.HTTPSeeOther(location=f"/?informasjon={e}")
+            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
 
     async def post(self) -> web.Response:
         """Post route function that creates deltakerliste."""
@@ -142,15 +142,15 @@ class Seeding(web.View):
             informasjon = f"Det har oppstått en feil - {e.args}."
             error_reason = str(e)
             if error_reason.startswith("401"):
-                return web.HTTPSeeOther(
+                raise web.HTTPSeeOther(
                     location=login_location(
                         f"Ingen tilgang, vennligst logg inn på nytt. {e}",
                         self.request.path_qs,
                     )
-                )
+                ) from e
 
         info = f"action={action}&informasjon={informasjon}&klasse={valgt_klasse}"
-        return web.HTTPSeeOther(location=f"/seeding?event_id={event_id}&{info}")
+        raise web.HTTPSeeOther(location=f"/seeding?event_id={event_id}&{info}")
 
 
 async def add_seeding_from_form(token: str, event_id: str, form: dict) -> str:

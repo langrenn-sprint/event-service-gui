@@ -83,5 +83,5 @@ class Login(web.View):
                 },
             )
         if next_path:
-            return web.HTTPSeeOther(location=next_path)
-        return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+            raise web.HTTPSeeOther(location=next_path)
+        raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

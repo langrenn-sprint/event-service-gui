@@ -20,4 +20,4 @@ class Logout(web.View):
             logging.exception("Error")
             informasjon = f"Det har oppstått en feil - {e.args}."
 
-        return web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
+        raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}")

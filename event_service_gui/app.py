@@ -98,13 +98,6 @@ def get_session_storage() -> EncryptedCookieStorage:
     )
 
 
-async def handler(request) -> web.Response:
-    """Create a session handler."""
-    session = await get_session(request)
-    text = f"Last visited: {session.get('last_visit', None)}"
-    return web.Response(text=text)
-
-
 async def instance_context_processor(request: web.Request) -> dict:
     """Add instance banner and admin flag to the context of all templates."""
     instance_banner = None
@@ -129,7 +122,6 @@ async def create_app() -> web.Application:
     setup(app, get_session_storage())
     # after the session middleware, so it can read and update the session
     app.middlewares.append(token_renewal_middleware)
-    app.router.add_get("/secret", handler)
 
     # Set up logging - errors to separate file
     logging.basicConfig(level=LOGGING_LEVEL)
