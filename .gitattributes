@@ -1,0 +1,4 @@
+# Line endings: LF for all text files, in the repository and the working tree.
+* text=auto eol=lf
+# CSV files are kept as they are: exported CSV files often use CRLF.
+*.csv -text
