@@ -7,6 +7,8 @@ import os
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
+from .ids import require_id
+
 RACE_HOST_SERVER = os.getenv("RACE_HOST_SERVER", "localhost")
 RACE_HOST_PORT = os.getenv("RACE_HOST_PORT", "8088")
 RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
@@ -56,7 +58,7 @@ class TimeEventsAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = f"{RACE_SERVICE_URL}/time-events/{t_id}"
+        url = f"{RACE_SERVICE_URL}/time-events/{require_id(t_id)}"
         async with ClientSession() as session:
             async with session.delete(url, headers=headers) as resp:
                 if resp.status == 204:
@@ -82,7 +84,7 @@ class TimeEventsAdapter:
 
         async with ClientSession() as session:
             async with session.put(
-                f"{RACE_SERVICE_URL}/time-events/{t_id}",
+                f"{RACE_SERVICE_URL}/time-events/{require_id(t_id)}",
                 headers=headers,
                 json=time_event,
             ) as resp:
@@ -107,7 +109,7 @@ class TimeEventsAdapter:
         time_event = {}
         async with ClientSession() as session:
             async with session.get(
-                f"{RACE_SERVICE_URL}/time-events/{t_id}", headers=headers
+                f"{RACE_SERVICE_URL}/time-events/{require_id(t_id)}", headers=headers
             ) as resp:
                 logging.debug(f"get_time_event_by_id - got response {resp.status}")
                 if resp.status == 200:
