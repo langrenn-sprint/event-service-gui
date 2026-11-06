@@ -52,12 +52,7 @@ def mocked() -> Iterator[aioresponses]:
 def token_at(clock_time: float, name: str) -> str:
     """Return a token issued at clock_time, with `name` to tell tokens apart."""
     return make_token(
-        {
-            "username": "tester",
-            "role": "admin",
-            "name": name,
-            "exp": clock_time + LIFETIME,
-        }
+        {"username": "tester", "role": "admin", "name": name, "exp": clock_time + LIFETIME}
     )
 
 
