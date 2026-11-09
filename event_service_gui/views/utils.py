@@ -1,6 +1,6 @@
 """Utilities module for gui services."""
 
-import datetime
+import datetime as dt
 import json
 import logging
 from typing import NoReturn
@@ -211,7 +211,7 @@ async def create_default_competition_format(token: str, format_name: str) -> str
 def get_display_style(start_time: str, event: dict) -> str:
     """Calculate time remaining to start and return table header style."""
     time_now = EventsAdapter().get_local_datetime_now(event)
-    start_time_obj = datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%S")
+    start_time_obj = dt.datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%S")
     # make sure timezone is correct
     start_time_obj = start_time_obj.replace(tzinfo=time_now.tzinfo)
     delta_time = start_time_obj - time_now

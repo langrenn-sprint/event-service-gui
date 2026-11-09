@@ -83,7 +83,7 @@ class Contestants(web.View):
                     )
             else:
                 contestants = (
-                    await ContestantsAdapter().get_all_contestants_by_raceclass(
+                    await ContestantsAdapter().get_contestants_by_raceclass(
                         user["token"], event_id, valgt_klasse
                     )
                 )

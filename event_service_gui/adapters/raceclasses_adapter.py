@@ -126,7 +126,7 @@ class RaceclassesAdapter:
         async with (
             ClientSession() as session,
             session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses/{require_id(raceclass_id)}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses/{raceclass_id}",
                 headers=headers,
             ) as resp,
         ):
@@ -222,7 +222,7 @@ class RaceclassesAdapter:
         async with (
             ClientSession() as session,
             session.put(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses/{require_id(my_id)}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/raceclasses/{my_id}",
                 headers=headers,
                 json=new_data,
             ) as resp,

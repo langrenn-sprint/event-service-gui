@@ -4,7 +4,7 @@ Business logic for the instance banner and the system page, based on the
 status file format defined in langrenn-sprint/deploy#13.
 """
 
-import datetime
+import datetime as dt
 import logging
 import re
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -13,7 +13,7 @@ from event_service_gui.adapters import ServiceHealthAdapter, SystemStatusAdapter
 
 PRODUCTION_ROLE = "production"
 SUPPORTED_SCHEMA_VERSION = 1
-MAX_AGE = datetime.timedelta(minutes=15)
+MAX_AGE = dt.timedelta(minutes=15)
 DISK_FREE_WARNING_RATIO = 0.10
 DISK_FREE_ERROR_RATIO = 0.05
 MEMORY_USED_WARNING_RATIO = 0.85
@@ -56,14 +56,14 @@ GITHUB_SOURCE = re.compile(r"^https://github\.com/[\w.-]+/[\w.-]+$")
 GIT_REVISION = re.compile(r"^[0-9a-f]{7,40}$")
 
 
-def _display_tz() -> datetime.tzinfo | None:
+def _display_tz() -> dt.tzinfo | None:
     try:
         return ZoneInfo(DISPLAY_TIMEZONE)
     except ZoneInfoNotFoundError:  # pragma: no cover
         return None
 
 
-def parse_time(value: object) -> datetime.datetime | None:
+def parse_time(value: object) -> dt.datetime | None:
     """Parse an ISO 8601 timestamp, return None if missing or invalid.
 
     Timestamps without offset are interpreted as UTC.
@@ -71,16 +71,16 @@ def parse_time(value: object) -> datetime.datetime | None:
     if not isinstance(value, str) or not value:
         return None
     try:
-        parsed = datetime.datetime.fromisoformat(value)
+        parsed = dt.datetime.fromisoformat(value)
     except ValueError:
         logging.debug(f"Invalid timestamp in system status: {value}")
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=datetime.UTC)
+        parsed = parsed.replace(tzinfo=dt.UTC)
     return parsed
 
 
-def format_time(value: datetime.datetime | None, fmt: str = "%d.%m.%Y %H:%M:%S") -> str:
+def format_time(value: dt.datetime | None, fmt: str = "%d.%m.%Y %H:%M:%S") -> str:
     """Format a timestamp in local (Norwegian) time."""
     if value is None:
         return ""
@@ -88,7 +88,7 @@ def format_time(value: datetime.datetime | None, fmt: str = "%d.%m.%Y %H:%M:%S")
     return (value.astimezone(tz) if tz else value).strftime(fmt)
 
 
-def format_age(age: datetime.timedelta | None) -> str:
+def format_age(age: dt.timedelta | None) -> str:
     """Format an age as a short Norwegian text, e.g. "2 t 5 min"."""
     if age is None:
         return ""
@@ -191,7 +191,7 @@ def _sort_keys(name: str, running: bool | None, service: dict) -> dict:
 
 
 def _time_with_age(
-    time: datetime.datetime | None, age: datetime.timedelta | None, empty: str
+    time: dt.datetime | None, age: dt.timedelta | None, empty: str
 ) -> str:
     """Format e.g. "05.11.2026 12:00:01 (4 min siden)", or empty if no time."""
     if time is None:
@@ -267,13 +267,13 @@ class SystemStatusService:
 
         return {"role": role, "text": text}
 
-    async def get_live_system_info(self, now: datetime.datetime | None = None) -> dict:
+    async def get_live_system_info(self, now: dt.datetime | None = None) -> dict:
         """Get the system info including a live health check of the services."""
         health = await self.health_adapter.check_services()
         return self.get_system_info(now=now, health=health)
 
     def get_system_info(
-        self, now: datetime.datetime | None = None, health: list[dict] | None = None
+        self, now: dt.datetime | None = None, health: list[dict] | None = None
     ) -> dict:
         """Get everything the system page shows, including warnings.
 
@@ -282,7 +282,7 @@ class SystemStatusService:
             health: Result of the live health check (ServiceHealthAdapter),
                 merged into the services. None if not checked.
         """
-        now = now or datetime.datetime.now(datetime.UTC)
+        now = now or dt.datetime.now(dt.UTC)
         instance = self.adapter.get_instance()
         info: dict = {
             "instance": {
@@ -357,7 +357,7 @@ class SystemStatusService:
 
     @staticmethod
     def _backup_info(
-        backup: dict, now: datetime.datetime, warnings: list[dict]
+        backup: dict, now: dt.datetime, warnings: list[dict]
     ) -> dict:
         last_success = _dict(backup.get("last_success"))
         success_time = parse_time(last_success.get("time"))

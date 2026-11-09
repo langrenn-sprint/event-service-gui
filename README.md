@@ -37,6 +37,7 @@ RACE_HOST_SERVER=localhost
 RACE_HOST_PORT=8088
 USERS_HOST_SERVER=localhost
 USERS_HOST_PORT=8086
+INSTANCE_ROLE=test # `production`, `standby` or `test`.
 ```
 
 `FERNET_KEY` encrypts the session cookie and is required: the app does not start if it is missing or invalid. Generate one per environment and never reuse a key from an example:

@@ -317,44 +317,6 @@ class ContestantsAdapter:
                 )
         return contestants
 
-    async def get_all_contestants_by_raceclass(
-        self, token: str, event_id: str, raceclass_name: str
-    ) -> list:
-        """Get all contestants / by raceclass function."""
-        headers = MultiDict(
-            [
-                (hdrs.CONTENT_TYPE, "application/json"),
-                (hdrs.AUTHORIZATION, f"Bearer {token}"),
-            ]
-        )
-        contestants = []
-        raceclass_name_url = urllib.parse.quote(raceclass_name, safe="")
-        async with (
-            ClientSession() as session,
-            session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_name_url}",
-                headers=headers,
-            ) as resp,
-        ):
-            logging.debug(
-                f"get_all_contestants_by_raceclass ({raceclass_name}) - got response {resp.status}"
-            )
-            if resp.status == HTTPStatus.OK:
-                contestants = await resp.json()
-            else:
-                servicename = "get_all_contestants_by_raceclass"
-                if "application/json" in resp.content_type:
-                    body = await resp.json()
-                    detail = body.get("detail", body)
-                else:
-                    detail = await resp.text()
-                informasjon = f"{servicename} failed - {resp.status} - {detail}"
-                logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
-        return contestants
-
     async def get_contestant_by_bib(self, token: str, event_id: str, bib: int) -> dict:
         """Get contestant by bib function."""
         headers = MultiDict(
@@ -371,11 +333,11 @@ class ContestantsAdapter:
                 headers=headers,
             ) as resp,
         ):
-            logging.debug(f"get_contestants_by_raceclass - got response {resp.status}")
+            logging.debug(f"get_contestant_by_bib - got response {resp.status}")
             if resp.status == HTTPStatus.OK:
                 contestant = await resp.json()
             else:
-                servicename = "get_contestants_by_bib"
+                servicename = "get_contestant_by_bib"
                 if "application/json" in resp.content_type:
                     body = await resp.json()
                     detail = body.get("detail", body)
@@ -405,7 +367,7 @@ class ContestantsAdapter:
         async with (
             ClientSession() as session,
             session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_url}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass-name={raceclass_url}",
                 headers=headers,
             ) as resp,
         ):

@@ -166,3 +166,11 @@ async def test_delete_raceclass_without_id_is_not_sent(
     with pytest.raises(Exception, match="Mangler id"):
         await RaceclassesAdapter().delete_raceclass("t", "e1", "")
     assert race_service.requests == []
+
+
+@pytest.mark.integration
+async def test_get_start_entries_without_bib_returns_empty_without_request(
+    race_service: FakeRaceService,
+) -> None:
+    assert await StartAdapter().get_start_entries_by_bib("t", "e1", None) == []
+    assert race_service.requests == []

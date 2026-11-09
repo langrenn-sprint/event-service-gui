@@ -1,6 +1,6 @@
 """Module for raceplans adapter."""
 
-import datetime
+import datetime as dt
 import logging
 import os
 from http import HTTPStatus
@@ -388,23 +388,23 @@ class RaceplansAdapter:
     ) -> str:
         """Update race start-time function."""
         delta_seconds = float(0)
-        delta_time = datetime.timedelta(seconds=0)
+        delta_time = dt.timedelta(seconds=0)
         races = await RaceplansAdapter().get_all_races(token, event_id)
         for race in races:
-            old_time_obj = datetime.datetime.strptime(
+            old_time_obj = dt.datetime.strptime(
                 race["start_time"], "%Y-%m-%dT%H:%M:%S"
-            ).replace(tzinfo=datetime.UTC)
+            ).replace(tzinfo=dt.UTC)
             if race["order"] >= order:
                 # calculate time difference, delta seconds
                 if race["order"] == order:
-                    new_time_obj = datetime.datetime.strptime(
+                    new_time_obj = dt.datetime.strptime(
                         f"{race['start_time'][:11]}{new_time}", "%Y-%m-%dT%H:%M:%S"
-                    ).replace(tzinfo=datetime.UTC)
+                    ).replace(tzinfo=dt.UTC)
                     delta_time = new_time_obj - old_time_obj
                     delta_seconds = delta_time.total_seconds()
 
                 # calculate new time
-                x = old_time_obj + datetime.timedelta(seconds=delta_seconds)
+                x = old_time_obj + dt.timedelta(seconds=delta_seconds)
                 new_time = x.strftime("%X")
                 race["start_time"] = f"{race['start_time'][:11]}{new_time}"
                 res = await RaceplansAdapter().update_race(token, race["id"], race)

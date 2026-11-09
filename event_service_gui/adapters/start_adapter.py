@@ -180,9 +180,12 @@ class StartAdapter:
         return start_entry
 
     async def get_start_entries_by_bib(
-        self, token: str, event_id: str, bib: int
+        self, token: str, event_id: str, bib: int | None
     ) -> list:
         """Get all start_entries by bib function."""
+        if bib is None:
+            return []
+
         startlists: list[dict] = []
         start_entries: list[dict] = []
         headers = MultiDict(
