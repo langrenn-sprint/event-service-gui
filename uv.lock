@@ -576,6 +576,7 @@ dependencies = [
     { name = "cryptography" },
     { name = "gunicorn" },
     { name = "jinja2" },
+    { name = "marshmallow" },
     { name = "multidict" },
     { name = "python-dotenv" },
     { name = "python-json-logger" },
@@ -618,6 +619,7 @@ requires-dist = [
     { name = "cryptography", specifier = ">=44.0.2" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "jinja2", specifier = ">=3.1.6" },
+    { name = "marshmallow", specifier = ">=4.4.0" },
     { name = "multidict", specifier = ">=6.0.1" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "python-json-logger", specifier = ">=3.2.1" },
@@ -857,6 +859,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/df/5bd7a48c256faecd1d36edc13133e51397e41b73bb77e1a69deab746ebac/markupsafe-3.0.3-cp314-cp314t-win32.whl", hash = "sha256:915c04ba3851909ce68ccc2b8e2cd691618c4dc4c4232fb7982bca3f41fd8c3d", size = 14819, upload-time = "2025-09-27T18:37:26.285Z" },
     { url = "https://files.pythonhosted.org/packages/1a/8a/0402ba61a2f16038b48b39bccca271134be00c5c9f0f623208399333c448/markupsafe-3.0.3-cp314-cp314t-win_amd64.whl", hash = "sha256:4faffd047e07c38848ce017e8725090413cd80cbc23d86e55c587bf979e579c9", size = 15426, upload-time = "2025-09-27T18:37:27.316Z" },
     { url = "https://files.pythonhosted.org/packages/70/bc/6f1c2f612465f5fa89b95bead1f44dcb607670fd42891d8fdcd5d039f4f4/markupsafe-3.0.3-cp314-cp314t-win_arm64.whl", hash = "sha256:32001d6a8fc98c8cb5c947787c5d08b0a50663d139f1305bac5885d98d9b40fa", size = 14146, upload-time = "2025-09-27T18:37:28.327Z" },
+]
+
+[[package]]
+name = "marshmallow"
+version = "4.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0d/3e/2b75ae631789fc13191ab82bc08957af381c00fffc5fefc6248b719bc9d2/marshmallow-4.4.0.tar.gz", hash = "sha256:9e6ffa8511012ca89732324c1c253efd7b4d35632dcbdf80aa793fe01804af3e", size = 222228, upload-time = "2026-11-04T00:09:23.777Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/33/e7/07f4ba1b1053c565081a843782544e81a02302c9fe457c4a8e25196087af/marshmallow-4.4.0-py3-none-any.whl", hash = "sha256:03a882ff2eabb9a4e24b433c2949f359ef4d172a12fdc14cde10375fd55328b4", size = 53724, upload-time = "2026-11-04T00:09:22.005Z" },
 ]
 
 [[package]]
@@ -1271,15 +1282,15 @@ wheels = [
 
 [[package]]
 name = "pyright"
-version = "1.1.409"
+version = "1.1.414"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "nodeenv" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/51/4e/3aa27f74211522dba7e9cbc3e74de779c6d4b654c54e50a4840623be8014/pyright-1.1.409.tar.gz", hash = "sha256:986ee05beca9e077c165758ad123667c679e050059a2546aa02473930394bc93", size = 4430434, upload-time = "2026-04-23T11:02:03.799Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e1/1b/244c7b710031ada80f27e579ec20d28a2285dfc318fed0339866b1047f12/pyright-1.1.414.tar.gz", hash = "sha256:523c0a97c60da6333234955c277730c9cf4f5bd6d5399e7b7d2b0fc5d3599524", size = 4154638, upload-time = "2026-09-10T12:26:53.181Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/16/6b/330d8ebae582b30c2959a1ef4c3bc344ebde48c2ff0c3f113c4710735e11/pyright-1.1.409-py3-none-any.whl", hash = "sha256:aa3ea228cab90c845c7a60d28db7a844c04315356392aa09fafcee98c8c22fb3", size = 6438161, upload-time = "2026-04-23T11:02:01.309Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/ba/18b6e682ead424ad24bcc134339ae5d1b931cd9ae260540592a058a91279/pyright-1.1.414-py3-none-any.whl", hash = "sha256:2a6b4b3298c9eec174c5ed83bd338de6eee82df2992f3e1930e6199d381be36f", size = 6225049, upload-time = "2026-09-10T12:26:51.427Z" },
 ]
 
 [[package]]

@@ -1,5 +1,6 @@
 """Module for time event service."""
 
+import html
 import logging
 
 from aiohttp import web
@@ -201,7 +202,96 @@ class TimeEventsService:
 
         return informasjon
 
-    async def create_finish_time_events(self, token: str, time_events: list) -> str:
+    async def update_finish_time_events(
+        self, user: dict, delete_result_list: list, add_result_list: list
+    ) -> str:
+        """Update time events for finish- return information."""
+        informasjon = ""
+        for del_id in delete_result_list:
+            informasjon = await delete_result(user, del_id)
+            logging.debug(f"Deleted result: {informasjon}")
+
+        if len(add_result_list) > 0:
+            next_start_entries = await TimeEventsAdapter().get_time_events_by_race_id(
+                user["token"], add_result_list[0]["race_id"]
+            )
+            start_list = await StartAdapter().get_all_starts_by_event(
+                user["token"], add_result_list[0]["event_id"]
+            )
+            for time_event in add_result_list:
+                informasjon += await create_finish_time_event(
+                    user["token"],
+                    time_event,
+                    next_start_entries,
+                    start_list[0]["id"],
+                )
+        return informasjon
+
+
+async def create_finish_time_event(
+    token: str, time_event: dict, next_start_entries: list, startlist_id: str
+) -> str:
+    """Validate, enrich and create or update finish time_event."""
+    contestant = await ContestantsAdapter().get_contestant_by_bib(
+        token, time_event["event_id"], time_event["bib"]
+    )
+    informasjon = ""
+    if not contestant:
+        informasjon += f"<br> - ERROR! Bib {time_event['bib']}: Fant ingen deltaker. "
+    else:
+        next_start_template = {}
+        next_start_entry = {}
+        # Find next race and prepare start time event
+        for entry in next_start_entries:
+            if (entry["timing_point"] == "Template") and (
+                entry["rank"] == time_event["rank"]
+            ):
+                next_start_template = entry
+        if len(next_start_template) > 0:
+            time_event["next_race"] = next_start_template["next_race"]
+            time_event["next_race_id"] = next_start_template["next_race_id"]
+            time_event["next_race_position"] = next_start_template["next_race_position"]
+
+            next_race = await RaceplansAdapter().get_race_by_id(
+                token, time_event["next_race_id"]
+            )
+            next_start_entry = {
+                "race_id": time_event["next_race_id"],
+                "startlist_id": startlist_id,
+                "bib": time_event["bib"],
+                "name": f"{contestant['first_name']} {contestant['last_name']}",
+                "club": contestant["club"],
+                "scheduled_start_time": next_race["start_time"],
+                "starting_position": time_event["next_race_position"],
+                "status": "OK",
+            }
+        else:
+            time_event["next_race"] = "Ute"
+            time_event["next_race_id"] = ""
+        # add name and club to time_event
+        time_event["name"] = f"{contestant['first_name']} {contestant['last_name']}"
+        time_event["club"] = contestant["club"]
+        result_ok = False
+        try:
+            new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
+            if new_t_e["status"] == "OK":
+                informasjon += f"{new_t_e['bib']}: {new_t_e['rank']} pl. "
+                result_ok = True
+            # error, return info to user
+            elif new_t_e["changelog"]:
+                informasjon += f"{new_t_e['changelog'][-1]['comment']} <br>"
+            if time_event["next_race"] != "Ute" and result_ok:
+                await StartAdapter().create_start_entry(token, next_start_entry)
+        except Exception as e:
+            # Functional error - return information to user.
+            logging.exception("Error")
+            informasjon = f"ERROR: {str(e).rstrip('.')}. "
+            if "already exists" in str(e):
+                informasjon = await get_duplicate_time_event_info(token, time_event, e)
+    return informasjon
+
+
+async def create_finish_time_events(token: str, time_events: list) -> str:
         """Validate, enrich and create finish time_event."""
         # Get next race from template
         w_id = 0
@@ -510,3 +600,78 @@ def next_race_template() -> list:
             "current_contestant_qualified": False,
         },
     ]
+
+
+async def get_duplicate_time_event_info(
+    token: str, time_event: dict, error: Exception
+) -> str:
+    """Explain why race-service rejects a finish time_event as a duplicate.
+
+    A time_event with status Error (e.g. registered before the contestant was
+    in the start list) is hidden in the result view, but still blocks a new
+    registration for the same bib until it is deleted in Kontroll.
+
+    The message contains stored and submitted values and is shown as HTML,
+    so it is escaped.
+    """
+    return html.escape(await _build_duplicate_time_event_info(token, time_event, error))
+
+
+async def _build_duplicate_time_event_info(
+    token: str, time_event: dict, error: Exception
+) -> str:
+    """Build plain-text message for get_duplicate_time_event_info."""
+    bib = time_event["bib"]
+    try:
+        existing = await TimeEventsAdapter().get_time_events_by_race_id(
+            token, time_event["race_id"]
+        )
+    except Exception:
+        logging.exception("Could not look up existing time-events")
+        return f"ERROR: {str(error).rstrip('.')}. "
+    for t_e in existing:
+        if (
+            t_e.get("bib") == bib
+            and t_e.get("timing_point") == time_event["timing_point"]
+            and t_e.get("status") != "OK"
+        ):
+            reason = ""
+            if t_e.get("changelog"):
+                reason = f" Årsak: {t_e['changelog'][-1]['comment']}"
+            return (
+                f"ERROR: Bib {bib} har allerede en passering i "
+                f"{time_event['race']} med status {t_e.get('status')}, "
+                f"registrert {t_e.get('registration_time')}.{reason} "
+                "Slett den under Kontroll og registrer på nytt. "
+            )
+    return f"ERROR: Bib {bib} er allerede registrert i {time_event['race']}. "
+
+
+async def delete_result(user: dict, time_event_id: str) -> str:
+    """Set time event to deleted and delete corresponding start event."""
+    informasjon = ""
+
+    # get time event and delete next start if existing
+    try:
+        time_event = await TimeEventsAdapter().get_time_event_by_id(
+            user["token"], time_event_id
+        )
+        # race-service sends null when there is no next race
+        if time_event.get("next_race_id"):
+            start_entries = await StartAdapter().get_start_entries_by_race_id(
+                user["token"], time_event["next_race_id"]
+            )
+            for start_entry in start_entries:
+                if time_event["bib"] == start_entry["bib"]:
+                    await StartAdapter().delete_start_entry(
+                        user["token"], start_entry["race_id"], start_entry["id"]
+                    )
+                    informasjon = f"Slettet neste start ({time_event['bib']}). "
+                    logging.debug(f"Deleted start - result {start_entry['id']}")
+        await TimeEventsAdapter().delete_time_event(user["token"], time_event_id)
+        informasjon = f"Slettet passering ({time_event['bib']}). {informasjon}"
+    except Exception:
+        informasjon = "Time event allerede slettet."
+        logging.exception("Error in delete_result")
+
+    return informasjon

@@ -13,6 +13,24 @@ RACE_HOST_SERVER = os.getenv("RACE_HOST_SERVER", "localhost")
 RACE_HOST_PORT = os.getenv("RACE_HOST_PORT", "8088")
 RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
 
+# Optional UUID fields in race-service TimeEvent model; "" is not a valid UUID.
+OPTIONAL_UUID_FIELDS = ("race_id", "next_race_id")
+
+
+def _prepare_request_body(time_event: dict) -> dict:
+    """Return a copy of time_event that the race-service accepts.
+
+    The GUI uses "" for "no value", but race-service requires valid UUIDs or null.
+    An empty id is dropped so that race-service generates one.
+    """
+    request_body = copy.deepcopy(time_event)
+    if not request_body.get("id"):
+        request_body.pop("id", None)
+    for field in OPTIONAL_UUID_FIELDS:
+        if request_body.get(field) == "":
+            request_body[field] = None
+    return request_body
+
 
 class TimeEventsAdapter:
     """Class representing time_events."""
@@ -28,7 +46,7 @@ class TimeEventsAdapter:
             ]
         )
 
-        request_body = copy.deepcopy(time_event)
+        request_body = _prepare_request_body(time_event)
 
         async with ClientSession() as session:
             async with session.post(
@@ -86,7 +104,7 @@ class TimeEventsAdapter:
             async with session.put(
                 f"{RACE_SERVICE_URL}/time-events/{require_id(t_id)}",
                 headers=headers,
-                json=time_event,
+                json=_prepare_request_body({**time_event, "id": t_id}),
             ) as resp:
                 if resp.status == 204:
                     logging.debug(f"update time_event - got response {resp}")

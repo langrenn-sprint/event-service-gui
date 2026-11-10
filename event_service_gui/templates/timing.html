@@ -1,0 +1,250 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}
+  Tidtaker funksjoner {{ action }}
+{% endblock %}
+
+{% block refresh %}{% endblock %}
+{% block max_width %}1200{% endblock %}
+
+{% block titlemain %}
+  <img id=menu_icon src="../static/icon_timing.png"> Tidtaker {{ action }}
+{% endblock %}
+
+{% block menuitems %}
+  {% if action %}
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Funksjon</a>
+    <div class=dropdown-content>
+      <a href=timing?&event_id={{ event_id }}&action=start&heat=0 class=dropbtn>Starter nå</a>
+      <a href=timing?&event_id={{ event_id }}&action=dns_manual&heat={{ valgt_heat + 1 }} class=dropbtn>Søk på navn / startnr</a>
+    </div>
+  </li>
+  {% endif %}
+{% endblock %}
+
+<! --- Information --->
+{% block tips %}
+  - DNS (Do Not Start) registreres normalt på start. Dette hjelper de som gjør målpassering å sikre at de får med seg alle løperne.<br>
+  - Normalt følger man startlisten ved å bruke velgheat funksjonen og krysser av DNS på løpere som ikke starter.<br>
+  - Det er også mulighet til å søke opp løpere og registrere DNS ved å skrive inn startnummer. Dette er nyttig i tilfeller der man tidlig får beskjed om at løpere ikke stiller til start.<br>
+  - Videoinstruksjoner<br>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/sixRb7-tF7Q?si=aNPfR9o6wnYipf6e&amp;clip=Ugkx1xMh1jCigjjEM_eREXKpsq0qJeRRUpj8&amp;clipt=EJHRBxjAkQs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<! --- End Information --->
+{% endblock %}
+
+{% block content %}
+  <script>
+    /* this function will update dns field for given race when triggered
+    */
+    function search_contestant(search_string) {
+      var xhttp = new XMLHttpRequest();
+      var url = "/timing_info?action=search_contestant&event_id={{ event_id }}&search_string=" + search_string;
+      xhttp.open("GET", url, true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      xhttp.send();
+      xhttp.onload = function() {
+        try {
+            // clean old results
+            for (let i = 0; i < 20; i++) {
+              document.getElementById("search_result_" +  i).innerHTML = "";
+            }
+            // load new info
+            const jsonDoc = JSON.parse(this.response);
+            const contestants = jsonDoc.contestants;
+            contestants.forEach(myFunction);
+            function myFunction(value, index, array) {
+              contestant = value.bib + " - " + value.first_name + " " + value.last_name + ", " + value.club + " - " + value.ageclass;
+              document.getElementById("search_result_" +  index).innerHTML = contestant;
+            }
+          }
+          catch(err) {}
+        }
+      }
+
+    function dns_start_toggle(bib, name, club, race_name, race_order, race_id, action, old_id) {
+      console.log(action + " for bib: " + bib);
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/resultat_update", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("bib=" + bib + "&name=" + name + "&club=" + club + "&event_id={{ event_id }}&race=" + race_name + "&race_id=" + race_id + "&checked=true&action=" + action + "&old_id=" + old_id);
+      xhttp.onload = function() {
+        document.getElementById(race_order + "_start_status").innerHTML = this.responseText;
+        if (action == "DNS") {
+          document.getElementById(race_order + bib).style.backgroundColor = "Red";
+        } else {
+          document.getElementById(race_order + bib).style.backgroundColor = "Green";
+        }
+      }
+    }
+
+    function init_status(race_and_bib, status) {
+        if (status == "DNS") {
+          document.getElementById(race_and_bib).style.backgroundColor = "Red";
+        }
+        if (status == "Start") {
+          document.getElementById(race_and_bib).style.backgroundColor = "Green";
+        }
+        if (status == "DNF") {
+          document.getElementById(race_and_bib).style.backgroundColor = "Grey";
+        }
+    }
+
+  </script>
+  <div class="w3-container">
+    <table>
+    {% if action == "start" %}
+      {% for race in races %}
+        <tr id=headerblue>
+          <td colspan=4><b>
+            {{ race.raceclass }}
+            {% if race.round == "Q" %}Kvart {{ race.heat }}
+            {% elif race.round == "S" %}Semi {{ race.index }}{{ race.heat }}
+            {% elif race.round == "F" %}Finale {{ race.index }}
+            {% endif %}
+            kl: {{ race.start_time[-8:] }}
+          </b> Heat {{ race.order }}</td>
+        </tr>
+        <tr>
+          <td width="40">Pos</td>
+          <td width="40">Nr</td>
+          <td width="150"></td>
+          <td>Navn</td>
+        </tr>
+        <form action=/timing method=post>
+        {% for start in race.startliste %}
+          <tr>
+            <td>{{ start.starting_position }}</td>
+            <td id="{{ race.order }}{{ start.bib }}" align="center">{{ start.bib }}</td>
+            <td>
+              <input type="radio" name="form_start_{{ start.bib }}" value="Start" onclick="dns_start_toggle('{{ start.bib }}', '{{ start.name }}', '{{ start.club }}', '{{ race.raceclass }}-{{ race.round }}{{ race.index }}{{ race.heat }}', '{{ race.order }}', '{{ race.id }}', this.value, '{{ start.status_id }}');"{% if start.status == "Start" %} checked{% endif %}><label for="Start">Start</label>
+              <input type="radio" name="form_start_{{ start.bib }}" value="DNS"  onclick="dns_start_toggle('{{ start.bib }}', '{{ start.name }}', '{{ start.club }}', '{{ race.raceclass }}-{{ race.round }}{{ race.index }}{{ race.heat }}', '{{ race.order }}', '{{ race.id }}', this.value, '{{ start.status_id }}');"{% if start.status == "DNS" %} checked{% endif %}><label for="DNS">DNS</label>
+            </td>
+            <td>&nbsp;{% if start.club_logo %}<img width=15 src={{ start.club_logo }} title="{{ start.club }}"> {% endif %}{{ start.name }}</td>
+          </tr>
+          {% if start.status %}
+            <script>init_status({{ race.order }}{{ start.bib }}, '{{ start.status }}')</script>
+          {% endif %}
+        {% endfor %}
+        <tr><td colspan="4" id="orange"><span id="{{ race.order }}_start_status"></span></td></tr>
+          <tr>
+            <td colspan=2></td>
+            <td colspan=2>
+              <a href=timing?&event_id={{ event_id }}&action={{ action }}&heat={{ valgt_heat - 1 }}><< Forrige heat</a>&nbsp;&nbsp;&nbsp;
+              <a href=timing?&event_id={{ event_id }}&action={{ action }}&heat={{ valgt_heat + 1 }}>Neste heat >></a>
+            </td>
+          </tr>
+      </form>
+        {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if action == "dns_manual" %}
+  <form action=/timing method=post>
+    <table>
+      <tr>
+        <td id=spacer colspan=3>&nbsp;</td>
+      </tr>
+      <tr id=headerblue>
+        <td id=spacer colspan=3>Registrer DNS manuelt</td>
+      </tr>
+      <tr>
+        <td width=100></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Startnummer</td>
+        <td><input type="text" class="form-control" name="bib" value=""></td>
+        <td>Tips: Ved flere passeringer, bruk space (mellomrom) mellom startnummer.</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td colspan=2>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name="action" value="{{ action }}">
+            <input type="hidden" name="heat" value="">
+            <input type="submit" class="btn btn-default" name="finish" value="  Lagre  ">
+          </td>
+      </tr>
+      <tr>
+        <td id=spacer colspan=3>&nbsp;</td>
+      </tr>
+      <tr id=headerblue>
+        <td id=spacer colspan=3>Søk etter deltaker</td>
+      </tr>
+      <tr>
+        <td>Navn</td>
+        <td><input type="text" class="form-control" name="search_name" value="" onchange="search_contestant(this.value);">&nbsp;<button onclick="return false;">Søk</button></td>
+        <td>Tips: Det søkes på alle navn (fornavn og etternavn). Velg det du tror gir færrest treff. </td>
+      </tr>
+      <tr>
+        <td id=spacer colspan=3>&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_0"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_1"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_2"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_3"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_4"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_5"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_6"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_7"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_8"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_9"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_10"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_11"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_12"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_13"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_14"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_15"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_16"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_17"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_18"></span></td>
+      </tr>
+      <tr>
+        <td colspan=3><span id="search_result_19"></span></td>
+      </tr>
+    </table>
+  </form>
+  {% endif %}
+  </div>
+
+{% endblock %}

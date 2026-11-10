@@ -1,0 +1,147 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}{{ lopsinfo }}{% endblock titleheader %}
+{% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_event.png"> {% endblock %}
+{% block refresh %}60{% endblock refresh %}
+{% block max_width %}1800{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_event.png"> {{ lopsinfo }}{% endblock titlemain %}
+{% block menuitems %}{% endblock menuitems %}
+
+{% block tips %}
+  - Her ser du grafisk visning over fremdrift i rennet.<br>
+  - Feilsituasjoner markeres i rødt. Dette skyldes dobbeltregistreringer og bør korrigeres umiddelbart. Klikk på den røde boksen for å gå til korringerings-siden.<br>
+  - Ikke komplette resultater (gul-grønt) markeres også følges opp - dette skyldes normalt manglende registrering av DNS eller DNF men kan også være at en løper har passert mål uten at det ble registrert.<br>
+  - Dokumentasjon her: <a href=https://langrenn-sprint.github.io/docs/during_race.html>https://langrenn-sprint.github.io/docs/during_race.html</a><br>
+  - Instruksjonsvideo: <a href=https://youtu.be/HdpBOXwqcjw?si=6zlEmkp_655uONh4>https://youtu.be/HdpBOXwqcjw?si=6zlEmkp_655uONh4</a><br>
+<! --- End Information --->
+{% endblock tips %}
+
+{% block content %}
+<script>
+    /* this function will pull events from queue without reloading the page */
+    function pull_events() {
+    try {
+
+      // get current time, hours, minutes
+      var d = new Date();
+      var current_time = d.toLocaleTimeString();
+      document.getElementById("pull_result").innerHTML = "Foto import: Sjekker..." ;
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/video_events", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      var formData = "";
+      formData += "action=status&event_id={{ event_id }}"
+
+      xhttp.send(formData);
+      xhttp.onload = function() {
+        try {
+          // load new info
+          const jsonDoc = JSON.parse(this.response);
+          const photo_queue_latest = jsonDoc.photo_queue_latest;
+          document.getElementById("photo_queue_latest").src = photo_queue_latest;
+          const info = jsonDoc.informasjon;
+          document.getElementById("pull_result").innerHTML = info;
+          const integration_service_available = jsonDoc.integration_service_available;
+          const integration_service_running = jsonDoc.integration_service_running;
+          if (integration_service_running == "True") {
+              document.getElementById("integration_service_status").innerHTML = "Kjører";
+              document.getElementById("integration_service_status").className = "label label-success";
+              document.getElementById("integration_command").innerHTML = "Stopp";
+              
+          } else if (integration_service_available == "True") {
+              document.getElementById("integration_service_status").innerHTML = "Pauset";
+              document.getElementById("integration_service_status").className = "label label-warning";
+              document.getElementById("integration_command").innerHTML = "Start";
+          } else {
+              document.getElementById("integration_service_status").innerHTML = "Ikke tilgjengelig";
+              document.getElementById("integration_service_status").className = "label label-danger";
+              document.getElementById("integration_command").innerHTML = "-";
+          }
+        }
+        catch(err) {
+          if (err.message.indexOf("401") > 0) {
+            document.getElementById("pull_result").innerHTML = "Error 401 (integration) - Logg inn på nytt.";
+          }
+          else {
+            document.getElementById("pull_result").innerHTML = err;
+          }
+        }
+      }
+    }
+    catch(err) {
+        alert(err);
+      }
+    }
+
+    // Function to handle checkbox state change
+    function handleCheckboxChange() {
+        try {
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/video_events", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        formData = "action=toggle&event_id={{ event_id }}"
+        var checkBoxPub = document.getElementById("integration_automatic");
+        if (checkBoxPub.checked) {
+          formData = formData + "&integration_start=true"
+        } else {
+          formData = formData + "&integration_stop=true"
+        }
+
+        xhttp.send(formData);
+        xhttp.onload = function() {
+          try {
+            // load new info
+            const jsonDoc = JSON.parse(this.response);
+            const photo_queue_latest = jsonDoc.photo_queue_latest;
+            document.getElementById("photo_queue_latest").src = photo_queue_latest;
+            const info = jsonDoc.informasjon;
+            document.getElementById("pull_result").innerHTML = info;
+          }
+          catch(err) {
+            if (err.message.indexOf("401") > 0) {
+              document.getElementById("pull_result").innerHTML = "Error 401 (integration) - Logg inn på nytt.";
+            }
+            else {
+              document.getElementById("pull_result").innerHTML = err;
+            }
+          }
+        }
+        }
+        catch(err) {
+          alert(err);
+        }
+}
+  </script>
+
+  <section class="row" aria-label="Event">
+    <div class="col-sm-7">
+      {% set include_source = "resultat_edit_new" %}
+      {% include "_race_progress.html" %}
+    </div>
+    <div class="col-sm-5">
+        <div class="status-card" role="status" aria-live="polite">
+          <h4>Automatisk deteksjon av målpassering</h4>
+          <span id="integration_service_status" class="label label-danger">-</span>&nbsp;&nbsp;
+          <input type="checkbox" id="integration_automatic" onchange="handleCheckboxChange()" {% if service_status.integration_start %}checked{% endif %}>
+          <span id="integration_command">-</span>
+        </div>
+        <!-- preview inside the card -->
+        <figure class="preview-figure">
+          <img id="photo_queue_latest" src="../static/no_image.png" title="Siste passering - deteksjon" style="width:100%">
+        </figure>
+        <hr>
+        <h4>Nyeste logg registreringer</h4>
+        <span id="pull_result"></span>
+    </div>
+  </section>
+<hr>
+<script>
+    // run scripy to pull events from pub_sub
+    pull_events()
+    setInterval(pull_events(), 5000);
+</script>
+{% endblock content %}
