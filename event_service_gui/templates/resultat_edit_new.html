@@ -1,0 +1,594 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}
+  Registrer resultat {{ valgt_runde.klasse }} {{ valgt_runde.runde }}
+{% endblock %}
+
+{% block headercontainer %}Registrer resultat {{ valgt_klasse }} <img id=header_icon src="../static/icon_timing.png"> {% endblock %}
+
+{% block refresh %}{% endblock %}
+{% block max_width %}1800{% endblock %}
+
+{% block titlemain %}
+  <img id=menu_icon src="../static/icon_timing.png"> Registrer resultat {{ valgt_runde.klasse }}
+  {% if valgt_runde.runde == "Q" %}Kvartfinaler
+  {% elif valgt_runde.runde == "S" %}Semifinaler
+  {% elif valgt_runde.runde == "F" %}Finaler
+  {% endif %}
+{% endblock %}
+
+{% block menuitems %}
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Velg runde</a>
+    <div class=dropdown-content>
+      <table>
+        <tr><td colspan="4">
+            <a href=resultat_edit_new?event_id={{ event_id }}&heat=0>Starter nå</a>
+        </td></tr>
+        {% for raceclass in raceplan_summary %}
+          {% if raceclass.ranking %}
+          <tr>
+            {% if event.competition_format != "Interval Start" %}
+              <td id="black">{{ raceclass.name }}</td>
+              <td><nobr><a href=resultat_edit_new?event_id={{ event_id }}&klasse={{ raceclass.name }}&runde=Q>Kvart</a></nobr></td>
+              <td><nobr><a href=resultat_edit_new?event_id={{ event_id }}&klasse={{ raceclass.name }}&runde=S>Semi</a></nobr></td>
+              <td><nobr><a href=resultat_edit_new?event_id={{ event_id }}&klasse={{ raceclass.name }}&runde=F>Finale</a></nobr></td>
+            {% else %}
+              <td colspan="4"><nobr><a href=resultat_edit_new?event_id={{ event_id }}&klasse={{ raceclass.name }}&runde=F>{{ raceclass.name }}</a></nobr></td>
+            {% endif %}
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </table>
+    </div>
+  </li>
+{% endblock %}
+
+{% block tips %}
+  - Dokumentasjon her: <a href=https://langrenn-sprint.github.io/docs/timing.html>langrenn-sprint.github.io</a><br>
+  - Videoinstruksjoner<br>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/sixRb7-tF7Q?si=NJkRCOgVer0hF9q1&amp;clip=UgkxoWZlKVEpXRIec93LuW2MehGk8GgLaF5h&amp;clipt=ENP4EhiCzhU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+{% endblock %}
+
+{% block content %}
+    <br>
+    {% set include_source = "resultat_edit_new" %}
+    {% include "_race_progress.html" %}
+    <br>
+  <script>
+    function checkform(form) {
+      try {
+        // Change the "Submit" text
+        form.submit_update.value = 'Vennligst vent...';
+        form.submit_update.disabled = true;
+        return true
+      }
+      catch(err) {
+        return true
+      }
+    }
+    
+    /* this function will send results to backend without reloading the page */
+    function update_results_ajax(button) {
+      try {
+        var button_text = button.innerHTML;
+        document.getElementById(button.id).innerHTML = " Sender... ";
+        document.getElementById(button.id).disabled = true;
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/resultat_edit_new", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        var my_form = button.form;
+        var formData = "";
+        var race_order = 0
+        for (let i = 1; i < my_form.length; i++) {
+          formData += my_form[i].name + "=" + my_form[i].value + "&";
+          if (my_form[i].name == "race_order"){
+            race_order = my_form[i].value
+          }
+        }
+        formData += button.id + "=true&ajax=true"
+
+        xhttp.send(formData);
+        xhttp.onload = function() {
+          try {
+            // load new info
+            const jsonDoc = JSON.parse(this.response);
+            const race_results = jsonDoc.race_results;
+            const race_results_status = jsonDoc.race_results_status;
+
+            // refresh race status - function from include file
+            const raceplan_kpis = jsonDoc.raceplan_kpis;
+            update_race_progress(raceplan_kpis)
+
+            // refresh result data - first delete
+            for (let i = 1; i < 12; i++) {
+              try { 
+                document.getElementById(race_order + "_name_" + i).innerHTML = ""
+                document.getElementById("tid_" + i).innerHTML = ""
+                document.getElementById(race_order + "_videre_til_" + i).innerHTML = ""
+                document.getElementById(race_order + "_form_rank_" + i).value = ""
+                document.getElementById(race_order + "_old_form_rank_" + i).value = ""
+                document.getElementById(race_order + "_time_event_id_" + i).value = ""
+              }
+              catch(err) {}
+            }
+            // refresh data - set updated info - rank, name and id.
+            for (let i = 0; i < race_results.length; i++) {
+              /* check for the duplicate case */
+              let pos = race_results[i].rank;
+              if ((i>0) && (race_results[i].rank == race_results[i-1].rank)) {
+                pos = pos + 1
+              }
+              document.getElementById(race_order + "_form_rank_" + pos).value = race_results[i].bib
+              document.getElementById(race_order + "_old_form_rank_" + pos).value = race_results[i].bib
+              document.getElementById(race_order + "_name_" + pos).innerHTML = race_results[i].name
+              document.getElementById("tid_" + pos).innerHTML = race_results[i].registration_time.slice(-8)
+              document.getElementById(race_order + "_time_event_id_" + pos).value = race_results[i].id
+              if (race_results[i].next_race != "Ute") {
+                document.getElementById(race_order + "_videre_til_" + pos).innerHTML = race_results[i].next_race + "-" + race_results[i].next_race_position
+              }
+            }
+            const info = jsonDoc.informasjon.replace("<br>", ", ");
+            validation_colors(race_order);
+            if (race_results_status == 2) {
+              document.getElementById(race_order + "_status").innerHTML = " - resultat publisert."
+            }
+            document.getElementById(race_order + "_result").innerHTML = info;
+            document.getElementById(race_order + "_result_toggle").innerHTML = "(Skjul) ";
+            document.getElementById(button.id).innerHTML = button_text;
+            document.getElementById(button.id).disabled = false;
+          }
+          catch(err) {
+            if (err.message.indexOf("401") > 0) {
+              alert("Error 401 - Logg inn på nytt.");
+            }
+            else {
+              document.getElementById(race_order + "_result").innerHTML = err;
+              alert(err);
+            }
+            document.getElementById(button.id).innerHTML = button_text;
+            document.getElementById(button.id).disabled = false;
+          }
+        }
+        // get dns status for next heat
+        let next_race = 1 + parseInt(race_order)
+        update_dns(next_race)
+      }
+      catch(err) {
+        alert(err)
+      }
+    }
+
+    /* this function will update dns field for given race when triggered
+    */
+    function update_dns(race_order) {
+      var xhttp = new XMLHttpRequest();
+      var url = "/timing_info?action=DNS&event_id={{ event_id }}&race_order=" + race_order;
+      xhttp.open("GET", url, true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      xhttp.send();
+      xhttp.onload = function() {
+        try { 
+            // load new info
+            const jsonDoc = JSON.parse(this.response);
+            const dns_list = new Array(jsonDoc.dns_list);
+
+            dns_list[0].forEach(myFunction);
+            function myFunction(value, index, array) {
+              var myId = race_order.toString() + value + "_start_status"
+              document.getElementById(myId).innerHTML = "DNS"
+            }
+          }
+          catch(err) {}
+        }
+      }
+ 
+    /* this function will update value of checkbox when clicked
+    */
+    function update_checkbox(box, race_order) {
+      if (box.checked) {
+        document.getElementById(race_order + "_publish").value = "true"
+      } else  {
+        document.getElementById(race_order + "_publish").value = "false"
+      }
+    }
+
+    /* this function will indicate with red or green colors if entered values are correct or not
+      if bib exist in heat, the bib will be green,
+      if bib not exist in heat or it is a duplicate, the entered value will be red 
+    */
+      function validation_colors(race_order) {
+        // 1. reset all colors
+        for (let i = 1; i < 12; i++) {
+          try { 
+            document.getElementById(race_order + "_form_rank_" + i).style.backgroundColor = "";
+          }
+          catch(err) {}
+          try { 
+            const old_bib = document.getElementById(race_order + "_old_form_rank_" + i).value;
+            document.getElementById(race_order + old_bib).style.backgroundColor = "";
+          }
+          catch(err) {}
+        }
+        // 2. collect entered data, reset on start-entries and find dupliactes
+        const bib_array = []
+        const duplicate_array = []
+        for (let i = 1; i < 12; i++) {
+          try { 
+            const new_bib = document.getElementById(race_order + "_form_rank_" + i).value;
+            if (new_bib != "") {
+              if (bib_array.indexOf(new_bib) > -1) {
+                duplicate_array.push(new_bib)
+              } else {
+                bib_array.push(new_bib);
+              }
+            }
+          }
+          catch(err) {}
+        }
+        // 3. set red on duplicate bibs (values)
+        duplicate_array.forEach(myDuplicateFunction);
+        function myDuplicateFunction(value, index, array) {
+          for (let i = 1; i < 12; i++) {
+            try { 
+              if (value == document.getElementById(race_order + "_form_rank_" + i).value) {
+                document.getElementById(race_order + "_form_rank_" + i).style.backgroundColor = "red";
+              }
+            } catch(err) {}
+          }
+        }
+        // 4. set green on start-entries and red on bibs (values) not in start list
+        bib_array.forEach(myStartColorFunction);
+        function myStartColorFunction(value, index, array) {
+          for (let i = 1; i < 12; i++) {
+            try { 
+                document.getElementById(race_order + value).style.backgroundColor = "green";
+            }
+            catch(err) {
+              for (let i = 1; i < 12; i++) {
+                try { 
+                  if (value == document.getElementById(race_order + "_form_rank_" + i).value) {
+                    document.getElementById(race_order + "_form_rank_" + i).style.backgroundColor = "red";
+                  }
+                } catch(err) {}
+              }
+            }
+          }
+        }
+
+        // 5. set delt checkbox
+        for (let i = 1; i < 12; i++) {
+          try { 
+            if (document.getElementById(race_order + "_pos_" + i).value == document.getElementById(race_order + "_pos_" + (i-1)).value) {
+              if (document.getElementById(race_order + "_pos_" + i).value != "") {
+                document.getElementById(race_order + "_delt_" + i).checked = "true";
+                document.getElementById(race_order + "_delt_" + i).value = "true";
+              }
+            }
+          } catch(err) {}
+        }
+
+
+      }
+
+    function delt_toggle(field, delt_with_field, pos) {
+      // update value and position field
+      let field_name = field.name
+      let place_field_name = field_name.replace("_delt_", "_place_");
+      let pos_field_name = field_name.replace("_delt_", "_pos_");
+      let old_pos_field_name = field_name.replace("_delt_", "_old_pos_");
+      if (field.checked) {
+        field.value = "true"
+        document.getElementById(place_field_name).innerHTML = document.getElementById(delt_with_field).innerHTML;
+        document.getElementById(old_pos_field_name).value = document.getElementById(pos_field_name).value
+        document.getElementById(pos_field_name).value = document.getElementById(delt_with_field).innerHTML;
+      }
+      else {
+        field.value = "false"
+        document.getElementById(place_field_name).innerHTML = pos;
+        document.getElementById(old_pos_field_name).value = document.getElementById(pos_field_name).value
+        document.getElementById(pos_field_name).value = pos;
+      }
+    }
+
+    function dnf_toggle(bib, name, club, race_name, race_order, race_id, checked, time_event_id) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/resultat_update", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("json=true&bib=" + bib + "&name=" + name + "&club=" + club + "&event_id={{ event_id }}&raceclass={{ valgt_runde.klasse }}&runde={{ valgt_runde.runde }}" + "&race=" + race_name + "&race_id={{ race.id }}&action=DNF&checked=" + checked + "&time_event_id=" + time_event_id);
+      xhttp.onload = function() {
+
+        // load new info
+        const jsonDoc = JSON.parse(this.response);
+
+        document.getElementById(race_order + "_result").innerHTML = jsonDoc.informasjon;
+        if (checked) {
+          document.getElementById(race_order + bib).style.backgroundColor = "Grey";
+        }
+        else {
+          document.getElementById(race_order + bib).style.backgroundColor = "White";
+          validation_colors(race_order)
+        }
+
+        // refresh race status - function from include file
+        const raceplan_kpis = jsonDoc.raceplan_kpis;
+        update_race_progress(raceplan_kpis)
+      }
+    }
+
+  </script>
+  {% for info in info_list %}
+    <div class="w3-container" id=info>{{ info }}</div>
+  {% endfor %}
+  <div class="w3-container" id=info>{{ valgt_runde.informasjon }}</div>
+
+<div class="w3-row-padding">
+  {% if race.start_time %}
+    <div id=headercollapse>
+      {{ race.raceclass }} {{ race.round }}{{ race.index }}
+      {% if race.round != "F" %}{{ race.heat }}{% endif %}
+      &nbsp;kl {{ race.start_time[-8:] }} (heat {{ race.order }})
+      <span id="{{ race.order }}_status">
+        {% if race.results.Finish and (race.results.Finish.status == 2) %}
+          - resultat publisert. 
+        {% elif not race.startliste %}
+          - ingen deltakere.          
+        {% endif %}
+      </span>
+    </div>
+    <div id=spacer></div>
+      <table>
+        <tr id=headerblack>
+          <td colspan=3>Startliste</td>
+          <td colspan=2></td>
+          <td colspan=2 id=resultheaderfirst>Resultater</td>
+          <td colspan=4 id=resultheader align=center>{{ race.next_race }}</td>
+          <td id=resultheader></td>
+        </tr>
+        <tr>
+          <th width=40>Pos</th>
+          <th width=40>Nr</th>
+          <th width=40>DNF</th>
+          <th width=200>&nbsp;Navn</th>
+          <th width=100>Klubb</th>
+          <th width=50 id=resultborder>Plass</th>
+          <th width=50>Startnr</th>
+          <th width=50>{% if valgt_runde.runde == "F" %}Delt{% endif %}</th>
+          <th width=200>Navn</th>
+          <th width=75>{% if valgt_runde.runde != "F" %}Videre til{% endif %}</th>
+          <th width=75>Tid</th>
+          <th>Målfoto</th>
+        </tr>
+        <form action=/resultat_edit_new method=post onsubmit="return checkform(this);">
+          {% for start in race.startliste %}
+            <tr>
+              <td align="center" class="no-hover">{{ start.starting_position }}</td>
+              <td id="{{ race.order }}{{ start.bib }}" align="center" class="no-hover">{{ start.bib }}</td>
+                <td align="center" class="no-hover">
+                  <span id="{{ race.order }}{{ start.bib }}_start_status">
+                    {% if start.status in ["DNS"] %}
+                      <span id="grey">DNS</span>
+                      <script>document.getElementById('{{ race.order }}{{ start.bib }}').style.backgroundColor = "Grey";</script>
+                    {% else %}
+                      <input type=checkbox value="{{ start.status_id }}" id="dnf_{{ start.bib }}" tabindex="-1" onclick="dnf_toggle('{{ start.bib }}', '{{ start.name }}', '{{ start.club }}', '{{ race.raceclass }}-{{ race.round }}{{ race.index }}{{ race.heat }}', '{{ race.order }}', '{{ race.id }}', this.checked, this.value);"{% if start.status == "DNF" %} checked{% endif %}>
+                      {% if start.status == "DNF" %}
+                        <script>document.getElementById('{{ race.order }}{{ start.bib }}').style.backgroundColor = "Grey";</script>
+                      {% endif %}
+                    {% endif %}
+                  </span>
+                  {% for bilde in race.photo_start %}
+                    {% if start.bib in bilde.biblist %}
+                    <a class="tooltip_photo_left">
+                      &nbsp;<img src={{ bilde.g_base_url }} width="30">
+                        <span>
+                            <img src="{{ bilde.g_base_url }}" title="Photo time: {{ bilde.creation_time[-8:] }}">
+                        </span>
+                    </a></td>
+                    {% endif %}
+                    {% endfor %}
+                </td>
+                <td class="no-hover">&nbsp;{{ start.name }}</td>
+                <td class="no-hover">{{ start.club }}</td>
+                {% if race.finish_timings[loop.index0] and race.finish_timings[loop.index0].bib %}
+                  <td id=resultborder align=center><span id="{{ race.order }}_place_{{ loop.index }}">{{ race.finish_timings[loop.index0].rank }}</span></td>
+                  <td>
+                    <input type="hidden" name="R{{ race.order }}_dummy_{{ loop.index }}" value="0">
+                    <input type="hidden" id="{{ race.order }}_old_pos_{{ loop.index }}" name="{{ race.order }}_old_pos_{{ loop.index }}" value="{{ race.finish_timings[loop.index0].rank }}">
+                    <input type="text" class="form-control-inline" id="{{ race.order }}_form_rank_{{ loop.index }}" name="{{ race.order }}_form_rank_{{ loop.index }}" value="{% if race.finish_timings[loop.index0].bib > 0 %}{{ race.finish_timings[loop.index0].bib }}{% endif %}" size=3 onfocus="this.oldvalue = this.value;" onchange="validation_colors({{ race.order }})">
+                    <input type="hidden" id="{{ race.order }}_pos_{{ loop.index }}" name="{{ race.order }}_pos_{{ loop.index }}" value="{{ race.finish_timings[loop.index0].rank }}">
+                    <input type="hidden" id="{{ race.order }}_old_form_rank_{{ loop.index }}" name="{{ race.order }}_old_form_rank_{{ loop.index }}" value="{% if race.finish_timings[loop.index0].bib > 0 %}{{ race.finish_timings[loop.index0].bib }}{% endif %}">
+                    <input type="hidden" id="{{ race.order }}_time_event_id_{{ loop.index }}" name="{{ race.order }}_time_event_id_{{ loop.index }}" value="{{ race.finish_timings[loop.index0].id }}">
+                  </td>
+                  <td>
+                    {% if (valgt_runde.runde == "F") and (loop.index0 > 0) %}
+                      <input type="checkbox" id='{{ race.order }}_delt_{{ loop.index }}' name='{{ race.order }}_delt_{{ loop.index }}' value="" tabindex="-1" onclick="delt_toggle(this, '{{ race.order }}_place_{{ loop.index - 1}}', {{ loop.index }});">
+                    {% endif %}
+                  </td>
+                  <td id="{{ race.order }}_name_{{ loop.index }}">{{ race.finish_timings[loop.index0].name }}</td>
+                  <td id="{{ race.order }}_videre_til_{{ loop.index }}">
+                    {% if valgt_runde.runde != "F" %}
+                      {{ race.finish_timings[loop.index0].next_race }}-{{ race.finish_timings[loop.index0].next_race_position }}
+                    {% endif %}
+                  </td>
+                  <td id='tid_{{ loop.index }}'>{{ race.finish_timings[loop.index0].registration_time[-8:] }}</td>
+                {% else %}
+                  <td id=resultborder align=center><span id="{{ race.order }}_place_{{ loop.index }}">{{ loop.index }}</span></td>
+                  <td>
+                    <input type="hidden" name="R{{ race.order }}_dummy_{{ loop.index }}" value="0">
+                    <input type="hidden" id="{{ race.order }}_old_pos_{{ loop.index }}" name="{{ race.order }}_old_pos_{{ loop.index }}" value="{{ loop.index }}">
+                    <input type="text" class="form-control-inline" id="{{ race.order }}_form_rank_{{ loop.index }}" name="{{ race.order }}_form_rank_{{ loop.index }}" value="" size=3 onfocus="this.oldvalue = this.value;" onchange=validation_colors({{ race.order }})>
+                    <input type="hidden" id="{{ race.order }}_pos_{{ loop.index }}" name="{{ race.order }}_pos_{{ loop.index }}" value="{{ loop.index }}">
+                    <input type="hidden" id="{{ race.order }}_old_form_rank_{{ loop.index }}" name="{{ race.order }}_old_form_rank_{{ loop.index }}" value="">
+                    <input type="hidden" id="{{ race.order }}_time_event_id_{{ loop.index }}" name="{{ race.order }}_time_event_id_{{ loop.index }}" value="">
+                  </td>
+                  <td>
+                    {% if (valgt_runde.runde == "F") and (loop.index0 > 0) %}
+                      <input type="checkbox" class="form-control-inline" id='{{ race.order }}_delt_{{ loop.index }}' name='{{ race.order }}_delt_{{ loop.index }}' value="" tabindex="-1" onclick="delt_toggle(this, '{{ race.order }}_place_{{ loop.index - 1}}', {{ loop.index }});">
+                    {% endif %}
+                  </td>
+                  <td id="{{ race.order }}_name_{{ loop.index }}"></td>
+                  <td id="{{ race.order }}_videre_til_{{ loop.index }}"></td>
+                  <td id='tid_{{ loop.index }}'></td>
+                {% endif %}
+
+                {% if loop.first %}
+                <script>
+                  /* populate_rank: populate race rank based upon analysis of photos
+                    */
+                  function populate_rank_{{ race.order }}() {
+                    biblist = {{ race.photo_bib_rank }};
+                    for (let i = 1; i < biblist.length; i++) {
+                        position = i + 1;
+                        the_element = "{{ race.order }}_form_rank_" + position;
+                        document.getElementById(the_element).value = biblist[i];
+                    }
+                    validation_colors({{ race.order }});
+                  }
+                </script>
+                  <td rowspan="{{ loop.length }}" valign="top" class="no-hover">
+                    <! -- Start photo stuff -->
+                    {% if race.photo_finish != [] %}
+                    <div class="lb_row">
+                      {% for bilde in race.photo_finish %}
+                        {% if loop.first %}
+                          <!--td colspan=5><button type="button" name="button" onclick="populate_rank_{{ race.order }}()">Hent resultat fra bilder</button></td></tr><tr-->
+                        {% endif %}
+                        <!-- Trigger the Lightbox -->
+                          <div class="lb_column">
+                            <img src="{{ bilde.g_base_url }}" style="width:100%" onclick="openModal{{ race.order }}();currentSlide{{ race.order }}({{ loop.index }})" class="lb_hover-shadow cursor">
+                          </div>
+                      {% endfor %}
+                    </div>
+                    <div id="lb_myModal_{{ race.order }}" class="lb_modal">
+                      <span class="lb_close cursor" onclick="closeModal{{ race.order }}()">&times;</span>
+                      <div class="lb_modal-content">
+                        {% for bilde in race.photo_finish %}
+                          <div class="lb_mySlides_{{ race.order }}">
+                            <div class="lb_numbertext">{{loop.index}} / {{loop.length}}</div>
+                            <img src="{{ bilde.g_base_url }}" style="width:100%">
+                          </div>
+                        {% endfor %}
+                        <a class="lb_prev" onclick="plusSlides{{ race.order }}(-1)">&#10094;</a>
+                        <a class="lb_next" onclick="plusSlides{{ race.order }}(1)">&#10095;</a>
+                    
+                        <div class="lb_caption-container">
+                          <p id="lb_caption_{{ race.order }}"></p>
+                        </div>
+                    
+                        {% for bilde in race.photo_finish %}
+                          <div class="lb_column">
+                            <img class="lb_demo_{{ race.order }} cursor" src="{{ bilde.g_base_url }}" style="width:100%" onclick="currentSlide{{ race.order }}({{loop.index}})" alt="Photo time: {{ bilde.creation_time[-8:] }} Bibs: {{ bilde.biblist }}">
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                                                
+                    <script>
+                      // Get the Lightbox
+                      function openModal{{ race.order }}() {
+                        document.getElementById("lb_myModal_{{ race.order }}").style.display = "block";
+                      }
+
+                      function closeModal{{ race.order }}() {
+                        document.getElementById("lb_myModal_{{ race.order }}").style.display = "none";
+                      }
+
+                      var slideIndex = 1;
+                      showSlides{{ race.order }}(slideIndex);
+
+                      function plusSlides{{ race.order }}(n) {
+                        showSlides{{ race.order }}(slideIndex += n);
+                      }
+
+                      function currentSlide{{ race.order }}(n) {
+                        showSlides{{ race.order }}(slideIndex = n);
+                      }
+
+                      function showSlides{{ race.order }}(n) {
+                        var i;
+                        var slides = document.getElementsByClassName("lb_mySlides_{{ race.order }}");
+                        var dots = document.getElementsByClassName("lb_demo_{{ race.order }}");
+                        var captionText = document.getElementById("lb_caption_{{ race.order }}");
+                        if (n > slides.length) {slideIndex = 1}
+                        if (n < 1) {slideIndex = slides.length}
+                        for (i = 0; i < slides.length; i++) {
+                            slides[i].style.display = "none";
+                        }
+                        for (i = 0; i < dots.length; i++) {
+                            dots[i].className = dots[i].className.replace(" active", "");
+                        }
+                        slides[slideIndex-1].style.display = "block";
+                        dots[slideIndex-1].className += " active";
+                        captionText.innerHTML = dots[slideIndex-1].alt;
+                      }
+                    </script>
+                    {% endif %}
+                    <! -- End photo stuff -->
+                    <button type="button" class="btn btn-default" id="photo_finish_button" onclick=update_results_ajax(this); tabindex="-1">Hent resultater fra målfoto </button>
+                  </td>
+                {% endif %}
+            </tr>
+            <script>
+              validation_colors("{{ race.order }}")
+            </script>
+          {% endfor %}
+            <tr>
+              <td colspan=4></td>
+              <td></td>
+              <td></td>
+              <td colspan=5>
+                <input type="hidden" name="race" value="{{ race.raceclass }}-{{ race.round }}{{ race.index }}{{ race.heat }}">
+                <input type="hidden" name="race_id" value="{{ race.id }}">
+                <input type="hidden" name="race_order" value="{{ race.order }}">
+                <input type="hidden" name=runde value="{{ valgt_runde.runde }}">
+                <input type="hidden" name=klasse value="{{ valgt_runde.klasse }}">
+                <input type="hidden" name=timing_point value="Finish">
+                <input type="hidden" name=event_id value="{{ event_id }}">
+                <input type="hidden" name=update_result value="true">
+                <input type="hidden" name=submit_update value="  Lagre  ">
+                {% if race.round == "F" and race.index == "A" %}
+                    <input type="hidden" name=raceclass_results value="true">
+                {% endif %}
+                <button type="button" class="btn btn-success" id="{{ race.order }}_button" onclick=update_results_ajax(this); >Lagre </button>
+                &nbsp;<input type="checkbox" class="form-control-inline" id={{ race.order }}_publish name=publish value="true" checked onchange="update_checkbox(this, {{ race.order }});"> Publisere
+              </td>
+              <td></td>
+            </tr>
+          </form>
+          {% if race.startliste %}
+            <tr>
+              <form action=/resultat_edit_new method=post>
+                <td colspan=6>
+                  <input type="text" class="form-control-inline" name="starting_position" value="" size=3>
+                  <input type="text" class="form-control-inline" name="bib" value="" min=1 max=9999 size=3>
+                  <input type="submit" class="btn btn-default" name=create_start value=" Legg til ">
+                  <input type="hidden" name="race_id" value="{{ race.id }}">
+                  <input type="hidden" name="startlist_id" value="{{ race.startliste[0].startlist_id }}">
+                  <input type="hidden" name="start_time" value="{{ race.start_time }}">
+                  <input type="hidden" name=runde value="{{ valgt_runde.runde }}">
+                  <input type="hidden" name=klasse value="{{ valgt_runde.klasse }}">
+                  <input type="hidden" name=event_id value="{{ event_id }}">
+                </td>
+              </form>
+              <td colspan=7 id="orange">
+                <a data-toggle="collapse" id="{{ race.order }}_result_toggle" href="#demo_{{ race.order }}"></a><span id="{{ race.order }}_result"></span>
+              </td>
+            </tr>
+          {% endif %}
+        </table>
+      </div>
+  {% endif %}
+  <br>
+  {% if race_orders %}
+    <div align="center">
+      <nobr>
+        <a class="btn btn-default" href=resultat_edit_new?event_id={{ event_id }}&heat={{ race_orders.lowest - 1 }}>&nbsp;Forrige runde</a>
+        <a class="btn btn-default" href=resultat_edit_new?event_id={{ event_id }}&heat={{ race_orders.highest + 1 }}>&nbsp;Neste runde</a>
+      </nobr>
+    </div>
+  {% endif %}
+  <br>
+</div>
+{% endblock %}

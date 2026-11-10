@@ -19,20 +19,6 @@
         {% endif %}
 
         <script type="text/javascript">
-            function event_gui_action(my_element, path) {
-                document.getElementById(my_element).action = window.location.protocol + "//" + window.location.hostname + ":8080/" + path;
-            }
-            function event_gui_href(my_element, path) {
-                document.getElementById(my_element).href = window.location.protocol + "//" + window.location.hostname + ":8080/" + path;
-            }
-            const result_port = (window.location.hostname.includes("result") || window.location.hostname.includes("sprint")) ? "" : ":8090";
-            result_base_url = window.location.protocol + "//" + window.location.hostname + result_port + "/"
-            function result_gui_action(my_element, path) {
-                document.getElementById(my_element).action = result_base_url + path;
-            }
-            function result_gui_href(my_element, path) {
-                document.getElementById(my_element).href = result_base_url + path;
-            }
             function confirm_delete(message) {
                 return window.confirm(message);
             }
@@ -90,7 +76,7 @@
                         {% if not event_id %}
                             <tr>
                             <td>
-                                <nobr><a id="myIndex" onclick="event_gui_href('myIndex', '')" href=><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>&nbsp;</nobr>
+                                <nobr><a id="myIndex" href="/"><img id=menu_icon src="../static/icon_event.png"> Forsiden</a>&nbsp;</nobr>
                             </td>
                             </tr>
                         {% else %}
@@ -99,16 +85,16 @@
                                 {{ event.name }}
                             </td></tr>
                             <tr><td>
-                                <a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a>
+                                <a id="myStart" href="start?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_start.png"> Startlister</a>
                             </td></tr>
                             <tr><td>
-                                <a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a>
+                                <a id="myLive" href="live?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_live.png"> Live</a>
                             </td></tr>
                             <tr><td>
-                                <nobr><a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater&nbsp;</a></nobr>
+                                <nobr><a id="myResult" href="resultat?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_result.png"> Resultater&nbsp;</a></nobr>
                             </td></tr>
                             <tr><td>
-                                <a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a>
+                                <a id="myPhoto" href="photos?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_photos.png"> Bilder</a>
                             </td></tr>
                             {% else %}
                             <tr>
@@ -119,60 +105,60 @@
                                 <td id="black">Admin-funksjoner</td>
                             </tr>
                             <tr>
-                                <td><a id="myStart" onclick="result_gui_href('myStart', 'start?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_start.png"> Startlister</a></td>
+                                <td><a id="myStart" href="start?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_start.png"> Startlister</a></td>
                                 <td>&nbsp;</td>
-                                <td><nobr><a id="myNewContestant" onclick="event_gui_href('myNewContestant', 'contestants?event_id={{ event_id }}&action=new_manual')" href=><img id=menu_icon src="../static/icon_new.png"> Etteranmelding</a></nobr></td>
+                                <td><nobr><a id="myNewContestant" href="contestants?event_id={{ event_id }}&amp;action=new_manual"><img id=menu_icon src="../static/icon_new.png"> Etteranmelding</a></nobr></td>
                                 <td>&nbsp;</td>
-                                <td><a id="myAdmF" onclick="event_gui_href('myAdmF', 'tasks?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_event.png"> Sette renn</a></td>
+                                <td><a id="myAdmF" href="tasks?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_event.png"> Sette renn</a></td>
                             </tr>
                             <tr>
-                                <td><a id="myLive" onclick="result_gui_href('myLive', 'live?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Live</a></td>
+                                <td><a id="myLive" href="live?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_live.png"> Live</a></td>
                                 <td>&nbsp;</td>
-                                <td><a id="myDNS" onclick="result_gui_href('myDNS', 'timing?event_id={{ event_id }}&action=start')" href=><img id=menu_icon src="../static/icon_timing.png"> Start: DNS</a></td>
+                                <td><a id="myDNS" href="timing?event_id={{ event_id }}&amp;action=start"><img id=menu_icon src="../static/icon_timing.png"> Start: DNS</a></td>
                                 <td>&nbsp;</td>
-                                <td><nobr><a id="myTimingDash" onclick="result_gui_href('myTimingDash', 'timing_dash?event_id={{ event_id }}&heat=0')" href=><img id=menu_icon src="../static/icon_timing.png"> Renn oversikt</a></nobr></td>
+                                <td><nobr><a id="myTimingDash" href="timing_dash?event_id={{ event_id }}&amp;heat=0"><img id=menu_icon src="../static/icon_timing.png"> Renn oversikt</a></nobr></td>
                             </tr>
                             <tr>
-                                <td><nobr><a id="myResult" onclick="result_gui_href('myResult', 'resultat?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_result.png"> Resultater&nbsp;</a></nobr></td>
+                                <td><nobr><a id="myResult" href="resultat?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_result.png"> Resultater&nbsp;</a></nobr></td>
                                 <td>&nbsp;</td>
-                                <td><a id="myStartEdit" onclick="result_gui_href('myStartEdit', 'start_edit?event_id={{ event_id }}&action=start')" href=><img id=menu_icon src="../static/icon_start.png"> Start: Endre</a></td>
+                                <td><a id="myStartEdit" href="start_edit?event_id={{ event_id }}&amp;action=start"><img id=menu_icon src="../static/icon_start.png"> Start: Endre</a></td>
                                 <td>&nbsp;</td>
-                                <td><nobr><a id="myAdmPhF" onclick="result_gui_href('myAdmPhF', 'config?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Foto innstillinger</a></nobr></td>
+                                <td><nobr><a id="myAdmPhF" href="config?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_photos_adm.png"> Foto innstillinger</a></nobr></td>
                             </tr>
                             <tr>
-                                <td><a id="myPhoto" onclick="result_gui_href('myPhoto', 'photos?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Bilder</a></td>
+                                <td><a id="myPhoto" href="photos?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_photos.png"> Bilder</a></td>
                                 <td>&nbsp;</td>
-                                <td><a id="myTimingNew" onclick="result_gui_href('myTimingNew', 'resultat_edit_new?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_timing.png"> Målpassering</a></td>
+                                <td><a id="myTimingNew" href="resultat_edit_new?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_timing.png"> Målpassering</a></td>
                                 <td>&nbsp;</td>
-                                <td><a id="myCorrs" onclick="result_gui_href('myCorrs', 'corrections?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_settings.png"> Korrigere</a></td>
-                                <td>&nbsp;</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td>&nbsp;</td>
-                                <td><a id="myPF" onclick="result_gui_href('myPF', 'photo_finish?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos.png"> Målfoto</a></td>
+                                <td><a id="myCorrs" href="corrections?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_settings.png"> Korrigere</a></td>
                                 <td>&nbsp;</td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td></td>
                                 <td>&nbsp;</td>
-                                <td><a id="myPhotoEdit" onclick="result_gui_href('myPhotoEdit', 'photos_edit?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_photos_adm.png"> Foto redigering</a></td>
+                                <td><a id="myPF" href="photo_finish?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_photos.png"> Målfoto</a></td>
                                 <td>&nbsp;</td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td></td>
                                 <td>&nbsp;</td>
-                                <td><a id="myPrint" onclick="result_gui_href('myPrint', 'print_dash?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_live.png"> Utskrifter</a></td>
+                                <td><a id="myPhotoEdit" href="photos_edit?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_photos_adm.png"> Foto redigering</a></td>
                                 <td>&nbsp;</td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td></td>
                                 <td>&nbsp;</td>
-                                <td><a id="myTD" onclick="result_gui_href('myTD', 'td_report?event_id={{ event_id }}')" href=><img id=menu_icon src="../static/icon_event.png"> TD Rapport</a></td>
+                                <td><a id="myPrint" href="print_dash?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_live.png"> Utskrifter</a></td>
+                                <td>&nbsp;</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>&nbsp;</td>
+                                <td><a id="myTD" href="td_report?event_id={{ event_id }}"><img id=menu_icon src="../static/icon_event.png"> TD Rapport</a></td>
                                 <td>&nbsp;</td>
                                 <td></td>
                             </tr>
@@ -194,8 +180,8 @@
                         <a href="https://langrenn-sprint.github.io/docs/contestant.html" target="_blank">Docs</a>
                         {% else %}
                         {% if is_admin %}
-                        <a id="myUsers" onclick="event_gui_href('myUsers', 'users')" href="/users">Brukere</a>
-                        <a id="mySystem" onclick="event_gui_href('mySystem', 'system')" href="/system">System</a>
+                        <a id="myUsers" href="users">Brukere</a>
+                        <a id="mySystem" href="system">System</a>
                         {% endif %}
                         <a href="https://langrenn-sprint.github.io/docs/" target="_blank">Docs</a>
                         <a href="/logout">Logg ut</a>

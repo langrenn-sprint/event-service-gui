@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-05T12:00:01+01:00",
+  "instance": {
+    "name": "Laptop reserve",
+    "role": "standby"
+  },
+  "backup": {
+    "last_attempt": "2026-11-05T12:00:01+01:00",
+    "last_result": "ok",
+    "last_error": null,
+    "last_success": {
+      "time": "2026-11-05T12:00:01+01:00",
+      "file": "mongo_20261105_120001.archive.gz",
+      "size_bytes": 425984,
+      "duration_seconds": 0
+    },
+    "upload": {
+      "status": "ok",
+      "time": "2026-11-05T12:00:03+01:00"
+    }
+  },
+  "restore": {
+    "archive": "mongo_20261104_181500.archive.gz",
+    "archive_sha256": "abc",
+    "archive_time": "2026-11-04T18:15:00+01:00",
+    "restored_at": "2026-11-05T09:12:44+01:00",
+    "restored_on": "Laptop reserve"
+  },
+  "mongodb": {
+    "available": true,
+    "version": "7.0.14",
+    "databases": [
+      {
+        "name": "events",
+        "size_bytes": 1234567,
+        "collections": {
+          "events": 3,
+          "contestants": 412
+        }
+      }
+    ]
+  },
+  "disk": {
+    "total_bytes": 26843545600,
+    "free_bytes": 12884901888
+  },
+  "memory": {
+    "total_bytes": 34359738368,
+    "available_bytes": 17179869184,
+    "swap_total_bytes": 8589934592,
+    "swap_free_bytes": 8589934592
+  },
+  "services": [
+    {
+      "name": "event-service",
+      "state": "running",
+      "started_at": "2026-11-05T09:12:50+01:00",
+      "image": "ghcr.io/langrenn-sprint/event-service:latest",
+      "revision": "4e183fd0c2b1a9e8d7f6a5b4c3d2e1f0a9b8c7d6",
+      "memory_bytes": 548405248,
+      "memory_limit_bytes": 34359738368,
+      "cpu_percent": 1.39
+    }
+  ]
+}

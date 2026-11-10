@@ -1,0 +1,88 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}
+    {{ lopsinfo }}
+{% endblock titleheader %}
+{% block headercontainer %}
+    {{ lopsinfo }} <img id=header_icon src="../static/icon_event.png">
+{% endblock %}
+
+{% block titlemain %} <img id=menu_icon src="../static/icon_event.png"> {{ lopsinfo }}{% endblock titlemain %}
+{% block max_width %}1500{% endblock %}
+
+{% block menuitems %}{% endblock menuitems %}
+
+{% block tips %}
+  - Utskrift åpnes i en ny fane. Bruk Ctrl+P for å skrive ut.<br>
+  - Valget (tekst) gir resultatliste uten grafikk / logoer. For raskere utskrifter.<br>
+  - Innstillinger som marker, papirtype og topptekst kan justeres i printer-menyen. Her er det også mulighet til å lage PDF.<br>
+  - Videoinstruksjoner<br>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/sixRb7-tF7Q?si=M-Ztlp2_doXitYUM&amp;clip=Ugkxg3ekVqJGuoZ15CMJRMgHMP8NUQ7qMIRE&amp;clipt=EIT4IRjw5iQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+{% endblock tips %}
+
+{% block content %}
+  <div class="w3-container">
+    <section class="row" aria-label="Utskrifter">
+        <div class="col-sm-12">
+            <h2>Utskrifter</h2>
+        </div>
+    </section>
+    <table>
+        <tr id=headerblue>
+            <td>Kjøreplan</td>
+            <td>Startlister</td>
+            <td>Heat resultater</td>
+            <td>Resultater (for klassen)</td>
+        </tr>
+        <tr>
+            <td><a target=_new href=print_lists?event_id={{ event_id }}&action=raceplan>Alle</a></td>
+            <td><a target=_new href=print_lists?event_id={{ event_id }}&action=start>Alle klasser</a>&nbsp;(<a target=_new href=print_lists?event_id={{ event_id }}&action=start&show_graphics=False>tekst</a>)</td>
+            <td></td>
+            <td><a target=_new href=print_lists?event_id={{ event_id }}&action=result>Alle klasser</a>&nbsp;<a target=_new href=csv?event_id={{ event_id }}&action=results>(csv)</a></td>
+        </tr>
+        {% for raceclass in raceclasses %}
+            {% if loop.index % 2 == 1 %}
+                <tr><td colspan=4><br></td></tr>
+            {% endif %}
+            <tr>
+                <td><a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=raceplan>{{ raceclass.name }}</a></td>
+                <td>
+                    {% if event.competition_format != "Interval Start" %}
+                        <span id="black">{{ raceclass.name }}</span>: 
+                        <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=start>Alle</a>&nbsp;(<a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=start&show_graphics=False>tekst</a>) -
+                        <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=start&runde=Q>Kvart</a>&nbsp;(<a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=start&runde=Q&show_graphics=False>tekst</a>) -
+                        <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=start&runde=S>Semi</a>&nbsp;(<a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=start&runde=S&show_graphics=False>tekst</a>) -
+                        <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=start&runde=F>Finale</a>&nbsp;(<a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=start&runde=F&show_graphics=False>tekst</a>)<br>
+                    {% else %}
+                        <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=start>{{ raceclass.name }}</a><br>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if event.competition_format != "Interval Start" %}
+                    <span id="black">{{ raceclass.name }}</span>:
+                    <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=round_result>Alle</a>&nbsp;(<a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=round_result&show_graphics=False>tekst</a>) -
+                    <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=round_result&runde=Q>Kvart&nbsp;(<a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=round_result&runde=Q&show_graphics=False>tekst</a>)</a> -
+                    <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=round_result&runde=S>Semi</a>&nbsp;(<a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=round_result&runde=S&show_graphics=False>tekst</a>) -
+                    <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=round_result&runde=F>Finale&nbsp;(<a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=round_result&runde=F&show_graphics=False>tekst</a>)</a><br>
+                    {% else %}
+                    <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=live>{{ raceclass.name }}</a></nobr></td>
+                    {% endif %}
+                </td>
+                <td>
+                    <span id="black">{{ raceclass.name }}</span>:
+                    <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=result>Resultatliste</a> -
+                    <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=result_shuffled>(usortert)</a> -
+                    <a target=_new href=print_lists?klasse={{ raceclass.name }}&event_id={{ event_id }}&action=result_shuffled&keep_first=3>(unntatt top 3)</a> - 
+                    <a target=_new href=csv?event_id={{ event_id }}&action=results&klasse={{ raceclass.name }}>(csv)</a><br>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <section class="row" aria-label="Info">
+        <div class="col-sm-12">
+            <hr>
+            <span id=black colspan=5>Obs: Utskrift åpnes i ny fane. Bruk Ctrl+P for å skrive ut.
+        </div>
+    </section>
+  </div>
+{% endblock content %}

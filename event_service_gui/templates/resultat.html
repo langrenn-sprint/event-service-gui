@@ -1,0 +1,88 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}
+  Resultater {{ valgt_klasse }}
+{% endblock %}
+
+{% block headercontainer %}Resultater {{ valgt_klasse }} <img id=header_icon src="../static/icon_result.png"> {% endblock %}
+
+{% block refresh %}300{% endblock %}
+{% block max_width %}1200{% endblock %}
+
+{% block titlemain %}
+  <img id=menu_icon src="../static/icon_result.png"> Resultater {{ valgt_klasse }}
+{% endblock %}
+
+{% block menuitems %}
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
+    <div class=dropdown-content>
+      {% for klasse in klasser %}
+        {% if klasse.ranking %}
+          {% for ac_name in klasse.ageclasses %}
+          <a href=resultat?klasse={{ klasse.name }}&event_id={{ event_id }}>{{ ac_name }}</a>
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </li>
+  {% if valgt_klasse %}
+    <li class=dropdown id=topborder>
+      <a href=javascript:void(0) class=dropbtn>Utskrift</a>
+      <div class=dropdown-content>
+        <a target=_blank href=/csv?event_id={{ event_id }}&action=results&klasse={{ valgt_klasse }}>CSV</a>
+        <a target=_blank href=print_lists?klasse={{ valgt_klasse }}&event_id={{ event_id }}&action=result>PDF</a>
+      </div>
+    </li>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="w3-container">
+    <section class="row" aria-label="Resultater">
+        <div class="col-sm-12">
+            <h2>{{ valgt_klasse }} Offisielle resultater</h2>
+        </div>
+    </section>
+    <table>
+      <tr>
+        <td align=center>
+        {% for bilde in foto %}
+          {% if loop.index < 5 %}
+            <a href=photos?klasse={{ bilde.raceclass }}&event_id={{ event_id }}><img width=20% src={{ bilde.g_base_url }}></a>
+          {% endif %}
+        {% endfor %}
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr id=headerblack>
+        <td align=center>Plass</td>
+        <td></td>
+        <td>Startnr</td>
+        <td>Navn</td>
+        <td>Klubb</td>
+        <td>Aldersklasse</td>
+      </tr>
+      {% for loper in resultlist.ranking_sequence %}
+        <tr>
+          <td align=center>{{ loper.rank }}</td>
+          <td>{{ loper.round }}</td>
+          <td align=center>{{ loper.bib }}</td>
+          <td><a alt="Live resultater" href=live?event_id={{ event_id }}&klasse={{ valgt_klasse }}&startnr={{ loper.bib }}>{{ loper.name }}</a></td>
+          <td>
+            {% if loper.club_logo %}<img width=15 src={{ loper.time_event.club_logo }} title="{{ loper.club }}" style="vertical-align: middle;">{% endif %}
+            {{ loper.club }}
+          </td>
+          <td>{{ loper.ageclass }}</td>
+        </tr>
+      {% endfor %}
+      <tr>
+        <td colspan=2 align=center>Antall løpere: {{ resultlist.no_of_contestants }}</td>
+        <td colspan=2></td>
+        <td colspan=2 align=right>
+        </td>
+      </tr>
+    </table>
+  </div>
+{% endblock %}

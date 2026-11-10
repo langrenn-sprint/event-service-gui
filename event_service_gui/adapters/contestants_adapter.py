@@ -388,6 +388,42 @@ class ContestantsAdapter:
                 )
         return contestants
 
+    async def get_all_contestants_by_raceclass(
+        self, token: str, event_id: str, raceclass_name: str
+    ) -> list:
+        """Get all contestants / by raceclass function."""
+        headers = MultiDict(
+            [
+                (hdrs.CONTENT_TYPE, "application/json"),
+                (hdrs.AUTHORIZATION, f"Bearer {token}"),
+            ]
+        )
+        contestants = []
+        raceclass_name_url = urllib.parse.quote(raceclass_name, safe="")
+        async with (
+            ClientSession() as session,
+            session.get(
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_name_url}",
+                headers=headers,
+            ) as resp,
+        ):
+            logging.debug(
+                f"get_all_contestants_by_raceclass ({raceclass_name}) - got response {resp.status}"
+            )
+            if resp.status == HTTPStatus.OK:
+                contestants = await resp.json()
+            else:
+                servicename = "get_all_contestants_by_raceclass"
+                body = await resp.json()
+                logging.error(
+                    f"{servicename} ({raceclass_name}) failed - {resp.status} - {body}"
+                )
+                raise web.HTTPBadRequest(
+                    reason=f"Error - {resp.status}: {body['detail']}."
+                )
+        return contestants
+
+
     async def get_contestant(
         self, token: str, event_id: str, contestant_id: str
     ) -> dict:

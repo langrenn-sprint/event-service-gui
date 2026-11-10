@@ -38,7 +38,6 @@ HEALTH_CHECKS = (
     HealthCheck("event-service", "EVENTS", ("/ping", "/ready")),
     HealthCheck("photo-service", "PHOTOS", ("/ping", "/ready")),
     HealthCheck("race-service", "RACE", ("/ping", "/ready")),
-    HealthCheck("result-service-gui", "RESULT_GUI", ("/ping",)),
     HealthCheck("user-service", "USERS", ("/ping", "/ready")),
 )
 

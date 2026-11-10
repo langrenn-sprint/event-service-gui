@@ -1,5 +1,6 @@
 """Resource module for control resources."""
 
+import logging
 
 import aiohttp_jinja2
 from aiohttp import web
@@ -8,14 +9,12 @@ from event_service_gui.adapters import (
     RaceclassesAdapter,
     TimeEventsAdapter,
 )
-from event_service_gui.services import TimeEventsService
 
 from .utils import (
     check_login,
-    error_message,
     get_event,
     get_passeringer,
-    raise_error,
+    login_location,
 )
 
 
@@ -75,28 +74,32 @@ class Control(web.View):
                 },
             )
         except Exception as e:
-            raise_error(self, e)
+            logging.exception("Error. Redirect to main page.")
+            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
 
     async def post(self) -> web.Response:
         """Post route function that creates deltakerliste."""
         # check login
         user = await check_login(self)
         informasjon = ""
-        action = ""
-        form = await self.request.post()
+        form = dict(await self.request.post())
         event_id = str(form["event_id"])
         valgt_klasse = str(form["valgt_klasse"])
+        action = str(form["action"])
         try:
-            action = str(form["action"])
             if "resolve_error" in form:
-                informasjon = await delete_timing_events(user, dict(form))
-            if "shift_position" in form:
-                informasjon = await TimeEventsService().shuffle_semi_final_templates(
-                    user["token"], event_id
-                )
-
+                informasjon = await delete_timing_events(user, form)
         except Exception as e:
-            informasjon = error_message(self, e)
+            logging.exception("Error")
+            informasjon = f"Det har oppstått en feil - {e.args}."
+            error_reason = str(e)
+            if error_reason.startswith("401"):
+                raise web.HTTPSeeOther(
+                    location=login_location(
+                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
+                        self.request.path_qs,
+                    )
+                ) from e
 
         raise web.HTTPSeeOther(
             location=f"/control?event_id={event_id}&informasjon={informasjon}&action={action}&valgt_klasse={valgt_klasse}"
@@ -115,10 +118,8 @@ def get_heatliste(passeringer) -> list:
 async def delete_timing_events(user: dict, form: dict) -> str:
     """Extract form data and update time events."""
     informasjon = "Delete result: "
-    for key in form:
+    for key, value in form.items():
         if key.startswith("resolved_"):
-            response = await TimeEventsAdapter().delete_time_event(
-                user["token"], form[key]
-            )
+            response = await TimeEventsAdapter().delete_time_event(user["token"], value)
             informasjon = f"{informasjon} {response}"
     return informasjon

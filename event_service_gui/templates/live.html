@@ -1,0 +1,153 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}
+  Live scroll {{ valgt_klasse }}
+{% endblock %}
+
+{% block headercontainer %}Live resultater {{ valgt_klasse }} <img id=header_icon src="../static/icon_live.png"> {% endblock %}
+
+{% block refresh %}{{ refresh }}{% endblock %}
+{% block max_width %}2000{% endblock %}
+{% block titlemain %}
+  <img id=menu_icon src="../static/icon_live.png"> Live scroll {{ valgt_klasse }}
+{% endblock %}
+
+{% block menuitems %}
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
+    <div class=dropdown-content>
+      {% for klasse in raceclasses %}
+        {% if klasse.ranking %}
+          {% for ac_name in klasse.ageclasses %}
+            <a href=live?klasse={{ klasse.name }}&event_id={{ event_id }}&refresh={{ refresh }}>{{ ac_name }}</a>
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+      <a class=dropbtn href="live?klasse=K&event_id={{ event_id }}&action=now&refresh=30">Starter nå (K)</a>
+      <a class=dropbtn href="live?klasse=M&event_id={{ event_id }}&action=now&refresh=30">Starter nå (M)</a>
+    </div>
+  </li>
+  {% if valgt_klasse and races[10] %}
+    <li class=dropdown id=topborder>
+      <a class=dropbtn href="live?klasse={{ valgt_klasse }}&event_id={{ event_id }}&action=all">Vis alle heat i {{ valgt_klasse }}</a>
+    </li>
+  {% endif %}
+  <li class=dropdown>
+    <a class=dropbtn><b>Kl: {{ local_time_now }}</b></a>
+  </li>
+  {% endblock %}
+
+{% block content %}
+  <div id=spacer></div>
+  <div class="w3-row-padding">
+    <div class="{{ colclass }}">
+      {% if valgt_startnr %}
+        <div align=center><b>Startnummer {{ valgt_startnr }}</b></div>
+      {% endif %}
+        <table>
+        {% for race in races %}
+            {% if loop.index0 == 0 and not valgt_startnr %}
+              <div id=subheaderbold>{% if race.round == "Q" %}Kvart
+              {% elif race.round == "S" %}Semi
+                {% if race.index == "C" %}C{% else %}A{% endif %}
+              {% elif race.round == "F" %}Finale
+              {% endif %}</div>
+              <div id="spacer"></div>
+            {% elif race.order in colseparators %}
+                </table>
+                </div>
+              <div class="{{ colclass }}">
+                <div id=subheaderbold>{% if race.round == "Q" %}Kvart
+                {% elif race.round == "S" %}Semi
+                  {% if race.index == "C" %}C{% else %}A{% endif %}
+                {% elif race.round == "F" %}Finale
+                {% endif %}</div>
+                <div id="spacer"></div>
+                  <table>
+            {% endif %}
+            {% if race.finish_results|length > 0 %}
+              <tr id=headerblack>
+                <td colspan=4>
+                  <b>{{ race.raceclass }}
+                  {% if race.round == "Q" %}Kvart {{ race.heat }}
+                  {% elif race.round == "F" %}Finale {{ race.index }}
+                  {% else %}Semi {{ race.index }}{{ race.heat }}
+                  {% endif %} -
+                  {% if race.results.Finish and (race.results.Finish.status == 2) %}
+                    Resultat
+                  {% else %}
+                    Uoffisielt resultat
+                  {% endif %}
+                  </b>
+                </td>
+                {% if race.round == "F" %}
+                  <td></td>
+                {% else %}
+                  <td>Neste</td>
+                {% endif %}
+              </tr>
+              {% for loper in race.finish_results %}
+                  <tr{% if loper.bib == valgt_startnr %} id=black{% endif %}>
+                    <td align=center id=table_border>
+                      {% if loper.rank %}{{ loper.rank }}{% else %}{{ loper.status }}{% endif %}
+                      {% if race.results.Finish and (race.results.Finish.status != 2) %}&nbsp;<img width=15 src="../static/warning.png" title="Uoffisielt resultat">{% endif %}
+                    </td>
+                    <td align=center>{{ loper.bib }}</td>
+                    <td align=center>{% if loper.club_logo %}<img width=15 src={{ loper.club_logo }} title="{{ loper.club }}" style="vertical-align: middle;">{% endif %}</td>
+                    <td>
+                        <a href=live?klasse={{ valgt_klasse }}&startnr={{ loper.bib }}&event_id={{ event_id }}>{{ loper.name }}</a>
+                    </td>
+                    {% if race.round != "F" %}
+                      <td align=center id=table_border>{{ loper.next_race }}</td>
+                    {% else %}
+                      <td></td>
+                    {% endif %}
+                  </tr>
+              {% endfor %}
+            {% else %}
+              <tr id=headerblue>
+                <td colspan=4>
+                  <b>{{ race.raceclass }}
+                  {% if race.round == "Q" %}Kvart {{ race.heat }}
+                  {% elif race.round == "S" %}Semi {{ race.index }}{{ race.heat }}
+                  {% else %}Finale {{ race.index }}
+                  {% endif %} - Start kl. {{ race.start_time[-8:] }}</b>
+                </td>
+                <td></td>
+              </tr>
+              <tr id=subheader>
+                <td colspan=5 align="center">
+                  {{ race.next_race }}
+                </td>
+              </tr>
+                {% if race.start_entries|length > 0 %}
+                   {% for loper in race.start_entries %}
+                      <tr{% if loper.bib == valgt_startnr %} id=black{% endif %}>
+                         <td align=center id=table_border>{{ loper.starting_position }}</td>
+                         <td align=center>{{ loper.bib }}</td>
+                         <td align=center>{% if loper.club_logo %}<img width=15 src={{ loper.club_logo }} title="{{ loper.club }}" style="vertical-align: middle;">{% endif %}</td>
+                         <td>
+                           <a href=live?klasse={{ valgt_klasse }}&startnr={{ loper.bib }}&event_id={{ event_id }}>{{ loper.name }}</a>
+                         </td>
+                         <td></td>
+                       </tr>
+                   {% endfor %}
+               {% else %}
+               <tr>
+                 <td colspan=5></td>
+               </tr>
+               {% endif %}
+            {% endif %}
+            {% if (race.finish_results|length == 0) and (race.start_entries|length == 0) %}
+            <tr>
+               <td colspan=5 id=white height=100></td>
+             </tr>
+            {% endif %}
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+  {% if valgt_klasse and races[7] %}
+    <div align="center"><a href="live?klasse={{ valgt_klasse }}&event_id={{ event_id }}&action=all">Vis alle heat</a></div>
+  {% endif %}
+{% endblock %}
