@@ -13,7 +13,7 @@ from .views.utils import login_location
 
 # Requests that never renew the token.
 SKIP_PATHS = ("/ping", "/ready", "/login", "/logout")
-SKIP_PREFIXES = ("/static/",)
+SKIP_PREFIXES = ("/static/", "/files/")
 
 
 def skip_token_renewal(path: str) -> bool:

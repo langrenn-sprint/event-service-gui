@@ -85,7 +85,7 @@ display: block;
 .w3-container td {
   padding: 1px 4px;
 }
-.w3-container-sticky td {
+.w3-container-sticky td, .w3-container-sticky-30 td {
   padding: 1px 4px;
 }
 .w3-half td, .w3-third td, .w3-quart td, .w3-fifth td, .w3-sixth td, .w3-row-padding td {
@@ -119,6 +119,10 @@ table {
   border-collapse: separate;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+tr:hover td:not(.no-hover) {
+    background-color: #eee;
 }
 
 td {
@@ -308,7 +312,7 @@ vertical-align: bottom;
 }
 .tooltip_race .tooltiptext_race {
   visibility: hidden;
-  width: 120px;
+  width: 180px;
   background-color: black;
   color: #fff;
   text-align: center;
@@ -316,19 +320,20 @@ vertical-align: bottom;
   padding: 5px 0;
   position: absolute;
   z-index: 100;
-  bottom: 150%;
+  top: 100%;
   left: 50%;
   margin-left: -60px;
+  margin-top: 5px;
 }
 .tooltip_race .tooltiptext_race::after {
   content: "";
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: black transparent transparent transparent;
+  border-color: transparent transparent black transparent;
 }
 .tooltip_race:hover .tooltiptext_race {
   visibility: visible;
@@ -345,6 +350,13 @@ position: -webkit-sticky;
 position: sticky;
 z-index: 99;
 top: 0;
+}
+.w3-container-sticky-30 {
+background-color: white;
+position: -webkit-sticky;
+position: sticky;
+z-index: 98;
+top: 30px;
 }
 
 .w3-footer-sticky {

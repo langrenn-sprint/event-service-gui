@@ -37,9 +37,10 @@
 {% endblock %}
 
 {% block tips %}
-  - Her kan registreringer slettes manuelt. Vær obs på at det ikke ligger noe logikk bak slettingen, så pass på eventuelle avhengigeter. <br>
-  Eksempelvis vil sletting av en passering i et passeringpunkt som er satt opp til å føre videre til et annet heat kunne føre til at løperen ikke blir flyttet videre som forventet.<br>
-  - Funksjonen <b>"Roter plasser til semi-heat"</b> vil justere templates slik at løpere fra kvartfnaler plasseres i ulike semifinaler. Strategien er at halvparten av løperne flyttes til neste heat.<br>
+  <! --- Information --->
+    - Her er det mulig å slette feilaktige registreringer.<br>
+    - Hvis du velger Alle klasser så vil kun system-error (valideringsfeil eller teknisk feil) vises.<br>
+  <! --- End Information --->
 {% endblock %}
 
 {% block content %}
@@ -79,6 +80,8 @@
         <tr id=headerblue>
           <td></td>
           <td>Startnr</td>
+          <td>Navn</td>
+          <td>Klubb</td>
           <td>Heat</td>
           <td>Passeringspunkt</td>
           <td>Tid</td>
@@ -94,11 +97,17 @@
                 <input type="checkbox" name="resolved_{{ loop.index }}" value="{{ passering.id }}">
               </td>
               <td align=center>{{ passering.bib }}</td>
+              <td>{{ passering.name }}</td>
+              <td>{{ passering.club }}</td>
               <td>{{ passering.race }}</td>
               <td>{{ passering.timing_point }}</td>
               <td>{{ passering.registration_time }}</td>
               <td>{{ passering.rank }}</td>
-              <td>{{ passering.next_race }}-{{ passering.next_race_position }}</td>
+              <td>
+                {% if passering.next_race %}
+                  {{ passering.next_race }}-{{ passering.next_race_position }}
+              {% endif %}
+              </td>
               <td>{{ passering.status }}</td>
               <td>
                 {% for log_entry in passering.changelog %}
@@ -113,3 +122,4 @@
   </div>
   <hr>
 {% endblock %}
+  

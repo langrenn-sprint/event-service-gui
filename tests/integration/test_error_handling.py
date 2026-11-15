@@ -1,4 +1,4 @@
-"""Integration test cases for error handling in the views (#240 in result-service-gui).
+"""Integration test cases for error handling in the views
 
 Only a missing or expired login (401) sends the user to the login page. Other
 errors send the user to the main page with an understandable message, and the

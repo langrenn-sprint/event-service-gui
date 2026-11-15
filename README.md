@@ -38,6 +38,7 @@ RACE_HOST_PORT=8088
 USERS_HOST_SERVER=localhost
 USERS_HOST_PORT=8086
 INSTANCE_ROLE=test # `production`, `standby` or `test`.
+SYSTEM_STATUS_FILE=system.json
 ```
 
 `FERNET_KEY` encrypts the session cookie and is required: the app does not start if it is missing or invalid. Generate one per environment and never reuse a key from an example:
@@ -67,7 +68,7 @@ Optional instance information, normally set by the [deploy](https://github.com/l
 | `INSTANCE_ROLE` | `production`, `standby` or `test`. A banner is shown on all pages unless the role is `production` (not set = `unknown`, which also shows the banner) |
 | `SYSTEM_STATUS_FILE` | Path to `system.json` with backup, restore, database, service, disk and memory status (typically `/app/status/system.json`). Shown on the admin-only page `/system`. If missing or invalid, the page says there is no status information |
 
-The system page updates itself every 15 seconds from `GET /system/status` (JSON, admin only, `401` otherwise), without reloading. On each update the GUI server also pings the backend services (`/ping`, and `/ready` where it exists) with a 2 second timeout. Only services with `*_HOST_SERVER` set are checked: `COMPETITION_FORMAT`, `EVENTS`, `PHOTOS`, `RACE`, `RESULT_GUI` and `USERS`.
+The system page updates itself every 15 seconds from `GET /system/status` (JSON, admin only, `401` otherwise), without reloading. On each update the GUI server also pings the backend services (`/ping`, and `/ready` where it exists) with a 2 second timeout. Only services with `*_HOST_SERVER` set are checked: `COMPETITION_FORMAT`, `EVENTS`, `PHOTOS`, `RACE` and `USERS`.
 
 ## Requirement for development
 

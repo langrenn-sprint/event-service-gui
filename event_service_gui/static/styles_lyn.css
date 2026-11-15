@@ -22,9 +22,14 @@ background-color: #75000e;
 }
 
 .visible_link {
-background-color: #A30013;
-text-decoration: none;
-color: white;
+  display: block;
+  width: 100%;
+  background-color: #A30013;
+  text-decoration: none;
+  color: white;
+  box-sizing: border-box;
+  padding: 4px;
+  border-radius:6px;
 }
 
 #headerblue {

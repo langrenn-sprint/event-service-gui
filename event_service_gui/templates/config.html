@@ -1,0 +1,54 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}Innstillinger{% endblock %}
+{% block max_width %}1200{% endblock %}
+
+{% block headercontainer %}Innstillinger <img id=header_icon src="../static/icon_settings.png"> {% endblock %}
+
+{% block titlemain %}
+  <img id=menu_icon src="../static/icon_settings.png"> Innstillinger
+{% endblock %}
+
+{% block menuitems %}
+  <li class=dropdown id=topborder>
+    <a href=config?event_id={{ event_id }}&action=edit class=dropbtn>Rediger</a>
+  </li>
+{% endblock %}
+
+{% block tips %}
+  Her kan du se og redigere konfigurasjonsparametere for arrangementet.
+{% endblock %}
+
+{% block content %}
+  <p>
+    <span id="informasjon"></span>
+  </p>
+  <section class="row" aria-label="Event">
+    <div class="col-sm-12">
+        <div class="status-card" role="status" aria-live="polite">
+          <h4>Config for event {{ event.name }}, {{ event.date_of_event }}</h4>
+        </div>
+  <table cellpadding="4">
+    {% for oneconfig in event_config %}
+      <tr>
+        <td>&nbsp;{{ oneconfig.key }}&nbsp;</td>
+        <td>
+          {% if action == "edit" %}
+            <form action=/config method=post>
+              <input type="text" class="form-control" name="value" value="{{ oneconfig.value }}" required>
+              </td><td align="center">
+              <input type="submit" class="btn btn-success" name=update_one value="  Oppdater  ">
+              <input type=hidden name="event_id" value="{{ event_id }}">
+              <input type=hidden name="key" value="{{ oneconfig.key }}">
+            </form>
+          {% else %}
+            {{ oneconfig.value }}
+            </td><td>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </table>
+    </div>
+  </section>
+{% endblock %}

@@ -26,9 +26,14 @@ background-color: #00247d;
 }
 
 .visible_link {
-background-color: #94b5e0;
-text-decoration: none;
-color: white;
+  display: block;
+  width: 100%;
+  background-color: #94b5e0;
+  text-decoration: none;
+  padding: 4px;
+  border-radius:6px;
+  color: white;
+  box-sizing: border-box;
 }
 
 #headerblue {

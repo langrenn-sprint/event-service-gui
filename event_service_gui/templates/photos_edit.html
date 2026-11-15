@@ -1,0 +1,230 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}{{ lopsinfo }}{% endblock %}
+
+{% block headercontainer %}{{ lopsinfo }}{{ valgt_klasse }} <img id=header_icon src="../static/icon_photos.png"> {% endblock %}
+{% block max_width %}1200{% endblock %}
+
+{% block tips %}
+    - Ved å stjernemerke bilder vil de bli synlige på åpne sider - i resultatlister og på bilde-siden.<br>
+    - Det er mulig å slette bilder - både enkeltvis og alle. Merk at det bare er link til bildene som slettes.<br>
+    - Ved redigering av løpsinformasjon, pass på formatet - ved flere bibs, bruk f.eks [12, 23].<br>
+    - Usikkerhet (confidence/conf) brukes når systemet kobler bib og race til photo. Skala fra 0 til 100.
+{% endblock %}
+
+{% block titlemain %}
+  <img id=menu_icon src="../static/icon_photos.png"> {{ lopsinfo }}
+{% endblock %}
+{% block menuitems %}
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Velg funksjon</a>
+    <div class=dropdown-content>
+      <a  href=photos_edit?event_id={{ event_id }}>Vis alle</a>
+      <a  href=photos_edit?event_id={{ event_id }}&filter=low_confidence>Usikker race info (conf < 51)</a>
+    </div>
+  </li>
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Velg klasse</a>
+    <div class=dropdown-content>
+      <a  href=photos_edit?event_id={{ event_id }}>Vis alle</a>
+      {% for raceclass in raceclasses %}
+        <a  href=photos_edit?event_id={{ event_id }}&raceclass={{ raceclass.name }}>{{ raceclass.name }}</a>
+      {% endfor %}
+    </div>
+  </li>
+{% endblock %}
+{% block content %}
+<script>
+  function star_toggle(photo_id) {
+    console.log("Star photo: " + photo_id);
+    current_value = document.getElementById("star_" + photo_id).value;
+    action = "";
+    if (current_value == "star_on") {
+      action = "star_off";
+    }
+    else {
+      action = "star_on";
+    }
+    console.log("Current value: " + current_value);
+    var xhttp = new XMLHttpRequest();
+     xhttp.open("POST", "/photo_update", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("photo_id=" + photo_id + "&action=" + action);
+    xhttp.onload = function() {
+      if ("200" == this.responseText) {
+        document.getElementById("star_" + photo_id).src = "../static/" + action + ".png";
+        document.getElementById("star_" + photo_id).value = action;
+      }
+      else {
+        document.getElementById('informasjon').innerHTML = this.responseText;
+      }
+    }
+  }
+</script>
+
+<! --- Edit menu --->
+<div class="w3-container-sticky-30">
+  <table>
+    <tr>
+      {% if action in ["update_race_info"] %}
+          <td>
+          <form action=/photos_edit method=post>
+            <input type="submit" class="btn btn-success" name={{ action }} value="  Lagre  ">
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name=action value={{ action }}>
+          </td>
+      {% elif action in ["delete_select"] %}
+          <td>
+          <form action=/photos_edit method=post>
+            <input type="submit" class="btn btn-warning" name={{ action }} value="  Slett valgte ">
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="hidden" name=action value={{ action }}>
+          </td>
+      {% else %}
+        <td>
+          <form action=/photos_edit method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="hidden" name=action value="update_race_info">
+            <input type="hidden" name=raceclass value="{{ valgt_klasse }}">
+            <input type="submit" class="btn btn-default" name=update_race_info value="  Rediger  ">
+          </form>
+        </td>
+        <td>
+          <form action=/photos_edit method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="hidden" name=action value="update_race_info">
+            <input type="hidden" name=raceclass value="{{ valgt_klasse }}">
+            <input type="hidden" name=filter value="low_confidence">
+            <input type="submit" class="btn btn-default" name=update_race_info value="  Rediger alle med conf < 51  ">
+          </form>
+        </td>
+        <td>
+          <form action=/photos_edit method=get>
+            <input type="hidden" name=event_id value="{{ event_id }}">
+            <input type="hidden" name=action value="delete_select">
+            <input type="submit" class="btn btn-default" name=delete_select value="  Slett lokale kopier  ">
+          </form>
+        </td>
+        <td>
+          <form action=/photos_edit method=post>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" class="btn btn-warning" name="delete_all_local" value="  Slett alle lokale kopier  ">
+          </form>
+        </td>
+        <td>
+          <form action=/photos_edit method=post>
+            <input type="hidden" name="event_id" value="{{ event_id }}">
+            <input type="submit" class="btn btn-warning" name="delete_all_low_confidence" value="  Slett alle med conf < 51  ">
+          </form>
+        </td>
+      {% endif %}
+    </tr>
+  </table>
+</div>
+<div class="w3-container">
+  <p>
+    <span id="informasjon"></span>
+  </p>
+  <table cellpadding=4>
+    <tr>
+      <td colspan=4 id=headerblue>
+        <b>Bilder - lokale kopier</b>
+      </td>
+    </tr>
+    {% for foto in photos %}
+      <tr>
+        {% if action in ["delete_select"] %}
+          <td>
+            <input type="checkbox" name="update_{{ foto.id }}" value="{{ foto.id }}">
+          </td>
+        {% endif %}
+        <td width=220>
+          <!-- Trigger the Modal -->
+          <img id="modalImg_{{loop.index}}" src="{{ foto.g_base_url }}" title="Click to view big size" style="width:200px">
+          <!-- The Modal -->
+          <div id="myModal_{{loop.index}}" class="modal">
+            <!-- The Close Button -->
+            <span id="close_{{loop.index}}" class="close">&times;</span>
+            <!-- Modal Content (The Image) -->
+            <img class="modal-content" id="img_{{loop.index}}">
+            <!-- Modal Caption (Image Text) -->
+            <div id="caption_{{loop.index}}"></div>
+          </div>
+          <script>
+            // Get the modal
+            var modal_{{loop.index}} = document.getElementById("myModal_{{loop.index}}");
+            
+            // Get the image and insert it inside the modal - use its "alt" text as a caption
+            var img_{{loop.index}} = document.getElementById("modalImg_{{loop.index}}");
+            var modalImg_{{loop.index}} = document.getElementById("img_{{loop.index}}");
+            var captionText_{{loop.index}} = document.getElementById("caption_{{loop.index}}");
+            img_{{loop.index}}.onclick = function(){
+              modal_{{loop.index}}.style.display = "block";
+              modalImg_{{loop.index}}.src = this.src;
+              captionText_{{loop.index}}.innerHTML = this.alt;
+            }
+            
+            // Get the <span> element that closes the modal
+            var span_{{loop.index}} = document.getElementById("close_{{loop.index}}");
+            
+            // When the user clicks on <span> (x), close the modal
+            span_{{loop.index}}.onclick = function() { 
+              modal_{{loop.index}}.style.display = "none";
+            }
+            </script>
+        </td>
+        <td id=table_border_r>
+          <table>
+            <tr>
+              <td width="200">
+                {% if foto.starred %}
+                  <input type=image id="star_{{ foto.id }}" onclick="star_toggle('{{ foto.id }}');" width=20 src="../static/star_on.png" value="star_on">
+                {% else %}
+                  <input type=image id="star_{{ foto.id }}" onclick="star_toggle('{{ foto.id }}');" width=20 src="../static/star_off.png" value="star_off">
+                {% endif %}
+                {% if foto.is_photo_finish %} MÅLFOTO{% endif %}
+                {% if foto.is_start_registration %} START{% endif %}
+              </td>
+              <td>{{ foto.creation_time[-8:] }} / <a target=_blank href={{ foto.g_base_url }}>{{ foto.name }}</a></td>
+            </tr>
+            <tr>
+              <td>Info</td>
+              <td>{{ foto.information }}<br>{{ foto.ai_information }}</td>
+            </tr>
+            <tr>
+              <td>Race (conf={{ foto.confidence }})</td>
+              <td>
+                {% if action == "update_race_info" %}
+                  <select name="race_id_{{ foto.id }}">
+                    <option value="">Velg løp</option>
+                    {% for race in races %}
+                      <option value="{{ race.id }}" {% if race.id == foto.race_id %}selected{% endif %}>{{ race.raceclass }}-{{ race.round }}{{ race.index }}{{ race.heat }}</option>
+                    {% endfor %}
+                  </select>
+                  <input type="hidden" name="old_race_id_{{ foto.id }}" value="{{ foto.race_id }}">
+                {% endif %}
+                {% for race in races %}
+                  {% if race.id == foto.race_id %}{{ race.raceclass }}-{{ race.round }}{{ race.index }}{{ race.heat }}{% endif %}
+                {% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <td>Bibs / Klubber / Klasse</td>
+              <td>
+                {% if action == "update_race_info" %}
+                  <input name="biblist_{{ foto.id }}" value="{{ foto.biblist }}">
+                  <input type="hidden" name="old_biblist_{{ foto.id }}" value="{{ foto.biblist }}">
+                {% endif %}
+                {{ foto.biblist }} / {{ foto.clublist }} / {{ foto.raceclass }}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+  {% if action in ["update_race_info", "delete_select"] %}
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

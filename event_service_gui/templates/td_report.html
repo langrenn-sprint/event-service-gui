@@ -1,0 +1,65 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}
+    {{ lopsinfo }}
+{% endblock titleheader %}
+{% block headercontainer %}
+    {{ lopsinfo }} <img id=header_icon src="../static/icon_event.png">
+{% endblock %}
+
+{% block titlemain %} <img id=menu_icon src="../static/icon_event.png"> {{ lopsinfo }}{% endblock titlemain %}
+{% block max_width %}1000{% endblock %}
+
+{% block menuitems %}{% endblock menuitems %}
+
+{% block content %}
+  <div class="w3-container">
+    <section class="row" aria-label="TD Rapport">
+        <div class="col-sm-12">
+            <h2>TD Rapport</h2>
+            <p>Statistikk som brukes til TD rapporten</p>
+        </div>
+    </section>
+    <table>
+        <tr id=headerblue>
+            <td>Klasse</td>
+            <td align="center">Deltakere</td>
+            <td align="center">Klubber</td>
+            <td align="center">DNS</td>
+            <td align="center">DNF</td>
+            <td align="center">Fullført</td>
+            <td>% Fullført</td>
+        </tr>
+        {% for rc in raceclass_stats %}
+            <tr>
+                <td>{{ rc.name }}</td>
+                <td align="center">{{ rc.no_of_contestants }}</td>
+                <td align="center">{{ rc.clubs }}</td>
+                <td align="center">{% if rc.dns is not none %}{% if rc.dns > 0 %}<b>{{ rc.dns }}</b>{% else %}0{% endif %}{% endif %}</td>
+                <td align="center">{% if rc.dnf is not none %}{% if rc.dnf > 0 %}<b>{{ rc.dnf }}</b>{% else %}0{% endif %}{% endif %}</td>
+                {% set fullfort = rc.no_of_contestants - (rc.dns or 0) - (rc.dnf or 0) %}
+                {% set fullfort_prosent = ((fullfort * 100) / rc.no_of_contestants) | round(0) | int if rc.no_of_contestants > 0 else 0 %}
+                <td align="center"><b>{{ fullfort }}</b></td>
+                <td align="center">{% if rc.dnf is not none %}{{ fullfort_prosent }}%{% endif %}</td>
+            </tr>
+        {% endfor %}
+        {% set total_contestants = raceclass_stats | sum(attribute='no_of_contestants') %}
+        {% set total_dns = raceclass_stats | selectattr('dns', 'ne', none) | sum(attribute='dns') %}
+        {% set total_dnf = raceclass_stats | selectattr('dnf', 'ne', none) | sum(attribute='dnf') %}
+        {% set total_fullfort = total_contestants - total_dns - total_dnf %}
+        {% set total_fullfort_prosent = ((total_fullfort * 100) / total_contestants) | round(0) | int if total_contestants > 0 else 0 %}
+        <tr id=subheader>
+            <td><b>Totalt</b></td>
+            <td align="center"><b>{{ total_contestants }}</b></td>
+            <td align="center"><b>{{ total_unique_clubs | default(0, true) }}</b></td>
+            <td align="center"><b>{{ total_dns }}</b></td>
+            <td align="center"><b>{{ total_dnf }}</b></td>
+            <td align="center"><b>{{ total_fullfort }}</b></td>
+            <td align="center">{% if raceclass_stats | selectattr('dnf', 'ne', none) | list | length > 0 %}{{ total_fullfort_prosent }}%{% endif %}</td>
+        </tr>
+    </table>
+    {% if informasjon %}
+        <p>{{ informasjon }}</p>
+    {% endif %}
+  </div>
+{% endblock %}

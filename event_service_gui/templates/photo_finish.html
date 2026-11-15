@@ -1,0 +1,336 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}
+  Foto finish {{ valgt_runde.klasse }} {{ valgt_runde.runde }}
+{% endblock %}
+
+{% block headercontainer %}Foto finish {{ valgt_klasse }} <img id=header_icon src="../static/icon_timing.png"> {% endblock %}
+
+{% block refresh %}{% endblock %}
+{% block max_width %}1800{% endblock %}
+
+{% block titlemain %}
+  <img id=menu_icon src="../static/icon_timing.png"> Photo finish {{ valgt_runde.klasse }}
+  {% if valgt_runde.runde == "Q" %}Kvartfinaler
+  {% elif valgt_runde.runde == "S" %}Semifinaler
+  {% elif valgt_runde.runde == "F" %}Finaler
+  {% endif %}
+{% endblock %}
+
+{% block menuitems %}
+  <li class=dropdown id=topborder>
+    <a href=javascript:void(0) class=dropbtn>Velg runde</a>
+    <div class=dropdown-content>
+      <table>
+        <tr><td colspan="4">
+            <a href=photo_finish?event_id={{ event_id }}&heat=0>Starter nå</a>
+        </td></tr>
+        {% if current_races %}
+          <tr><td colspan="2">
+            <nobr><a href=photo_finish?event_id={{ event_id }}&heat={{ (current_races|first).order - 1 }}>Forrige runde</a></nobr>
+          </td><td colspan="2">
+            <nobr><a href=photo_finish?event_id={{ event_id }}&heat={{ (current_races|last).order + 1 }}>Neste runde</a></nobr>
+          </tr>
+        {% endif %}
+        {% for raceclass in raceplan_summary %}
+          {% if raceclass.ranking %}
+          <tr>
+            <td id="black">{{ raceclass.name }}</td>
+            <td><nobr><a href=photo_finish?event_id={{ event_id }}&klasse={{ raceclass.name }}&runde=Q>Kvart</a></nobr></td>
+            <td><nobr><a href=photo_finish?event_id={{ event_id }}&klasse={{ raceclass.name }}&runde=S>Semi</a></nobr></td>
+            <td><nobr><a href=photo_finish?event_id={{ event_id }}&klasse={{ raceclass.name }}&runde=F>Finale</a></nobr></td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </table>
+    </div>
+  </li>
+{% endblock %}
+
+<! --- Information --->
+{% block tips %}
+    - Denne siden viser heat resultater og målfoto i read-only modus.<br>
+    - Klikk på et bilde for å vise det i stort format.
+{% endblock %}
+<! --- End Information --->
+
+{% block content %}
+
+    <br>
+    {% set include_source = "photo_finish" %}
+    {% include "_race_progress.html" %}
+    <br>
+  <script>
+    /* this function will indicate with red or green colors if entered values are correct or not
+      if bib exist in heat, the bib will be green,
+      if bib not exist in heat or it is a duplicate, the entered value will be red 
+    */
+      function validation_colors(race_order) {
+        // 1. reset all colors
+        for (let i = 1; i < 12; i++) {
+          try { 
+            document.getElementById(race_order + "_form_rank_" + i).style.backgroundColor = "";
+          }
+          catch(err) {}
+          try { 
+            const old_bib = document.getElementById(race_order + "_old_form_rank_" + i).value;
+            document.getElementById(race_order + old_bib).style.backgroundColor = "";
+          }
+          catch(err) {}
+        }
+        // 2. collect entered data, reset on start-entries and find dupliactes
+        const bib_array = []
+        const duplicate_array = []
+        for (let i = 1; i < 12; i++) {
+          try { 
+            const new_bib = document.getElementById(race_order + "_form_rank_" + i).value;
+            if (new_bib != "") {
+              if (bib_array.indexOf(new_bib) > -1) {
+                duplicate_array.push(new_bib)
+              } else {
+                bib_array.push(new_bib);
+              }
+            }
+          }
+          catch(err) {}
+        }
+        // 3. set red on duplicate bibs (values)
+        duplicate_array.forEach(myDuplicateFunction);
+        function myDuplicateFunction(value, index, array) {
+          for (let i = 1; i < 12; i++) {
+            try { 
+              if (value == document.getElementById(race_order + "_form_rank_" + i).value) {
+                document.getElementById(race_order + "_form_rank_" + i).style.backgroundColor = "red";
+              }
+            } catch(err) {}
+          }
+        }
+        // 4. set green on start-entries and red on bibs (values) not in start list
+        bib_array.forEach(myStartColorFunction);
+        function myStartColorFunction(value, index, array) {
+          for (let i = 1; i < 12; i++) {
+            try { 
+                document.getElementById(race_order + value).style.backgroundColor = "green";
+            }
+            catch(err) {
+              for (let i = 1; i < 12; i++) {
+                try { 
+                  if (value == document.getElementById(race_order + "_form_rank_" + i).value) {
+                    document.getElementById(race_order + "_form_rank_" + i).style.backgroundColor = "red";
+                  }
+                } catch(err) {}
+              }
+            }
+          }
+        }
+
+        // 5. set delt checkbox
+        for (let i = 1; i < 12; i++) {
+          try { 
+            if (document.getElementById(race_order + "_pos_" + i).value == document.getElementById(race_order + "_pos_" + (i-1)).value) {
+              if (document.getElementById(race_order + "_pos_" + i).value != "") {
+                document.getElementById(race_order + "_delt_" + i).checked = "true";
+                document.getElementById(race_order + "_delt_" + i).value = "true";
+              }
+            }
+          } catch(err) {}
+        }
+
+
+      }
+
+  </script>
+  {% for info in info_list %}
+    <div class="w3-container" id=info>{{ info }}</div>
+  {% endfor %}
+  <div class="w3-container" id=info>{{ valgt_runde.informasjon }}</div>
+
+<div class="w3-row-padding">
+  {% if race.start_time %}
+    <div id=headercollapse>
+      {{ race.raceclass }} {{ race.round }}{{ race.index }}
+      {% if race.round != "F" %}{{ race.heat }}{% endif %}
+      &nbsp;kl {{ race.start_time[-8:] }} (heat {{ race.order }})
+      <span id="{{ race.order }}_status">
+        {% if race.results.Finish and (race.results.Finish.status == 2) %}
+          - resultat publisert. 
+        {% elif not race.startliste %}
+          - ingen deltakere.          
+        {% endif %}
+      </span>
+    </div>
+    <div id=spacer></div>
+      <table>
+        <tr id=headerblack>
+          <td colspan=3>Startliste</td>
+          <td colspan=2></td>
+          <td colspan=2 id=resultheaderfirst>Resultater</td>
+          <td colspan=4 id=resultheader align=center>{{ race.next_race }}</td>
+          <td id=resultheader></td>
+        </tr>
+        <tr>
+          <th width=40>Pos</th>
+          <th width=40>Nr</th>
+          <th width=40></th>
+          <th width=200>&nbsp;Navn</th>
+          <th width=100>Klubb</th>
+          <th width=50 id=resultborder>Plass</th>
+          <th width=50>Startnr</th>
+          <th width=50>{% if valgt_runde.runde == "F" %}Delt{% endif %}</th>
+          <th width=200>Navn</th>
+          <th width=75>{% if valgt_runde.runde != "F" %}Videre til{% endif %}</th>
+          <th width=75>Tid</th>
+          <th>Målfoto</th>
+        </tr>
+          {% for start in race.startliste %}
+            <tr>
+              <td align="center" class="no-hover">{{ start.starting_position }}</td>
+              <td id="{{ race.order }}{{ start.bib }}" align="center" class="no-hover">{{ start.bib }}</td>
+                <td align="center" class="no-hover">
+                  <span id="{{ race.order }}{{ start.bib }}_start_status">
+                    {% if start.status in ["DNS", "DNF"] %}
+                      <span id="grey">{{ start.status }}</span>
+                      <script>document.getElementById('{{ race.order }}{{ start.bib }}').style.backgroundColor = "Grey";</script>
+                    {% endif %}
+                  </span>
+                  {% for bilde in race.photo_start %}
+                    {% if start.bib in bilde.biblist %}
+                    <a class="tooltip_photo_left">
+                      &nbsp;<img src={{ bilde.g_base_url }} width="30">
+                        <span>
+                            <img src="{{ bilde.g_base_url }}" title="Photo time: {{ bilde.creation_time[-8:] }}">
+                        </span>
+                    </a></td>
+                    {% endif %}
+                    {% endfor %}
+                </td>
+                <td class="no-hover">&nbsp;{{ start.name }}</td>
+                <td class="no-hover">{{ start.club }}</td>
+                {% if race.finish_timings[loop.index0] and race.finish_timings[loop.index0].bib %}
+                  <td id=resultborder align=center><span id="{{ race.order }}_place_{{ loop.index }}">{{ race.finish_timings[loop.index0].rank }}</span></td>
+                  <td>
+                    <input type="hidden" name="R{{ race.order }}_dummy_{{ loop.index }}" value="0">
+                    <input type="hidden" id="{{ race.order }}_old_pos_{{ loop.index }}" name="{{ race.order }}_old_pos_{{ loop.index }}" value="{{ race.finish_timings[loop.index0].rank }}">
+                    <input type="text" class="form-control-inline" id="{{ race.order }}_form_rank_{{ loop.index }}" name="{{ race.order }}_form_rank_{{ loop.index }}" value="{% if race.finish_timings[loop.index0].bib > 0 %}{{ race.finish_timings[loop.index0].bib }}{% endif %}" size=3 onfocus="this.oldvalue = this.value;" onchange="validation_colors({{ race.order }})" readonly>
+                    <input type="hidden" id="{{ race.order }}_pos_{{ loop.index }}" name="{{ race.order }}_pos_{{ loop.index }}" value="{{ race.finish_timings[loop.index0].rank }}">
+                    <input type="hidden" id="{{ race.order }}_old_form_rank_{{ loop.index }}" name="{{ race.order }}_old_form_rank_{{ loop.index }}" value="{% if race.finish_timings[loop.index0].bib > 0 %}{{ race.finish_timings[loop.index0].bib }}{% endif %}">
+                    <input type="hidden" id="{{ race.order }}_time_event_id_{{ loop.index }}" name="{{ race.order }}_time_event_id_{{ loop.index }}" value="{{ race.finish_timings[loop.index0].id }}">
+                  </td>
+                  <td>
+                    {% if (valgt_runde.runde == "F") and (loop.index0 > 0) %}
+                      <input type="checkbox" id='{{ race.order }}_delt_{{ loop.index }}' name='{{ race.order }}_delt_{{ loop.index }}' value="" tabindex="-1" onclick="delt_toggle(this, '{{ race.order }}_place_{{ loop.index - 1}}', {{ loop.index }});">
+                    {% endif %}
+                  </td>
+                  <td id="{{ race.order }}_name_{{ loop.index }}">{{ race.finish_timings[loop.index0].name }}</td>
+                  <td id="{{ race.order }}_videre_til_{{ loop.index }}">
+                    {% if valgt_runde.runde != "F" %}
+                      {{ race.finish_timings[loop.index0].next_race }}-{{ race.finish_timings[loop.index0].next_race_position }}
+                    {% endif %}
+                  </td>
+                  <td id='tid_{{ loop.index }}'>{{ race.finish_timings[loop.index0].registration_time[-8:] }}</td>
+                {% else %}
+                  <td id=resultborder align=center><span id="{{ race.order }}_place_{{ loop.index }}">{{ loop.index }}</span></td>
+                  <td>
+                  </td>
+                  <td>
+                  </td>
+                  <td id="{{ race.order }}_name_{{ loop.index }}"></td>
+                  <td id="{{ race.order }}_videre_til_{{ loop.index }}"></td>
+                  <td id='tid_{{ loop.index }}'></td>
+                {% endif %}
+
+                {% if loop.first %}
+                <script>
+                  /* populate_rank: populate race rank based upon analysis of photos
+                    */
+                    validation_colors({{ race.order }});
+                  }
+                </script>
+                  <td rowspan="{{ loop.length }}" valign="top" class="no-hover">
+                    <! -- Start photo stuff -->
+                    {% if race.photo_finish != [] %}
+                    <div class="lb_row">
+                      {% for bilde in race.photo_finish %}
+                        <!-- Trigger the Lightbox -->
+                          <div class="lb_column">
+                            <img src="{{ bilde.g_base_url }}" style="width:100%" onclick="openModal{{ race.order }}();currentSlide{{ race.order }}({{ loop.index }})" class="lb_hover-shadow cursor">
+                          </div>
+                      {% endfor %}
+                    </div>
+                    <div id="lb_myModal_{{ race.order }}" class="lb_modal">
+                      <span class="lb_close cursor" onclick="closeModal{{ race.order }}()">&times;</span>
+                      <div class="lb_modal-content">
+                        {% for bilde in race.photo_finish %}
+                          <div class="lb_mySlides_{{ race.order }}">
+                            <div class="lb_numbertext">{{loop.index}} / {{loop.length}}</div>
+                            <img src="{{ bilde.g_base_url }}" style="width:100%">
+                          </div>
+                        {% endfor %}
+                        <a class="lb_prev" onclick="plusSlides{{ race.order }}(-1)">&#10094;</a>
+                        <a class="lb_next" onclick="plusSlides{{ race.order }}(1)">&#10095;</a>
+                    
+                        <div class="lb_caption-container">
+                          <p id="lb_caption_{{ race.order }}"></p>
+                        </div>
+                    
+                        {% for bilde in race.photo_finish %}
+                          <div class="lb_column">
+                            <img class="lb_demo_{{ race.order }} cursor" src="{{ bilde.g_base_url }}" style="width:100%" onclick="currentSlide{{ race.order }}({{loop.index}})" alt="Photo time: {{ bilde.creation_time[-8:] }} Bibs: {{ bilde.biblist }}">
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                                                
+                    <script>
+                      // Get the Lightbox
+                      function openModal{{ race.order }}() {
+                        document.getElementById("lb_myModal_{{ race.order }}").style.display = "block";
+                      }
+
+                      function closeModal{{ race.order }}() {
+                        document.getElementById("lb_myModal_{{ race.order }}").style.display = "none";
+                      }
+
+                      var slideIndex = 1;
+                      showSlides{{ race.order }}(slideIndex);
+
+                      function plusSlides{{ race.order }}(n) {
+                        showSlides{{ race.order }}(slideIndex += n);
+                      }
+
+                      function currentSlide{{ race.order }}(n) {
+                        showSlides{{ race.order }}(slideIndex = n);
+                      }
+
+                      function showSlides{{ race.order }}(n) {
+                        var i;
+                        var slides = document.getElementsByClassName("lb_mySlides_{{ race.order }}");
+                        var dots = document.getElementsByClassName("lb_demo_{{ race.order }}");
+                        var captionText = document.getElementById("lb_caption_{{ race.order }}");
+                        if (n > slides.length) {slideIndex = 1}
+                        if (n < 1) {slideIndex = slides.length}
+                        for (i = 0; i < slides.length; i++) {
+                            slides[i].style.display = "none";
+                        }
+                        for (i = 0; i < dots.length; i++) {
+                            dots[i].className = dots[i].className.replace(" active", "");
+                        }
+                        slides[slideIndex-1].style.display = "block";
+                        dots[slideIndex-1].className += " active";
+                        captionText.innerHTML = dots[slideIndex-1].alt;
+                      }
+                    </script>
+                    {% endif %}
+                    <! -- End photo stuff -->
+                  </td>
+                {% endif %}
+            </tr>
+            <script>
+              validation_colors("{{ race.order }}")
+            </script>
+          {% endfor %}
+        </table>
+      </div>
+  {% endif %}
+</div>
+{% endblock %}

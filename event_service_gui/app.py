@@ -18,23 +18,42 @@ from .middleware import token_renewal_middleware
 from .services import SystemStatusService
 from .views import (
     Activate,
+    Config,
     Contestants,
     Control,
+    Corrections,
     CsvList,
     Events,
+    Live,
     Login,
     Logout,
     Main,
+    PhotoFinish,
+    Photos,
+    PhotosEdit,
+    PhotoUpdate,
     Ping,
     PrintContestants,
+    PrintDash,
+    PrintLists,
     Raceclasses,
     Raceplans,
+    Resultat,
+    ResultatEditNew,
+    ResultatUpdate,
     Seeding,
     Settings,
+    Start,
+    StartEdit,
     System,
     SystemStatus,
     Tasks,
+    TdReport,
+    Timing,
+    TimingDash,
+    TimingInfo,
     Users,
+    VideoEvents,
 )
 from .views.utils import ADMIN_ROLE
 
@@ -149,22 +168,41 @@ async def create_app() -> web.Application:
         [
             web.view("/", Main),
             web.view("/activate", Activate),
-            web.view("/csv", CsvList),
+            web.view("/config", Config),
             web.view("/contestants", Contestants),
             web.view("/control", Control),
+            web.view("/corrections", Corrections),
+            web.view("/csv", CsvList),
             web.view("/events", Events),
+            web.view("/live", Live),
             web.view("/login", Login),
             web.view("/logout", Logout),
             web.view("/ping", Ping),
+            web.view("/photo_finish", PhotoFinish),
+            web.view("/photo_update", PhotoUpdate),
+            web.view("/photos", Photos),
+            web.view("/photos_edit", PhotosEdit),
             web.view("/print_contestants", PrintContestants),
+            web.view("/print_dash", PrintDash),
+            web.view("/print_lists", PrintLists),
             web.view("/raceclasses", Raceclasses),
             web.view("/raceplans", Raceplans),
+            web.view("/resultat", Resultat),
+            web.view("/resultat_edit_new", ResultatEditNew),
+            web.view("/resultat_update", ResultatUpdate),
             web.view("/seeding", Seeding),
             web.view("/settings", Settings),
+            web.view("/start", Start),
+            web.view("/start_edit", StartEdit),
             web.view("/system", System),
             web.view("/system/status", SystemStatus),
             web.view("/tasks", Tasks),
+            web.view("/td_report", TdReport),
+            web.view("/timing", Timing),
+            web.view("/timing_dash", TimingDash),
+            web.view("/timing_info", TimingInfo),
             web.view("/users", Users),
+            web.view("/video_events", VideoEvents),
         ]
     )
 
@@ -177,5 +215,9 @@ async def create_app() -> web.Application:
     app.router.add_static(
         "/static/", path=str(static_dir), name="static", append_version=True
     )
+
+    files_dir = Path(PROJECT_ROOT) / "files"
+    logging.info(f"files_dir: {files_dir}")
+    app.router.add_static("/files/", path=files_dir, name="files")
 
     return app

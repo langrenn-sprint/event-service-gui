@@ -1,0 +1,128 @@
+{% extends "open_base_new.html" %}
+
+{% block titleheader %}{{ lopsinfo }}{% endblock titleheader %}
+{% block headercontainer %}{{ lopsinfo }} <img id=header_icon src="../static/icon_settings.png"> {% endblock %}
+{% block refresh %}60{% endblock refresh %}
+{% block max_width %}1200{% endblock %}
+{% block titlemain %} <img id=menu_icon src="../static/icon_settings.png"> {{ lopsinfo }}{% endblock titlemain %}
+{% block menuitems %}{% endblock menuitems %}
+
+{% block tips %}
+{% endblock tips %}
+
+{% block content %}
+<script>
+      function generate_resultlist(raceclass) {
+      console.log("Re-generate results: " + raceclass);
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/resultat_update", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("event_id={{ event_id }}&raceclass=" + raceclass + "&action=generate_resultlist");
+      xhttp.onload = function() {
+        alert(this.responseText);
+      }
+    }
+</script>
+
+<section class="row" aria-label="Event">
+    <div class="col-sm-4">
+        <div class="status-card" role="status" aria-live="polite">
+          <h4>Startliste</h4>
+            <ul>
+            <li class=dropdown>
+                <a href=javascript:void(0) class=dropbtn>Rediger startliste</a>
+                <div class=dropdown-content>
+                    <table>
+                        {% for raceclass in raceclasses %}
+                        <tr>
+                            {% if event.competition_format != "Interval Start" %}
+                            <td id="black"><a target="_blank" href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}>{{ raceclass.name }}</a></td>
+                            {% if raceclass.ranking %}
+                                <td><nobr><a target="_blank" href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}&runde=Q>Kvart</a></nobr></td>
+                                <td><nobr><a target="_blank" href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}&runde=S>Semi</a></nobr></td>
+                                <td><nobr><a target="_blank" href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}&runde=F>Finale</a></nobr></td>
+                            {% else %}
+                                <td colspan="3"></td>
+                            {% endif %}
+                            {% else %}
+                            <td><nobr><a target="_blank" href=start_edit?event_id={{ event_id }}&klasse={{ raceclass.name }}&action={{ action }}>{{ raceclass.name }}</a></nobr></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </li>
+            </ul>
+            <a href="https://youtube.com/clip/UgkxFI6U5zm2b3Ub2jqUuzC_LZm-_nGVBjyN?si=HtDY52PuF2fLnfMA" target="_blank">
+            <img src="../static/video.png" title="Video - Redigere i startlister" width="20" height="20">
+            </a>
+            Redigere i starlister - optimalsere: likt antall løpere i heat, fylle opp C-finaler osv.</td>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="status-card" role="status" aria-live="polite">
+          <h4>Tidskjema</h4>
+            <a class="visible_link" id="mySeeTime" href="raceplans?event_id={{ event_id }}&amp;action=edit_time">Rediger i tidskjema</a>
+            <br>Utsette (eller forsere) kjøreplanen
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="status-card" role="status" aria-live="polite">
+          <h4>Resultatliste</h4>
+            <ul>
+            <li class=dropdown>
+                <a href=javascript:void(0) class=dropbtn>Re-generer resultatliste</a>
+                <div class=dropdown-content>
+                    {% for raceclass in raceclasses %}
+                        <a onclick=generate_resultlist('{{ raceclass.name }}')>{{ raceclass.name }}</a>
+                    {% endfor %}
+                </div>
+            </li>
+            </ul>
+            Brukes når det har vært endringer etter at finaleheat er registrert.
+        </div>
+    </div>
+  </section>
+  <br>
+  <section class="row" aria-label="Event">
+    <div class="col-sm-4">
+        <div class="status-card" role="status" aria-live="polite">
+          <h4>Feilregistreringer</h4>
+            <a class="visible_link" id="myErrReg" href="control?event_id={{ event_id }}&amp;action=control">Feilregistreringer (avansert)</a>
+            <br>
+            <a href="https://youtube.com/clip/UgkxWb6CMvN4Ib-lIGDIO8V8EGFtBrrEBlFj?si=nUyVfV7SZ-asyWgN" target="_blank">
+            <img src="../static/video.png" title="Video - feilregistreringer" width="20" height="20">
+            </a> Manuelt slette registrete passeringer.
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="status-card" role="status" aria-live="polite">
+          <h4>Integrasjoner</h4>
+            <a class="visible_link" id="myConfig" href="config?event_id={{ event_id }}">Innstillinger (avansert)</a>
+            <br>
+            <a href="" target="_blank">
+            <img src="../static/video.png" title="Video - Mangler!" width="20" height="20">
+            </a> Manuelt endre i konfigurasjonen relatert til photo timing.
+        </div>
+    </div>
+  </section>
+  <hr>
+  <section class="row" aria-label="Event">
+    <div class="col-sm-12">
+        <div class="status-card" role="status" aria-live="polite">
+            <h4>Øvrige funksjoner - instruksjonsvideoer</h4>
+            <a href="https://youtube.com/clip/UgkxWb6CMvN4Ib-lIGDIO8V8EGFtBrrEBlFj?si=nUyVfV7SZ-asyWgN" target="_blank"><img src="../static/video.png" title="Video - Feilregistrering" width="20" height="20"> Feilregistreringer</a> - indikeres med rød farge i fremdrifts-oversikten.<br>
+            <a href="https://youtu.be/sixRb7-tF7Q?si=eX0NGsI0O-JoOSx8" target="_blank"><img src="../static/video.png" title="Video - Overvåke fremdrift" width="20" height="20"> Overvåke fremdrift</a> - NB! Filmen bør ses i sin helhet av den som er hovedansvarlig for tidtaking.<br>
+            <a href="https://youtube.com/clip/Ugkxf4OnPAyYJCZcSLaFZ-dKbTiMNyreCFVe?si=R1cUOItLPlsMzdxP" target="_blank"><img src="../static/video.png" title="Video - Publisere resultater" width="20" height="20"> Publisere resultater</a> - Dette skjer normalt automatisk når finalene er ferdige, filmen viser hvordan.<br>
+            <a href="https://youtube.com/clip/UgkxYNIbLZqChaJK11T723CrHvhuWlupL-Bk?si=tMO1Ja39q4eSbxHZ" target="_blank"><img src="../static/video.png" title="Video - Delt plassering" width="20" height="20"> Delt plassering</a> - I finaleheat er det mulig å dømme løpere til lik plassering.<br>
+            <a href="" target="_blank"><img src="../static/video.png" title="Video - Mangler!" width="20" height="20"> Studere målfoto</a> - oversikt over alle målfoto, sortert på heat.<br>
+            <a href="" target="_blank"><img src="../static/video.png" title="Video - Mangler!" width="20" height="20"> Live resultater på egne skjermer</a> - instruksjoner på hvordan optimalisere visning på skjermer.<br>
+          </div>
+        </div>
+    </section>
+<script>
+    // run scripy to pull events from pub_sub
+    pull_events()
+    setInterval(pull_events(), 5000);
+</script>
+{% endblock content %}

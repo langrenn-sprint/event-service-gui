@@ -1,0 +1,51 @@
+{% extends "print_base.html" %}
+{% block titlecontainer %}
+  <div class="w3-10"></div>
+  <div class="w3-80">
+{% endblock %}
+
+{% block titleheader %}
+  Resultater {{ valgt_klasse }}
+{% endblock %}
+
+{% block refresh %}0{% endblock %}
+
+{% block content %}
+  {% for resultlist in resultlists %}
+    {% if not loop.first %}
+      <div id=pagebreak></div>
+    {% endif %}
+    <div id=adminpagetitle>
+        Offisielle resultater <img id=header_icon src="../static/icon_result.png"> {{ resultlist.raceclass }}
+    </div>
+    <div align=right>{{ event.name }}, {{ event.date_of_event }}</div>
+    <div class="w3-container" id=info>{{ informasjon }}</div>
+    <table>
+      <tr id=headerprint>
+        <td width=40>Pl.</td>
+        <td width=40>Nr.</td>
+        <td>Navn</td>
+        <td>Klubb</td>
+        <td>Runde</td>
+        <td>Klasse</td>
+      </tr>
+      {% for loper in resultlist.ranking_sequence %}
+        <tr>
+          <td align=center>{{ loper.rank }}</td>
+          <td align=center>{{ loper.bib }}</td>
+          <td>{% if loper.name %}{{ loper.name[:40] }}{% endif %}</td>
+          <td>
+            {% if loper.club_logo %}<img width=12 src={{ loper.time_event.club_logo }} title="{{ loper.club }}" style="vertical-align: middle;">{% endif %}
+            {% if loper.club %}{{ loper.club[:25] }}{% endif %}
+          </td>
+          <td align=center>{{ loper.round }}</td>
+          <td>{{ loper.ageclass }}</td>
+        </tr>
+      {% endfor %}
+        <tr>
+          <td colspan=3></td>
+          <td colspan=3 align=center>Antall løpere: {{ resultlist.no_of_contestants }}</td>
+        </tr>
+      </table>
+    {% endfor %}
+  {% endblock %}
