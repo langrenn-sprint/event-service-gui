@@ -57,7 +57,7 @@
         document.getElementById("star_" + photo_id).value = action;
       }
       else {
-        document.getElementById('informasjon').innerHTML = this.responseText;
+        document.getElementById('informasjon').textContent = this.responseText;
       }
     }
   }
@@ -162,7 +162,7 @@
             img_{{loop.index}}.onclick = function(){
               modal_{{loop.index}}.style.display = "block";
               modalImg_{{loop.index}}.src = this.src;
-              captionText_{{loop.index}}.innerHTML = this.alt;
+              captionText_{{loop.index}}.textContent = this.alt;
             }
             
             // Get the <span> element that closes the modal

@@ -49,7 +49,7 @@
         try {
             // clean old results
             for (let i = 0; i < 20; i++) {
-              document.getElementById("search_result_" +  i).innerHTML = "";
+              document.getElementById("search_result_" +  i).textContent = "";
             }
             // load new info
             const jsonDoc = JSON.parse(this.response);
@@ -57,7 +57,7 @@
             contestants.forEach(myFunction);
             function myFunction(value, index, array) {
               contestant = value.bib + " - " + value.first_name + " " + value.last_name + ", " + value.club + " - " + value.ageclass;
-              document.getElementById("search_result_" +  index).innerHTML = contestant;
+              document.getElementById("search_result_" +  index).textContent = contestant;
             }
           }
           catch(err) {}
@@ -72,7 +72,7 @@
       xhttp.send("bib=" + bib + "&name=" + name + "&club=" + club + "&event_id={{ event_id }}&race=" + race_name + "&race_id=" + race_id + "&checked=true&action=" + action + "&old_id=" + old_id);
       xhttp.onload = function() {
         if (login_expired(this.status)) { return; }
-        document.getElementById(race_order + "_start_status").innerHTML = this.responseText;
+        document.getElementById(race_order + "_start_status").textContent = this.responseText;
         if (action == "DNS") {
           document.getElementById(race_order + bib).style.backgroundColor = "Red";
         } else {

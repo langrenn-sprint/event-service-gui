@@ -10,9 +10,11 @@
 {% endblock %}
 
 {% block menuitems %}
+  {% if is_admin %}
   <li class=dropdown id=topborder>
     <a href=config?event_id={{ event_id }}&action=edit class=dropbtn>Rediger</a>
   </li>
+  {% endif %}
 {% endblock %}
 
 {% block tips %}
@@ -33,7 +35,7 @@
       <tr>
         <td>&nbsp;{{ oneconfig.key }}&nbsp;</td>
         <td>
-          {% if action == "edit" %}
+          {% if action == "edit" and is_admin %}
             <form action=/config method=post>
               <input type="text" class="form-control" name="value" value="{{ oneconfig.value }}" required>
               </td><td align="center">
@@ -45,6 +47,7 @@
             {{ oneconfig.value }}
             </td><td>
           {% endif %}
+          {% if oneconfig.is_default %}<i title="Ikke lagret for arrangementet">(standard)</i>{% endif %}
         </td>
       </tr>
     {% endfor %}

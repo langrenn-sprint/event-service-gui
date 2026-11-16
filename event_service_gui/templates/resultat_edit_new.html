@@ -71,8 +71,8 @@
     /* this function will send results to backend without reloading the page */
     function update_results_ajax(button) {
       try {
-        var button_text = button.innerHTML;
-        document.getElementById(button.id).innerHTML = " Sender... ";
+        var button_text = button.textContent;
+        document.getElementById(button.id).textContent = " Sender... ";
         document.getElementById(button.id).disabled = true;
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", "/resultat_edit_new", true);
@@ -92,7 +92,7 @@
         xhttp.send(formData);
         xhttp.onload = function() {
           if (login_expired(this.status)) {
-            document.getElementById(button.id).innerHTML = button_text;
+            document.getElementById(button.id).textContent = button_text;
             document.getElementById(button.id).disabled = false;
             return;
           }
@@ -109,9 +109,9 @@
             // refresh result data - first delete
             for (let i = 1; i < 12; i++) {
               try { 
-                document.getElementById(race_order + "_name_" + i).innerHTML = ""
-                document.getElementById("tid_" + i).innerHTML = ""
-                document.getElementById(race_order + "_videre_til_" + i).innerHTML = ""
+                document.getElementById(race_order + "_name_" + i).textContent = ""
+                document.getElementById("tid_" + i).textContent = ""
+                document.getElementById(race_order + "_videre_til_" + i).textContent = ""
                 document.getElementById(race_order + "_form_rank_" + i).value = ""
                 document.getElementById(race_order + "_old_form_rank_" + i).value = ""
                 document.getElementById(race_order + "_time_event_id_" + i).value = ""
@@ -127,21 +127,21 @@
               }
               document.getElementById(race_order + "_form_rank_" + pos).value = race_results[i].bib
               document.getElementById(race_order + "_old_form_rank_" + pos).value = race_results[i].bib
-              document.getElementById(race_order + "_name_" + pos).innerHTML = race_results[i].name
-              document.getElementById("tid_" + pos).innerHTML = race_results[i].registration_time.slice(-8)
+              document.getElementById(race_order + "_name_" + pos).textContent = race_results[i].name
+              document.getElementById("tid_" + pos).textContent = race_results[i].registration_time.slice(-8)
               document.getElementById(race_order + "_time_event_id_" + pos).value = race_results[i].id
               if (race_results[i].next_race != "Ute") {
-                document.getElementById(race_order + "_videre_til_" + pos).innerHTML = race_results[i].next_race + "-" + race_results[i].next_race_position
+                document.getElementById(race_order + "_videre_til_" + pos).textContent = race_results[i].next_race + "-" + race_results[i].next_race_position
               }
             }
-            const info = jsonDoc.informasjon.replace("<br>", ", ");
+            const info = jsonDoc.informasjon.split("<br>").join(", ");
             validation_colors(race_order);
             if (race_results_status == 2) {
-              document.getElementById(race_order + "_status").innerHTML = " - resultat publisert."
+              document.getElementById(race_order + "_status").textContent = " - resultat publisert."
             }
-            document.getElementById(race_order + "_result").innerHTML = info;
-            document.getElementById(race_order + "_result_toggle").innerHTML = "(Skjul) ";
-            document.getElementById(button.id).innerHTML = button_text;
+            document.getElementById(race_order + "_result").textContent = info;
+            document.getElementById(race_order + "_result_toggle").textContent = "(Skjul) ";
+            document.getElementById(button.id).textContent = button_text;
             document.getElementById(button.id).disabled = false;
           }
           catch(err) {
@@ -149,10 +149,10 @@
               alert("Error 401 - Logg inn på nytt.");
             }
             else {
-              document.getElementById(race_order + "_result").innerHTML = err;
+              document.getElementById(race_order + "_result").textContent = err;
               alert(err);
             }
-            document.getElementById(button.id).innerHTML = button_text;
+            document.getElementById(button.id).textContent = button_text;
             document.getElementById(button.id).disabled = false;
           }
         }
@@ -184,7 +184,7 @@
             dns_list[0].forEach(myFunction);
             function myFunction(value, index, array) {
               var myId = race_order.toString() + value + "_start_status"
-              document.getElementById(myId).innerHTML = "DNS"
+              document.getElementById(myId).textContent = "DNS"
             }
           }
           catch(err) {}
@@ -287,13 +287,13 @@
       let old_pos_field_name = field_name.replace("_delt_", "_old_pos_");
       if (field.checked) {
         field.value = "true"
-        document.getElementById(place_field_name).innerHTML = document.getElementById(delt_with_field).innerHTML;
+        document.getElementById(place_field_name).textContent = document.getElementById(delt_with_field).textContent;
         document.getElementById(old_pos_field_name).value = document.getElementById(pos_field_name).value
-        document.getElementById(pos_field_name).value = document.getElementById(delt_with_field).innerHTML;
+        document.getElementById(pos_field_name).value = document.getElementById(delt_with_field).textContent;
       }
       else {
         field.value = "false"
-        document.getElementById(place_field_name).innerHTML = pos;
+        document.getElementById(place_field_name).textContent = pos;
         document.getElementById(old_pos_field_name).value = document.getElementById(pos_field_name).value
         document.getElementById(pos_field_name).value = pos;
       }
@@ -310,7 +310,7 @@
         // load new info
         const jsonDoc = JSON.parse(this.response);
 
-        document.getElementById(race_order + "_result").innerHTML = jsonDoc.informasjon;
+        document.getElementById(race_order + "_result").textContent = jsonDoc.informasjon;
         if (checked) {
           document.getElementById(race_order + bib).style.backgroundColor = "Grey";
         }
@@ -528,7 +528,7 @@
                         }
                         slides[slideIndex-1].style.display = "block";
                         dots[slideIndex-1].className += " active";
-                        captionText.innerHTML = dots[slideIndex-1].alt;
+                        captionText.textContent = dots[slideIndex-1].alt;
                       }
                     </script>
                     {% endif %}

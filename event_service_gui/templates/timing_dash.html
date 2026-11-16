@@ -25,7 +25,7 @@
       // get current time, hours, minutes
       var d = new Date();
       var current_time = d.toLocaleTimeString();
-      document.getElementById("pull_result").innerHTML = "Foto import: Sjekker..." ;
+      document.getElementById("pull_result").textContent = "Foto import: Sjekker...";
 
       var xhttp = new XMLHttpRequest();
       xhttp.open("POST", "/video_events", true);
@@ -43,30 +43,31 @@
           const photo_queue_latest = jsonDoc.photo_queue_latest;
           document.getElementById("photo_queue_latest").src = photo_queue_latest;
           const info = jsonDoc.informasjon;
+          // HTML from video_events, with the data escaped on the server:
           document.getElementById("pull_result").innerHTML = info;
           const integration_service_available = jsonDoc.integration_service_available;
           const integration_service_running = jsonDoc.integration_service_running;
           if (integration_service_running == "True") {
-              document.getElementById("integration_service_status").innerHTML = "Kjører";
+              document.getElementById("integration_service_status").textContent = "Kjører";
               document.getElementById("integration_service_status").className = "label label-success";
-              document.getElementById("integration_command").innerHTML = "Stopp";
+              document.getElementById("integration_command").textContent = "Stopp";
               
           } else if (integration_service_available == "True") {
-              document.getElementById("integration_service_status").innerHTML = "Pauset";
+              document.getElementById("integration_service_status").textContent = "Pauset";
               document.getElementById("integration_service_status").className = "label label-warning";
-              document.getElementById("integration_command").innerHTML = "Start";
+              document.getElementById("integration_command").textContent = "Start";
           } else {
-              document.getElementById("integration_service_status").innerHTML = "Ikke tilgjengelig";
+              document.getElementById("integration_service_status").textContent = "Ikke tilgjengelig";
               document.getElementById("integration_service_status").className = "label label-danger";
-              document.getElementById("integration_command").innerHTML = "-";
+              document.getElementById("integration_command").textContent = "-";
           }
         }
         catch(err) {
           if (err.message.indexOf("401") > 0) {
-            document.getElementById("pull_result").innerHTML = "Error 401 (integration) - Logg inn på nytt.";
+            document.getElementById("pull_result").textContent = "Error 401 (integration) - Logg inn på nytt.";
           }
           else {
-            document.getElementById("pull_result").innerHTML = err;
+            document.getElementById("pull_result").textContent = err;
           }
         }
       }
@@ -101,14 +102,15 @@
             const photo_queue_latest = jsonDoc.photo_queue_latest;
             document.getElementById("photo_queue_latest").src = photo_queue_latest;
             const info = jsonDoc.informasjon;
+            // HTML from video_events, with the data escaped on the server:
             document.getElementById("pull_result").innerHTML = info;
           }
           catch(err) {
             if (err.message.indexOf("401") > 0) {
-              document.getElementById("pull_result").innerHTML = "Error 401 (integration) - Logg inn på nytt.";
+              document.getElementById("pull_result").textContent = "Error 401 (integration) - Logg inn på nytt.";
             }
             else {
-              document.getElementById("pull_result").innerHTML = err;
+              document.getElementById("pull_result").textContent = err;
             }
           }
         }
@@ -128,7 +130,7 @@
         <div class="status-card" role="status" aria-live="polite">
           <h4>Automatisk deteksjon av målpassering</h4>
           <span id="integration_service_status" class="label label-danger">-</span>&nbsp;&nbsp;
-          <input type="checkbox" id="integration_automatic" onchange="handleCheckboxChange()" {% if service_status.integration_start %}checked{% endif %}>
+          <input type="checkbox" id="integration_automatic" onchange="handleCheckboxChange()" {% if service_status.integration_start %}checked{% endif %}{% if not is_admin %} disabled title="Krever rollen admin"{% endif %}>
           <span id="integration_command">-</span>
         </div>
         <!-- preview inside the card -->

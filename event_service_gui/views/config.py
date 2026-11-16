@@ -4,8 +4,15 @@ import aiohttp_jinja2
 from aiohttp import web
 
 from event_service_gui.adapters import ConfigAdapter
+from event_service_gui.adapters.config_adapter import NO_ACCESS_CONFIG, with_defaults
 
-from .utils import check_login, error_message, get_event, raise_error
+from .utils import (
+    ADMIN_ROLE,
+    check_login,
+    error_message,
+    get_event,
+    raise_error,
+)
 
 
 class Config(web.View):
@@ -34,6 +41,10 @@ class Config(web.View):
                 event_config = await ConfigAdapter().get_all_configs(
                     user["token"], event_id
                 )
+                # Show all settings, also those not saved for the event yet,
+                # so admin can change them:
+                if event_id:
+                    event_config = with_defaults(event_config)
             except Exception as e:
                 event_config = []
                 informasjon += f" {error_message(self, e)}"
@@ -60,11 +71,16 @@ class Config(web.View):
         event_id = str(form["event_id"])
         try:
             if "update_one" in form:
-                key = str(form["key"])
-                await ConfigAdapter().update_config(
-                    user["token"], event_id, key, str(form["value"])
-                )
-                informasjon = "Suksess. Informasjon er oppdatert."
+                if user["role"] != ADMIN_ROLE:
+                    informasjon = NO_ACCESS_CONFIG
+                else:
+                    key = str(form["key"])
+                    await ConfigAdapter().update_config(
+                        user["token"], event_id, key, str(form["value"])
+                    )
+                    informasjon = "Suksess. Informasjon er oppdatert."
+        except web.HTTPForbidden as e:
+            informasjon = str(e.reason)
         except Exception as e:
             informasjon = error_message(self, e)
         raise web.HTTPSeeOther(
