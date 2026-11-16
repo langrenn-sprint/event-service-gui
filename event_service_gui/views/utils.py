@@ -6,7 +6,7 @@ import logging
 from typing import NoReturn
 from urllib.parse import urlencode, urlsplit
 
-from aiohttp import web
+from aiohttp import hdrs, web
 from aiohttp_session import get_session
 
 from event_service_gui.adapters import (
@@ -49,6 +49,24 @@ def safe_next_path(value: str | None) -> str | None:
     if parts.path.rstrip("/") in _NO_NEXT_PATHS:
         return None
     return value
+
+
+def return_path(request: web.Request) -> str:
+    """Return the page to come back to after login.
+
+    For a page (GET), the page itself. A form post (e.g. Flytt on
+    /start_edit) has its context in the form, not in the URL, so the path
+    alone would come back to a page without event or class. Then the page the
+    form was on is used, from the Referer header, if it is on this site.
+    """
+    if request.method in ("GET", "HEAD"):
+        return request.path_qs
+    referer = urlsplit(request.headers.get(hdrs.REFERER, ""))
+    if referer.netloc == request.host:
+        page = f"{referer.path}?{referer.query}" if referer.query else referer.path
+        if safe_next_path(page):
+            return page
+    return request.path_qs
 
 
 def login_location(informasjon: str, next_path: str | None = None) -> str:
@@ -98,7 +116,7 @@ def raise_error(view: web.View, e: Exception, location: str = "/") -> NoReturn:
     logging.error("Error in %s %s", request.method, request.path_qs, exc_info=e)
     if is_login_error(e):
         raise web.HTTPSeeOther(
-            location=login_location(login_message(e), request.path_qs)
+            location=login_location(login_message(e), return_path(request))
         ) from e
     query = urlencode({"informasjon": error_text(e)})
     raise web.HTTPSeeOther(location=f"{location}?{query}") from e
@@ -117,7 +135,7 @@ def error_message(view: web.View, e: Exception) -> str:
     logging.error("Error in %s %s", request.method, request.path_qs, exc_info=e)
     if is_login_error(e):
         raise web.HTTPSeeOther(
-            location=login_location(login_message(e), request.path_qs)
+            location=login_location(login_message(e), return_path(request))
         ) from e
     return error_text(e)
 
@@ -133,7 +151,7 @@ async def check_login(self) -> dict:
     if not loggedin:
         informasjon = "Logg inn for å se denne siden"
         raise web.HTTPSeeOther(
-            location=login_location(informasjon, self.request.path_qs)
+            location=login_location(informasjon, return_path(self.request))
         )
 
     return {
@@ -155,7 +173,7 @@ async def check_admin(
     user = await check_login(self)
     if user["role"] != ADMIN_ROLE:
         raise web.HTTPSeeOther(
-            location=login_location(informasjon, self.request.path_qs)
+            location=login_location(informasjon, return_path(self.request))
         )
     return user
 

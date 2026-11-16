@@ -9,7 +9,7 @@ from aiohttp_session import get_session
 
 from .adapters import UserAdapter
 from .adapters.user_adapter import store_token, token_needs_renewal
-from .views.utils import LOGIN_AGAIN, login_location, raise_login_expired
+from .views.utils import LOGIN_AGAIN, login_location, raise_login_expired, return_path
 
 # Requests that never renew the token.
 SKIP_PATHS = ("/ping", "/ready", "/login", "/logout")
@@ -61,7 +61,9 @@ async def token_renewal_middleware(
         session.invalidate()
         if not is_page_request(request):
             raise_login_expired()
-        raise web.HTTPSeeOther(location=login_location(LOGIN_AGAIN, request.path_qs))
+        raise web.HTTPSeeOther(
+            location=login_location(LOGIN_AGAIN, return_path(request))
+        )
     else:
         logging.warning(f"Token renewal failed with status {status}, keeping token")
     return await handler(request)

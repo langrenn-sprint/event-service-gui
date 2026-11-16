@@ -291,6 +291,8 @@ def test_error_message() -> None:
     class Request:
         method = "POST"
         path_qs = "/photos_edit?event_id=e1"
+        host = "localhost"
+        headers: dict = {}  # noqa: RUF012
 
     class View:
         request = Request()

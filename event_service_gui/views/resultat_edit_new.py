@@ -37,6 +37,7 @@ from .utils import (
     login_location,
     raise_error,
     raise_login_expired,
+    return_path,
 )
 
 
@@ -245,7 +246,7 @@ class ResultatEditNew(web.View):
             # Only a missing or expired login goes to the login page:
             if is_login_error(e):
                 raise web.HTTPSeeOther(
-                    location=login_location(LOGIN_AGAIN, self.request.path_qs)
+                    location=login_location(LOGIN_AGAIN, return_path(self.request))
                 ) from e
             event_id = str(form.get("event_id", ""))
         info = f"{informasjon}&klasse={valgt_runde.klasse}&runde={valgt_runde.runde}"

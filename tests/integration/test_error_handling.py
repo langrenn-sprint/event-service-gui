@@ -229,6 +229,8 @@ def test_error_message() -> None:
     class Request:
         method = "POST"
         path_qs = "/events"
+        host = "localhost"
+        headers: dict = {}  # noqa: RUF012
 
     class View:
         request = Request()
