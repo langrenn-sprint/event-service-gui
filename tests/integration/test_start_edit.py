@@ -39,6 +39,7 @@ class FakeRaceService:
     def __init__(self) -> None:
         self.races: dict[str, dict] = {}
         self.fail_create_in: str = ""  # race where creating a start fails
+        self.create_error: Exception | None = None  # every create fails with it
         self.next_id = 0
 
     def add_race(self, race_id: str, round_: str, bibs: list[int], max_: int = 10):
@@ -116,6 +117,8 @@ def race_service(monkeypatch: pytest.MonkeyPatch, fakes) -> FakeRaceService:
     async def create_start_entry(self, token, new_start: dict) -> str:
         race_id = new_start["race_id"]
         race = service.races[race_id]
+        if service.create_error:
+            raise service.create_error
         if race_id == service.fail_create_in:
             service.fail_create_in = ""  # only the first time
             raise web.HTTPBadRequest(reason="create_start_entry failed")
@@ -227,6 +230,57 @@ async def test_failed_move_puts_the_start_back(
     assert message == "Det har oppstått en feil: create_start_entry failed"
     assert race_service.bibs("qa1") == {1: 1, 3: 3, 2: 2}
     assert race_service.bibs("qa2") == {4: 1, 5: 2}
+
+
+@pytest.mark.integration
+async def test_failed_move_and_put_back_says_where_to_add_again(
+    client: _TestClient, race_service: FakeRaceService
+) -> None:
+    race_service.create_error = web.HTTPBadRequest(reason="create_start_entry failed")
+    message = await move(client, race_service, 2, "qa1", "qa2")
+    assert message == (
+        "Det har oppstått en feil: Flyttingen feilet, og nr 2 kunne ikke legges "
+        "tilbake i heatet som starter 09:00:00, posisjon 2. Legg til nr 2 på nytt."
+    )
+    assert race_service.bibs("qa1") == {1: 1, 3: 3}
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "error",
+    [
+        web.HTTPBadRequest(reason="Error - 401: Unauthorized."),
+        Exception("401 Unathorized - create_start_entry"),
+    ],
+)
+async def test_expired_login_during_move_goes_to_login_with_what_to_do(
+    client: _TestClient, race_service: FakeRaceService, error: Exception
+) -> None:
+    """The start is out of both heats: the login page says how to fix it."""
+    await login(client, "result-admin")
+    race_service.create_error = error
+    form = {
+        "event_id": EVENT_ID,
+        "klasse": "G16",
+        "runde": "Q",
+        "race_id": "qa1",
+        "start_id": race_service.start_id("qa1", 2),
+        "bib": "2",
+        "new_heat": "qa2",
+        "move_start": " Flytt ",
+    }
+    resp = await client.post("/start_edit", data=form, allow_redirects=False)
+
+    assert resp.status == HTTPStatus.SEE_OTHER
+    url = URL(resp.headers["Location"])
+    assert url.path == "/login"
+    assert url.query["informasjon"] == (
+        "Innloggingen er utløpt under flyttingen. Nr 2 ble tatt ut av heatet som "
+        "starter 09:00:00, posisjon 2, men ikke lagt inn igjen. Logg inn, og legg "
+        "til nr 2 på nytt."
+    )
+    assert url.query["next"] == "/start_edit"
+    assert race_service.bibs("qa1") == {1: 1, 3: 3}
 
 
 # --- Legg til --------------------------------------------------------------------------

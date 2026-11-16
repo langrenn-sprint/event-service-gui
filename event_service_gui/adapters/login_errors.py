@@ -11,6 +11,14 @@ from aiohttp import web
 _LOGIN_ERROR_STATUS = re.compile(r"^(?:401\b|Error - 401:|\S+ failed - 401\b)")
 
 
+class LoginExpiredError(Exception):
+    """The login expired, and the user must know more than "log in again".
+
+    The message is shown on the login page, e.g. what to do after logging in
+    when only part of an operation was done.
+    """
+
+
 def is_login_error(e: Exception) -> bool:
     """Return True if the error is a missing or expired login (401).
 
@@ -19,5 +27,7 @@ def is_login_error(e: Exception) -> bool:
     Services that turn errors into messages for the user must let these
     through, so the views can send the user to the login page.
     """
+    if isinstance(e, LoginExpiredError):
+        return True
     text = str(e.reason) if isinstance(e, web.HTTPException) else str(e)
     return bool(_LOGIN_ERROR_STATUS.match(text)) or "Login expired" in text

@@ -19,7 +19,7 @@ from event_service_gui.adapters import (
     TimeEventsAdapter,
     UserAdapter,
 )
-from event_service_gui.adapters.login_errors import is_login_error
+from event_service_gui.adapters.login_errors import LoginExpiredError, is_login_error
 from event_service_gui.services import (
     RaceclassResultsService,
 )
@@ -64,6 +64,11 @@ UNEXPECTED_ERROR = "Det har oppstått en uventet feil. Feilen er logget."
 LOGIN_AGAIN = "Innloggingen er utløpt. Logg inn på nytt."
 
 
+def login_message(e: Exception) -> str:
+    """Return the message for the login page after a login error."""
+    return str(e) if isinstance(e, LoginExpiredError) else LOGIN_AGAIN
+
+
 def error_text(e: Exception) -> str:
     """Return a message for the user about an error.
 
@@ -93,7 +98,7 @@ def raise_error(view: web.View, e: Exception, location: str = "/") -> NoReturn:
     logging.error("Error in %s %s", request.method, request.path_qs, exc_info=e)
     if is_login_error(e):
         raise web.HTTPSeeOther(
-            location=login_location(LOGIN_AGAIN, request.path_qs)
+            location=login_location(login_message(e), request.path_qs)
         ) from e
     query = urlencode({"informasjon": error_text(e)})
     raise web.HTTPSeeOther(location=f"{location}?{query}") from e
@@ -112,7 +117,7 @@ def error_message(view: web.View, e: Exception) -> str:
     logging.error("Error in %s %s", request.method, request.path_qs, exc_info=e)
     if is_login_error(e):
         raise web.HTTPSeeOther(
-            location=login_location(LOGIN_AGAIN, request.path_qs)
+            location=login_location(login_message(e), request.path_qs)
         ) from e
     return error_text(e)
 
@@ -647,16 +652,34 @@ async def move_start(user: dict, form: dict) -> str:
 
 
 async def put_back_start(token: str, old_start: dict, error: Exception) -> None:
-    """Put a start back in its race after a failed move."""
+    """Put a start back in its race after a failed move.
+
+    If that fails too, the start is missing from both races: the message
+    says which heat and position to add it to again. If the login expired
+    (and then putting back fails too, with the same token), the user is
+    sent to the login page with that message.
+    """
     try:
         await StartAdapter().create_start_entry(
             token, {key: old_start[key] for key in START_ENTRY_FIELDS}
         )
     except Exception as e:
         logging.exception("Could not put back start after failed move")
+        bib = old_start["bib"]
+        heat = (
+            f"heatet som starter {str(old_start['scheduled_start_time'])[-8:]}, "
+            f"posisjon {old_start['starting_position']}"
+        )
+        if is_login_error(error) or is_login_error(e):
+            err_msg = (
+                f"Innloggingen er utløpt under flyttingen. Nr {bib} ble tatt ut "
+                f"av {heat}, men ikke lagt inn igjen. Logg inn, og legg til "
+                f"nr {bib} på nytt."
+            )
+            raise LoginExpiredError(err_msg) from e
         err_msg = (
-            f"Flyttingen feilet, og nr {old_start['bib']} kunne ikke legges "
-            "tilbake i heatet. Legg til nr på nytt."
+            f"Flyttingen feilet, og nr {bib} kunne ikke legges tilbake i {heat}. "
+            f"Legg til nr {bib} på nytt."
         )
         raise Exception(err_msg) from e
     logging.warning(f"Move failed, start put back: {error}")
