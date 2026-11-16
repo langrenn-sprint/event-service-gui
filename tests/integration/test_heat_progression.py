@@ -405,3 +405,23 @@ async def test_expired_login_when_deleting_result_is_raised(
     monkeypatch.setattr(backend, method, fail)
     with pytest.raises(Exception, match="401"):
         await TimeEventsService().update_finish_time_events(USER, [first["id"]], [])
+
+
+@pytest.mark.integration
+async def test_duplicate_message_is_plain_text(
+    quarter_final_1: FakeRaceBackend,
+) -> None:
+    """The pages escape it; escaped here too, it showed "&#x27;" for "'"."""
+    backend = quarter_final_1
+    backend.add_contestant(50)
+    await TimeEventsService().update_finish_time_events(
+        USER, [], [finish("QA1", 50, 1)]
+    )
+    [blocking] = [t for t in backend.time_events if t["bib"] == 50]
+    blocking["changelog"] = [{"comment": "Bib 50 er ikke i 'startlisten' & <A>."}]
+
+    informasjon = await TimeEventsService().update_finish_time_events(
+        USER, [], [finish("QA1", 50, 1)]
+    )
+
+    assert "Årsak: Bib 50 er ikke i 'startlisten' & <A>." in informasjon

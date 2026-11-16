@@ -1,6 +1,5 @@
 """Module for time event service."""
 
-import html
 import logging
 
 from aiohttp import web
@@ -543,16 +542,9 @@ async def get_duplicate_time_event_info(
     in the start list) is hidden in the result view, but still blocks a new
     registration for the same bib until it is deleted in Kontroll.
 
-    The message contains stored and submitted values and is shown as HTML,
-    so it is escaped.
+    The message is plain text: the pages show it as text (textContent, and
+    Jinja escapes it), so escaping it here would show "&#x27;" for "'".
     """
-    return html.escape(await _build_duplicate_time_event_info(token, time_event, error))
-
-
-async def _build_duplicate_time_event_info(
-    token: str, time_event: dict, error: Exception
-) -> str:
-    """Build plain-text message for get_duplicate_time_event_info."""
     bib = time_event["bib"]
     try:
         existing = await TimeEventsAdapter().get_time_events_by_race_id(
