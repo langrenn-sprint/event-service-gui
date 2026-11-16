@@ -13,6 +13,7 @@ from http import HTTPStatus
 from pathlib import Path
 
 import pytest
+from aiohttp import web
 from aiohttp.test_utils import TestClient as _TestClient
 
 from event_service_gui.views.utils import LOGIN_AGAIN
@@ -21,7 +22,13 @@ from .test_config_access import EVENT_ID, fakes, login, photo_service
 
 __all__ = ["fakes", "photo_service"]  # fixtures used by the tests below
 
-BACKEND_401 = Exception("401 Unathorized - get_event")
+# The ways the adapters report 401 from a backend service.
+BACKEND_401 = [
+    Exception("401 Unathorized - get_event"),
+    Exception("Login expired: <ClientResponse 401>"),
+    web.HTTPBadRequest(reason="Error - 401: Unauthorized."),
+    web.HTTPBadRequest(reason="get_contestant_by_bib failed - 401 - Unauthorized"),
+]
 
 # The requests the pages make, as (method, path, form).
 REQUESTS = {
@@ -73,12 +80,14 @@ async def test_not_logged_in_gives_401(client: _TestClient, name: str) -> None:
     await assert_login_expired(await send(client, name))
 
 
-@pytest.fixture
-def backend_401(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.fixture(params=BACKEND_401, ids=lambda e: str(e).split(" ")[0])
+def backend_401(
+    monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
     """Let the backend services answer 401 in each of the endpoints."""
 
     async def fail(*_: object, **__: object) -> dict:
-        raise BACKEND_401
+        raise request.param
 
     views = "event_service_gui.views"
     for target in [

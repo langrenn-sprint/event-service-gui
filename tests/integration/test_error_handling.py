@@ -109,6 +109,18 @@ def test_is_login_error() -> None:
     assert is_login_error(Exception("Login expired: <ClientResponse 401>"))
     assert not is_login_error(Exception("Klassen mangler"))
     assert not is_login_error(web.HTTPBadRequest(reason="Error - 404: race 401"))
+    # the other formats the adapters use for 401
+    assert is_login_error(web.HTTPBadRequest(reason="Error - 401: Unauthorized."))
+    assert is_login_error(
+        web.HTTPBadRequest(reason="get_contestant_by_bib failed - 401 - Unauthorized")
+    )
+    assert is_login_error(Exception("create_time_event failed - 401-Unauthorized"))
+    # 401 in the details of another error is not a login error
+    assert not is_login_error(
+        web.HTTPBadRequest(reason="get_contestant_by_bib failed - 404 - bib 401")
+    )
+    assert not is_login_error(Exception("Error - 400: Startnummer 401 finnes ikke."))
+    assert not is_login_error(Exception("create_time_event failed - 4010-x"))
 
 
 @pytest.mark.integration
