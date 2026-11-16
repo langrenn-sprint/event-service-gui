@@ -1,6 +1,7 @@
 """Module for config adapter."""
 
 import copy
+import functools
 import json
 import logging
 import os
@@ -19,11 +20,24 @@ PROJECT_ROOT = f"{Path.cwd()}/event_service_gui"
 NO_ACCESS_CONFIG = "Du har ikke tilgang til å endre innstillinger. Krever rollen admin."
 
 
-def default_settings() -> dict:
-    """Return the default settings, from global_settings.json."""
+@functools.cache
+def _read_default_settings() -> dict:
+    """Read global_settings.json, once: it is part of the image.
+
+    The settings are read often, e.g. on each update of the timing
+    dashboard, and reading the file blocks the event loop.
+    """
     config_file = Path(f"{PROJECT_ROOT}/config/global_settings.json")
     with config_file.open() as json_file:
         return json.load(json_file)
+
+
+def default_settings() -> dict:
+    """Return the default settings, from global_settings.json.
+
+    A copy, so a caller that changes it does not change the defaults.
+    """
+    return dict(_read_default_settings())
 
 
 def default_value(key: str) -> str:
@@ -49,18 +63,19 @@ def with_defaults(saved: list) -> list:
     are not in the file.
     """
     saved_values = {setting["key"]: setting["value"] for setting in saved}
+    defaults = default_settings()
     settings = [
         {
             "key": key,
             "value": saved_values.get(key, default),
             "is_default": key not in saved_values,
         }
-        for key, default in default_settings().items()
+        for key, default in defaults.items()
     ]
     settings += [
         {"key": key, "value": value, "is_default": False}
         for key, value in saved_values.items()
-        if key not in default_settings()
+        if key not in defaults
     ]
     return settings
 

@@ -16,7 +16,12 @@ import pytest
 from aiohttp import web
 
 from event_service_gui.adapters import ConfigAdapter
-from event_service_gui.adapters.config_adapter import with_defaults
+from event_service_gui.adapters import config_adapter
+from event_service_gui.adapters.config_adapter import (
+    default_settings,
+    default_value,
+    with_defaults,
+)
 
 EVENT_ID = "e1"
 DEFAULTS = json.loads(Path("event_service_gui/config/global_settings.json").read_text())
@@ -194,3 +199,35 @@ def test_with_defaults() -> None:
         {"key": key, "value": value, "is_default": True}
         for key, value in DEFAULTS.items()
     ]
+
+
+@pytest.mark.integration
+def test_defaults_are_read_from_file_once(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Reading the file blocks the event loop, and the settings are read often."""
+    reads = []
+    real_open = Path.open
+
+    def counting_open(self: Path, *args, **kwargs):  # noqa: ANN002, ANN003, ANN202
+        if self.name == "global_settings.json":
+            reads.append(self)
+        return real_open(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", counting_open)
+    config_adapter._read_default_settings.cache_clear()  # noqa: SLF001
+    saved = [{"key": f"SAVED_{i}", "value": "x"} for i in range(10)]
+
+    with_defaults(saved)
+    default_value("RACE_DURATION_ESTIMATE")
+    default_settings()
+
+    assert len(reads) == 1
+
+
+@pytest.mark.integration
+def test_default_settings_is_a_copy() -> None:
+    settings = default_settings()
+    settings["RACE_DURATION_ESTIMATE"] = "changed"
+    assert (
+        default_settings()["RACE_DURATION_ESTIMATE"]
+        == DEFAULTS["RACE_DURATION_ESTIMATE"]
+    )
