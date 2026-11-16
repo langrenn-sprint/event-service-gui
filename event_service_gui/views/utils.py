@@ -601,101 +601,184 @@ async def get_races_for_round_result(
     return races
 
 
+class InvalidStartError(Exception):
+    """The start can not be added; the message tells the user why."""
+
+
+START_ENTRY_FIELDS = (
+    "startlist_id",
+    "race_id",
+    "bib",
+    "starting_position",
+    "scheduled_start_time",
+    "name",
+    "club",
+)
+
+
 async def create_start(user: dict, form: dict) -> str:
-    """Extract form data and create one start."""
-    bib = int(form["bib"])
-    contestant = await ContestantsAdapter().get_contestant_by_bib(
-        user["token"], form["event_id"], bib
-    )
-    if contestant:
-        new_race_info = await get_new_race_info(user, form)
-        new_start = {
-            "startlist_id": new_race_info["startlist_id"],
-            "race_id": new_race_info["race_id"],
-            "bib": bib,
-            "starting_position": new_race_info["starting_position"],
-            "scheduled_start_time": new_race_info["start_time"],
-            "name": f"{contestant['first_name']} {contestant['last_name']}",
-            "club": contestant["club"],
-        }
-        # validation - check that bib not already is in start entry for round
-        new_race = await RaceplansAdapter().get_race_by_id(
-            user["token"], new_start["race_id"]
-        )
-        start_entries = await StartAdapter().get_start_entries_by_bib(
-            user["token"], form["event_id"], bib
-        )
-        for start_entry in start_entries:
-            race = await RaceplansAdapter().get_race_by_id(
-                user["token"], start_entry["race_id"]
-            )
-            if new_race["round"] == race["round"]:
-                raise web.HTTPBadRequest(
-                    reason=f"405 Bib already exists in round - {race['round']}"
-                )
-
-        await StartAdapter().create_start_entry(user["token"], new_start)
-        informasjon = f"Lagt til nr {bib}"
-
-        # update previous result with correct "videre til"
-        time_events = await TimeEventsAdapter().get_time_events_by_event_id_and_bib(
-            user["token"], form["event_id"], bib
-        )
-        latest_result: dict = {}
-        for time_event in time_events:
-            if (time_event["timing_point"] == "Finish") and (time_event["bib"] == bib):
-                if (not latest_result) or (
-                    time_event["registration_time"] > latest_result["registration_time"]
-                ):
-                    latest_result = time_event
-        if latest_result:
-            latest_result["next_race_id"] = new_race["id"]
-            if new_race["round"] == "F":
-                latest_result["next_race"] = f"{new_race['round']}{new_race['index']}"
-            else:
-                latest_result["next_race"] = (
-                    f"{new_race['round']}{new_race['index']}{new_race['heat']}"
-                )
-            latest_result["next_race_position"] = new_start["starting_position"]
-            await TimeEventsAdapter().update_time_event(
-                user["token"], latest_result["id"], latest_result
-            )
-            informasjon += " Oppdatert videre til fra forrige runde."
-    else:
-        informasjon = f"Error. Fant ikke deltaker med startnr {form['bib']}."
+    """Add one start to the race in the form (Legg til)."""
+    try:
+        new_start, new_race = await prepare_start(user, form, form["race_id"])
+    except InvalidStartError as e:
+        return str(e)
+    await StartAdapter().create_start_entry(user["token"], new_start)
+    informasjon = f"Lagt til nr {new_start['bib']}."
+    informasjon += await update_previous_result(user, form, new_start, new_race)
     return informasjon
 
 
-async def get_new_race_info(user: dict, form: dict) -> dict:
-    """Extract start pos from form or get best available."""
-    startlist_id = ""
+async def move_start(user: dict, form: dict) -> str:
+    """Move one start to the race chosen in the form (Flytt).
+
+    Everything is checked before the start is deleted from its race. If adding
+    it to the new race still fails, the start is put back where it was.
+    """
+    if not form.get("new_heat"):
+        return "Velg nytt heat før du trykker Flytt."
+    token = user["token"]
+    old_start = await StartAdapter().get_start_entry_by_id(
+        token, form["race_id"], form["start_id"]
+    )
     try:
-        starting_position = int(form["starting_position"])
-        startlist_id = form["startlist_id"]
-        start_time = form["start_time"]
-        race_id = form["race_id"]
-    except Exception:
-        starting_position = 1
-        race_id = form["new_heat"]
-        new_race = await RaceplansAdapter().get_race_by_id(user["token"], race_id)
-        start_entries = new_race["start_entries"]
-        start_time = new_race["start_time"]
-        if len(start_entries) > 0:
-            startlist_id = start_entries[0]["startlist_id"]
-            start_positions_taken = [
-                start_entry["starting_position"] for start_entry in start_entries
-            ]
-            starting_position = max(start_positions_taken) + 1
-            for i in range(1, len(start_entries) + 1):
-                if i not in start_positions_taken:
-                    starting_position = i
-                    break
+        new_start, new_race = await prepare_start(
+            user, form, form["new_heat"], old_start
+        )
+    except InvalidStartError as e:
+        return f"Ikke flyttet: {e}"
+    await StartAdapter().delete_start_entry(token, form["race_id"], form["start_id"])
+    try:
+        await StartAdapter().create_start_entry(token, new_start)
+    except Exception as e:
+        await put_back_start(token, old_start, e)
+        raise
+    informasjon = f"Flyttet nr {new_start['bib']}."
+    informasjon += await update_previous_result(user, form, new_start, new_race)
+    return informasjon
+
+
+async def put_back_start(token: str, old_start: dict, error: Exception) -> None:
+    """Put a start back in its race after a failed move."""
+    try:
+        await StartAdapter().create_start_entry(
+            token, {key: old_start[key] for key in START_ENTRY_FIELDS}
+        )
+    except Exception as e:
+        logging.exception("Could not put back start after failed move")
+        err_msg = (
+            f"Flyttingen feilet, og nr {old_start['bib']} kunne ikke legges "
+            "tilbake i heatet. Legg til nr på nytt."
+        )
+        raise Exception(err_msg) from e
+    logging.warning(f"Move failed, start put back: {error}")
+
+
+async def prepare_start(
+    user: dict, form: dict, race_id: str, moving_start: dict | None = None
+) -> tuple[dict, dict]:
+    """Check the form and return the new start and the race it goes to.
+
+    moving_start is the start being moved, if any: it is not counted when
+    checking whether the bib is already in the round.
+    Raises InvalidStartError if the start can not be added.
+    """
+    token = user["token"]
+    event_id = form["event_id"]
+    bib_text = str(form.get("bib", "")).strip()
+    if not bib_text.isdigit():
+        msg = "Fyll inn startnummer."
+        raise InvalidStartError(msg)
+    bib = int(bib_text)
+    contestant = await ContestantsAdapter().get_contestant_by_bib(token, event_id, bib)
+    if not contestant:
+        msg = f"Fant ikke deltaker med startnr {bib}."
+        raise InvalidStartError(msg)
+
+    new_race = await RaceplansAdapter().get_race_by_id(token, race_id)
+    start_entries = new_race.get("start_entries", [])
+    max_contestants = new_race.get("max_no_of_contestants")
+    if max_contestants is not None and len(start_entries) >= max_contestants:
+        msg = "Heatet er fullt."
+        raise InvalidStartError(msg)
+
+    # the bib can only be in one race per round
+    for start_entry in await StartAdapter().get_start_entries_by_bib(
+        token, event_id, bib
+    ):
+        if moving_start and start_entry["id"] == moving_start["id"]:
+            continue
+        race = await RaceplansAdapter().get_race_by_id(token, start_entry["race_id"])
+        if race["round"] == new_race["round"]:
+            msg = f"Nr {bib} er allerede med i runde {race['round']}."
+            raise InvalidStartError(msg)
+
     return {
-        "race_id": race_id,
-        "starting_position": starting_position,
-        "startlist_id": startlist_id,
-        "start_time": start_time,
-    }
+        "startlist_id": await get_startlist_id(token, event_id, start_entries),
+        "race_id": new_race["id"],
+        "bib": bib,
+        "starting_position": get_starting_position(form, start_entries),
+        "scheduled_start_time": new_race["start_time"],
+        "name": f"{contestant['first_name']} {contestant['last_name']}",
+        "club": contestant["club"],
+    }, new_race
+
+
+def get_starting_position(form: dict, start_entries: list) -> int:
+    """Return the position from the form, or the first free one in the race."""
+    taken = {start_entry["starting_position"] for start_entry in start_entries}
+    position_text = str(form.get("starting_position", "")).strip()
+    if not position_text:
+        return min(set(range(1, len(taken) + 2)) - taken)
+    if not position_text.isdigit() or int(position_text) < 1:
+        msg = "Posisjon må være et tall fra 1 og oppover."
+        raise InvalidStartError(msg)
+    position = int(position_text)
+    if position in taken:
+        msg = f"Posisjon {position} er opptatt."
+        raise InvalidStartError(msg)
+    return position
+
+
+async def get_startlist_id(token: str, event_id: str, start_entries: list) -> str:
+    """Return the id of the startlist that the race's starts belong to."""
+    if start_entries:
+        return start_entries[0]["startlist_id"]
+    startlists = await StartAdapter().get_all_starts_by_event(token, event_id)
+    if not startlists:
+        msg = "Fant ingen startliste for arrangementet."
+        raise InvalidStartError(msg)
+    return startlists[0]["id"]
+
+
+async def update_previous_result(
+    user: dict, form: dict, new_start: dict, new_race: dict
+) -> str:
+    """Point the start's latest finish result to the new race (videre til)."""
+    bib = new_start["bib"]
+    time_events = await TimeEventsAdapter().get_time_events_by_event_id_and_bib(
+        user["token"], form["event_id"], bib
+    )
+    latest_result: dict = {}
+    for time_event in time_events:
+        if (time_event["timing_point"] == "Finish") and (time_event["bib"] == bib):
+            if (not latest_result) or (
+                time_event["registration_time"] > latest_result["registration_time"]
+            ):
+                latest_result = time_event
+    if not latest_result:
+        return ""
+    latest_result["next_race_id"] = new_race["id"]
+    if new_race["round"] == "F":
+        latest_result["next_race"] = f"{new_race['round']}{new_race['index']}"
+    else:
+        latest_result["next_race"] = (
+            f"{new_race['round']}{new_race['index']}{new_race['heat']}"
+        )
+    latest_result["next_race_position"] = new_start["starting_position"]
+    await TimeEventsAdapter().update_time_event(
+        user["token"], latest_result["id"], latest_result
+    )
+    return " Oppdatert videre til fra forrige runde."
 
 
 async def delete_start(user: dict, form: dict) -> str:

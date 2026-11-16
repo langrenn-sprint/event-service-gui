@@ -107,16 +107,13 @@
               <td>{% if start.club_logo %}<img width=15 src={{ start.club_logo }}> {% endif %}{{ start.club }}</td>
             </tr>
           {% endfor %}
-          {% if race.startliste %}
           <tr>
             <form action=/start_edit method=post>
               <td align="center"><input type="number" class="form-control" name="starting_position" value="" min=1 max=99></td>
-              <td><input type="number" class="form-control" name="bib" value="" min=1 max=1999></td>
+              <td><input type="number" class="form-control" name="bib" value="" required min=1 max=1999></td>
               <td colspan=2>
                   <input type="submit" class="btn btn-default" name=create_start value=" Legg til ">
                   <input type="hidden" name="race_id" value="{{ race.id }}">
-                  <input type="hidden" name="startlist_id" value="{{ race.startliste[0].startlist_id }}">
-                  <input type="hidden" name="start_time" value="{{ race.start_time }}">
                   <input type="hidden" name=klasse value="{{ valgt_klasse }}">
                   <input type="hidden" name="runde" value="{{ valgt_runde }}">
                   <input type="hidden" name=event_id value="{{ event_id }}">
@@ -125,7 +122,6 @@
             <td></td>
             <td></td>
           </tr>
-          {% endif %}
         <tr id=spacer></tr>
       {% endfor %}
     </table>

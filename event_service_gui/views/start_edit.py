@@ -16,6 +16,7 @@ from .utils import (
     get_enrichced_startlist,
     get_event,
     get_qualification_text,
+    move_start,
     raise_error,
 )
 
@@ -109,9 +110,7 @@ class StartEdit(web.View):
             elif "delete_start" in form:
                 informasjon = await delete_start(user, form)
             elif "move_start" in form:
-                informasjon = "Flytting utført: "
-                informasjon += await delete_start(user, form)
-                informasjon += await create_start(user, form)
+                informasjon = await move_start(user, form)
 
         except Exception as e:
             informasjon = error_message(self, e)

@@ -6,6 +6,8 @@ import os
 from aiohttp import ClientSession, hdrs, web
 from multidict import MultiDict
 
+from .ids import require_id
+
 RACE_HOST_SERVER = os.getenv("RACE_HOST_SERVER", "localhost")
 RACE_HOST_PORT = os.getenv("RACE_HOST_PORT", "8088")
 RACE_SERVICE_URL = f"http://{RACE_HOST_SERVER}:{RACE_HOST_PORT}"
@@ -52,9 +54,7 @@ class ResultAdapter:
                 (hdrs.AUTHORIZATION, f"Bearer {token}"),
             ]
         )
-        url = (
-            f"{RACE_SERVICE_URL}/races/{race_id}/race-results/{new_race_results['id']}"
-        )
+        url = f"{RACE_SERVICE_URL}/races/{race_id}/race-results/{require_id(new_race_results['id'])}"
         async with ClientSession() as session:
             async with session.put(url, headers=headers, json=new_race_results) as resp:
                 res = resp.status
