@@ -19,6 +19,7 @@
       xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       xhttp.send("event_id={{ event_id }}&raceclass=" + raceclass + "&action=generate_resultlist");
       xhttp.onload = function() {
+        if (login_expired(this.status)) { return; }
         alert(this.responseText);
       }
     }

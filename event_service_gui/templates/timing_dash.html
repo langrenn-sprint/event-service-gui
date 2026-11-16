@@ -36,6 +36,7 @@
 
       xhttp.send(formData);
       xhttp.onload = function() {
+        if (login_expired(this.status)) { return; }
         try {
           // load new info
           const jsonDoc = JSON.parse(this.response);
@@ -93,6 +94,7 @@
 
         xhttp.send(formData);
         xhttp.onload = function() {
+          if (login_expired(this.status)) { return; }
           try {
             // load new info
             const jsonDoc = JSON.parse(this.response);

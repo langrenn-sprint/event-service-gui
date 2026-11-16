@@ -1,6 +1,5 @@
 """Resource module for start resources."""
 
-import logging
 from operator import itemgetter
 
 import aiohttp_jinja2
@@ -20,6 +19,7 @@ from .utils import (
     get_raceplan_summary,
     get_races_for_live_view,
     get_startlist_with_logos,
+    raise_error,
 )
 
 
@@ -126,5 +126,4 @@ class Start(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)

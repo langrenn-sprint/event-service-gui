@@ -34,6 +34,28 @@
                     "glyphicon " + (show ? "glyphicon-eye-close" : "glyphicon-eye-open");
             }
 
+            // For requests from the page: 401 means that the login has expired
+            // (#230). Show a message with a link to the login page, which comes
+            // back to this page, and return true so the caller can stop.
+            function login_expired(status) {
+                if (status !== 401) {
+                    return false;
+                }
+                if (!document.getElementById("login_expired")) {
+                    var banner = document.createElement("div");
+                    banner.id = "login_expired";
+                    banner.className = "alert alert-danger";
+                    banner.setAttribute("role", "alert");
+                    banner.style.cssText = "position: fixed; top: 0; left: 0; right: 0; z-index: 2000; margin: 0; text-align: center;";
+                    var link = document.createElement("a");
+                    link.href = "/login?next=" + encodeURIComponent(window.location.pathname + window.location.search);
+                    link.textContent = "Logg inn på nytt";
+                    banner.append("Innloggingen er utløpt, og det du gjorde nå ble ikke lagret. ", link, ".");
+                    document.body.prepend(banner);
+                }
+                return true;
+            }
+
             function naviger(id) {
                 var elmnt = document.getElementById(id);
                 elmnt.scrollIntoView();

@@ -1,7 +1,5 @@
 """Resource module for resultat view."""
 
-import logging
-
 import aiohttp_jinja2
 from aiohttp import web
 
@@ -14,6 +12,8 @@ from event_service_gui.adapters import (
 from .utils import (
     check_login_open,
     get_event,
+    is_login_error,
+    raise_error,
 )
 
 
@@ -59,8 +59,14 @@ class Resultat(web.View):
                     resultlist = await RaceclassResultsAdapter().get_raceclass_result(
                         event_id, valgt_klasse
                     )
-                except Exception as e:
-                    informasjon = f"{e} Velg 'Live' i menyen for heat resultater"
+                except web.HTTPBadRequest as e:
+                    if is_login_error(e):
+                        raise
+                    # E.g. "Resultater er ikke klare for G11." when there are
+                    # no results for the class yet:
+                    informasjon = (
+                        f"{e.reason} Velg 'Live' i menyen for heat-resultater."
+                    )
 
                 foto = await PhotosAdapter().get_photos_by_raceclass(
                     user["token"], event_id, valgt_klasse, starred=True, limit=5
@@ -84,5 +90,4 @@ class Resultat(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)

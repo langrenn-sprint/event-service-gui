@@ -11,7 +11,9 @@ from event_service_gui.adapters import (
 )
 
 from .utils import (
-    check_login,
+    check_login_api,
+    is_login_error,
+    raise_login_expired,
 )
 
 
@@ -21,11 +23,10 @@ class VideoEvents(web.View):
     async def post(self) -> web.Response:
         """Post route function that updates video events."""
         response = {}
+        user = await check_login_api(self)
         try:
-            user = await check_login(self)
             form = await self.request.post()
             event_id = str(form["event_id"])
-            await check_login(self)
             action = form["action"]
             if action in ["status", "toggle"]:
                 if "integration_start" in form:
@@ -56,15 +57,12 @@ class VideoEvents(web.View):
                     user["token"], event_id
                 )
         except Exception as e:
-            if "401" in str(e):
-                response["informasjon"] = (
-                    "401 unathorized: Logg inn for å hente events."
-                )
-            else:
-                response["informasjon"] = (
-                    f"Det har oppstått en feil ved henting av video events. {e}"
-                )
             logging.exception("Video events update")
+            if is_login_error(e):
+                raise_login_expired(e)
+            response["informasjon"] = (
+                f"Det har oppstått en feil ved henting av video events. {e}"
+            )
         json_response = json.dumps(response)
         return web.Response(body=json_response)
 

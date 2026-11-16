@@ -18,6 +18,7 @@ from .utils import (
     get_raceplan_summary,
     get_races_for_print,
     get_races_for_round_result,
+    raise_error,
 )
 
 
@@ -121,8 +122,7 @@ class PrintLists(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
 
 async def get_resultlists(
@@ -173,9 +173,7 @@ async def get_races(
         )
     else:
         if valgt_runde != "":
-            races = [
-                race for race in _tmp_races if valgt_runde in ["", race["round"]]
-            ]
+            races = [race for race in _tmp_races if valgt_runde in ["", race["round"]]]
         else:
             races = _tmp_races
         races = await get_races_for_print(

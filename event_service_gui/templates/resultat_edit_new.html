@@ -91,6 +91,11 @@
 
         xhttp.send(formData);
         xhttp.onload = function() {
+          if (login_expired(this.status)) {
+            document.getElementById(button.id).innerHTML = button_text;
+            document.getElementById(button.id).disabled = false;
+            return;
+          }
           try {
             // load new info
             const jsonDoc = JSON.parse(this.response);
@@ -170,6 +175,7 @@
 
       xhttp.send();
       xhttp.onload = function() {
+        if (login_expired(this.status)) { return; }
         try { 
             // load new info
             const jsonDoc = JSON.parse(this.response);
@@ -299,6 +305,7 @@
       xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       xhttp.send("json=true&bib=" + bib + "&name=" + name + "&club=" + club + "&event_id={{ event_id }}&raceclass={{ valgt_runde.klasse }}&runde={{ valgt_runde.runde }}" + "&race=" + race_name + "&race_id={{ race.id }}&action=DNF&checked=" + checked + "&time_event_id=" + time_event_id);
       xhttp.onload = function() {
+        if (login_expired(this.status)) { return; }
 
         // load new info
         const jsonDoc = JSON.parse(this.response);

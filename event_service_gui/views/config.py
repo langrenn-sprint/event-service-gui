@@ -1,13 +1,11 @@
 """Resource module for main view."""
 
-import logging
-
 import aiohttp_jinja2
 from aiohttp import web
 
 from event_service_gui.adapters import ConfigAdapter
 
-from .utils import check_login, get_event
+from .utils import check_login, error_message, get_event, raise_error
 
 
 class Config(web.View):
@@ -38,8 +36,7 @@ class Config(web.View):
                 )
             except Exception as e:
                 event_config = []
-                informasjon += f" Feil ved innlasting av config. {e}"
-                logging.exception(informasjon)
+                informasjon += f" {error_message(self, e)}"
             return await aiohttp_jinja2.render_template_async(
                 "config.html",
                 self.request,
@@ -53,8 +50,7 @@ class Config(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to login page.")
-            raise web.HTTPSeeOther(location=f"/login?informasjon={e}") from e
+            raise_error(self, e)
 
     async def post(self) -> web.Response:
         """Post route function that updates video events."""
@@ -70,8 +66,7 @@ class Config(web.View):
                 )
                 informasjon = "Suksess. Informasjon er oppdatert."
         except Exception as e:
-            informasjon = f"Det har oppstått en feil: {e}"
-            logging.exception("Config update")
+            informasjon = error_message(self, e)
         raise web.HTTPSeeOther(
             location=f"/config?action=edit_mode&event_id={event_id}&informasjon={informasjon}"
         )

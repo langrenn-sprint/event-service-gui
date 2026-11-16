@@ -51,6 +51,7 @@
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send("photo_id=" + photo_id + "&action=" + action);
     xhttp.onload = function() {
+      if (login_expired(this.status)) { return; }
       if ("200" == this.responseText) {
         document.getElementById("star_" + photo_id).src = "../static/" + action + ".png";
         document.getElementById("star_" + photo_id).value = action;

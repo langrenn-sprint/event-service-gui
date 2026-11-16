@@ -1,7 +1,5 @@
 """Resource module for control resources."""
 
-import logging
-
 import aiohttp_jinja2
 from aiohttp import web
 
@@ -12,9 +10,10 @@ from event_service_gui.adapters import (
 
 from .utils import (
     check_login,
+    error_message,
     get_event,
     get_passeringer,
-    login_location,
+    raise_error,
 )
 
 
@@ -74,8 +73,7 @@ class Control(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
     async def post(self) -> web.Response:
         """Post route function that creates deltakerliste."""
@@ -90,16 +88,7 @@ class Control(web.View):
             if "resolve_error" in form:
                 informasjon = await delete_timing_events(user, form)
         except Exception as e:
-            logging.exception("Error")
-            informasjon = f"Det har oppstått en feil - {e.args}."
-            error_reason = str(e)
-            if error_reason.startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
+            informasjon = error_message(self, e)
 
         raise web.HTTPSeeOther(
             location=f"/control?event_id={event_id}&informasjon={informasjon}&action={action}&valgt_klasse={valgt_klasse}"

@@ -184,6 +184,39 @@ async def check_admin_api(self) -> dict:
     }
 
 
+def raise_login_expired(cause: Exception | None = None) -> NoReturn:
+    """Answer a request from a page's JavaScript when the login has expired.
+
+    401 with JSON, not a redirect to /login: XMLHttpRequest and fetch follow
+    redirects silently and would get the login page's HTML. The pages show
+    the message with a link to the login page, see login_expired in
+    open_base_new.html.
+    """
+    raise web.HTTPUnauthorized(
+        text=json.dumps({"error": "unauthorized", "informasjon": LOGIN_AGAIN}),
+        content_type="application/json",
+        headers={"Cache-Control": "no-store"},
+    ) from cause
+
+
+async def check_login_api(self) -> dict:
+    """Check login for requests from a page's JavaScript.
+
+    Same check as check_login, but a user who is not logged in, or whose
+    token has expired, gets 401 with JSON instead of a redirect. Call it
+    before any try/except Exception, which would catch the 401.
+    """
+    session = await get_session(self.request)
+    if not UserAdapter().isloggedin(session):
+        raise_login_expired()
+    return {
+        "name": session["name"],
+        "loggedin": True,
+        "token": session["token"],
+        "role": session.get("role", ""),
+    }
+
+
 async def check_login_open(self) -> dict:
     """Check login and return credentials."""
     user = {}
@@ -370,8 +403,7 @@ async def get_passeringer(
         passeringer.extend(
             passering
             for passering in tmp_passeringer
-            if valgt_klasse in passering["race"]
-            and passering["timing_point"] == action
+            if valgt_klasse in passering["race"] and passering["timing_point"] == action
         )
     else:
         passeringer.extend(

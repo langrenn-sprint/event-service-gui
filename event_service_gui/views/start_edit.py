@@ -1,7 +1,5 @@
 """Resource module for verificatoin of timing registration."""
 
-import logging
-
 import aiohttp_jinja2
 from aiohttp import web
 
@@ -14,10 +12,11 @@ from .utils import (
     check_login,
     create_start,
     delete_start,
+    error_message,
     get_enrichced_startlist,
     get_event,
     get_qualification_text,
-    login_location,
+    raise_error,
 )
 
 
@@ -92,8 +91,7 @@ class StartEdit(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
     async def post(self) -> web.Response:
         """Post route function that creates deltakerliste."""
@@ -116,16 +114,7 @@ class StartEdit(web.View):
                 informasjon += await create_start(user, form)
 
         except Exception as e:
-            logging.exception("Error")
-            informasjon = f"Det har oppstått en feil - {e.args}."
-            error_reason = str(e)
-            if error_reason.startswith("401"):
-                raise web.HTTPSeeOther(
-                    location=login_location(
-                        f"Ingen tilgang, vennligst logg inn på nytt. {e}",
-                        self.request.path_qs,
-                    )
-                ) from e
+            informasjon = error_message(self, e)
         info = (
             f"{informasjon}&klasse={valgt_klasse}&runde={valgt_runde}&action={action}"
         )
