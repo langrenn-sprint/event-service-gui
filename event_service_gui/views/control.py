@@ -7,6 +7,7 @@ from event_service_gui.adapters import (
     RaceclassesAdapter,
     TimeEventsAdapter,
 )
+from event_service_gui.services import TimeEventsService
 
 from .utils import (
     check_login,
@@ -83,10 +84,14 @@ class Control(web.View):
         form = dict(await self.request.post())
         event_id = str(form["event_id"])
         valgt_klasse = str(form["valgt_klasse"])
-        action = str(form["action"])
+        action = str(form.get("action", ""))
         try:
             if "resolve_error" in form:
                 informasjon = await delete_timing_events(user, form)
+            if "shift_position" in form:
+                informasjon = await TimeEventsService().shuffle_semi_final_templates(
+                    user["token"], event_id
+                )
         except Exception as e:
             informasjon = error_message(self, e)
 

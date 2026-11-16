@@ -356,9 +356,7 @@ class SystemStatusService:
         return info
 
     @staticmethod
-    def _backup_info(
-        backup: dict, now: dt.datetime, warnings: list[dict]
-    ) -> dict:
+    def _backup_info(backup: dict, now: dt.datetime, warnings: list[dict]) -> dict:
         last_success = _dict(backup.get("last_success"))
         success_time = parse_time(last_success.get("time"))
         success_age = now - success_time if success_time else None

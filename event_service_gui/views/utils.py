@@ -424,12 +424,9 @@ async def get_passeringer(
             passering["last_in_heat"] = True
         last_race = passering["race"]
 
-    # sort by time
-    def myfunc(n) -> str:
-        return n["registration_time"]
-
-    passeringer.sort(key=myfunc)
-    passeringer.reverse()
+    # newest first, but templates stay in heat order
+    if action != "Template":
+        passeringer.sort(key=lambda p: p["registration_time"], reverse=True)
 
     return passeringer
 

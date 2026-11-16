@@ -34,7 +34,9 @@ class ContestantsAdapter:
                 return datetime.strptime(value, fmt).strftime("%Y-%m-%d")
             except ValueError:
                 continue
-        raise ValueError(f"Ugyldig fødselsdato '{value}'. Forventet format: DD.MM.YYYY.")
+        raise ValueError(
+            f"Ugyldig fødselsdato '{value}'. Forventet format: DD.MM.YYYY."
+        )
 
     async def assign_bibs(
         self, token: str, event_id: str, start_bib: int | None = None
@@ -79,7 +81,9 @@ class ContestantsAdapter:
 
         # validation - birth_date should be in format YYYY-MM-DD
         if request_body.get("birth_date"):
-            request_body["birth_date"] = self._parse_birth_date(request_body["birth_date"])
+            request_body["birth_date"] = self._parse_birth_date(
+                request_body["birth_date"]
+            )
 
         # Exclude values that are empty or None - this allows for partial updates
         request_body = {k: v for k, v in request_body.items() if v not in ("", None)}
@@ -146,9 +150,7 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
         # trying to parse result - skip if it fails
         informasjon = ""
         try:
@@ -195,9 +197,7 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
         return str(res)
 
     async def delete_contestant(
@@ -243,9 +243,7 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
         return str(res)
 
     async def get_all_contestants(self, token: str, event_id: str) -> list:
@@ -275,9 +273,7 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
         return contestants
 
     async def get_all_contestants_by_ageclass(
@@ -312,9 +308,7 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
         return contestants
 
     async def get_contestant_by_bib(self, token: str, event_id: str, bib: int) -> dict:
@@ -345,9 +339,7 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
         if len(contestant) == 0:
             return {}
         return contestant[0]
@@ -383,9 +375,7 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
         return contestants
 
     async def get_all_contestants_by_raceclass(
@@ -403,7 +393,7 @@ class ContestantsAdapter:
         async with (
             ClientSession() as session,
             session.get(
-                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass={raceclass_name_url}",
+                f"{EVENT_SERVICE_URL}/events/{event_id}/contestants?raceclass-name={raceclass_name_url}",
                 headers=headers,
             ) as resp,
         ):
@@ -422,7 +412,6 @@ class ContestantsAdapter:
                     reason=f"Error - {resp.status}: {body['detail']}."
                 )
         return contestants
-
 
     async def get_contestant(
         self, token: str, event_id: str, contestant_id: str
@@ -454,9 +443,7 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
         return contestant
 
     async def search_contestants_by_name(
@@ -494,9 +481,7 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
         return contestants
 
     async def update_contestant(
@@ -545,8 +530,6 @@ class ContestantsAdapter:
                     detail = await resp.text()
                 informasjon = f"{servicename} failed - {resp.status} - {detail}"
                 logging.error(informasjon)
-                raise web.HTTPBadRequest(
-                    reason=informasjon
-                )
+                raise web.HTTPBadRequest(reason=informasjon)
 
         return str(resp.status)

@@ -73,10 +73,8 @@ class Seeding(web.View):
                         user["token"], event_id
                     )
             else:
-                contestants = (
-                    await ContestantsAdapter().get_contestants_by_raceclass(
-                        user["token"], event_id, valgt_klasse
-                    )
+                contestants = await ContestantsAdapter().get_contestants_by_raceclass(
+                    user["token"], event_id, valgt_klasse
                 )
                 heat_separators = await get_heat_separators(
                     user["token"], event_id, valgt_klasse
