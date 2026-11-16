@@ -50,7 +50,8 @@
                     var link = document.createElement("a");
                     link.href = "/login?next=" + encodeURIComponent(window.location.pathname + window.location.search);
                     link.textContent = "Logg inn på nytt";
-                    banner.append("Innloggingen er utløpt, og det du gjorde nå ble ikke lagret. ", link, ".");
+                    // Some of it may have been saved before the login expired.
+                    banner.append("Innloggingen er utløpt. ", link, ", og sjekk om det du gjorde nå ble lagret.");
                     document.body.prepend(banner);
                 }
                 return true;

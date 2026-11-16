@@ -170,3 +170,6 @@ def test_base_page_has_login_expired() -> None:
     text = (TEMPLATES / "open_base_new.html").read_text()
     assert "function login_expired(status)" in text
     assert '"/login?next=" + encodeURIComponent(' in text
+    # a result may be saved before a later read in the same request fails
+    assert "sjekk om det du gjorde nå ble lagret" in text
+    assert "ble ikke lagret" not in text
