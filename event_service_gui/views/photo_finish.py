@@ -22,6 +22,7 @@ from .utils import (
     get_qualification_text,
     get_race_kpis,
     get_raceplan_summary,
+    raise_error,
 )
 
 
@@ -137,8 +138,7 @@ class PhotoFinish(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
 
 async def get_starting_now(user: dict, event: dict, heat: int) -> ValgtRunde:

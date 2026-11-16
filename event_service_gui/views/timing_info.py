@@ -12,7 +12,9 @@ from event_service_gui.adapters import (
 )
 
 from .utils import (
-    check_login,
+    check_login_api,
+    is_login_error,
+    raise_login_expired,
 )
 
 
@@ -27,7 +29,7 @@ class TimingInfo(web.View):
         except Exception:
             action = ""
         event_id = self.request.rel_url.query["event_id"]
-        user = await check_login(self)
+        user = await check_login_api(self)
         try:
             if action == "DNS":
                 race_order = int(self.request.rel_url.query["race_order"])
@@ -41,7 +43,9 @@ class TimingInfo(web.View):
             json_response = json.dumps(response)
             return web.Response(body=json_response)
 
-        except Exception:
+        except Exception as e:
+            if is_login_error(e):
+                raise_login_expired(e)
             error_message = "Det oppstod en feil ved henting av DNS"
             logging.exception(f"Error. {error_message}")
             return web.Response(body=error_message)

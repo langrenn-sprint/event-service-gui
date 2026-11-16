@@ -282,12 +282,8 @@ def get_raceplan_timing(races: list, raceclass: dict) -> dict:
     if time_q_last:
         time_q_last_obj = dt.datetime.strptime(time_q_last, "%Y-%m-%dT%H:%M:%S")
         if (time_s_first) and (time_fab_first):
-            time_s_first_obj = dt.datetime.strptime(
-                time_s_first, "%Y-%m-%dT%H:%M:%S"
-            )
-            time_s_last_obj = dt.datetime.strptime(
-                time_s_last, "%Y-%m-%dT%H:%M:%S"
-            )
+            time_s_first_obj = dt.datetime.strptime(time_s_first, "%Y-%m-%dT%H:%M:%S")
+            time_s_last_obj = dt.datetime.strptime(time_s_last, "%Y-%m-%dT%H:%M:%S")
             time_fab_first_obj = dt.datetime.strptime(
                 time_fab_first, "%Y-%m-%dT%H:%M:%S"
             )
@@ -309,12 +305,8 @@ def get_raceplan_timing(races: list, raceclass: dict) -> dict:
                 class_summary["min_pauseF"]
             )
         elif time_s_first:
-            time_s_first_obj = dt.datetime.strptime(
-                time_s_first, "%Y-%m-%dT%H:%M:%S"
-            )
-            time_s_last_obj = dt.datetime.strptime(
-                time_s_last, "%Y-%m-%dT%H:%M:%S"
-            )
+            time_s_first_obj = dt.datetime.strptime(time_s_first, "%Y-%m-%dT%H:%M:%S")
+            time_s_last_obj = dt.datetime.strptime(time_s_last, "%Y-%m-%dT%H:%M:%S")
             class_summary["min_pauseS"] = time_s_first_obj - time_q_last_obj
             class_summary["warning_pauseS"] = check_short_pause(
                 class_summary["min_pauseS"]
@@ -365,16 +357,12 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
                             if not (time_fab_first):
                                 time_fab_first = race["start_time"]
         if time_q_last:
-            time_q_last_obj = dt.datetime.strptime(
-                time_q_last, "%Y-%m-%dT%H:%M:%S"
-            )
+            time_q_last_obj = dt.datetime.strptime(time_q_last, "%Y-%m-%dT%H:%M:%S")
             if (time_s_first) and (time_fab_first):
                 time_s_first_obj = dt.datetime.strptime(
                     time_s_first, "%Y-%m-%dT%H:%M:%S"
                 )
-                time_s_last_obj = dt.datetime.strptime(
-                    time_s_last, "%Y-%m-%dT%H:%M:%S"
-                )
+                time_s_last_obj = dt.datetime.strptime(time_s_last, "%Y-%m-%dT%H:%M:%S")
                 time_fab_first_obj = dt.datetime.strptime(
                     time_fab_first, "%Y-%m-%dT%H:%M:%S"
                 )
@@ -399,9 +387,7 @@ def get_raceplan_summary(races: list, raceclasses: list) -> list:
                 time_s_first_obj = dt.datetime.strptime(
                     time_s_first, "%Y-%m-%dT%H:%M:%S"
                 )
-                time_s_last_obj = dt.datetime.strptime(
-                    time_s_last, "%Y-%m-%dT%H:%M:%S"
-                )
+                time_s_last_obj = dt.datetime.strptime(time_s_last, "%Y-%m-%dT%H:%M:%S")
                 class_summary["min_pauseS"] = time_s_first_obj - time_q_last_obj
                 class_summary["warning_pauseS"] = check_short_pause(
                     class_summary["min_pauseS"]

@@ -14,7 +14,14 @@ from event_service_gui.services import (
     RaceclassResultsService,
 )
 
-from .utils import check_login, get_event, get_race_kpis
+from .utils import (
+    check_login_api,
+    error_text,
+    get_event,
+    get_race_kpis,
+    is_login_error,
+    raise_login_expired,
+)
 
 
 class ResultatUpdate(web.View):
@@ -23,10 +30,10 @@ class ResultatUpdate(web.View):
     async def post(self) -> web.Response:
         """Post route function that updates a collection of photos."""
         informasjon = ""
+        user = await check_login_api(self)
         form = dict(await self.request.post())
         try:
             action = str(form["action"])
-            user = await check_login(self)
             if action in ["DNF", "DNS", "Start"]:
                 informasjon = await create_event(user, form, action)
                 if "json" in form:
@@ -56,8 +63,11 @@ class ResultatUpdate(web.View):
                 logging.debug(f"Resultat for {raceclass_name} er publisert. {res}")
                 informasjon = f"Resultat for {raceclass_name} er publisert. "
         except Exception as e:
-            informasjon = f"Det har oppstått en feil: {e}"
+            # Answered as text or JSON, so no redirect to the login page:
             logging.exception("Result update")
+            if is_login_error(e):
+                raise_login_expired(e)
+            informasjon = error_text(e)
         if "json" in form:
             response = {
                 "informasjon": informasjon,

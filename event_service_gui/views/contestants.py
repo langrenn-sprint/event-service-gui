@@ -82,10 +82,8 @@ class Contestants(web.View):
                         user["token"], event_id
                     )
             else:
-                contestants = (
-                    await ContestantsAdapter().get_contestants_by_raceclass(
-                        user["token"], event_id, valgt_klasse
-                    )
+                contestants = await ContestantsAdapter().get_contestants_by_raceclass(
+                    user["token"], event_id, valgt_klasse
                 )
             for tmp_contestant in contestants:
                 tmp_contestant["club_logo"] = EventsAdapter().get_club_logo_url(

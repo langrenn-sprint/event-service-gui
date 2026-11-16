@@ -116,6 +116,17 @@ async def test_health_checks_in_parallel(monkeypatch: pytest.MonkeyPatch) -> Non
     assert elapsed < 0.55
 
 
+@pytest.mark.integration
+def test_health_targets_only_configured(monkeypatch: pytest.MonkeyPatch) -> None:
+    for check in HEALTH_CHECKS:
+        monkeypatch.delenv(f"{check.env_prefix}_HOST_SERVER", raising=False)
+    monkeypatch.setenv("PHOTOS_HOST_SERVER", "photo-service")
+    monkeypatch.setenv("PHOTOS_HOST_PORT", "8080")
+    targets = ServiceHealthAdapter().get_targets()
+    assert [(c.name, c.paths, url) for c, url in targets] == [
+        ("photo-service", ("/ping", "/ready"), "http://photo-service:8080")
+    ]
+
 
 @pytest.mark.integration
 async def test_health_nothing_configured(monkeypatch: pytest.MonkeyPatch) -> None:

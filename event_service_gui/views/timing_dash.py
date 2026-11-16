@@ -1,7 +1,5 @@
 """Resource module for Timing Dashboard view."""
 
-import logging
-
 import aiohttp_jinja2
 from aiohttp import web
 
@@ -15,6 +13,7 @@ from .utils import (
     check_login,
     get_event,
     get_race_kpis,
+    raise_error,
 )
 
 
@@ -57,8 +56,7 @@ class TimingDash(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
 
 async def get_service_status(token: str, event_id: str) -> dict:

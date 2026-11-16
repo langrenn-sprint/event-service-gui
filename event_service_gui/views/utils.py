@@ -6,7 +6,7 @@ import logging
 from typing import NoReturn
 from urllib.parse import urlencode, urlsplit
 
-from aiohttp import web
+from aiohttp import hdrs, web
 from aiohttp_session import get_session
 
 from event_service_gui.adapters import (
@@ -19,6 +19,7 @@ from event_service_gui.adapters import (
     TimeEventsAdapter,
     UserAdapter,
 )
+from event_service_gui.adapters.login_errors import LoginExpiredError, is_login_error
 from event_service_gui.services import (
     RaceclassResultsService,
 )
@@ -50,6 +51,24 @@ def safe_next_path(value: str | None) -> str | None:
     return value
 
 
+def return_path(request: web.Request) -> str:
+    """Return the page to come back to after login.
+
+    For a page (GET), the page itself. A form post (e.g. Flytt on
+    /start_edit) has its context in the form, not in the URL, so the path
+    alone would come back to a page without event or class. Then the page the
+    form was on is used, from the Referer header, if it is on this site.
+    """
+    if request.method in ("GET", "HEAD"):
+        return request.path_qs
+    referer = urlsplit(request.headers.get(hdrs.REFERER, ""))
+    if referer.netloc == request.host:
+        page = f"{referer.path}?{referer.query}" if referer.query else referer.path
+        if safe_next_path(page):
+            return page
+    return request.path_qs
+
+
 def login_location(informasjon: str, next_path: str | None = None) -> str:
     """Return the login page URL, with next= if next_path is safe."""
     query = {"informasjon": informasjon}
@@ -63,13 +82,9 @@ UNEXPECTED_ERROR = "Det har oppstått en uventet feil. Feilen er logget."
 LOGIN_AGAIN = "Innloggingen er utløpt. Logg inn på nytt."
 
 
-def is_login_error(e: Exception) -> bool:
-    """Return True if the error is a missing or expired login (401).
-
-    The adapters report 401 as "401 Unathorized - …" or "Login expired: …".
-    """
-    text = str(e.reason) if isinstance(e, web.HTTPException) else str(e)
-    return text.startswith("401") or "Login expired" in text
+def login_message(e: Exception) -> str:
+    """Return the message for the login page after a login error."""
+    return str(e) if isinstance(e, LoginExpiredError) else LOGIN_AGAIN
 
 
 def error_text(e: Exception) -> str:
@@ -101,7 +116,7 @@ def raise_error(view: web.View, e: Exception, location: str = "/") -> NoReturn:
     logging.error("Error in %s %s", request.method, request.path_qs, exc_info=e)
     if is_login_error(e):
         raise web.HTTPSeeOther(
-            location=login_location(LOGIN_AGAIN, request.path_qs)
+            location=login_location(login_message(e), return_path(request))
         ) from e
     query = urlencode({"informasjon": error_text(e)})
     raise web.HTTPSeeOther(location=f"{location}?{query}") from e
@@ -120,7 +135,7 @@ def error_message(view: web.View, e: Exception) -> str:
     logging.error("Error in %s %s", request.method, request.path_qs, exc_info=e)
     if is_login_error(e):
         raise web.HTTPSeeOther(
-            location=login_location(LOGIN_AGAIN, request.path_qs)
+            location=login_location(login_message(e), return_path(request))
         ) from e
     return error_text(e)
 
@@ -136,7 +151,7 @@ async def check_login(self) -> dict:
     if not loggedin:
         informasjon = "Logg inn for å se denne siden"
         raise web.HTTPSeeOther(
-            location=login_location(informasjon, self.request.path_qs)
+            location=login_location(informasjon, return_path(self.request))
         )
 
     return {
@@ -158,7 +173,7 @@ async def check_admin(
     user = await check_login(self)
     if user["role"] != ADMIN_ROLE:
         raise web.HTTPSeeOther(
-            location=login_location(informasjon, self.request.path_qs)
+            location=login_location(informasjon, return_path(self.request))
         )
     return user
 
@@ -181,6 +196,39 @@ async def check_admin_api(self) -> dict:
         "loggedin": True,
         "token": session["token"],
         "role": session["role"],
+    }
+
+
+def raise_login_expired(cause: Exception | None = None) -> NoReturn:
+    """Answer a request from a page's JavaScript when the login has expired.
+
+    401 with JSON, not a redirect to /login: XMLHttpRequest and fetch follow
+    redirects silently and would get the login page's HTML. The pages show
+    the message with a link to the login page, see login_expired in
+    open_base_new.html.
+    """
+    raise web.HTTPUnauthorized(
+        text=json.dumps({"error": "unauthorized", "informasjon": LOGIN_AGAIN}),
+        content_type="application/json",
+        headers={"Cache-Control": "no-store"},
+    ) from cause
+
+
+async def check_login_api(self) -> dict:
+    """Check login for requests from a page's JavaScript.
+
+    Same check as check_login, but a user who is not logged in, or whose
+    token has expired, gets 401 with JSON instead of a redirect. Call it
+    before any try/except Exception, which would catch the 401.
+    """
+    session = await get_session(self.request)
+    if not UserAdapter().isloggedin(session):
+        raise_login_expired()
+    return {
+        "name": session["name"],
+        "loggedin": True,
+        "token": session["token"],
+        "role": session.get("role", ""),
     }
 
 
@@ -370,8 +418,7 @@ async def get_passeringer(
         passeringer.extend(
             passering
             for passering in tmp_passeringer
-            if valgt_klasse in passering["race"]
-            and passering["timing_point"] == action
+            if valgt_klasse in passering["race"] and passering["timing_point"] == action
         )
     else:
         passeringer.extend(
@@ -392,12 +439,9 @@ async def get_passeringer(
             passering["last_in_heat"] = True
         last_race = passering["race"]
 
-    # sort by time
-    def myfunc(n) -> str:
-        return n["registration_time"]
-
-    passeringer.sort(key=myfunc)
-    passeringer.reverse()
+    # newest first, but templates stay in heat order
+    if action != "Template":
+        passeringer.sort(key=lambda p: p["registration_time"], reverse=True)
 
     return passeringer
 
@@ -569,101 +613,202 @@ async def get_races_for_round_result(
     return races
 
 
+class InvalidStartError(Exception):
+    """The start can not be added; the message tells the user why."""
+
+
+START_ENTRY_FIELDS = (
+    "startlist_id",
+    "race_id",
+    "bib",
+    "starting_position",
+    "scheduled_start_time",
+    "name",
+    "club",
+)
+
+
 async def create_start(user: dict, form: dict) -> str:
-    """Extract form data and create one start."""
-    bib = int(form["bib"])
-    contestant = await ContestantsAdapter().get_contestant_by_bib(
-        user["token"], form["event_id"], bib
-    )
-    if contestant:
-        new_race_info = await get_new_race_info(user, form)
-        new_start = {
-            "startlist_id": new_race_info["startlist_id"],
-            "race_id": new_race_info["race_id"],
-            "bib": bib,
-            "starting_position": new_race_info["starting_position"],
-            "scheduled_start_time": new_race_info["start_time"],
-            "name": f"{contestant['first_name']} {contestant['last_name']}",
-            "club": contestant["club"],
-        }
-        # validation - check that bib not already is in start entry for round
-        new_race = await RaceplansAdapter().get_race_by_id(
-            user["token"], new_start["race_id"]
-        )
-        start_entries = await StartAdapter().get_start_entries_by_bib(
-            user["token"], form["event_id"], bib
-        )
-        for start_entry in start_entries:
-            race = await RaceplansAdapter().get_race_by_id(
-                user["token"], start_entry["race_id"]
-            )
-            if new_race["round"] == race["round"]:
-                raise web.HTTPBadRequest(
-                    reason=f"405 Bib already exists in round - {race['round']}"
-                )
-
-        await StartAdapter().create_start_entry(user["token"], new_start)
-        informasjon = f"Lagt til nr {bib}"
-
-        # update previous result with correct "videre til"
-        time_events = await TimeEventsAdapter().get_time_events_by_event_id_and_bib(
-            user["token"], form["event_id"], bib
-        )
-        latest_result: dict = {}
-        for time_event in time_events:
-            if (time_event["timing_point"] == "Finish") and (time_event["bib"] == bib):
-                if (not latest_result) or (
-                    time_event["registration_time"] > latest_result["registration_time"]
-                ):
-                    latest_result = time_event
-        if latest_result:
-            latest_result["next_race_id"] = new_race["id"]
-            if new_race["round"] == "F":
-                latest_result["next_race"] = f"{new_race['round']}{new_race['index']}"
-            else:
-                latest_result["next_race"] = (
-                    f"{new_race['round']}{new_race['index']}{new_race['heat']}"
-                )
-            latest_result["next_race_position"] = new_start["starting_position"]
-            await TimeEventsAdapter().update_time_event(
-                user["token"], latest_result["id"], latest_result
-            )
-            informasjon += " Oppdatert videre til fra forrige runde."
-    else:
-        informasjon = f"Error. Fant ikke deltaker med startnr {form['bib']}."
+    """Add one start to the race in the form (Legg til)."""
+    try:
+        new_start, new_race = await prepare_start(user, form, form["race_id"])
+    except InvalidStartError as e:
+        return str(e)
+    await StartAdapter().create_start_entry(user["token"], new_start)
+    informasjon = f"Lagt til nr {new_start['bib']}."
+    informasjon += await update_previous_result(user, form, new_start, new_race)
     return informasjon
 
 
-async def get_new_race_info(user: dict, form: dict) -> dict:
-    """Extract start pos from form or get best available."""
-    startlist_id = ""
+async def move_start(user: dict, form: dict) -> str:
+    """Move one start to the race chosen in the form (Flytt).
+
+    Everything is checked before the start is deleted from its race. If adding
+    it to the new race still fails, the start is put back where it was.
+    """
+    if not form.get("new_heat"):
+        return "Velg nytt heat før du trykker Flytt."
+    token = user["token"]
+    old_start = await StartAdapter().get_start_entry_by_id(
+        token, form["race_id"], form["start_id"]
+    )
     try:
-        starting_position = int(form["starting_position"])
-        startlist_id = form["startlist_id"]
-        start_time = form["start_time"]
-        race_id = form["race_id"]
-    except Exception:
-        starting_position = 1
-        race_id = form["new_heat"]
-        new_race = await RaceplansAdapter().get_race_by_id(user["token"], race_id)
-        start_entries = new_race["start_entries"]
-        start_time = new_race["start_time"]
-        if len(start_entries) > 0:
-            startlist_id = start_entries[0]["startlist_id"]
-            start_positions_taken = [
-                start_entry["starting_position"] for start_entry in start_entries
-            ]
-            starting_position = max(start_positions_taken) + 1
-            for i in range(1, len(start_entries) + 1):
-                if i not in start_positions_taken:
-                    starting_position = i
-                    break
+        new_start, new_race = await prepare_start(
+            user, form, form["new_heat"], old_start
+        )
+    except InvalidStartError as e:
+        return f"Ikke flyttet: {e}"
+    await StartAdapter().delete_start_entry(token, form["race_id"], form["start_id"])
+    try:
+        await StartAdapter().create_start_entry(token, new_start)
+    except Exception as e:
+        await put_back_start(token, old_start, e)
+        raise
+    informasjon = f"Flyttet nr {new_start['bib']}."
+    informasjon += await update_previous_result(user, form, new_start, new_race)
+    return informasjon
+
+
+async def put_back_start(token: str, old_start: dict, error: Exception) -> None:
+    """Put a start back in its race after a failed move.
+
+    If that fails too, the start is missing from both races: the message
+    says which heat and position to add it to again. If the login expired
+    (and then putting back fails too, with the same token), the user is
+    sent to the login page with that message.
+    """
+    try:
+        await StartAdapter().create_start_entry(
+            token, {key: old_start[key] for key in START_ENTRY_FIELDS}
+        )
+    except Exception as e:
+        logging.exception("Could not put back start after failed move")
+        bib = old_start["bib"]
+        heat = (
+            f"heatet som starter {str(old_start['scheduled_start_time'])[-8:]}, "
+            f"posisjon {old_start['starting_position']}"
+        )
+        if is_login_error(error) or is_login_error(e):
+            err_msg = (
+                f"Innloggingen er utløpt under flyttingen. Nr {bib} ble tatt ut "
+                f"av {heat}, men ikke lagt inn igjen. Logg inn, og legg til "
+                f"nr {bib} på nytt."
+            )
+            raise LoginExpiredError(err_msg) from e
+        err_msg = (
+            f"Flyttingen feilet, og nr {bib} kunne ikke legges tilbake i {heat}. "
+            f"Legg til nr {bib} på nytt."
+        )
+        raise Exception(err_msg) from e
+    logging.warning(f"Move failed, start put back: {error}")
+
+
+async def prepare_start(
+    user: dict, form: dict, race_id: str, moving_start: dict | None = None
+) -> tuple[dict, dict]:
+    """Check the form and return the new start and the race it goes to.
+
+    moving_start is the start being moved, if any: it is not counted when
+    checking whether the bib is already in the round.
+    Raises InvalidStartError if the start can not be added.
+    """
+    token = user["token"]
+    event_id = form["event_id"]
+    bib_text = str(form.get("bib", "")).strip()
+    if not bib_text.isdigit():
+        msg = "Fyll inn startnummer."
+        raise InvalidStartError(msg)
+    bib = int(bib_text)
+    contestant = await ContestantsAdapter().get_contestant_by_bib(token, event_id, bib)
+    if not contestant:
+        msg = f"Fant ikke deltaker med startnr {bib}."
+        raise InvalidStartError(msg)
+
+    new_race = await RaceplansAdapter().get_race_by_id(token, race_id)
+    start_entries = new_race.get("start_entries", [])
+    max_contestants = new_race.get("max_no_of_contestants")
+    if max_contestants is not None and len(start_entries) >= max_contestants:
+        msg = "Heatet er fullt."
+        raise InvalidStartError(msg)
+
+    # the bib can only be in one race per round
+    for start_entry in await StartAdapter().get_start_entries_by_bib(
+        token, event_id, bib
+    ):
+        if moving_start and start_entry["id"] == moving_start["id"]:
+            continue
+        race = await RaceplansAdapter().get_race_by_id(token, start_entry["race_id"])
+        if race["round"] == new_race["round"]:
+            msg = f"Nr {bib} er allerede med i runde {race['round']}."
+            raise InvalidStartError(msg)
+
     return {
-        "race_id": race_id,
-        "starting_position": starting_position,
-        "startlist_id": startlist_id,
-        "start_time": start_time,
-    }
+        "startlist_id": await get_startlist_id(token, event_id, start_entries),
+        "race_id": new_race["id"],
+        "bib": bib,
+        "starting_position": get_starting_position(form, start_entries),
+        "scheduled_start_time": new_race["start_time"],
+        "name": f"{contestant['first_name']} {contestant['last_name']}",
+        "club": contestant["club"],
+    }, new_race
+
+
+def get_starting_position(form: dict, start_entries: list) -> int:
+    """Return the position from the form, or the first free one in the race."""
+    taken = {start_entry["starting_position"] for start_entry in start_entries}
+    position_text = str(form.get("starting_position", "")).strip()
+    if not position_text:
+        return min(set(range(1, len(taken) + 2)) - taken)
+    if not position_text.isdigit() or int(position_text) < 1:
+        msg = "Posisjon må være et tall fra 1 og oppover."
+        raise InvalidStartError(msg)
+    position = int(position_text)
+    if position in taken:
+        msg = f"Posisjon {position} er opptatt."
+        raise InvalidStartError(msg)
+    return position
+
+
+async def get_startlist_id(token: str, event_id: str, start_entries: list) -> str:
+    """Return the id of the startlist that the race's starts belong to."""
+    if start_entries:
+        return start_entries[0]["startlist_id"]
+    startlists = await StartAdapter().get_all_starts_by_event(token, event_id)
+    if not startlists:
+        msg = "Fant ingen startliste for arrangementet."
+        raise InvalidStartError(msg)
+    return startlists[0]["id"]
+
+
+async def update_previous_result(
+    user: dict, form: dict, new_start: dict, new_race: dict
+) -> str:
+    """Point the start's latest finish result to the new race (videre til)."""
+    bib = new_start["bib"]
+    time_events = await TimeEventsAdapter().get_time_events_by_event_id_and_bib(
+        user["token"], form["event_id"], bib
+    )
+    latest_result: dict = {}
+    for time_event in time_events:
+        if (time_event["timing_point"] == "Finish") and (time_event["bib"] == bib):
+            if (not latest_result) or (
+                time_event["registration_time"] > latest_result["registration_time"]
+            ):
+                latest_result = time_event
+    if not latest_result:
+        return ""
+    latest_result["next_race_id"] = new_race["id"]
+    if new_race["round"] == "F":
+        latest_result["next_race"] = f"{new_race['round']}{new_race['index']}"
+    else:
+        latest_result["next_race"] = (
+            f"{new_race['round']}{new_race['index']}{new_race['heat']}"
+        )
+    latest_result["next_race_position"] = new_start["starting_position"]
+    await TimeEventsAdapter().update_time_event(
+        user["token"], latest_result["id"], latest_result
+    )
+    return " Oppdatert videre til fra forrige runde."
 
 
 async def delete_start(user: dict, form: dict) -> str:

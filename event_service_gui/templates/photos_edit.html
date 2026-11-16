@@ -51,12 +51,13 @@
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send("photo_id=" + photo_id + "&action=" + action);
     xhttp.onload = function() {
+      if (login_expired(this.status)) { return; }
       if ("200" == this.responseText) {
         document.getElementById("star_" + photo_id).src = "../static/" + action + ".png";
         document.getElementById("star_" + photo_id).value = action;
       }
       else {
-        document.getElementById('informasjon').innerHTML = this.responseText;
+        document.getElementById('informasjon').textContent = this.responseText;
       }
     }
   }
@@ -161,7 +162,7 @@
             img_{{loop.index}}.onclick = function(){
               modal_{{loop.index}}.style.display = "block";
               modalImg_{{loop.index}}.src = this.src;
-              captionText_{{loop.index}}.innerHTML = this.alt;
+              captionText_{{loop.index}}.textContent = this.alt;
             }
             
             // Get the <span> element that closes the modal

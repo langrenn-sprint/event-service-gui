@@ -21,8 +21,11 @@ from event_service_gui.services import (
 )
 
 from .utils import (
+    LOGIN_AGAIN,
     check_login,
+    check_login_api,
     create_start,
+    error_text,
     get_enrichced_startlist,
     get_event,
     get_finish_timings,
@@ -30,7 +33,11 @@ from .utils import (
     get_qualification_text,
     get_race_kpis,
     get_raceplan_summary,
+    is_login_error,
     login_location,
+    raise_error,
+    raise_login_expired,
+    return_path,
 )
 
 
@@ -146,16 +153,15 @@ class ResultatEditNew(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
     async def post(self) -> web.Response:
         """Post route function that creates deltakerliste."""
-        # check login
-        user = await check_login(self)
+        form = dict(await self.request.post())
+        # check login; the page sends results without reload with ajax=true:
+        user = await (check_login_api(self) if "ajax" in form else check_login(self))
         informasjon = ""
         valgt_runde = ValgtRunde()
-        form = dict(await self.request.post())
 
         try:
             logging.debug(f"Form {form}")
@@ -221,15 +227,14 @@ class ResultatEditNew(web.View):
 
         except Exception as e:
             logging.exception("Error")
-            error_reason = str(e)
-            if error_reason.count("401") > 0:
-                informasjon = (
-                    f"Error 401 - Ingen tilgang, vennligst logg inn på nytt. {e}"
-                )
+            if is_login_error(e):
+                informasjon = f"Error 401 - {LOGIN_AGAIN}"
             else:
-                informasjon += f"{error_reason}. " + informasjon
+                informasjon = f"{informasjon} {error_text(e)}".strip()
 
             # check for update without reload
+            if "ajax" in form and is_login_error(e):
+                raise_login_expired(e)
             if "ajax" in form:
                 response = {
                     "race_results": [],
@@ -238,9 +243,12 @@ class ResultatEditNew(web.View):
                 }
                 json_response = json.dumps(response)
                 return web.Response(text=json_response)
-            raise web.HTTPSeeOther(
-                location=login_location(informasjon, self.request.path_qs)
-            ) from e
+            # Only a missing or expired login goes to the login page:
+            if is_login_error(e):
+                raise web.HTTPSeeOther(
+                    location=login_location(LOGIN_AGAIN, return_path(self.request))
+                ) from e
+            event_id = str(form.get("event_id", ""))
         info = f"{informasjon}&klasse={valgt_runde.klasse}&runde={valgt_runde.runde}"
         raise web.HTTPSeeOther(
             location=f"/resultat_edit_new?event_id={event_id}&informasjon={info}"

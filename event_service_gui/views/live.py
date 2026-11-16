@@ -1,6 +1,5 @@
 """Resource module for live resources."""
 
-import logging
 from operator import itemgetter
 
 import aiohttp_jinja2
@@ -19,6 +18,7 @@ from .utils import (
     check_login_open,
     get_event,
     get_qualification_text,
+    raise_error,
 )
 
 
@@ -103,8 +103,7 @@ class Live(web.View):
                 },
             )
         except Exception as e:
-            logging.exception("Error. Redirect to main page.")
-            raise web.HTTPSeeOther(location=f"/?informasjon={e}") from e
+            raise_error(self, e)
 
 
 async def get_klasse_for_now_view(user: dict, event: dict, gender: str) -> str:
@@ -232,9 +231,7 @@ async def get_races_for_live(
                 races.append(race)
         else:
             races.extend(
-                race
-                for entry in race["start_entries"]
-                if entry["bib"] == valgt_startnr
+                race for entry in race["start_entries"] if entry["bib"] == valgt_startnr
             )
             if not any(
                 entry["bib"] == valgt_startnr for entry in race["start_entries"]
