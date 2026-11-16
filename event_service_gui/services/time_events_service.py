@@ -13,6 +13,7 @@ from event_service_gui.adapters import (
     StartAdapter,
     TimeEventsAdapter,
 )
+from event_service_gui.adapters.login_errors import is_login_error
 
 
 class TimeEventsService:
@@ -297,6 +298,8 @@ async def create_finish_time_event(
             if time_event["next_race"] != "Ute" and result_ok:
                 await StartAdapter().create_start_entry(token, next_start_entry)
         except Exception as e:
+            if is_login_error(e):
+                raise  # the view sends the user to the login page
             # Functional error - return information to user.
             logging.exception("Error")
             informasjon = f"ERROR: {str(e).rstrip('.')}. "
@@ -555,7 +558,9 @@ async def _build_duplicate_time_event_info(
         existing = await TimeEventsAdapter().get_time_events_by_race_id(
             token, time_event["race_id"]
         )
-    except Exception:
+    except Exception as e:
+        if is_login_error(e):
+            raise
         logging.exception("Could not look up existing time-events")
         return f"ERROR: {str(error).rstrip('.')}. "
     for t_e in existing:
@@ -599,7 +604,9 @@ async def delete_result(user: dict, time_event_id: str) -> str:
                     logging.debug(f"Deleted start - result {start_entry['id']}")
         await TimeEventsAdapter().delete_time_event(user["token"], time_event_id)
         informasjon = f"Slettet passering ({time_event['bib']}). {informasjon}"
-    except Exception:
+    except Exception as e:
+        if is_login_error(e):
+            raise  # not "already deleted": the user must log in again
         informasjon = "Time event allerede slettet."
         logging.exception("Error in delete_result")
 

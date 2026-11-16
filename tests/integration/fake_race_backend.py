@@ -302,13 +302,16 @@ ADAPTER_METHODS = {
 
 
 def patch_adapters(monkeypatch: pytest.MonkeyPatch, backend: FakeRaceBackend) -> None:
-    """Let the adapters use the fake backend instead of the services."""
+    """Let the adapters use the fake backend instead of the services.
+
+    The backend's method is looked up on each call, so a test can replace it
+    on the backend, e.g. to let it fail.
+    """
     for adapter, names in ADAPTER_METHODS.items():
         for name in names:
-            fake = getattr(backend, name)
 
-            async def method(self, *args, _fake=fake, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
-                return await _fake(*args, **kwargs)
+            async def method(self, *args, _name=name, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+                return await getattr(backend, _name)(*args, **kwargs)
 
             monkeypatch.setattr(adapter, name, method)
     monkeypatch.setattr(EventsAdapter, "get_club_logo_url", lambda self, club: "")

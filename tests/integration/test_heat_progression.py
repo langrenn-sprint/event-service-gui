@@ -15,6 +15,7 @@ from collections import Counter
 import pytest
 
 from event_service_gui.services import TimeEventsService
+from event_service_gui.services.time_events_service import create_finish_time_event
 
 from .fake_race_backend import (
     EVENT_ID,
@@ -339,3 +340,68 @@ async def test_correcting_result_moves_the_next_start(
     )
 
     assert backend.starts(race_id("SA1")) == [(1, 2), (3, 1)]
+
+
+# --- Expired login while saving ------------------------------------------------------
+
+LOGIN_401 = Exception("create_time_event failed - 401-Unauthorized")
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    ("method", "error"),
+    [
+        ("create_time_event", LOGIN_401),
+        ("create_start_entry", Exception("Error - 401: Unauthorized.")),
+    ],
+)
+async def test_expired_login_when_saving_finish_is_raised(
+    quarter_final_1: FakeRaceBackend,
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+    error: Exception,
+) -> None:
+    """Not turned into "ERROR: …", so the view sends the user to log in."""
+
+    async def fail(*_: object, **__: object) -> None:
+        raise error
+
+    monkeypatch.setattr(quarter_final_1, method, fail)
+    with pytest.raises(Exception, match="401"):
+        await TimeEventsService().update_finish_time_events(
+            USER, [], [finish("QA1", 1, 1)]
+        )
+
+
+@pytest.mark.integration
+async def test_expired_login_when_explaining_duplicate_is_raised(
+    quarter_final_1: FakeRaceBackend, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    backend = quarter_final_1
+    await TimeEventsService().update_finish_time_events(USER, [], [finish("QA1", 1, 1)])
+
+    async def fail(*_: object, **__: object) -> None:
+        raise LOGIN_401
+
+    monkeypatch.setattr(backend, "get_time_events_by_race_id", fail)
+    with pytest.raises(Exception, match="401"):
+        # update_finish_time_events reads the race's time events first
+        await create_finish_time_event("t", finish("QA1", 1, 2), [], "startlist-1")
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("method", ["get_time_event_by_id", "delete_time_event"])
+async def test_expired_login_when_deleting_result_is_raised(
+    quarter_final_1: FakeRaceBackend, monkeypatch: pytest.MonkeyPatch, method: str
+) -> None:
+    """Not reported as "Time event allerede slettet"."""
+    backend = quarter_final_1
+    await TimeEventsService().update_finish_time_events(USER, [], [finish("QA1", 1, 1)])
+    [first] = [t for t in backend.time_events if t["bib"] == 1]
+
+    async def fail(*_: object, **__: object) -> None:
+        raise LOGIN_401
+
+    monkeypatch.setattr(backend, method, fail)
+    with pytest.raises(Exception, match="401"):
+        await TimeEventsService().update_finish_time_events(USER, [first["id"]], [])
