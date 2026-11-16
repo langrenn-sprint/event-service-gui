@@ -200,14 +200,17 @@ class TimeEventsService:
             new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
             informasjon += f" {new_t_e['bib']}: {new_t_e['status']}. "
 
-        # A registered start replaces an earlier DNS for the same bib:
+        # A registered start replaces an earlier DNS for the bib in the same
+        # race. DNS in other races (e.g. round 1 when starting round 2) stays.
         if time_event["timing_point"] == "Start":
             for (
                 earlier
             ) in await TimeEventsAdapter().get_time_events_by_event_id_and_bib(
                 token, time_event["event_id"], time_event["bib"]
             ):
-                if earlier["timing_point"] == "DNS":
+                if earlier["timing_point"] == "DNS" and earlier.get(
+                    "race_id"
+                ) == time_event.get("race_id"):
                     await TimeEventsAdapter().delete_time_event(token, earlier["id"])
                     informasjon += " Slettet DNS registrering. "
 

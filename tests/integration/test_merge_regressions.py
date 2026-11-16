@@ -1,6 +1,6 @@
 """Integration test cases for event-service-gui features changed by #227.
 
-- Registering a start deletes an earlier DNS for the same bib.
+- Registering a start deletes an earlier DNS for the same bib in the same race.
 - The control page rotates semi final templates again (shift_position).
 """
 
@@ -40,11 +40,12 @@ class FakeTimeEvents:
         return "204"
 
 
-def start_event(bib: int, timing_point: str) -> dict:
+def start_event(bib: int, timing_point: str, race_id: str = "R1A1") -> dict:
     return {
         "id": "",
         "bib": bib,
         "event_id": EVENT_ID,
+        "race_id": race_id,
         "timing_point": timing_point,
         "status": "OK",
     }
@@ -54,8 +55,9 @@ def start_event(bib: int, timing_point: str) -> dict:
 def time_events(monkeypatch: pytest.MonkeyPatch) -> FakeTimeEvents:
     fake = FakeTimeEvents(
         [
-            {"id": "dns-12", "bib": 12, "timing_point": "DNS", "status": "OK"},
-            {"id": "dns-13", "bib": 13, "timing_point": "DNS", "status": "OK"},
+            {"id": "dns-12", "bib": 12, "race_id": "R1A1", "timing_point": "DNS"},
+            {"id": "dns-13", "bib": 13, "race_id": "R1A1", "timing_point": "DNS"},
+            {"id": "dns-12-r2", "bib": 12, "race_id": "R2A1", "timing_point": "DNS"},
         ]
     )
     for name in (
@@ -76,6 +78,15 @@ async def test_start_deletes_earlier_dns(time_events: FakeTimeEvents) -> None:
     )
     assert time_events.deleted == ["dns-12"]
     assert "Slettet DNS registrering" in informasjon
+
+
+@pytest.mark.integration
+async def test_start_keeps_dns_in_other_races(time_events: FakeTimeEvents) -> None:
+    """DNS in round 1 stays when the bib starts in round 2, and the other way."""
+    await TimeEventsService().create_start_time_event(
+        "t", start_event(12, "Start", race_id="R2A2")
+    )
+    assert time_events.deleted == []
 
 
 @pytest.mark.integration
