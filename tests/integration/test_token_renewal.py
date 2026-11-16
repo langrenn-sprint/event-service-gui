@@ -15,11 +15,14 @@ from yarl import URL
 
 from event_service_gui.adapters.user_adapter import token_needs_renewal
 from event_service_gui.middleware import skip_token_renewal
+from event_service_gui.views.utils import LOGIN_AGAIN
 
 USER_SERVICE_URL = "http://user-service:8080"
 RENEW_URL = f"{USER_SERVICE_URL}/token/renew"
 USERS_URL = f"{USER_SERVICE_URL}/users"
 LIFETIME = 3600
+# Browsers ask for HTML when they load a page or post a form.
+PAGE = {"Accept": "text/html,application/xhtml+xml,*/*;q=0.8"}
 
 
 def make_token(claims: dict) -> str:
@@ -52,7 +55,12 @@ def mocked() -> Iterator[aioresponses]:
 def token_at(clock_time: float, name: str) -> str:
     """Return a token issued at clock_time, with `name` to tell tokens apart."""
     return make_token(
-        {"username": "tester", "role": "admin", "name": name, "exp": clock_time + LIFETIME}
+        {
+            "username": "tester",
+            "role": "admin",
+            "name": name,
+            "exp": clock_time + LIFETIME,
+        }
     )
 
 
@@ -173,7 +181,7 @@ async def test_renewal_refused_logs_out(
     clock.offset = LIFETIME / 2 + 60
     mocked.post(RENEW_URL, status=401)
 
-    resp = await client.get("/users?new=1", allow_redirects=False)
+    resp = await client.get("/users?new=1", headers=PAGE, allow_redirects=False)
     assert resp.status == 303
     location = resp.headers["Location"]
     assert location.startswith("/login?")
@@ -184,6 +192,36 @@ async def test_renewal_refused_logs_out(
     assert resp.status == 303
     assert resp.headers["Location"].startswith("/login?")
     assert len(calls(mocked, "POST", RENEW_URL)) == 1
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "path",
+    ["/system/status", "/video_events", "/timing_info?action=DNS&event_id=e1"],
+)
+async def test_renewal_refused_in_request_from_page_gives_401(
+    client: _TestClient, mocked: aioresponses, clock: Clock, path: str
+) -> None:
+    """XMLHttpRequest and fetch get 401 with JSON, not the login page.
+
+    They would follow a redirect and get the login page's HTML with status 200,
+    so the page could not tell the user that the login has expired.
+    """
+    await login(client, mocked, token_at(time.time(), "old"))
+    clock.offset = LIFETIME / 2 + 60
+    mocked.post(RENEW_URL, status=401)
+
+    resp = await client.post(path, headers={"Accept": "*/*"}, allow_redirects=False)
+    assert resp.status == 401
+    assert resp.headers["Cache-Control"] == "no-store"
+    assert json.loads(await resp.text()) == {
+        "error": "unauthorized",
+        "informasjon": LOGIN_AGAIN,
+    }
+    # logged out, as for pages
+    resp = await client.get("/users", headers=PAGE, allow_redirects=False)
+    assert resp.status == 303
+    assert resp.headers["Location"].startswith("/login?")
 
 
 @pytest.mark.integration
