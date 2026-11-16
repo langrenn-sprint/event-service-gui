@@ -153,9 +153,9 @@ async def test_sprint_ranking_follows_the_heats(
         (11, 7, "FB"), (12, 8, "FB"), (13, 9, "FB"), (14, 10, "FB"),
         # final C: after final B
         (31, 11, "FC"), (32, 12, "FC"), (33, 13, "FC"),
-        # out in semi final C: share the next place
+        # out in semi final C: share the next place (see #233)
         (34, 14, "SC"), (35, 14, "SC"),
-        # did not finish: last, without place, in race order
+        # did not finish: last, without place, in race order (see #234)
         (36, None, "DNF"), (7, None, "DNF"),
     ]  # fmt: skip
     assert results["no_of_contestants"] == 17
@@ -237,8 +237,8 @@ async def test_interval_start_ranking_is_finish_order(
     await RaceclassResultsService().create_raceclass_results("t", INTERVAL, RACECLASS)
 
     stored = backend.raceclass_results[RACECLASS]
-    # 7 did not finish and is not in the list; the place is stored as text
-    assert ranking(stored) == [(6, "1", "R1"), (5, "2", "R1")]
+    # 7 did not finish and is not in the list; the place is a number, as for sprint
+    assert ranking(stored) == [(6, 1, "R1"), (5, 2, "R1")]
     assert stored["no_of_contestants"] == 2
 
 

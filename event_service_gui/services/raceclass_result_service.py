@@ -220,7 +220,7 @@ async def get_results_from_interval_start(
         if _tmp_result["timing_point"] == "Finish":
             new_result: dict = {
                 "bib": _tmp_result["bib"],
-                "rank": f"{_tmp_result['rank']}",
+                "rank": _tmp_result["rank"],
                 "round": f"{race['round']}",
                 "name": _tmp_result["name"],
                 "club": _tmp_result["club"],
