@@ -160,7 +160,7 @@ class ContestantsAdapter:
                 for update in body["updated"]:
                     informasjon += f"<br>- {update}"
             if body["failures"]:
-                informasjon += f"<br><br>Error ({len(body['failures'])}):"
+                informasjon += f"<br><br>Feil ({len(body['failures'])}):"
                 for failure in body["failures"]:
                     informasjon += f"<br>- {failure}"
         except Exception:

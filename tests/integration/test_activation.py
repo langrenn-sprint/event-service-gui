@@ -111,7 +111,7 @@ async def test_create_user_with_password(client: _TestClient) -> None:
         mocked.post(USERS_URL, status=201, headers={"Location": "/users/u2"})
         resp = await client.post("/users", data=form, allow_redirects=False)
 
-    assert location(resp)[1] == {"informasjon": "Ny bruker opprettet med id u2"}
+    assert location(resp)[1] == {"informasjon": "Ny bruker er opprettet."}
     assert requests_to(mocked, USERS_URL) == [
         {"role": "admin", "username": "test", "password": "et-langt-passord"}
     ]

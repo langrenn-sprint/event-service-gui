@@ -78,7 +78,7 @@ class Config(web.View):
                     await ConfigAdapter().update_config(
                         user["token"], event_id, key, str(form["value"])
                     )
-                    informasjon = "Suksess. Informasjon er oppdatert."
+                    informasjon = "Innstillingene er oppdatert."
         except web.HTTPForbidden as e:
             informasjon = str(e.reason)
         except Exception as e:

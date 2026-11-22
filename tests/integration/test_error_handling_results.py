@@ -65,7 +65,8 @@ def test_error_text() -> None:
         "Det har oppstått en feil: Klassen mangler resultater"
     )
     assert error_text(web.HTTPBadRequest(reason="Error - 404: Not found.")) == (
-        "Det har oppstått en feil: Error - 404: Not found."
+        "Handlingen kunne ikke fullføres. Prøv igjen. "
+        "Teknisk informasjon: HTTP 404: Not found."
     )
     # Programming errors are not shown to the user:
     assert error_text(TypeError("'NoneType' object is not subscriptable")) == (
@@ -110,7 +111,8 @@ def test_raise_error_lets_redirects_through() -> None:
         ),
         (
             web.HTTPBadRequest(reason="Error - 404: Race not found."),
-            "Det har oppstått en feil: Error - 404: Race not found.",
+                "Handlingen kunne ikke fullføres. Prøv igjen. "
+                "Teknisk informasjon: HTTP 404: Race not found.",
         ),
     ],
 )
@@ -409,5 +411,5 @@ async def test_login_error_message(
         "/login", data={"username": "u", "password": "p"}, allow_redirects=False
     )
     text = await resp.text()
-    assert f"Innlogging feilet. {UNEXPECTED_ERROR}" in text
+    assert f"Innloggingen mislyktes. {UNEXPECTED_ERROR}" in text
     assert "NoneType" not in text

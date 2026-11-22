@@ -91,6 +91,9 @@ ignore = [
     "TRY301",
 ]
 
+[tool.ruff.lint.pylint]
+max-positional-args = 6
+
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["ALL"]
 #     # at least this three should be fine in tests:

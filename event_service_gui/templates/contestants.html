@@ -30,26 +30,25 @@
 
 {% block tips %}
   {% if action == "new_manual" %}
-      <! --- Information --->
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/sixRb7-tF7Q?si=IorTeuvRpN56Wkap&amp;clip=UgkxqQg_OqUIiNueyUAiVPaHcrG_920bsezJ&amp;clipt=ENX-AxjdvQU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-      <! --- End Information --->
+      <p>Se videoen for en gjennomgang av etteranmelding.</p>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/sixRb7-tF7Q?si=IorTeuvRpN56Wkap&amp;clip=UgkxqQg_OqUIiNueyUAiVPaHcrG_920bsezJ&amp;clipt=ENX-AxjdvQU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   {% elif action == "new_from_file" %}
-      Det aksepteres 4 ulike filtyper<br>
-      <b>1. Sportsadmin</b>: Last ned deltakerliste og lagre som kommaseparert (csv) fil <a href="../static/data/test_deltakerliste_sportsadmin.csv">(eksempelfil: test_deltakerliste_sportsadmin.csv)</a>.<br>
-      &nbsp;&nbsp;&nbsp;Start med å eksportere deltakerliste fra Sportsadmin. Brukerveiledning for eksportering finnes i <a target=_blank href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target=_blank>Sportsadmin</a>.<br><br>
-      <b>2. isonen</b>: Last ned deltakerliste og lagre som semikolonseparert (csv) fil.<br><br>
-      <b>3. Emit ET6</b>: Last ned Emit startliste og lagre som xml-fil. Krever ET6 i filnavnet.<br><br>
-      <b>4. Fra eget excel-skjema</b>: Krever 'excel_manual' i filnavnet. Lagre som csv fil i UTF8 format og importer <a target=_blank href="../static/data/test_excel_manual1314.csv">(eksempelfil: test_excel_manual1314.csv)</a><br>
-      Headere i filen som støttes er:<br>
+      <p>Du kan importere deltakerlister fra fire filformater:</p>
+      <b>1. SportsAdmin</b>: Eksporter deltakerlisten og lagre den som en kommaseparert CSV-fil. Se <a href="../static/data/test_deltakerliste_sportsadmin.csv">eksempelfilen</a>. <a href="https://itinfo.nif.no/SportsAdmin_Arrangement#Eksportere_til_Excel_og_XML" target="_blank">Veiledning for eksport fra SportsAdmin</a>.<br><br>
+      <b>2. iSonen</b>: Last ned deltakerlisten og lagre den som en semikolonseparert CSV-fil.<br><br>
+      <b>3. Emit ET6</b>: Last ned startlisten som XML-fil. Filnavnet må inneholde «ET6».<br><br>
+      <b>4. Eget Excel-skjema</b>: Lagre som CSV i UTF-8-format. Filnavnet må inneholde «excel_manual». Se <a href="../static/data/test_excel_manual1314.csv" target="_blank">eksempelfilen</a>. Dette formatet kan også inneholde seeding-poeng.<br>
+      Støttede kolonneoverskrifter:<br>
       <ul>
-        <li>Startnr (valgfritt)</li><br>
-        <li>Fornavn</li><br>
-        <li>Etternavn (i stedet for Fornavn og Etternavn kan et felt Navn benyttes, som da må inneholde både for- og etternavn)</li><br>
-        <li>Klasse</li> (årsklasse, f.eks J 15 år)<br>
-        <li>Klubb</li><br>
-        <li>Krets</li><br>
-        <li>Seedet (valgfritt) - heltall der 1 er beste seeding</li><br>
-        <li>Påmeldt (valgfritt) - krever isoformat: 2024-01-05T19:48:03</li><br>
+        <li>Startnr (valgfritt)</li>
+        <li>Fornavn</li>
+        <li>Etternavn (valgfritt hvis kolonnen «Navn» inneholder både for- og etternavn)</li>
+        <li>Navn (valgfritt hvis «Fornavn» og «Etternavn» brukes)</li>
+        <li>Klasse (årsklasse, for eksempel J 15 år)</li>
+        <li>Klubb</li>
+        <li>Krets</li>
+        <li>Seedet (valgfritt; heltall der 1 er best)</li>
+        <li>Påmeldt (valgfritt; ISO-format, for eksempel 2024-01-05T19:48:03)</li>
       </ul>
   {% endif %}
 {% endblock %}

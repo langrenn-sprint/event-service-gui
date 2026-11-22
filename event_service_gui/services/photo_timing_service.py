@@ -60,7 +60,7 @@ class PhotoTimingService:
                         add_result_list.append(new_result)
 
                 except Exception as e:
-                    informasjon = f"create_time_event_from_photo: Kunne ikke opprette passering automatisk {photo} - {e}"
+                    informasjon = f"Kunne ikke opprette passering automatisk fra bildet {photo}: {e}"
                     logging.exception(informasjon)
 
             # delete old results - if new results exists
@@ -82,6 +82,6 @@ class PhotoTimingService:
             else:
                 informasjon = "Ingen nye resultater funnet i målfoto. "
         except Exception as e:
-            informasjon = f"create_time_event_from_photo: {e}"
+            informasjon = f"Kunne ikke behandle målfoto: {e}"
             logging.exception(informasjon)
         return informasjon

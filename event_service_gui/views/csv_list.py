@@ -28,7 +28,7 @@ class CsvList(web.View):
             event_id = self.request.rel_url.query["event_id"]
             action = self.request.rel_url.query["action"]
         except Exception:
-            informasjon = "Ingen event eller action valgt. Kan ikke vise informasjon"
+            informasjon = "Velg et arrangement og en handling for å vise innholdet."
             raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}") from None
 
         user = await check_login_open(self)

@@ -95,7 +95,7 @@ class Events(web.View):
                 event_id = await EventsAdapter().create_event(
                     user["token"], request_body
                 )
-                informasjon = f"Opprettet nytt arrangement,  event_id {event_id}"
+                informasjon = "Arrangementet er opprettet."
                 action = "next_contestants"
                 info = f"action={action}&informasjon={informasjon}"
                 raise web.HTTPSeeOther(location=f"/tasks?event_id={event_id}&{info}")
@@ -118,14 +118,14 @@ class Events(web.View):
                     ],
                     "id": event_id,
                 }
-                res = await EventsAdapter().update_event(
+                await EventsAdapter().update_event(
                     user["token"], event_id, request_body
                 )
-                informasjon = f"Arrangementinformasjon er oppdatert {res}."
+                informasjon = "Arrangementinformasjonen er oppdatert."
             elif "delete" in form:
                 event_id = str(form["event_id"])
-                res = await EventsAdapter().delete_event(user["token"], event_id)
-                informasjon = f"Arrangement er slettet {res}."
+                await EventsAdapter().delete_event(user["token"], event_id)
+                informasjon = "Arrangementet er slettet."
                 raise web.HTTPSeeOther(location=f"/?informasjon={informasjon}")
         except web.HTTPRedirection:
             raise  # redirects from the try body, not errors

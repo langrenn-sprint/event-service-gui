@@ -176,12 +176,12 @@ class Contestants(web.View):
             if "update_one" in form:
                 request_body = get_contestant_from_form(event, dict(form))
                 request_body["id"] = str(form["id"])
-                result = await ContestantsAdapter().update_contestant(
+                await ContestantsAdapter().update_contestant(
                     user["token"], event_id, request_body
                 )
-                informasjon = f"Informasjon er oppdatert - {result}"
+                informasjon = "Deltakerinformasjonen er oppdatert."
             elif "delete_select" in form:
-                informasjon = "Sletting utført: "
+                informasjon = "Slettingen er gjennomført."
                 for key in form:
                     if key.startswith("slett_"):
                         try:
@@ -189,21 +189,20 @@ class Contestants(web.View):
                             contestant = await ContestantsAdapter().get_contestant(
                                 user["token"], event_id, contestant_id
                             )
-                            result = await ContestantsAdapter().delete_contestant(
+                            await ContestantsAdapter().delete_contestant(
                                 user["token"], event_id, contestant
                             )
-                            informasjon += f"OK:{key} "
                         except Exception as e:
                             if is_login_error(e):
                                 raise
                             logging.exception("Error deleting contestant")
-                            informasjon += f"Feil:{key}({error_text(e)}) "
+                            informasjon += f"<br>Kunne ikke slette en deltaker: {error_text(e)}"
 
             elif "delete_all" in form:
-                result = await ContestantsAdapter().delete_all_contestants(
+                await ContestantsAdapter().delete_all_contestants(
                     user["token"], event_id
                 )
-                informasjon = f"Deltakerne er slettet - {result}"
+                informasjon = "Alle deltakerne er slettet."
         except web.HTTPRedirection:
             raise  # redirects from the try body, not errors
         except Exception as e:
@@ -395,9 +394,9 @@ async def create_contestants_from_excel(token: str, event: dict, file) -> str:
             error_text = f"For mange feil i filen - avsluttet import. {error_text}"
             break
 
-    informasjon = f"Fil import: {i_contestants} opprettet og {i_errors} feil."
+    informasjon = f"Filimport fullført: {i_contestants} deltakere opprettet, {i_errors} feil."
     if error_text:
-        informasjon += f"<br>Error: {error_text}"
+        informasjon += f"<br>Feil: {error_text}"
     return informasjon
 
 
@@ -473,9 +472,9 @@ async def create_contestants_from_emit(token: str, event: dict, file) -> str:
             i_contestants += 1
         else:
             error_text += f"<br>{ret}"
-        informasjon = f"Deltakere er opprettet - {i_contestants} totalt."
+        informasjon = f"Deltakerimport fullført: {i_contestants} deltakere opprettet."
         if error_text:
-            informasjon += f"<br>Error: {error_text}"
+            informasjon += f"<br>Feil: {error_text}"
     return informasjon
 
 

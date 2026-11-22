@@ -274,7 +274,5 @@
 <script src="{{ url('static', filename='system.js') }}" defer></script>
 {% endblock %}
 {% block tips %}
-  Siden oppdateres automatisk hvert 15. sekund, og tjenestene sjekkes (ping) hver gang.
-  Statusfila skrives av deploy-skriptene hvert 30. sekund.
-  Backup og status regnes som utdatert etter 15 minutter.
+  Siden oppdateres automatisk hvert 15. sekund og kontrollerer tjenestene på nytt. Deploy-skriptene oppdaterer statusfilen hvert 30. sekund. Backup og status regnes som utdaterte etter 15 minutter.
 {% endblock %}

@@ -70,7 +70,7 @@ async def test_templates_follow_the_qualification_rules(
         # top 3 in semi final C to final C, the rest are out: no template
         assert [places.get((f"SC{heat}", rank)) for rank in range(4, 9)] == [None] * 5
         assert {places[(f"SC{heat}", rank)][0] for rank in range(1, 4)} == {"FC"}
-    assert informasjon == f"Suksess! Opprettet {len(backend.templates())} templates. "
+    assert informasjon == f"Opprettet {len(backend.templates())} maler for videreplassering. "
 
 
 @pytest.mark.integration
@@ -229,7 +229,7 @@ async def test_finish_for_unknown_bib_is_not_saved(
     informasjon = await TimeEventsService().update_finish_time_events(
         USER, [], [finish("QA1", 99, 1)]
     )
-    assert "Bib 99: Fant ingen deltaker" in informasjon
+    assert "Fant ingen deltaker med startnr 99." in informasjon
     assert [
         t for t in quarter_final_1.time_events if t["timing_point"] == "Finish"
     ] == []
@@ -262,7 +262,7 @@ async def test_second_finish_for_same_bib_is_explained(
         USER, [], [finish("QA1", 1, 2)]
     )
 
-    assert informasjon == f"ERROR: Bib 1 er allerede registrert i {RACECLASS}-QA1. "
+    assert informasjon == f"Feil: Startnr 1 er allerede registrert i heat {RACECLASS}-QA1. "
     assert backend.starts(race_id("SA1")) == [(1, 1)]
 
 
@@ -283,10 +283,10 @@ async def test_blocking_error_finish_is_explained(
     )
 
     assert informasjon.startswith(
-        f"ERROR: Bib 50 har allerede en passering i {RACECLASS}-QA1 med status Error"
+        f"Feil: Startnr 50 har allerede en passering i heat {RACECLASS}-QA1 med status Feil"
     )
     assert "Årsak: Bib 50 er ikke i startlisten." in informasjon
-    assert "Slett den under Kontroll" in informasjon
+    assert "Slett den på siden «Korrigere»" in informasjon
 
 
 # --- Deleting results -----------------------------------------------------------------
@@ -321,7 +321,7 @@ async def test_deleting_result_twice_says_so(quarter_final_1: FakeRaceBackend) -
         USER, [first["id"]], []
     )
 
-    assert informasjon == "Time event allerede slettet."
+    assert informasjon == "Passeringen er allerede slettet."
 
 
 @pytest.mark.integration

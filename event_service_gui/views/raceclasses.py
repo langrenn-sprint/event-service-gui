@@ -80,23 +80,23 @@ class Raceclasses(web.View):
         try:
             # delete_all
             if "delete_all" in form:
-                res = await RaceclassesAdapter().delete_all_raceclasses(
+                await RaceclassesAdapter().delete_all_raceclasses(
                     user["token"], event_id
                 )
-                informasjon = f"Klasser er slettet - {res}"
+                informasjon = "Alle løpsklassene er slettet."
             # delete
             elif "delete_one" in form:
-                res = await RaceclassesAdapter().delete_raceclass(
+                await RaceclassesAdapter().delete_raceclass(
                     user["token"], event_id, str(form["id"])
                 )
-                informasjon = f"Klasse er slettet - {res}"
+                informasjon = "Løpsklassen er slettet."
             # Create classes from list of contestants
             elif "generate_raceclasses" in form:
                 informasjon = await EventsAdapter().generate_classes(
                     user["token"], event_id
                 )
                 informasjon += (
-                    " Neste steg: Velg slå sammen klasser eller rediger statrekkefølge."
+                    " Neste steg: Slå eventuelt sammen klasser, og kontroller startrekkefølgen."
                 )
                 raise web.HTTPSeeOther(
                     location=f"/raceclasses?event_id={event_id}&action=edit_mode&informasjon={informasjon}"
@@ -104,7 +104,7 @@ class Raceclasses(web.View):
             elif "merge_ageclasses" in form:
                 informasjon = await merge_ageclasses(user, event_id, dict(form))
             elif "refresh_no_of_contestants" in form:
-                informasjon = "Ikke implementert. Rediger manuelt pr klasse."
+                informasjon = "Oppdatering av deltakerantall er ikke tilgjengelig. Rediger klassene manuelt."
             elif "update_one" in form:
                 informasjon = await update_one(user, event_id, dict(form))
             elif "update_order" in form:
@@ -167,7 +167,7 @@ async def merge_ageclasses(user: dict, event_id: str, form: dict) -> str:
         informasjon = f"Slått sammen klasser {merged_ageclasses}."
         informasjon += " Husk å sette rekkefølge på nytt."
     else:
-        informasjon = "Slå sammen klasser - ingen endringer utført"
+        informasjon = "Velg minst to klasser for å slå dem sammen. Ingen endringer ble gjort."
 
     return informasjon
 
@@ -196,10 +196,10 @@ async def update_one(user: dict, event_id: str, form: dict) -> str:
         "ageclasses": ageclasses,
         "no_of_contestants": int(form["no_of_contestants"]),
     }
-    result = await RaceclassesAdapter().update_raceclass(
+    await RaceclassesAdapter().update_raceclass(
         user["token"], event_id, w_id, request_body
     )
-    return f"Informasjon er oppdatert - {result}"
+    return "Løpsklassen er oppdatert."
 
 
 async def update_order(user: dict, event_id: str, form: dict) -> str:

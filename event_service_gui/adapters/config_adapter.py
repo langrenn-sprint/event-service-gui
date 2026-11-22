@@ -48,7 +48,7 @@ def default_value(key: str) -> str:
     settings = default_settings()
     if key in settings:
         return settings[key]
-    informasjon = f"Config {key} not found in global_settings.json."
+    informasjon = f"Fant ikke innstillingen {key} i global_settings.json."
     logging.error(informasjon)
     raise web.HTTPBadRequest(reason=informasjon)
 
@@ -182,7 +182,7 @@ class ConfigAdapter:
         try:
             tuple_value = tuple(map(int, string_value.split("x")))
         except ValueError:
-            informasjon = f"Error - {key} is not a tuple."
+            informasjon = f"Feil: Innstillingen {key} må være en tuppel."
             raise Exception(informasjon) from None
         return tuple_value
 

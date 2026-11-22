@@ -48,7 +48,7 @@ async def test_events_delete_redirects(
         "/events", data={"delete": "1", "event_id": "e1"}, allow_redirects=False
     )
     assert resp.status == 303
-    assert location(resp) == ("/", {"informasjon": "Arrangement er slettet 204."})
+    assert location(resp) == ("/", {"informasjon": "Arrangementet er slettet."})
 
 
 @pytest.mark.integration
@@ -78,7 +78,7 @@ async def test_raceplans_generate_redirects(
     assert resp.status == 303
     assert location(resp) == (
         "/tasks",
-        {"event_id": "e1", "informasjon": "Opprettet kjøreplan - OK"},
+        {"event_id": "e1", "informasjon": "Kjøreplanen er opprettet."},
     )
 
 

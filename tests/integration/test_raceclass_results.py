@@ -247,7 +247,7 @@ async def test_interval_start_needs_exactly_one_race(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     interval_backend(monkeypatch, 2)
-    with pytest.raises(Exception, match="Wrong number of races"):
+    with pytest.raises(Exception, match="nøyaktig ett heat"):
         await RaceclassResultsService().create_raceclass_results(
             "t", INTERVAL, RACECLASS
         )

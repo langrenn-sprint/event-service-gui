@@ -80,18 +80,18 @@ class Tasks(web.View):
                 )
 
             elif "delete_all_cont" in form:
-                res = await ContestantsAdapter().delete_all_contestants(
+                await ContestantsAdapter().delete_all_contestants(
                     user["token"], event_id
                 )
-                informasjon = f"Deltakerne er slettet - {res}"
+                informasjon = "Alle deltakerne er slettet."
             elif "delete_all_raceplans" in form:
-                res = await RaceplansAdapter().delete_raceplans(user["token"], event_id)
-                informasjon = f"Kjøreplaner er slettet - {res}"
+                await RaceplansAdapter().delete_raceplans(user["token"], event_id)
+                informasjon = "Alle kjøreplanene er slettet."
             elif "delete_all_raceclasses" in form:
-                res = await RaceclassesAdapter().delete_all_raceclasses(
+                await RaceclassesAdapter().delete_all_raceclasses(
                     user["token"], event_id
                 )
-                informasjon = f"Klasser er slettet - {res}"
+                informasjon = "Alle løpsklassene er slettet."
             elif "delete_time_events" in form:
                 informasjon = await delete_time_events(user["token"], event_id)
             elif "delete_start_lists" in form:

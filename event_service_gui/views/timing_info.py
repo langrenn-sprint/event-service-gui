@@ -65,5 +65,5 @@ async def get_dns(user: dict, event_id: str, race_order: int) -> dict:
         ]
         response = {"race_order": race_order, "dns_list": dns_list}
     else:
-        response = {"informasjon": "Ukjent action"}
+        response = {"informasjon": "Ukjent handling."}
     return response

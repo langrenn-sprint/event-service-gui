@@ -1,6 +1,5 @@
 """Resource module for photo edit view."""
 
-import logging
 
 import aiohttp_jinja2
 from aiohttp import web
@@ -116,15 +115,11 @@ class PhotosEdit(web.View):
                     user["token"], event_id, 51
                 )
             elif "delete_select" in form:
-                informasjon = "Sletting utført: "
+                informasjon = "Valgte bilder er slettet."
                 for key, value in form.items():
                     if key.startswith("update_"):
                         photo_id = str(value)
-                        result = await PhotosAdapter().delete_photo(
-                            user["token"], photo_id
-                        )
-                        logging.debug(f"Deleted photo - {result}")
-                        informasjon += f"{key} "
+                        await PhotosAdapter().delete_photo(user["token"], photo_id)
         except Exception as e:
             informasjon = error_message(self, e)
 

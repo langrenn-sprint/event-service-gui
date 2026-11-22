@@ -96,7 +96,15 @@ def test_error_text() -> None:
         "Det har oppstått en feil: Klassen mangler"
     )
     assert error_text(web.HTTPBadRequest(reason="Error - 404: Not found.")) == (
-        "Det har oppstått en feil: Error - 404: Not found."
+        "Handlingen kunne ikke fullføres. Prøv igjen. "
+        "Teknisk informasjon: HTTP 404: Not found."
+    )
+    assert error_text(web.HTTPBadRequest(reason="get users failed - 500 - offline")) == (
+        "Handlingen kunne ikke fullføres. Prøv igjen. "
+        "Teknisk informasjon: HTTP 500: offline"
+    )
+    assert error_text(web.HTTPBadRequest(reason="Get users failed.")) == (
+        "Handlingen kunne ikke fullføres. Prøv igjen."
     )
     assert error_text(TypeError("'NoneType' object is not subscriptable")) == (
         UNEXPECTED_ERROR
@@ -146,7 +154,8 @@ def test_raise_error_lets_redirects_through() -> None:
         (Exception("Klassen mangler"), "Det har oppstått en feil: Klassen mangler"),
         (
             web.HTTPBadRequest(reason="Error - 404: Event not found."),
-            "Det har oppstått en feil: Error - 404: Event not found.",
+            "Handlingen kunne ikke fullføres. Prøv igjen. "
+            "Teknisk informasjon: HTTP 404: Event not found.",
         ),
     ],
 )
@@ -258,7 +267,8 @@ def test_error_message() -> None:
         # An HTTP error from a backend service, which before became a 400 page:
         (
             web.HTTPBadRequest(reason="Error - 404: Event not found."),
-            "Det har oppstått en feil: Error - 404: Event not found.",
+                "Handlingen kunne ikke fullføres. Prøv igjen. "
+                "Teknisk informasjon: HTTP 404: Event not found.",
         ),
     ],
 )
@@ -296,5 +306,5 @@ async def test_login_error_message(
         "/login", data={"username": "u", "password": "p"}, allow_redirects=False
     )
     text = await resp.text()
-    assert f"Innlogging feilet. {UNEXPECTED_ERROR}" in text
+    assert f"Innloggingen mislyktes. {UNEXPECTED_ERROR}" in text
     assert "NoneType" not in text

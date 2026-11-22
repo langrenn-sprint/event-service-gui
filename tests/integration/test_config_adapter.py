@@ -128,7 +128,7 @@ async def test_get_missing_setting_gives_default_without_saving(
 async def test_get_unknown_setting(photo_service: FakePhotoService) -> None:
     with pytest.raises(web.HTTPBadRequest) as e:
         await ConfigAdapter().get_config("t", EVENT_ID, "NO_SUCH_SETTING")
-    assert "NO_SUCH_SETTING not found" in e.value.reason
+    assert "Fant ikke innstillingen NO_SUCH_SETTING" in e.value.reason
     assert photo_service.writes == []
 
 
@@ -166,7 +166,7 @@ async def test_update_missing_setting_saves_the_new_value(
 async def test_update_unknown_setting(photo_service: FakePhotoService) -> None:
     with pytest.raises(web.HTTPBadRequest) as e:
         await ConfigAdapter().update_config("t", EVENT_ID, "NO_SUCH_SETTING", "x")
-    assert "NO_SUCH_SETTING not found" in e.value.reason
+    assert "Fant ikke innstillingen NO_SUCH_SETTING" in e.value.reason
     assert [method for method, _ in photo_service.writes] == ["PUT"]
     assert photo_service.settings == {}
 

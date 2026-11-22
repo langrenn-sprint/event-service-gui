@@ -208,7 +208,7 @@ async def get_results_from_interval_start(
 
     # interval start - only one race
     if len(races) != 1:
-        informasjon = "Error: Wrong number of races."
+        informasjon = "Feil: Det må være nøyaktig ett heat i en klasse med intervallstart."
         raise Exception(informasjon)
     race = races[0]
 

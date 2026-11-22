@@ -67,15 +67,15 @@ class Login(web.View):
                 str(form["username"]), str(form["password"]), session
             )
             if result == 200:
-                informasjon = "Innlogget!"
+                informasjon = "Du er logget inn."
             elif result == HTTPStatus.FORBIDDEN:
                 informasjon = NOT_ACTIVATED
             else:
-                informasjon = f"Innlogging feilet - {result}"
+                informasjon = f"Innloggingen mislyktes: {result}"
 
         except Exception as e:
             logging.exception("Error")
-            informasjon = f"Innlogging feilet. {error_text(e)}"
+            informasjon = f"Innloggingen mislyktes. {error_text(e)}"
             result = 400
 
         event = {"name": "Langrenn", "organiser": "Ikke valgt"}

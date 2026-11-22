@@ -150,7 +150,7 @@ async def test_admin_saves_a_setting(client: _TestClient, fakes) -> None:
     await login(client, "admin")
     resp = await save_setting(client)
     assert resp.status == 303
-    assert informasjon(resp) == "Suksess. Informasjon er oppdatert."
+    assert informasjon(resp) == "Innstillingene er oppdatert."
     assert fakes.settings[(EVENT_ID, "VIDEO_STORAGE_MODE")] == "new value"
 
 
@@ -276,7 +276,7 @@ async def test_admin_saves_a_setting_that_is_not_saved_yet(
     fakes.settings.clear()
     await login(client, "admin")
     resp = await save_setting(client)
-    assert informasjon(resp) == "Suksess. Informasjon er oppdatert."
+    assert informasjon(resp) == "Innstillingene er oppdatert."
     assert fakes.settings == {(EVENT_ID, "VIDEO_STORAGE_MODE"): "new value"}
     text = await (await client.get(f"/config?event_id={EVENT_ID}")).text()
     assert text.count(">(standard)</i>") == len(default_settings()) - 1

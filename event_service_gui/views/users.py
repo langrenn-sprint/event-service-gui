@@ -140,7 +140,7 @@ class Users(web.View):
             elif "create" in form:
                 username = str(form["newusername"])
                 password = str(form.get("newpassword", ""))
-                w_id, activation = await UserAdapter().create_user(
+                _, activation = await UserAdapter().create_user(
                     user["token"], str(form["newrole"]), username, password
                 )
                 if activation:
@@ -148,7 +148,7 @@ class Users(web.View):
                     session[ACTIVATION_KEY] = new_link(username, activation)
                     informasjon = f"Brukeren {username} er opprettet."
                 else:
-                    informasjon = f"Ny bruker opprettet med id {w_id}"
+                    informasjon = "Ny bruker er opprettet."
             elif "new_activation" in form:
                 username = str(form.get("username", ""))
                 activation = await UserAdapter().create_activation(
@@ -162,13 +162,13 @@ class Users(web.View):
                 logging.info(f"Enter delete {w_id}")
                 res = await UserAdapter().delete_user(user["token"], w_id)
                 if res == HTTPStatus.NO_CONTENT:
-                    informasjon = "Bruker er slettet."
+                    informasjon = "Brukeren er slettet."
                 elif res == HTTPStatus.CONFLICT:
                     informasjon = CANNOT_DELETE_SELF
                 else:
-                    informasjon = f"En feil oppstod {res}."
+                    informasjon = f"Brukeren kunne ikke slettes (HTTP {res})."
             else:
-                informasjon = "Ingen endringer utført"
+                informasjon = "Ingen endringer ble gjort."
 
         except web.HTTPForbidden as e:
             informasjon = e.reason

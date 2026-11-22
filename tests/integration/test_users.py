@@ -198,7 +198,7 @@ async def test_users_page_error_from_user_service(client: _TestClient) -> None:
         assert resp.status == 303
         path, query = location(resp)
         assert path == "/"
-        assert "Get users failed." in query["informasjon"]
+        assert query["informasjon"] == "Handlingen kunne ikke fullføres. Prøv igjen."
 
 
 @pytest.mark.integration

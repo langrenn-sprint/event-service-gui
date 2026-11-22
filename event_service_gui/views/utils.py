@@ -3,6 +3,7 @@
 import datetime as dt
 import json
 import logging
+import re
 from typing import NoReturn
 from urllib.parse import urlencode, urlsplit
 
@@ -82,6 +83,33 @@ UNEXPECTED_ERROR = "Det har oppstått en uventet feil. Feilen er logget."
 LOGIN_AGAIN = "Innloggingen er utløpt. Logg inn på nytt."
 
 
+def _backend_error_text(reason: str) -> str | None:
+    """Turn an adapter error into a user-facing message with useful details."""
+    service_error = re.match(
+        r"^[A-Za-z0-9_ ]+ failed(?:\s*-\s*(.*)|:\s*(.*))?\.?$",
+        reason,
+        re.IGNORECASE,
+    )
+    status_error = re.match(r"^Error\s*-\s*(\d{3}):\s*(.*)$", reason, re.IGNORECASE)
+    if service_error:
+        details = (service_error.group(1) or service_error.group(2) or "").strip()
+        status_details = re.match(r"^(\d{3})\s*-\s*(.*)$", details)
+        if status_details:
+            details = f"HTTP {status_details.group(1)}: {status_details.group(2)}"
+        if details:
+            return (
+                "Handlingen kunne ikke fullføres. Prøv igjen. "
+                f"Teknisk informasjon: {details}"
+            )
+        return "Handlingen kunne ikke fullføres. Prøv igjen."
+    if status_error:
+        return (
+            "Handlingen kunne ikke fullføres. Prøv igjen. "
+            f"Teknisk informasjon: HTTP {status_error.group(1)}: {status_error.group(2)}"
+        )
+    return None
+
+
 def login_message(e: Exception) -> str:
     """Return the message for the login page after a login error."""
     return str(e) if isinstance(e, LoginExpiredError) else LOGIN_AGAIN
@@ -96,8 +124,14 @@ def error_text(e: Exception) -> str:
     and the details are only logged.
     """
     if isinstance(e, web.HTTPException):
+        backend_error = _backend_error_text(e.reason)
+        if backend_error:
+            return backend_error
         return f"Det har oppstått en feil: {e.reason}"
     if type(e) is Exception:
+        backend_error = _backend_error_text(str(e))
+        if backend_error:
+            return backend_error
         return f"Det har oppstått en feil: {e}"
     return UNEXPECTED_ERROR
 
@@ -635,7 +669,7 @@ async def create_start(user: dict, form: dict) -> str:
     except InvalidStartError as e:
         return str(e)
     await StartAdapter().create_start_entry(user["token"], new_start)
-    informasjon = f"Lagt til nr {new_start['bib']}."
+    informasjon = f"Startnr {new_start['bib']} er lagt til."
     informasjon += await update_previous_result(user, form, new_start, new_race)
     return informasjon
 
@@ -664,7 +698,7 @@ async def move_start(user: dict, form: dict) -> str:
     except Exception as e:
         await put_back_start(token, old_start, e)
         raise
-    informasjon = f"Flyttet nr {new_start['bib']}."
+    informasjon = f"Startnr {new_start['bib']} er flyttet."
     informasjon += await update_previous_result(user, form, new_start, new_race)
     return informasjon
 
@@ -999,18 +1033,18 @@ async def swap_bibs(token: str, event_id: str, bib1: int, bib2: int) -> str:
                     token, event_id, contestant1
                 )
                 logging.debug(result)
-                informasjon += f"Bibs swapped: {bib1} <> {bib2}. "
+                informasjon += f"Startnumrene {bib1} og {bib2} er byttet. "
             else:
-                informasjon += f"Bib {bib1} not found. "
+                informasjon += f"Startnummer {bib1} ble ikke funnet. "
         else:
-            informasjon += f"Bib {bib1} not found. "
+            informasjon += f"Startnummer {bib1} ble ikke funnet. "
 
     return informasjon
 
 
 async def add_seeding_points(token: str, event_id: str, form: dict) -> str:
     """Load seeding points from form and update changes."""
-    informasjon = "Seeding poeng oppdatert: "
+    informasjon = "Seedingpoeng er oppdatert for: "
     for key, value in form.items():
         if key.startswith("seeding_points_"):
             new_seeding_points = value
@@ -1076,7 +1110,7 @@ async def perform_seeding(token: str, event_id: str, valgt_klasse: str) -> str:
             old_bib = latest_seeded_contestant["bib"]
             informasjon += await swap_bibs(token, event_id, new_bib, old_bib)
     if len(raceclass_list) > 1:
-        informasjon = " Alle klasser er seedet basert på innleste seeding poeng."
+        informasjon = " Alle klasser er seedet basert på innleste seedingpoeng."
     return informasjon
 
 

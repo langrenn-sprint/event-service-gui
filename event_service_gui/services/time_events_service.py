@@ -76,11 +76,11 @@ class TimeEventsService:
                             )
                             logging.debug(f"Created template: {new_t_e['status']}")
                             i += 1
-        return f"Suksess! Opprettet {i} templates. "
+        return f"Opprettet {i} maler for videreplassering. "
 
     async def shuffle_semi_final_templates(self, token: str, event_id: str) -> str:
         """Shift right in semi finals for all contestants with given qarter_final."""
-        informasjon = " Roterer semi-final templates: "
+        informasjon = " Oppdaterer maler for semifinalene: "
         raceclasses = await RaceclassesAdapter().get_raceclasses(token, event_id)
 
         for raceclass in raceclasses:
@@ -119,7 +119,7 @@ class TimeEventsService:
                     )
 
         logging.info(informasjon)
-        return "Rotering av semifinale templates fullført. "
+        return "Videreplasseringene til semifinalene er oppdatert. "
 
     async def shift_and_update_templates(
         self,
@@ -195,7 +195,7 @@ class TimeEventsService:
                 token, time_event["id"], time_event
             )
             logging.debug(f"Updated time event: {time_event['bib']} - result: {w_id}")
-            informasjon += f" Oppdatert startnr {time_event['bib']}. "
+            informasjon += f" Startnr {time_event['bib']} er oppdatert. "
         else:
             new_t_e = await TimeEventsAdapter().create_time_event(token, time_event)
             informasjon += f" {new_t_e['bib']}: {new_t_e['status']}. "
@@ -251,7 +251,7 @@ async def create_finish_time_event(
     )
     informasjon = ""
     if not contestant:
-        informasjon += f"<br> - ERROR! Bib {time_event['bib']}: Fant ingen deltaker. "
+                informasjon += f"<br>Feil: Fant ingen deltaker med startnr {time_event['bib']}. "
     else:
         next_start_template = {}
         next_start_entry = {}
@@ -301,7 +301,7 @@ async def create_finish_time_event(
                 raise  # the view sends the user to the login page
             # Functional error - return information to user.
             logging.exception("Error")
-            informasjon = f"ERROR: {str(e).rstrip('.')}. "
+            informasjon = f"Feil: {str(e).rstrip('.')}. "
             if "already exists" in str(e):
                 informasjon = await get_duplicate_time_event_info(token, time_event, e)
     return informasjon
@@ -554,7 +554,7 @@ async def get_duplicate_time_event_info(
         if is_login_error(e):
             raise
         logging.exception("Could not look up existing time-events")
-        return f"ERROR: {str(error).rstrip('.')}. "
+        return f"Feil: {str(error).rstrip('.')}. "
     for t_e in existing:
         if (
             t_e.get("bib") == bib
@@ -564,13 +564,14 @@ async def get_duplicate_time_event_info(
             reason = ""
             if t_e.get("changelog"):
                 reason = f" Årsak: {t_e['changelog'][-1]['comment']}"
+            status = "Feil" if t_e.get("status") == "Error" else t_e.get("status")
             return (
-                f"ERROR: Bib {bib} har allerede en passering i "
-                f"{time_event['race']} med status {t_e.get('status')}, "
+                f"Feil: Startnr {bib} har allerede en passering i heat "
+                f"{time_event['race']} med status {status}, "
                 f"registrert {t_e.get('registration_time')}.{reason} "
-                "Slett den under Kontroll og registrer på nytt. "
+                "Slett den på siden «Korrigere», og registrer på nytt. "
             )
-    return f"ERROR: Bib {bib} er allerede registrert i {time_event['race']}. "
+    return f"Feil: Startnr {bib} er allerede registrert i heat {time_event['race']}. "
 
 
 async def delete_result(user: dict, time_event_id: str) -> str:
@@ -599,7 +600,7 @@ async def delete_result(user: dict, time_event_id: str) -> str:
     except Exception as e:
         if is_login_error(e):
             raise  # not "already deleted": the user must log in again
-        informasjon = "Time event allerede slettet."
+        informasjon = "Passeringen er allerede slettet."
         logging.exception("Error in delete_result")
 
     return informasjon

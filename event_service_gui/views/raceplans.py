@@ -127,27 +127,27 @@ class Raceplans(web.View):
                         new_max_no_of_contestants = form["new_max_no_of_contestants"]
                         if new_max_no_of_contestants:
                             race["max_no_of_contestants"] = new_max_no_of_contestants
-                        res = await RaceplansAdapter().update_race(
+                        await RaceplansAdapter().update_race(
                             user["token"], race["id"], race
                         )
                         informasjon = (
-                            f"Race er oppdatert({res}) - race nr {race['order']}"
+                            f"Heat {race['order']} er oppdatert."
                         )
                         break
             # Create classes from list of contestants
             elif "generate_raceplan" in form:
-                result = await RaceplansAdapter().generate_raceplan(
+                await RaceplansAdapter().generate_raceplan(
                     user["token"], event_id
                 )
-                informasjon = f"Opprettet kjøreplan - {result}"
+                informasjon = "Kjøreplanen er opprettet."
                 raise web.HTTPSeeOther(
                     location=f"/tasks?event_id={event_id}&informasjon={informasjon}"
                 )
             elif "delete_all" in form:
-                resultat = await RaceplansAdapter().delete_raceplans(
+                await RaceplansAdapter().delete_raceplans(
                     user["token"], str(form["event_id"])
                 )
-                informasjon = f"Kjøreplaner er slettet - {resultat}"
+                informasjon = "Alle kjøreplanene er slettet."
             elif "update_time" in form:
                 logging.debug(f"update_time - form:{form}")
                 informasjon = await RaceplansAdapter().update_start_time(
@@ -172,7 +172,7 @@ class Raceplans(web.View):
         except Exception as e:
             informasjon = error_message(self, e)
         else:
-            informasjon = f"Suksess! {informasjon}"
+            informasjon = f"Fullført. {informasjon}".strip()
         info = f"action={action}&informasjon={informasjon}"
         raise web.HTTPSeeOther(location=f"/raceplans?event_id={event_id}&{info}")
 

@@ -111,9 +111,11 @@ def get_heatliste(passeringer) -> list:
 
 async def delete_timing_events(user: dict, form: dict) -> str:
     """Extract form data and update time events."""
-    informasjon = "Delete result: "
+    deleted_count = 0
     for key, value in form.items():
         if key.startswith("resolved_"):
-            response = await TimeEventsAdapter().delete_time_event(user["token"], value)
-            informasjon = f"{informasjon} {response}"
-    return informasjon
+            await TimeEventsAdapter().delete_time_event(user["token"], value)
+            deleted_count += 1
+    if deleted_count == 1:
+        return "Én passering er slettet."
+    return f"{deleted_count} passeringer er slettet."

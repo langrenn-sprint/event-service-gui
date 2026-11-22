@@ -111,13 +111,13 @@ class Timing(web.View):
             event = await get_event(user["token"], event_id)
 
             if "finish" in action:
-                informasjon = "Funksjon ikke støttet, bruk hovedside for tidtaker"
+                informasjon = "Denne funksjonen støttes ikke her. Bruk tidtakersiden."
             elif action == "start":
                 informasjon = await create_start_time_events_for_race(user, event, form)
             elif action == "dns_manual":
                 informasjon = await create_dns_time_events_manual(user, event, form)
             else:
-                informasjon = "Ugylding action - ingen endringer"
+                informasjon = "Ukjent handling. Ingen endringer ble gjort."
 
         except Exception as e:
             informasjon = error_message(self, e)

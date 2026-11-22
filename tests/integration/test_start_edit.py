@@ -186,7 +186,7 @@ async def move(
 @pytest.mark.integration
 async def test_move_start(client: _TestClient, race_service: FakeRaceService) -> None:
     message = await move(client, race_service, 2, "qa1", "qa2")
-    assert message == "Flyttet nr 2."
+    assert message == "Startnr 2 er flyttet."
     assert race_service.bibs("qa1") == {1: 1, 3: 3}
     assert race_service.bibs("qa2") == {4: 1, 5: 2, 2: 3}
 
@@ -227,7 +227,7 @@ async def test_failed_move_puts_the_start_back(
 ) -> None:
     race_service.fail_create_in = "qa2"
     message = await move(client, race_service, 2, "qa1", "qa2")
-    assert message == "Det har oppstått en feil: create_start_entry failed"
+    assert message == "Handlingen kunne ikke fullføres. Prøv igjen."
     assert race_service.bibs("qa1") == {1: 1, 3: 3, 2: 2}
     assert race_service.bibs("qa2") == {4: 1, 5: 2}
 
@@ -302,7 +302,7 @@ async def test_add_start_without_position_takes_first_free(
 ) -> None:
     """Before, an empty position gave an unexpected error."""
     race_service.races["qa1"]["start_entries"].pop(0)  # position 1 is free
-    assert await add(client, "qa1", "9") == "Lagt til nr 9."
+    assert await add(client, "qa1", "9") == "Startnr 9 er lagt til."
     assert race_service.bibs("qa1") == {2: 2, 3: 3, 9: 1}
 
 
@@ -310,7 +310,7 @@ async def test_add_start_without_position_takes_first_free(
 async def test_add_start_with_position(
     client: _TestClient, race_service: FakeRaceService
 ) -> None:
-    assert await add(client, "qa1", "9", "7") == "Lagt til nr 9."
+    assert await add(client, "qa1", "9", "7") == "Startnr 9 er lagt til."
     assert race_service.bibs("qa1")[9] == 7
 
 
@@ -319,7 +319,7 @@ async def test_add_start_to_empty_heat(
     client: _TestClient, race_service: FakeRaceService
 ) -> None:
     race_service.add_race("qa3", "Q", [])
-    assert await add(client, "qa3", "9") == "Lagt til nr 9."
+    assert await add(client, "qa3", "9") == "Startnr 9 er lagt til."
     assert race_service.bibs("qa3") == {9: 1}
 
 

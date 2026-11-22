@@ -39,9 +39,7 @@ class StartAdapter:
         ):
             if resp.status == HTTPStatus.CREATED:
                 logging.debug(f"generate_startlist_for_event - got response {resp}")
-                location = resp.headers[hdrs.LOCATION]
-                s_id = location.split(os.path.sep)[-1]
-                informasjon = f"Suksess! Opprettet startlister. Id: {s_id}"
+                informasjon = "Startlistene er opprettet."
             elif resp.status == HTTPStatus.UNAUTHORIZED:
                 err_msg = f"401 Unathorized - {servicename}"
                 raise web.HTTPBadRequest(reason=err_msg)

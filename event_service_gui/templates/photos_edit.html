@@ -6,10 +6,12 @@
 {% block max_width %}1200{% endblock %}
 
 {% block tips %}
-    - Ved å stjernemerke bilder vil de bli synlige på åpne sider - i resultatlister og på bilde-siden.<br>
-    - Det er mulig å slette bilder - både enkeltvis og alle. Merk at det bare er link til bildene som slettes.<br>
-    - Ved redigering av løpsinformasjon, pass på formatet - ved flere bibs, bruk f.eks [12, 23].<br>
-    - Usikkerhet (confidence/conf) brukes når systemet kobler bib og race til photo. Skala fra 0 til 100.
+    <ul>
+      <li>Stjernemerkede bilder vises på åpne sider, i resultatlister og på bildesiden.</li>
+      <li>Du kan slette ett eller flere bilder. Slettingen fjerner bare lenkene til bildene.</li>
+      <li>Ved redigering av løpsinformasjon må flere startnumre skrives som en liste, for eksempel <code>[12, 23]</code>.</li>
+      <li>Usikkerhet (confidence/conf) angir hvor sikker koblingen mellom startnummer, løp og bilde er. Skalaen går fra 0 til 100.</li>
+    </ul>
 {% endblock %}
 
 {% block titlemain %}
